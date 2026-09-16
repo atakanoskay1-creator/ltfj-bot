@@ -2,8 +2,12 @@ name: LTFJ bildirim
 
 on:
   schedule:
-    # Her 15 dakikada bir (UTC). GitHub yogunlukta birkac dakika gecikebilir.
-    - cron: "*/15 * * * *"
+    # Turkiye'de METAR her saatin :20 ve :50'sinde yayinlanir (AIP AD 2.11:
+    # inis tahmini TREND, yayin araligi 1/2 saat) ve rasat.mgm.gov.tr'ye
+    # ortalama 5 dakika icinde duser. Bu yuzden :25 ve :55'te cekiyoruz.
+    # :10 ve :40 ise TAF icin - TAF'in sabit yayin saati yok.
+    # Dakikalar UTC ama Turkiye UTC+3 oldugu icin dakika degerleri ayni.
+    - cron: "10,25,40,55 * * * *"
   # Actions sekmesinden elle calistirmak icin
   workflow_dispatch:
 
