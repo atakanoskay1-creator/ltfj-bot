@@ -47,6 +47,7 @@ ENV = KLASOR / ".env"
 
 ILK_CALISTIRMADA_GONDER = True
 GECMIS_LIMIT = 200
+OLCUM_GECMIS_LIMIT = 300     # web sayfasindaki trend grafikleri icin (~6 gun)
 
 SESSIZLIK_SAAT = 6
 UYARI_ARALIGI_SAAT = 12
@@ -92,7 +93,7 @@ def gerekli(ad):
 def state_oku() -> dict:
     bos = {"gonderilen": [], "ilk_calisma": True, "son_metar": "",
            "son_uyari": None, "durum_mesaj_id": None, "son_renk": None,
-           "son_veri_zamani": None}
+           "son_veri_zamani": None, "olcum_gecmisi": []}
     if not STATE.exists():
         return bos
     try:
@@ -115,6 +116,32 @@ def anahtar(rapor: dict) -> str:
         return f"id:{rapor['id']}"
     z = rapor["zaman"].isoformat() if rapor.get("zaman") else "?"
     return f"{rapor['tip']}:{z}"
+
+
+def olcum_gecmisini_guncelle(state: dict, raporlar: list):
+    """METAR/SPECI degerlerini state'e ekler - web sayfasindaki trend
+    grafikleri bu gecmisten beslenir. Ayni zaman damgali kayit tekrarlanmaz."""
+    mevcut = {g["zaman"] for g in state.get("olcum_gecmisi", [])}
+    yeni = []
+    for r in raporlar:
+        if r["tip"] not in ("METAR", "SPECI") or not r.get("zaman"):
+            continue
+        z = r["zaman"].isoformat(timespec="seconds")
+        if z in mevcut:
+            continue
+        d = metar_coz(r["metin"])
+        yeni.append({
+            "zaman": z,
+            "ruzgar_hiz": d["ruzgar_hiz"],
+            "tavan": d["tavan"],
+            "qnh": d["qnh"],
+            "sicaklik": d["sicaklik"],
+        })
+    if not yeni:
+        return
+    gecmis = state.get("olcum_gecmisi", []) + yeni
+    gecmis.sort(key=lambda g: g["zaman"])
+    state["olcum_gecmisi"] = gecmis[-OLCUM_GECMIS_LIMIT:]
 
 
 # ----------------------------------------------------------------- claude ---
@@ -553,6 +580,8 @@ def main():
         print("Rapor dönmedi, çıkılıyor.")
         return
 
+    olcum_gecmisini_guncelle(state, raporlar)
+
     gorulen = set(state["gonderilen"])
     yeniler = [r for r in raporlar if anahtar(r) not in gorulen]
 
@@ -612,7 +641,7 @@ def main():
     if ayar("web_sayfasi", varsayilan=True):
         try:
             from ltfj_sayfa import sayfa_yaz
-            sayfa_yaz(raporlar, KLASOR / "index.html")
+            sayfa_yaz(raporlar, state.get("olcum_gecmisi", []), KLASOR / "index.html")
         except Exception as e:
             print(f"[uyarı] Web sayfası üretilemedi: {e}", file=sys.stderr)
 

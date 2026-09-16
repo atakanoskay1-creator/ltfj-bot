@@ -7,7 +7,7 @@ GitHub Pages yayinlar. Ek altyapi yok. Sayfa tek dosya - harici CSS/JS yok.
 """
 
 import html
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from ltfj_analiz import metar_coz, ozet_satiri, uyarilar
@@ -18,6 +18,14 @@ RENK_KODU = {
     "BLU": "#3b82f6", "WHT": "#94a3b8", "GRN": "#22c55e",
     "YLO": "#eab308", "AMB": "#f97316", "RED": "#ef4444",
 }
+
+GRAFIK_PENCERE_SAAT = 6
+GRAFIKLER = (
+    ("ruzgar_hiz", "Rüzgâr", "kt", "#3b82f6"),
+    ("tavan", "Bulut tavanı", "ft", "#22c55e"),
+    ("qnh", "QNH", "hPa", "#eab308"),
+    ("sicaklik", "Sıcaklık", "°C", "#ef4444"),
+)
 
 SABLON = """<!DOCTYPE html>
 <html lang="tr">
@@ -80,6 +88,15 @@ SABLON = """<!DOCTYPE html>
   }}
   footer {{ color:var(--soluk); font-size:.8rem; text-align:center; margin-top:28px; }}
   a {{ color:inherit; }}
+  .grafik-ust {{ font-weight:650; margin-bottom:12px; font-size:.95rem; }}
+  .grafik-grid {{ display:grid; grid-template-columns:1fr 1fr; gap:18px 20px; }}
+  @media (max-width:480px) {{ .grafik-grid {{ grid-template-columns:1fr; }} }}
+  .grafik-baslik {{ display:flex; justify-content:space-between; align-items:baseline;
+                     font-size:.85rem; color:var(--soluk); margin-bottom:4px; }}
+  .grafik-son {{ color:var(--metin); font-weight:650; }}
+  .grafik {{ width:100%; height:64px; display:block; }}
+  .grafik-eksen {{ display:flex; justify-content:space-between;
+                    font-size:.72rem; color:var(--soluk); margin-top:2px; }}
 </style>
 </head>
 <body>
@@ -96,6 +113,85 @@ SABLON = """<!DOCTYPE html>
 </body>
 </html>
 """
+
+
+def _grafik_verisi(gecmis: list, alan: str, simdi: datetime) -> list:
+    sinir = simdi - timedelta(hours=GRAFIK_PENCERE_SAAT)
+    noktalar = []
+    for g in gecmis:
+        try:
+            z = datetime.fromisoformat(g["zaman"])
+        except (KeyError, ValueError, TypeError):
+            continue
+        if z < sinir:
+            continue
+        v = g.get(alan)
+        if v is not None:
+            noktalar.append((z, v))
+    noktalar.sort(key=lambda n: n[0])
+    return noktalar
+
+
+def _svg_cizgi(noktalar: list, renk: str, genislik=600, yukseklik=64) -> str | None:
+    if len(noktalar) < 2:
+        return None
+    degerler = [v for _, v in noktalar]
+    v_min, v_max = min(degerler), max(degerler)
+    if v_min == v_max:
+        v_min, v_max = v_min - 1, v_max + 1
+    pad = (v_max - v_min) * 0.15
+    v_min, v_max = v_min - pad, v_max + pad
+
+    t0, t1 = noktalar[0][0], noktalar[-1][0]
+    t_araligi = (t1 - t0).total_seconds() or 1
+
+    def x(z):
+        return 4 + (genislik - 8) * ((z - t0).total_seconds() / t_araligi)
+
+    def y(v):
+        return yukseklik - 4 - (yukseklik - 8) * ((v - v_min) / (v_max - v_min))
+
+    yol = " ".join(f'{"M" if i == 0 else "L"}{x(z):.1f},{y(v):.1f}'
+                    for i, (z, v) in enumerate(noktalar))
+    son_x, son_y = x(noktalar[-1][0]), y(noktalar[-1][1])
+
+    return (f'<svg viewBox="0 0 {genislik} {yukseklik}" class="grafik" '
+            f'preserveAspectRatio="none">'
+            f'<path d="{yol}" fill="none" stroke="{renk}" stroke-width="2" '
+            f'stroke-linejoin="round" stroke-linecap="round"/>'
+            f'<circle cx="{son_x:.1f}" cy="{son_y:.1f}" r="3" fill="{renk}"/>'
+            f'</svg>')
+
+
+def _grafik_blogu(alan: str, baslik: str, birim: str, renk: str,
+                   gecmis: list, simdi: datetime) -> str:
+    noktalar = _grafik_verisi(gecmis, alan, simdi)
+    svg = _svg_cizgi(noktalar, renk)
+    if not svg:
+        return ""
+    son_deger = noktalar[-1][1]
+    baslangic, bitis = noktalar[0][0].astimezone(), noktalar[-1][0].astimezone()
+    return (
+        f'<div><div class="grafik-baslik"><span>{html.escape(baslik)}</span>'
+        f'<span class="grafik-son">{son_deger:.0f} {html.escape(birim)}</span></div>'
+        f'{svg}'
+        f'<div class="grafik-eksen"><span>{baslangic:%H:%M}</span>'
+        f'<span>{bitis:%H:%M}</span></div></div>'
+    )
+
+
+def _trend_bolumu(gecmis: list) -> str:
+    if not gecmis:
+        return ""
+    simdi = datetime.now(timezone.utc)
+    bloklar = [_grafik_blogu(alan, baslik, birim, renk, gecmis, simdi)
+               for alan, baslik, birim, renk in GRAFIKLER]
+    bloklar = [b for b in bloklar if b]
+    if not bloklar:
+        return ""
+    return (f'<div class="kart"><div class="grafik-ust">'
+            f'Son {GRAFIK_PENCERE_SAAT} saat</div>'
+            f'<div class="grafik-grid">{"".join(bloklar)}</div></div>')
 
 
 def _kart(rapor: dict) -> str:
@@ -157,13 +253,14 @@ def _kart(rapor: dict) -> str:
     return "".join(p)
 
 
-def sayfa_yaz(raporlar: list, hedef: Path):
+def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path):
     simdi = datetime.now(timezone.utc).astimezone()
     sira = {"SPECI": 0, "METAR": 1, "TAF": 2}
     sirali = sorted(raporlar, key=lambda r: (sira.get(r["tip"], 9),
                                              -(r["zaman"].timestamp()
                                                if r.get("zaman") else 0)))
-    govde = "".join(_kart(r) for r in sirali) or "<div class='kart'>Rapor yok.</div>"
+    govde = (_trend_bolumu(gecmis)
+             + ("".join(_kart(r) for r in sirali) or "<div class='kart'>Rapor yok.</div>"))
     icao = raporlar[0].get("icao", "LTFJ") if raporlar else "LTFJ"
 
     hedef.write_text(
