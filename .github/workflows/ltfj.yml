@@ -11,7 +11,7 @@ on:
 permissions:
   contents: write
 
-# Iki calistirma ust uste binmesin (state cakismasin)
+# Iki calistirma ust uste binmesin
 concurrency:
   group: ltfj-bildirim
   cancel-in-progress: false
@@ -44,14 +44,37 @@ jobs:
 
       - name: State'i repoya geri yaz
         run: |
+          set -u
+          DAL="${GITHUB_REF_NAME}"
+
           if [ -z "$(git status --porcelain ltfj_state.json)" ]; then
             echo "State degismedi, commit yok."
             exit 0
           fi
+
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ltfj_state.json
-          git commit -m "state: gonderilen raporlar guncellendi [skip ci]"
-          # Arada baska bir calistirma push ettiyse uzerine binmeyelim
-          git pull --rebase --autostash
-          git push
+
+          for deneme in 1 2 3; do
+            git add ltfj_state.json
+            if ! git diff --cached --quiet; then
+              git commit -m "state: gonderilen raporlar guncellendi [skip ci]"
+            fi
+
+            if git push origin "HEAD:${DAL}"; then
+              echo "Push basarili (deneme ${deneme})."
+              exit 0
+            fi
+
+            echo "Push reddedildi - baska bir calistirma araya girmis."
+            echo "Uzaktaki state ile birlestiriliyor (deneme ${deneme})..."
+
+            # Bizim surumu kenara al, uzaktakine hizalan, sonra ikisini birlestir.
+            cp ltfj_state.json /tmp/bizim_state.json
+            git fetch origin "${DAL}"
+            git reset --hard "origin/${DAL}"
+            python state_birlestir.py ltfj_state.json /tmp/bizim_state.json
+          done
+
+          echo "3 denemede de push edilemedi." >&2
+          exit 1
