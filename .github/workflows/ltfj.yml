@@ -46,13 +46,14 @@ jobs:
       - name: Botu calistir
         run: python ltfj_bot.py
 
-      - name: State'i repoya geri yaz
+      - name: State ve sayfayi repoya geri yaz
         run: |
           set -u
           DAL="${GITHUB_REF_NAME}"
+          DOSYALAR="ltfj_state.json index.html"
 
-          if [ -z "$(git status --porcelain ltfj_state.json)" ]; then
-            echo "State degismedi, commit yok."
+          if [ -z "$(git status --porcelain ${DOSYALAR})" ]; then
+            echo "Degisiklik yok, commit yok."
             exit 0
           fi
 
@@ -60,9 +61,9 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           for deneme in 1 2 3; do
-            git add ltfj_state.json
+            git add ${DOSYALAR}
             if ! git diff --cached --quiet; then
-              git commit -m "state: gonderilen raporlar guncellendi [skip ci]"
+              git commit -m "durum guncellendi [skip ci]"
             fi
 
             if git push origin "HEAD:${DAL}"; then
@@ -74,10 +75,14 @@ jobs:
             echo "Uzaktaki state ile birlestiriliyor (deneme ${deneme})..."
 
             # Bizim surumu kenara al, uzaktakine hizalan, sonra ikisini birlestir.
+            # index.html her calistirmada yeniden uretildigi icin birlestirme
+            # gerektirmez - bizimki daha yenidir, oldugu gibi geri yazilir.
             cp ltfj_state.json /tmp/bizim_state.json
+            cp index.html /tmp/bizim_index.html 2>/dev/null || true
             git fetch origin "${DAL}"
             git reset --hard "origin/${DAL}"
             python state_birlestir.py ltfj_state.json /tmp/bizim_state.json
+            cp /tmp/bizim_index.html index.html 2>/dev/null || true
           done
 
           echo "3 denemede de push edilemedi." >&2
