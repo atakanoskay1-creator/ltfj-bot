@@ -173,15 +173,19 @@ HAM RAPOR:
 {cozum}"""
 
 TAF_SABLONU = """\
-Aşağıdaki hava tahmini raporunu şu şablona göre anlat. En fazla 5 satır:
+Aşağıdaki hava tahmini raporunu Türkçeye ÇEVİR. SADECE ÇEVİRİ yap - kendi \
+yorumunu, değerlendirmeni ya da risk/önem tespitini KATMA; hangisinin \
+"dikkat çekici" olduğuna sen karar verme, raporda ne varsa onu oldugu gibi \
+sade dille aktar. Şu şablona göre, en fazla 4 satır:
 
-Genel: <tahmin döneminin genel havası, tek cümle>
+Genel: <tahmin döneminin ana hava durumu, tek cümle - raporda yazani anlat>
 - <saat aralığı UTC> <o dönemde beklenen hava, tek cümle>
 - <varsa sonraki dönem>
-Dikkat: <fırtına, düşük görüş, kuvvetli rüzgâr gibi bir şey varsa; yoksa bu satırı yazma>
 
 Saatler raporda olduğu gibi UTC kalsın, yerel saate çevirme. TEMPO "geçici", \
-BECMG "kademeli geçiş", PROB30 "ihtimal %30" demektir. Havacılık kodlarını çözerek yaz.
+BECMG "kademeli geçiş", PROB30 "ihtimal %30" demektir. Havacılık kodlarını \
+çözerek yaz ama "dikkat", "önemli", "riskli" gibi kendi degerlendirmeni \
+eklemeden, sirf ne bildirildiyse onu belirt.
 
 HAM RAPOR:
 {ham}"""
@@ -504,8 +508,11 @@ def durum_mesaji_kur(raporlar: list, state: dict) -> str:
             damga = f'{taf["zaman"]:%d.%m %H:%MZ} · {yerel:%H:%M} yerel'
         else:
             damga = ""
-        s += ["", f"📅 <b>TAF</b> <i>{damga}</i>",
-              f'<pre>{html.escape(taf["metin"])}</pre>']
+        s += ["", f"📅 <b>TAF</b> <i>{damga}</i>"]
+        yorum = _yorum_getir(state, taf, None, None)
+        if yorum:
+            s += ["", _yorumu_bicimle(yorum)]
+        s += ["", f'<pre>{html.escape(taf["metin"])}</pre>']
 
     s += ["", f"<i>Son güncelleme: {simdi:%d.%m %H:%M} yerel</i>"]
     return "\n".join(s)
