@@ -27,13 +27,14 @@ Bayraklar:
 import html
 import json
 import os
+import re
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
 
-from ltfj_analiz import fark_bul, metar_coz, ozet_satiri, uyarilar
+from ltfj_analiz import cozum_dokumu, fark_bul, metar_coz, ozet_satiri, uyarilar
 from ltfj_rasat import AgHatasi, AyiklamaHatasi, raporlari_cek
 
 # ----------------------------------------------------------------- ayarlar ---
@@ -120,17 +121,74 @@ def anahtar(rapor: dict) -> str:
 
 
 # ----------------------------------------------------------------- claude ---
-def claude_yorum(metin: str, tip: str) -> str | None:
+SISTEM_ISTEMI = (
+    "Sen havacilik meteorolojisi raporlarini sade Turkceye ceviren bir asistansin. "
+    "Rapor HER ZAMAN LTFJ - Istanbul Sabiha Gokcen Havalimani icindir; baska hicbir "
+    "sehir, havalimani veya bolge adi yazma. Sadece sana verilen verilerden konus: "
+    "veride olmayan bir bilgiyi tahmin etme, ekleme, yuvarlama. Emin olmadigin bir sey "
+    "varsa o satiri kisa tut. Sayilari verildigi gibi kullan. Sablonu harfiyen uygula, "
+    "baslik ve etiketleri degistirme, giris veya kapanis cumlesi kurma."
+)
+
+METAR_SABLONU = """\
+Asagidaki gozlem raporunu su sablona gore anlat. Tam olarak 4 satir yaz, her satir \
+etiketle baslasin, her satir tek cumle olsun:
+
+Ruzgar: <yonu ve siddeti gunluk dille; kuvvetli veya yan ruzgar varsa belirt>
+Gorus: <ne kadar gorunuyor, ucus icin rahat mi>
+Gokyuzu: <bulut durumu ve yagis; tavan alcaksa belirt>
+Ucusa etkisi: <normal mi, gecikme/aksama ihtimali var mi - abartma>
+
+Havacilik bilmeyen birine anlatiyorsun: "BKN024" gibi kodlari kullanma, "2400 fitte \
+cok bulutlu" gibi yaz. Fit yerine yaklasik metre de ekleyebilirsin.
+
+HAM RAPOR:
+{ham}
+
+COZUMLENMIS VERI (dogru kaynak budur):
+{cozum}"""
+
+TAF_SABLONU = """\
+Asagidaki hava tahmini raporunu su sablona gore anlat. En fazla 5 satir:
+
+Genel: <tahmin doneminin genel havasi, tek cumle>
+- <saat araligi UTC> <o donemde beklenen hava, tek cumle>
+- <varsa sonraki donem>
+Dikkat: <firtina, dusuk gorus, kuvvetli ruzgar gibi bir sey varsa; yoksa bu satiri yazma>
+
+Saatler raporda oldugu gibi UTC olarak kalsin, yerel saate cevirme. TEMPO "gecici", \
+BECMG "kademeli gecis", PROB30 "ihtimal %30" demektir. Havacilik kodlarini cozerek yaz.
+
+HAM RAPOR:
+{ham}"""
+
+# Modelin uydurabilecegi yer adlari. Biri gecerse yorumu kullanmiyoruz.
+YANLIS_YERLER = (
+    "izmir", "ankara", "antalya", "adana", "bursa", "trabzon", "dalaman", "bodrum",
+    "konya", "kayseri", "gaziantep", "diyarbakir", "erzurum", "samsun", "van",
+    "malatya", "denizli", "eskisehir", "sivas", "hatay", "mugla", "canakkale",
+    "balikesir", "elazig", "kars", "sanliurfa", "mardin", "batman", "nevsehir",
+    "isparta", "tekirdag", "ataturk havalimani", "istanbul havalimani",
+)
+TR_HARF = str.maketrans("ıİşŞğĞüÜöÖçÇâÂî", "iisSgGuUoOcCaAi")
+
+
+def _yer_hatasi(metin: str) -> str | None:
+    """Yoruma alakasiz bir yer adi karismis mi? Karistiysa o adi dondurur."""
+    duz = metin.translate(TR_HARF).lower()
+    return next((y for y in YANLIS_YERLER if y in duz), None)
+
+
+def claude_yorum(rapor: dict, cozum: dict | None) -> str | None:
     api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
     if not api_key:
         return None
 
-    istem = (
-        f"Asagidaki {tip} raporunu bir pilota degil, havacilik bilmeyen birine "
-        f"anlatir gibi sade Turkce ile ozetle. En fazla 3 kisa cumle. "
-        f"Ruzgar, gorus, bulut, yagis ve varsa dikkat cekici bir durum olsun. "
-        f"Giris cumlesi kurma, dogrudan ozetle.\n\n{metin}"
-    )
+    if rapor["tip"] == "TAF":
+        istem = TAF_SABLONU.format(ham=rapor["metin"])
+    else:
+        istem = METAR_SABLONU.format(ham=rapor["metin"],
+                                     cozum=cozum_dokumu(cozum))
     try:
         r = requests.post(
             CLAUDE_URL,
@@ -141,17 +199,50 @@ def claude_yorum(metin: str, tip: str) -> str | None:
             },
             json={
                 "model": CLAUDE_MODEL,
-                "max_tokens": 300,
+                "max_tokens": 500,
+                "temperature": 0,          # ayni rapor -> ayni yorum
+                "system": SISTEM_ISTEMI,
                 "messages": [{"role": "user", "content": istem}],
             },
             timeout=30,
         )
         r.raise_for_status()
         parcalar = r.json().get("content", [])
-        return "".join(p.get("text", "") for p in parcalar).strip() or None
+        yorum = "".join(p.get("text", "") for p in parcalar).strip()
     except requests.RequestException as e:
         print(f"[uyari] Claude yorumu alinamadi: {e}", file=sys.stderr)
         return None
+
+    if not yorum:
+        return None
+
+    hatali_yer = _yer_hatasi(yorum)
+    if hatali_yer:
+        # Model alakasiz bir yer uydurmus - bu yorumu kullanmiyoruz.
+        print(f"[uyari] Yorumda alakasiz yer adi ('{hatali_yer}'), atlandi.",
+              file=sys.stderr)
+        return None
+
+    return yorum
+
+
+def _yorumu_bicimle(yorum: str) -> str:
+    """Etiketleri kalin yapar, madde isaretlerini duzeltir."""
+    satirlar = []
+    for satir in yorum.splitlines():
+        satir = satir.strip()
+        if not satir:
+            continue
+        kacis = html.escape(satir)
+        m = re.match(r"^(Ruzgar|Rüzgâr|Rüzgar|Gorus|Görüş|Gokyuzu|Gökyüzü|"
+                     r"Ucusa etkisi|Uçuşa etkisi|Genel|Dikkat)\s*:\s*(.+)$", kacis)
+        if m:
+            satirlar.append(f"<b>{m.group(1)}:</b> {m.group(2)}")
+        elif kacis.startswith("-"):
+            satirlar.append("•" + kacis[1:])
+        else:
+            satirlar.append(kacis)
+    return "\n".join(satirlar)
 
 
 # --------------------------------------------------------------- telegram ---
@@ -192,10 +283,10 @@ def mesaj_kur(rapor: dict, onceki_metar: str = "") -> str:
 
     satirlar = [f"{simge} <b>{html.escape(baslik)}</b>  <i>{damga}</i>"]
 
-    # METAR/SPECI icin dikkat satiri ve degisim ozeti
-    if tip in ("METAR", "SPECI"):
-        cozum = metar_coz(rapor["metin"])
+    cozum = metar_coz(rapor["metin"]) if tip in ("METAR", "SPECI") else None
 
+    # METAR/SPECI icin dikkat satiri ve degisim ozeti
+    if cozum:
         dikkat = uyarilar(cozum)
         if dikkat:
             satirlar.append("")
@@ -207,14 +298,14 @@ def mesaj_kur(rapor: dict, onceki_metar: str = "") -> str:
             satirlar.append("<b>Degisim</b>")
             satirlar += [f"• {html.escape(f)}" for f in farklar]
 
-    satirlar += ["", f'<pre>{html.escape(rapor["metin"])}</pre>']
-
-    yorum = claude_yorum(rapor["metin"], tip)
+    yorum = claude_yorum(rapor, cozum)
     if yorum:
-        satirlar += ["", html.escape(yorum)]
-    elif tip in ("METAR", "SPECI"):
-        # Claude kapaliysa en azindan makine ozeti olsun
-        satirlar += ["", html.escape(ozet_satiri(metar_coz(rapor["metin"])))]
+        satirlar += ["", _yorumu_bicimle(yorum)]
+    elif cozum:
+        # Claude kapali ya da yorum elendi - en azindan makine ozeti olsun
+        satirlar += ["", html.escape(ozet_satiri(cozum))]
+
+    satirlar += ["", f'<pre>{html.escape(rapor["metin"])}</pre>']
 
     return "\n".join(satirlar)
 

@@ -251,6 +251,47 @@ def fark_bul(onceki: str, simdiki: str) -> list[str]:
     return farklar
 
 
+def cozum_dokumu(d: dict) -> str:
+    """Cozumlenmis METAR'i satir satir yazar. Claude'a ham bulten yerine bunu
+    veriyoruz - kendi ayikladigi seyi yanlis okuyamasin diye."""
+    s = [f"Ruzgar: {_ruzgar_yazi(d)}"]
+    if d["degisken"]:
+        s.append(f'  yon {d["degisken"][0]}° ile {d["degisken"][1]}° arasinda oynuyor')
+    yr = yan_ruzgar(d["ruzgar_yon"], max(d["ruzgar_hiz"] or 0, d["ruzgar_hamle"] or 0))
+    if yr is not None:
+        s.append(f"  06/24 pistine gore yan ruzgar bileseni: {yr:.0f} kt")
+
+    s.append(f"Gorus: {_gorus_yazi(d)}")
+    s.append(f"Hava olayi: {_hava_yazi(d)}")
+
+    if d["bulutlar"]:
+        katmanlar = []
+        ad = {"FEW": "az bulutlu (1-2/8)", "SCT": "parcali (3-4/8)",
+              "BKN": "cok bulutlu (5-7/8)", "OVC": "kapali (8/8)",
+              "VV": "dikey gorus"}
+        for b in d["bulutlar"]:
+            ft = f'{b["ft"]} ft' if b["ft"] is not None else "? ft"
+            tur = {"CB": " (kumulonimbus - firtina bulutu)",
+                   "TCU": " (gelisen kule bulut)"}.get(b["tur"] or "", "")
+            katmanlar.append(f'{ad.get(b["ortu"], b["ortu"])} {ft}{tur}')
+        s.append("Bulutlar: " + "; ".join(katmanlar))
+        if d["tavan"]:
+            s.append(f'  Tavan (ilk 5/8+ katman): {d["tavan"]} ft')
+    else:
+        s.append("Bulutlar: bildirilmemis")
+
+    if d["sicaklik"] is not None:
+        nem_farki = d["sicaklik"] - d["cig_noktasi"]
+        s.append(f'Sicaklik: {d["sicaklik"]}°C, cig noktasi {d["cig_noktasi"]}°C '
+                 f'(aralik {nem_farki}°C{", nem cok yuksek" if nem_farki <= 2 else ""})')
+    if d["qnh"]:
+        s.append(f'QNH: {d["qnh"]} hPa')
+    if d["nosig"]:
+        s.append("Egilim: NOSIG - onumuzdeki 2 saatte onemli degisiklik beklenmiyor")
+
+    return "\n".join(s)
+
+
 def ozet_satiri(d: dict) -> str:
     """Tek satirlik durum ozeti - Claude yorumu kapaliyken de bir seyler yazsin."""
     p = [f'Ruzgar {_ruzgar_yazi(d)}', f'gorus {_gorus_yazi(d)}']
