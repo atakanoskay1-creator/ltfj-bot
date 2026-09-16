@@ -20,10 +20,11 @@
   "id:51732919",
   "id:51737245",
   "id:51745280",
-  "id:51747888"
+  "id:51747888",
+  "id:51749884"
  ],
  "ilk_calisma": false,
- "guncelleme": "2026-09-16T17:01:12+00:00",
+ "guncelleme": "2026-09-16T17:11:16+00:00",
  "son_metar": "METAR LTFJ 161650Z 03008KT 9999 SCT040 BKN100 18/15 Q1017 NOSIG RMK RWY24R 01008KT RWY06R 02008KT RWY24L 01006KT",
  "son_uyari": null,
  "durum_mesaj_id": 30,
@@ -109,9 +110,9 @@
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 161550Z 04008KT 9999 SCT040 BKN100 18/15 Q1017 NOSIG RMK RWY24R 01008KT RWY06R 02008KT RWY24L 03006KT": "**Rüzgâr:** Kuzeydoğudan hafif 8 knot hızla esiyor, yan rüzgâr bileşeni çok az.\n\n**Görüş:** 10 kilometre ve üzeri görüş mesafesi var, uçuşlar için rahat koşullar.\n\n**Gökyüzü:** 4000 metre yükseklikte parçalı bulutlar, 10000 metre yükseklikte çok bulutlu, yağış yok.\n\n**Uçuşa etkisi:** Normal uçuş koşulları, gecikme veya aksama beklenmiyorum.",
   "METAR LTFJ 161620Z 04009KT 9999 SCT040 BKN100 18/15 Q1016 NOSIG RMK RWY24R 02007KT 360V080 RWY06R 03009KT RWY24L 03006KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 9 knot (yaklaşık 17 km/s) hızında hafif rüzgâr esiyor, yan bileşen 4 knot seviyesinde.\n\n**Görüş:** 10 kilometre ve üzeri görüş mesafesi var, uçuşa engel yok.\n\n**Gökyüzü:** 4000 feet (yaklaşık 1200 metre) yükseklikte parçalı bulutlar, 10000 feet (yaklaşık 3000 metre) yükseklikte çok bulutlu katman var, yağış yok.\n\n**Uçuşa etkisi:** Hava koşulları normal, önümüzdeki 2 saatte önemli değişiklik beklenmediği için gecikme ihtimali düşük.",
   "TAF LTFJ 161040Z 1612/1712 05009KT 9999 BKN030 BKN080 TEMPO 1612/1614 -SHRA BECMG 1614/1616 SCT040 BKN090 BECMG 1616/1619 CAVOK BECMG 1702/1705 SCT030 BKN080 PROB30 TEMPO 1708/1712 03015G25KT -SHRA": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken bulutlu hava beklenmektedir.\n\n- **1612/1614 UTC** Geçici olarak hafif yağmur beklenmektedir.\n- **1614/1616 UTC** Bulutlar kademeli olarak dağılacak, görüş açılacaktır.\n- **1616/1619 UTC** Kademeli olarak hava tamamen açılacaktır.\n- **1702/1705 UTC** Kademeli olarak bulutlar yeniden artacaktır; 1708/1712 UTC arasında %30 ihtimalle geçici hafif yağmur ve rüzgar artışı (3 derece, 15 knot ortalama, 25 knot esen) beklenmektedir.",
-  "METAR LTFJ 161650Z 03008KT 9999 SCT040 BKN100 18/15 Q1017 NOSIG RMK RWY24R 01008KT RWY06R 02008KT RWY24L 01006KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 8 knot (yaklaşık 15 km/s) hafif rüzgâr esiyor, yan rüzgâr bileşeni 4 knot seviyesinde.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuşa engel yok.\n\n**Gökyüzü:** 4000 feet (yaklaşık 1200 metre) yükseklikte parçalı bulutlar, 10000 feet (yaklaşık 3000 metre) yükseklikte çok bulutlu katman var, yağış yok.\n\n**Uçuşa etkisi:** Hava koşulları normal, gecikme veya aksama beklenmiyorum."
+  "METAR LTFJ 161650Z 03008KT 9999 SCT040 BKN100 18/15 Q1017 NOSIG RMK RWY24R 01008KT RWY06R 02008KT RWY24L 01006KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 8 knot (yaklaşık 15 km/s) hafif rüzgâr esiyor, yan rüzgâr bileşeni 4 knot seviyesinde.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuşa engel yok.\n\n**Gökyüzü:** 4000 feet (yaklaşık 1200 metre) yükseklikte parçalı bulutlar, 10000 feet (yaklaşık 3000 metre) yükseklikte çok bulutlu katman var, yağış yok.\n\n**Uçuşa etkisi:** Hava koşulları normal, gecikme veya aksama beklenmiyorum.",
+  "TAF LTFJ 161640Z 1618/1718 04009KT 9999 SCT040 BKN100 BECMG 1620/1624 CAVOK BECMG 1702/1705 SCT030 BKN090 PROB30 TEMPO 1708/1712 04015G25KT -SHRA BECMG 1715/1718 CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken bulutlu hava beklenmektedir.\n\n- **1618/1620 UTC** Rüzgar 040° 9 knot, görüş 9999 metre, 4000 ft'de parça bulut, 10000 ft'de kırık bulut.\n- **1620/1624 UTC** Kademeli geçişle CAVOK (görüş ve bulut koşulları iyi).\n- **1702/1705 UTC** Kademeli geçişle 3000 ft'de parça bulut, 9000 ft'de kırık bulut.\n- **1708/1712 UTC** İhtimal %30 ile geçici olarak rüzgar 040° 15 knot, rüzgar esintisi 25 knot ve hafif sağanak yağış; **1715/1718 UTC** kademeli geçişle CAVOK."
  }
 }
