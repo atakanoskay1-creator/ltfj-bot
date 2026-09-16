@@ -1,0 +1,57 @@
+name: LTFJ bildirim
+
+on:
+  schedule:
+    # Her 15 dakikada bir (UTC). GitHub yogunlukta birkac dakika gecikebilir.
+    - cron: "*/15 * * * *"
+  # Actions sekmesinden elle calistirmak icin
+  workflow_dispatch:
+
+# state dosyasini repoya geri yazabilmek icin
+permissions:
+  contents: write
+
+# Iki calistirma ust uste binmesin (state cakismasin)
+concurrency:
+  group: ltfj-bildirim
+  cancel-in-progress: false
+
+jobs:
+  bildir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    env:
+      TZ: Europe/Istanbul
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+    steps:
+      - name: Repoyu al
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Bagimliliklar
+        run: pip install --quiet requests
+
+      - name: Botu calistir
+        run: python ltfj_bot.py
+
+      - name: State'i repoya geri yaz
+        run: |
+          if [ -z "$(git status --porcelain ltfj_state.json)" ]; then
+            echo "State degismedi, commit yok."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ltfj_state.json
+          git commit -m "state: gonderilen raporlar guncellendi [skip ci]"
+          # Arada baska bir calistirma push ettiyse uzerine binmeyelim
+          git pull --rebase --autostash
+          git push
