@@ -1,0 +1,92 @@
+name: NOTAC API testi (geçici / teşhis amaçlı)
+
+# SADECE teşhis amaçlıdır. NOTAC API bağlantısını ve LTFJ için gerçek
+# yanıt biçimini görmek için elle tetiklenir. Mevcut METAR/TAF/RVR üretim
+# workflow'una (ltfj.yml) hiçbir şekilde dokunmaz, onunla dosya/state
+# paylaşmaz, repoya hiçbir şey commit/push etmez. Test tamamlandıktan
+# sonra bu dosyanın silinmesi ya da devre dışı bırakılması amaçlanmıştır -
+# production entegrasyonuna dönüştürülmeyecektir.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  notac-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      NOTAC_API_KEY: ${{ secrets.NOTAC_API_KEY }}
+    steps:
+      - name: NOTAC_API_KEY tanımlı mı? (değeri asla yazdırılmaz)
+        run: |
+          if [ -z "${NOTAC_API_KEY:-}" ]; then
+            echo "HATA: NOTAC_API_KEY secret'ı tanımlı değil (Settings > Secrets > Actions)."
+            exit 1
+          fi
+          echo "NOTAC_API_KEY tanımlı (uzunluk: ${#NOTAC_API_KEY} karakter - değer gösterilmiyor)."
+
+      - name: LTFJ NOTAM isteğini gönder
+        run: |
+          set -uo pipefail
+          http_kod=$(curl -sS -o response.json -w '%{http_code}' \
+            -H "Authorization: Bearer ${NOTAC_API_KEY}" \
+            -H "Accept: application/json" \
+            "https://notac.aero/api/v1/notam/?location=LTFJ")
+          echo "HTTP_KOD=${http_kod}" >> "$GITHUB_ENV"
+          echo "İstek tamamlandı."
+
+      - name: Sonucu raporla (Authorization header'ı asla yazdırılmaz)
+        run: |
+          echo "================================================"
+          echo "HTTP STATUS: ${HTTP_KOD}"
+          if [ "${HTTP_KOD}" = "200" ]; then
+            echo "RESULT: OK"
+          else
+            echo "RESULT: FAIL"
+          fi
+          echo "================================================"
+          echo
+          echo "--- Yanıt yapısı (genel introspeksiyon, alan adı varsayımı yok) ---"
+          python3 - <<'PYEOF'
+          import json
+
+          with open("response.json", encoding="utf-8") as f:
+              raw = f.read()
+
+          try:
+              data = json.loads(raw)
+          except ValueError as e:
+              print(f"YANIT GEÇERLİ JSON DEĞİL: {e}")
+              print("Ham yanıt (ilk 2000 karakter):")
+              print(raw[:2000])
+              raise SystemExit(0)
+
+          print("TOP-LEVEL TYPE:", type(data).__name__)
+          if isinstance(data, dict):
+              print("TOP-LEVEL KEYS:", list(data.keys()))
+              for k, v in data.items():
+                  ek = f" (len={len(v)})" if hasattr(v, "__len__") and not isinstance(v, str) else ""
+                  print(f"  - {k}: {type(v).__name__}{ek}")
+              for k, v in data.items():
+                  if isinstance(v, list) and v and isinstance(v[0], dict):
+                      print(f"\n'{k}' alanı bir liste, {len(v)} öğe içeriyor.")
+                      print(f"İlk öğenin alan adları: {list(v[0].keys())}")
+                      break
+          elif isinstance(data, list):
+              print("LIST LENGTH:", len(data))
+              if data and isinstance(data[0], dict):
+                  print("FIRST ITEM KEYS:", list(data[0].keys()))
+
+          print()
+          print("--- TAM YANIT (pretty-printed, ilk 6000 karakter) ---")
+          pretty = json.dumps(data, indent=2, ensure_ascii=False)
+          print(pretty[:6000])
+          if len(pretty) > 6000:
+              print(f"\n... [kırpıldı, toplam {len(pretty)} karakter]")
+          PYEOF
+
+      - name: Geçici dosyayı temizle
+        if: always()
+        run: rm -f response.json
