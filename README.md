@@ -10,7 +10,7 @@ Bu proje, İstanbul Sabiha Gökçen Havalimanı (LTFJ) için güncel havacılık
 * **Gerçek Zamanlı Veri Takibi:** MGM (Meteoroloji Genel Müdürlüğü) altyapısı üzerinden LTFJ için anlık METAR ve TAF raporlarını çeker.
 * **Akıllı Bildirim Sistemi (State Yönetimi):** Sürekli aynı mesajı atarak spam yapmaz. Sadece hava durumunda operasyonel anlamda bir değişiklik olduğunda (örneğin görüş mesafesi düştüğünde, rüzgar yönü değiştiğinde veya sis çöktüğünde) Telegram bildirimi gönderir.
 * **Yapay Zeka Analizi:** Çekilen karmaşık havacılık verileri Anthropic (Claude) API kullanılarak analiz edilir ve pilot/kontrolör perspektifinden anlaşılır bir dile çevrilir.
-* **Web Arayüzü:** Her çalışmada otomatik olarak güncel bir `index.html` sayfası üretir. GitHub Pages ile entegre edilerek anlık hava durumu web üzerinden de takip edilebilir.
+* **Web Arayüzü:** Her çalışmada otomatik olarak güncel bir `index.html` sayfası üretir. GitHub Pages ile entegre edilerek anlık hava durumu web üzerinden de takip edilebilir. Sayfada son 6 saatin rüzgâr, bulut tavanı, QNH ve sıcaklık değişimini gösteren basit SVG trend grafikleri de bulunur (harici kütüphane kullanılmaz).
 * **Sunucusuz (Serverless) Çalışma:** Harici bir sunucuya (VDS/VPS) ihtiyaç duymaz. Tamamen GitHub Actions ve `cron-job.org` dış tetikleyicisi ile ücretsiz ve 7/24 çalışır.
 
 ## 🏗️ Sistem Mimarisi
