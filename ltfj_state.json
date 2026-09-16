@@ -2,8 +2,11 @@
  "gonderilen": [
   "id:51582170",
   "id:51634944",
-  "id:51595196"
+  "id:51595196",
+  "id:51643372"
  ],
  "ilk_calisma": false,
- "guncelleme": "2026-09-16T08:16:28+00:00"
+ "guncelleme": "2026-09-16T08:39:36+00:00",
+ "son_metar": "METAR LTFJ 160820Z 06010KT 020V080 9999 -SHRA BKN024 BKN080 18/17 Q1017 NOSIG RMK RWY24R 04007KT 360V080 RWY06R 04009KT RWY24L 05008KT",
+ "son_uyari": null
 }
