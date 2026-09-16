@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LTFJ · ATC Panel</title>
 <meta name="description" content="LTFJ için widget tabanlı, koyu temalı hava trafik kontrol panosu">
+<meta name="theme-color" content="#05070d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LTFJ ATC">
+<link rel="manifest" href="panel_manifest.json">
+<link rel="apple-touch-icon" href="panel_icon.png">
+<link rel="icon" href="panel_icon.svg" type="image/svg+xml">
 <style>
   :root {
     --bg:#05070d; --panel:#0d1420; --panel2:#101a2c; --cizgi:#1c2942;
@@ -23,10 +31,15 @@
     background:#3a2a0a; color:#fbbf24; border-bottom:1px solid #5c4110;
     font-size:.78rem; text-align:center; padding:5px 10px; letter-spacing:.02em;
   }
+  .sabit-ust { position:sticky; top:0; z-index:20; }
+  .bayat-bant {
+    background:#3a1010; color:#fca5a5; border-bottom:1px solid #5c1f22;
+    font-size:.8rem; font-weight:650; text-align:center; padding:7px 10px;
+  }
+  .bayat-bant.uyari { background:#3a2a0a; color:#fbbf24; border-bottom-color:#5c4110; }
   header {
     display:flex; align-items:center; gap:14px; flex-wrap:wrap;
-    padding:12px 18px; border-bottom:1px solid var(--cizgi); background:var(--panel);
-    position:sticky; top:0; z-index:20;
+    padding:10px 14px; border-bottom:1px solid var(--cizgi); background:var(--panel);
   }
   header h1 { font-size:1.05rem; margin:0; font-weight:700; letter-spacing:-.01em; }
   header h1 span { color:var(--soluk); font-weight:500; }
@@ -36,22 +49,43 @@
   .rol-secici { display:flex; gap:4px; background:#0a1220; border:1px solid var(--cizgi); border-radius:9px; padding:3px; }
   .rol-secici button {
     background:transparent; border:0; color:var(--soluk); font:inherit; font-weight:650;
-    font-size:.78rem; padding:5px 12px; border-radius:6px; cursor:pointer; letter-spacing:.03em;
+    font-size:.8rem; padding:8px 14px; border-radius:6px; cursor:pointer; letter-spacing:.03em;
+    min-height:38px;
   }
   .rol-secici button.aktif { background:var(--accent); color:#04141f; }
   .spacer { flex:1; }
   .gizli-bar { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
   .gizli-bar .etiket { font-size:.72rem; color:var(--soluk2); }
   .chip {
-    font-size:.74rem; color:var(--soluk); background:#0a1220; border:1px solid var(--cizgi);
-    border-radius:999px; padding:4px 10px; cursor:pointer;
+    font-size:.78rem; color:var(--soluk); background:#0a1220; border:1px solid var(--cizgi);
+    border-radius:999px; padding:8px 13px; cursor:pointer; min-height:36px;
   }
   .chip:hover { color:var(--metin); border-color:var(--accent); }
   button.yenile {
     background:#0a1220; border:1px solid var(--cizgi); color:var(--soluk);
-    border-radius:8px; padding:6px 10px; font:inherit; font-size:.78rem; cursor:pointer;
+    border-radius:8px; padding:8px 12px; font:inherit; font-size:.8rem; cursor:pointer;
+    min-height:38px;
   }
   button.yenile:hover { color:var(--metin); border-color:var(--accent); }
+
+  .ozet-serit {
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    padding:8px 14px; background:var(--panel2); border-bottom:1px solid var(--cizgi);
+    font-size:.82rem; font-weight:650;
+  }
+  .ozet-serit .oge { display:flex; align-items:center; gap:5px; white-space:nowrap; }
+  .ozet-serit .renk-nokta {
+    display:inline-block; width:10px; height:10px; border-radius:50%; flex:none;
+  }
+  @media (max-width:640px) {
+    header { padding:8px 12px; gap:8px; }
+    header h1 { font-size:.95rem; }
+    .spacer { display:none; }
+    .rol-secici { flex:1; }
+    .rol-secici button { flex:1; text-align:center; }
+    button.yenile { flex:none; }
+    .ozet-serit { font-size:.78rem; gap:10px; padding:7px 12px; }
+  }
 
   main { padding:16px; max-width:1600px; margin:0 auto; }
   #grid {
@@ -65,14 +99,20 @@
   .w.buyuk { grid-column:span 2; }
   @media (max-width:640px) { .w.buyuk { grid-column:span 1; } }
   .w-bas {
-    display:flex; align-items:center; gap:8px; padding:10px 12px;
+    display:flex; align-items:center; gap:4px; padding:6px 6px 6px 12px;
     border-bottom:1px solid var(--cizgi); cursor:grab; user-select:none;
   }
   .w-bas:active { cursor:grabbing; }
   .w-bas .tutamac { color:var(--soluk2); font-size:.9rem; }
-  .w-bas .baslik { font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--soluk); }
-  .w-bas .gizle { margin-left:auto; background:none; border:0; color:var(--soluk2); cursor:pointer; font-size:.85rem; padding:2px 4px; }
-  .w-bas .gizle:hover { color:var(--kotu); }
+  .w-bas .baslik { font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--soluk); margin-right:auto; }
+  .w-bas button {
+    background:none; border:0; color:var(--soluk2); cursor:pointer;
+    font-size:1rem; width:36px; height:36px; border-radius:8px; flex:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .w-bas button:hover, .w-bas button:active { background:#152238; color:var(--metin); }
+  .w-bas .gizle:hover, .w-bas .gizle:active { color:var(--kotu); }
+  .w-bas .tasi[disabled] { opacity:.25; pointer-events:none; }
   .w-govde { padding:14px; flex:1; display:flex; flex-direction:column; gap:8px; justify-content:center; }
 
   .buyuk-sayi { font-size:2.3rem; font-weight:700; letter-spacing:-.02em; font-variant-numeric:tabular-nums; line-height:1.05; }
@@ -105,17 +145,21 @@
 
 <div class="uyari-seridi">⚠️ SİMÜLASYON / EĞİTİM AMAÇLI — resmî kaynak değildir, gerçek ATC operasyonlarında kullanılamaz</div>
 
-<header>
-  <h1>LTFJ <span>· ATC Panel</span></h1>
-  <span id="tazelik" class="tazelik">yükleniyor…</span>
-  <div class="spacer"></div>
-  <div class="gizli-bar" id="gizliBar"></div>
-  <div class="rol-secici" role="group" aria-label="Kontrolör rolü">
-    <button data-rol="TWR" id="rolTWR">KULE</button>
-    <button data-rol="APP" id="rolAPP">YAKLAŞMA</button>
-  </div>
-  <button class="yenile" id="yenileBtn">⟳ Yenile</button>
-</header>
+<div class="sabit-ust">
+  <div id="bayatBant" class="bayat-bant" hidden></div>
+  <header>
+    <h1>LTFJ <span>· ATC Panel</span></h1>
+    <span id="tazelik" class="tazelik">yükleniyor…</span>
+    <div class="spacer"></div>
+    <div class="gizli-bar" id="gizliBar"></div>
+    <div class="rol-secici" role="group" aria-label="Kontrolör rolü">
+      <button data-rol="TWR" id="rolTWR">KULE</button>
+      <button data-rol="APP" id="rolAPP">YAKLAŞMA</button>
+    </div>
+    <button class="yenile" id="yenileBtn">⟳ Yenile</button>
+  </header>
+  <div id="ozetSerit" class="ozet-serit" hidden></div>
+</div>
 
 <main>
   <div id="grid"></div>
@@ -157,6 +201,8 @@
   var grid = document.getElementById("grid");
   var tazelikEl = document.getElementById("tazelik");
   var gizliBar = document.getElementById("gizliBar");
+  var bayatBantEl = document.getElementById("bayatBant");
+  var ozetSeridEl = document.getElementById("ozetSerit");
   var veri = null;
   var layout = yukleDuzen();
 
@@ -201,10 +247,11 @@
   // ---------------------------------------------------------------- izgara ---
   function izgaraKur() {
     grid.innerHTML = "";
-    layout.sira.forEach(function (key) {
-      if (layout.gizli.indexOf(key) !== -1) return;
+    var gorunur = layout.sira.filter(function (key) {
+      return layout.gizli.indexOf(key) === -1 && WIDGETS[key];
+    });
+    gorunur.forEach(function (key, i) {
       var w = WIDGETS[key];
-      if (!w) return;
       var sec = document.createElement("section");
       sec.className = "w" + (w.buyuk ? " buyuk" : "");
       sec.draggable = true;
@@ -213,6 +260,8 @@
         '<div class="w-bas">' +
           '<span class="tutamac">⠿</span>' +
           '<span class="baslik">' + w.baslik + '</span>' +
+          '<button class="tasi" title="Yukarı taşı" data-tasi="yukari" data-key="' + key + '"' + (i === 0 ? " disabled" : "") + '>▲</button>' +
+          '<button class="tasi" title="Aşağı taşı" data-tasi="asagi" data-key="' + key + '"' + (i === gorunur.length - 1 ? " disabled" : "") + '>▼</button>' +
           '<button class="gizle" title="Widgetı gizle" data-gizle="' + key + '">✕</button>' +
         '</div>' +
         '<div class="w-govde" data-govde="' + key + '"><span class="bos">veri bekleniyor…</span></div>';
@@ -220,6 +269,19 @@
     });
     gizliBarKur();
     surukleBirakBagla();
+  }
+
+  function hareketEttir(key, yon) {
+    var i = layout.sira.indexOf(key);
+    if (i === -1) return;
+    var j = yon === "yukari" ? i - 1 : i + 1;
+    if (j < 0 || j >= layout.sira.length) return;
+    var tmp = layout.sira[i];
+    layout.sira[i] = layout.sira[j];
+    layout.sira[j] = tmp;
+    kaydetDuzen();
+    izgaraKur();
+    guncelleTumWidgetlar();
   }
 
   function gizliBarKur() {
@@ -247,6 +309,9 @@
   }
 
   grid.addEventListener("click", function (e) {
+    var tasiBtn = e.target.closest("[data-tasi]");
+    if (tasiBtn) { hareketEttir(tasiBtn.getAttribute("data-key"), tasiBtn.getAttribute("data-tasi")); return; }
+
     var btn = e.target.closest("[data-gizle]");
     if (!btn) return;
     var key = btn.getAttribute("data-gizle");
@@ -298,6 +363,45 @@
     var metin = farkDk <= 0 ? "az önce güncellendi" : farkDk + " dk önce güncellendi";
     tazelikEl.textContent = metin;
     tazelikEl.className = "tazelik" + (farkDk >= 60 ? " kotu" : farkDk >= 20 ? " uyari" : "");
+
+    if (farkDk >= 60) {
+      bayatBantEl.hidden = false;
+      bayatBantEl.className = "bayat-bant";
+      bayatBantEl.textContent = "🔴 Veri " + farkDk + " dk önce güncellendi — akış kesilmiş olabilir";
+    } else if (farkDk >= 20) {
+      bayatBantEl.hidden = false;
+      bayatBantEl.className = "bayat-bant uyari";
+      bayatBantEl.textContent = "🟡 Veri " + farkDk + " dk önce güncellendi";
+    } else {
+      bayatBantEl.hidden = true;
+    }
+  }
+
+  // ------------------------------------------------------------ ozet serit ---
+  function ozetSeridiGuncelle() {
+    var m = veri && veri.metar;
+    if (!m) { ozetSeridEl.hidden = true; return; }
+    ozetSeridEl.hidden = false;
+
+    var parcalar = [];
+    if (m.renk) {
+      parcalar.push('<span class="oge"><span class="renk-nokta" style="background:' +
+        (RENK_KODU[m.renk[0]] || "#666") + '"></span>' + esc(m.renk[0]) + "</span>");
+    }
+    var ruzgarTxt = (m.ruzgar.yon != null ? String(m.ruzgar.yon).padStart(3, "0") + "°" : "VRB") +
+      (m.ruzgar.hiz != null ? "/" + m.ruzgar.hiz + "kt" : "");
+    parcalar.push('<span class="oge">🌬 ' + ruzgarTxt + "</span>");
+
+    var gorusTxt = m.cavok ? "CAVOK" : (m.gorus == null ? "—" : (m.gorus >= 9999 ? "10+km" : m.gorus + "m"));
+    parcalar.push('<span class="oge">👁 ' + gorusTxt + "</span>");
+
+    var tavanTxt = m.tavan == null ? "—" : m.tavan + "ft";
+    parcalar.push('<span class="oge">☁ ' + tavanTxt + "</span>");
+
+    if (m.dikkat && m.dikkat.length) {
+      parcalar.push('<span class="oge" style="color:#fca5a5">⚠ ' + m.dikkat.length + " uyarı</span>");
+    }
+    ozetSeridEl.innerHTML = parcalar.join("");
   }
 
   // -------------------------------------------------------------- veri ---
@@ -307,11 +411,15 @@
       .then(function (v) {
         veri = v;
         tazelikGuncelle();
+        ozetSeridiGuncelle();
         guncelleTumWidgetlar();
       })
       .catch(function (err) {
         tazelikEl.textContent = "panel_veri.json okunamadı";
         tazelikEl.className = "tazelik kotu";
+        bayatBantEl.hidden = false;
+        bayatBantEl.className = "bayat-bant";
+        bayatBantEl.textContent = "🔴 panel_veri.json okunamadı — bağlantıyı kontrol edin";
         console.error("[panel] veri yüklenemedi:", err);
       });
   }
@@ -517,6 +625,12 @@
   document.getElementById("rolTWR").addEventListener("click", function () { rolUygula("TWR"); });
   document.getElementById("rolAPP").addEventListener("click", function () { rolUygula("APP"); });
   document.getElementById("yenileBtn").addEventListener("click", veriYukle);
+
+  document.addEventListener("visibilitychange", function () {
+    // Telefon kilitten acilip sekme one geldiginde 60 sn'lik zamanlayiciyi
+    // beklemeden aninda tazelenir - "anlik bakis" kullanimi icin onemli.
+    if (document.visibilityState === "visible") veriYukle();
+  });
 
   izgaraKur();
   rolDugmeleriGuncelle();
