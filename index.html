@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LTFJ · Hava Durumu</title>
+<meta name="description" content="LTFJ anlık METAR ve TAF">
+<style>
+  :root {
+    --bg:#f8fafc; --kart:#ffffff; --metin:#0f172a; --soluk:#64748b;
+    --cizgi:#e2e8f0; --vurgu:#0f172a; --kod-bg:#f1f5f9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#0b1220; --kart:#111a2e; --metin:#e8eefc; --soluk:#8fa0bf;
+      --cizgi:#1e2a44; --vurgu:#e8eefc; --kod-bg:#0a1120;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#0b1220; --kart:#111a2e; --metin:#e8eefc; --soluk:#8fa0bf;
+    --cizgi:#1e2a44; --vurgu:#e8eefc; --kod-bg:#0a1120;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--bg); color:var(--metin);
+    font:16px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    padding:24px 16px 48px;
+  }
+  .sar { max-width:680px; margin:0 auto; }
+  header { margin-bottom:20px; }
+  h1 { font-size:1.5rem; margin:0 0 4px; letter-spacing:-.02em; }
+  .alt { color:var(--soluk); font-size:.875rem; }
+  .kart {
+    background:var(--kart); border:1px solid var(--cizgi); border-radius:14px;
+    padding:18px; margin-bottom:16px;
+  }
+  .basrow { display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+             margin-bottom:12px; }
+  .tip { font-weight:650; font-size:1.05rem; }
+  .zaman { color:var(--soluk); font-size:.85rem; }
+  .rozet {
+    margin-left:auto; padding:3px 10px; border-radius:999px;
+    font-size:.78rem; font-weight:650; color:#fff; white-space:nowrap;
+  }
+  .dikkat {
+    background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.35);
+    border-radius:10px; padding:10px 12px; margin:12px 0; font-size:.9rem;
+  }
+  .ozet { color:var(--soluk); font-size:.92rem; margin:10px 0; }
+  table { width:100%; border-collapse:collapse; font-size:.88rem; margin-top:10px; }
+  td { padding:7px 0; border-bottom:1px solid var(--cizgi); }
+  td:first-child { color:var(--soluk); width:42%; }
+  tr:last-child td { border-bottom:none; }
+  pre {
+    background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:10px;
+    padding:12px; overflow-x:auto; font-size:.8rem; line-height:1.5;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; margin:12px 0 0;
+    white-space:pre-wrap; word-break:break-word;
+  }
+  footer { color:var(--soluk); font-size:.8rem; text-align:center; margin-top:28px; }
+  a { color:inherit; }
+</style>
+</head>
+<body>
+<div class="sar">
+<header>
+  <h1>LTFJ · İstanbul Sabiha Gökçen</h1>
+  <div class="alt">Kaynak: MGM · Son güncelleme 16.09.2026 13:13 yerel</div>
+</header>
+<div class="kart"><div class="basrow"><span class="tip">SPECI</span><span class="zaman">16.09 03:48Z · 06:48 yerel</span><span class="rozet" style="background:#3b82f6">🔵 BLU · çok iyi</span></div><div class="ozet">Rüzgâr 040° 8kt · görüş 10+ km · tavan 3500 ft · hafif sağanak yağmur · 18°C · QNH 1016</div><table><tr><td>Pist 06R</td><td>baş 7 kt, yan 4 kt soldan</td></tr><tr><td>Pist 24L</td><td>KUYRUK 6 kt (PRS limiti 5 kt aşıldı), yan 4 kt sağdan</td></tr><tr><td>Pist 24R</td><td>KUYRUK 5 kt (PRS limiti 5 kt aşıldı), yan 5 kt sağdan</td></tr><tr><td>Uygun pist</td><td>06R</td></tr><tr><td>Sis riski</td><td>sıcaklık–çiğ noktası aralığı 3°C, rüzgâr 8 kt, gece şartları</td></tr></table><pre>SPECI LTFJ 160348Z 04008KT 9999 -SHRA BKN035 BKN080 18/15 Q1016 NOSIG RMK RWY24R 02007KT RWY06R 03008KT RWY24L 03007KT</pre></div><div class="kart"><div class="basrow"><span class="tip">METAR</span><span class="zaman">16.09 09:50Z · 12:50 yerel</span><span class="rozet" style="background:#3b82f6">🔵 BLU · çok iyi</span></div><div class="ozet">Rüzgâr 080° 9kt · görüş 10+ km · tavan 3000 ft · hafif sağanak yağmur · 19°C · QNH 1017</div><table><tr><td>Pist 06R</td><td>baş 8 kt, yan 1 kt soldan</td></tr><tr><td>Pist 24L</td><td>KUYRUK 7 kt (PRS limiti 5 kt aşıldı), yan 1 kt soldan</td></tr><tr><td>Pist 24R</td><td>KUYRUK 7 kt (PRS limiti 5 kt aşıldı), yan 1 kt soldan</td></tr><tr><td>Uygun pist</td><td>06R</td></tr></table><pre>METAR LTFJ 160950Z 08009KT 9999 -SHRA BKN030 BKN080 19/16 Q1017 NOSIG RMK RWY24R 07007KT RWY06R 06008KT RWY24L 07007KT 040V100</pre></div><div class="kart"><div class="basrow"><span class="tip">TAF</span><span class="zaman">16.09 04:40Z · 07:40 yerel</span></div><pre>TAF LTFJ 160440Z 1606/1706 04009KT 9999 -SHRA BKN030 BKN080
+    BECMG 1611/1615 SCT040 BKN090
+    BECMG 1616/1619 CAVOK
+    BECMG 1702/1705 SCT030 BKN080</pre></div>
+<footer>
+  Bu sayfa otomatik üretilir. Operasyonel kullanım için resmî kaynaklara başvurun.
+</footer>
+</div>
+</body>
+</html>
