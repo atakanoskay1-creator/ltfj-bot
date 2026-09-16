@@ -90,6 +90,11 @@ SABLON = """<!DOCTYPE html>
   }}
   footer {{ color:var(--soluk); font-size:.8rem; text-align:center; margin-top:28px; }}
   a {{ color:inherit; }}
+  .panel-link {{
+    display:inline-block; margin-top:12px; padding:7px 14px; border-radius:8px;
+    background:var(--vurgu); color:var(--bg); text-decoration:none;
+    font-size:.82rem; font-weight:650;
+  }}
   .grafik-ust {{ font-weight:650; margin-bottom:12px; font-size:.95rem; }}
   .grafik-grid {{ display:grid; grid-template-columns:1fr 1fr; gap:18px 20px; }}
   @media (max-width:480px) {{ .grafik-grid {{ grid-template-columns:1fr; }} }}
@@ -260,6 +265,8 @@ def _kart(rapor: dict) -> str:
             p.append("<table>" + "".join(
                 f"<tr><td>{html.escape(a)}</td><td>{html.escape(b)}</td></tr>"
                 for a, b in satirlar) + "</table>")
+
+        p.append('<div><a class="panel-link" href="panel.html">🛫 ATC Panelinde aç →</a></div>')
 
     govde = taf_bicimle(rapor["metin"]) if tip == "TAF" else rapor["metin"]
     p.append(f"<pre>{html.escape(govde)}</pre></div>")
