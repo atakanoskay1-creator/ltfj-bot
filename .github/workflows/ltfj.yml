@@ -10,7 +10,8 @@ on:
     - cron: "10,25,40,55 * * * *"
   # Actions sekmesinden elle calistirmak icin
   workflow_dispatch:
-
+  repository_dispatch:
+    types: [run-ltfj-bot]
 # state dosyasini repoya geri yazabilmek icin
 permissions:
   contents: write
