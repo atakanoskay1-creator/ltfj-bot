@@ -1,6 +1,6 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-16T22:11:36+00:00",
+ "uretildi": "2026-09-16T22:20:49+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
@@ -27,11 +27,28 @@
   "dikkat": [],
   "pistler": [
    {
+    "pist": "06L",
+    "yon_gercek": 64.1,
+    "bas": 4.6,
+    "yan": 2.0,
+    "yan_taraf": "soldan",
+    "bas_hamle": null,
+    "yan_hamle": null,
+    "degisken": false,
+    "kaynak": "alan rüzgârından",
+    "kuyruk": false,
+    "kuyruk_asildi": false
+   },
+   {
     "pist": "06R",
     "yon_gercek": 64.1,
     "bas": 4.1,
     "yan": 2.8,
     "yan_taraf": "soldan",
+    "bas_hamle": null,
+    "yan_hamle": null,
+    "degisken": false,
+    "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": false,
     "kuyruk_asildi": false
    },
@@ -41,6 +58,10 @@
     "bas": -4.0,
     "yan": 0.3,
     "yan_taraf": "sağdan",
+    "bas_hamle": null,
+    "yan_hamle": null,
+    "degisken": false,
+    "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": false
    },
@@ -50,19 +71,22 @@
     "bas": -2.9,
     "yan": 0.7,
     "yan_taraf": "sağdan",
+    "bas_hamle": null,
+    "yan_hamle": null,
+    "degisken": true,
+    "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": false
    }
   ],
-  "pist_kaynagi": "anemometre",
   "kuyruk_limiti": 10,
-  "kuyruk_gerekce": "kuru pist",
-  "tercih_pist": "06R",
+  "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi",
+  "tercih_pist": "06L",
   "rvr": [],
   "prs": [],
   "gorus_op": [],
   "trend": null,
-  "sis_riski": "Sis oluşma riski yüksek: sıcaklık–çiğ noktası aralığı 2°C, rüzgâr 5 kt, gece şartları",
+  "sis_riski": "Sis oluşum göstergesi: yüksek (METAR tabanlı heuristik, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 2°C, rüzgâr 5 kt, gece şartları",
   "ozet": "Rüzgâr 040° 5kt · görüş 10+ km · 17°C · QNH 1016"
  },
  "taf": {
