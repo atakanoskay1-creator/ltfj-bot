@@ -20,6 +20,8 @@ RENK_KODU = {
 }
 
 GRAFIK_PENCERE_SAAT = 6
+GRAFIK_MIN_NOKTA = 2      # cizgi cizmek icin en az bu kadar nokta lazim
+GRAFIK_YEDEK_NOKTA = 12   # pencere yeterli veri vermezse en fazla bu kadar eski kayit gosterilir
 GRAFIKLER = (
     ("ruzgar_hiz", "Rüzgâr", "kt", "#3b82f6"),
     ("tavan", "Bulut tavanı", "ft", "#22c55e"),
@@ -115,21 +117,33 @@ SABLON = """<!DOCTYPE html>
 """
 
 
-def _grafik_verisi(gecmis: list, alan: str, simdi: datetime) -> list:
-    sinir = simdi - timedelta(hours=GRAFIK_PENCERE_SAAT)
+def _gecmis_noktalari(gecmis: list, alan: str, sinir: datetime | None) -> list:
     noktalar = []
     for g in gecmis:
         try:
             z = datetime.fromisoformat(g["zaman"])
         except (KeyError, ValueError, TypeError):
             continue
-        if z < sinir:
+        if sinir is not None and z < sinir:
             continue
         v = g.get(alan)
         if v is not None:
             noktalar.append((z, v))
     noktalar.sort(key=lambda n: n[0])
     return noktalar
+
+
+def _grafik_verisi(gecmis: list, alan: str, simdi: datetime) -> list:
+    """Son GRAFIK_PENCERE_SAAT icindeki noktalari dondurur. Bot yeni devreye
+    girdiginde ya da veri akisinda bosluk varsa pencere yeterli nokta
+    vermeyebilir - o durumda elde ne varsa (en fazla GRAFIK_YEDEK_NOKTA kadar
+    eski kayit) gosteriyoruz, boylece grafik hemen gorunur ve veri biriktikce
+    kendiliginden gercek 6 saatlik pencereye sikisir."""
+    sinir = simdi - timedelta(hours=GRAFIK_PENCERE_SAAT)
+    noktalar = _gecmis_noktalari(gecmis, alan, sinir)
+    if len(noktalar) >= GRAFIK_MIN_NOKTA:
+        return noktalar
+    return _gecmis_noktalari(gecmis, alan, None)[-GRAFIK_YEDEK_NOKTA:]
 
 
 def _svg_cizgi(noktalar: list, renk: str, genislik=600, yukseklik=64) -> str | None:
@@ -189,8 +203,7 @@ def _trend_bolumu(gecmis: list) -> str:
     bloklar = [b for b in bloklar if b]
     if not bloklar:
         return ""
-    return (f'<div class="kart"><div class="grafik-ust">'
-            f'Son {GRAFIK_PENCERE_SAAT} saat</div>'
+    return (f'<div class="kart"><div class="grafik-ust">Trend</div>'
             f'<div class="grafik-grid">{"".join(bloklar)}</div></div>')
 
 
