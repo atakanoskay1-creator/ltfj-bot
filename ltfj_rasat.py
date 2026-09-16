@@ -36,22 +36,64 @@ NEXT_DATA = re.compile(
     r'<script[^>]+id="__NEXT_DATA__"[^>]*>(.*?)</script>', re.S | re.I
 )
 
+# MGM sunucusu ara sira takiliyor. Tek denemede pes etmeyelim.
+DENEME = 3          # toplam deneme sayisi
+BEKLE = 5           # denemeler arasi saniye (her turda katlanir: 5, 10)
 
-def raporlari_cek(icao: str = ICAO, timeout: int = 25) -> list[dict]:
+# Rapor tipinden sonra gelebilecek isaretler
+DUZELTMELER = ("AMD", "COR", "RTD")
+
+
+class RasatHatasi(Exception):
+    """Bu modulun tum hatalarinin atasi."""
+
+
+class AgHatasi(RasatHatasi):
+    """GECICI: MGM'ye ulasilamadi. Bir sonraki turda tekrar denenir."""
+
+
+class AyiklamaHatasi(RasatHatasi):
+    """KALICI: sayfa yapisi degismis. Insan mudahalesi gerekir."""
+
+
+def _sayfayi_getir(params, timeout):
+    """MGM sayfasini getirir, takilirsa birkac kez tekrar dener."""
+    son_hata = None
+    for i in range(1, DENEME + 1):
+        try:
+            r = requests.get(BASE, params=params, headers=HEADERS,
+                             timeout=(10, timeout))   # (baglanti, okuma)
+            r.raise_for_status()
+            return r
+        except requests.RequestException as e:
+            son_hata = e
+            if i < DENEME:
+                bekle = BEKLE * i
+                print(f"[uyari] MGM yanit vermedi ({i}/{DENEME}): {e.__class__.__name__}"
+                      f" - {bekle} sn sonra tekrar deneniyor", file=sys.stderr)
+                time.sleep(bekle)
+    raise AgHatasi(f"{DENEME} denemede ulasilamadi: {son_hata}") from son_hata
+
+
+def raporlari_cek(icao: str = ICAO, timeout: int = 30) -> list[dict]:
     """
     Istasyonun son raporlarini dondurur. Her eleman:
       {'tip': 'METAR', 'zaman': datetime(UTC), 'metin': 'METAR LTFJ ...'}
     En yeni ilk sirada.
     """
     params = [("stations", icao)] + EK_PARAMS
-    r = requests.get(BASE, params=params, headers=HEADERS, timeout=timeout)
-    r.raise_for_status()
+    r = _sayfayi_getir(params, timeout)
 
     m = NEXT_DATA.search(r.text)
     if not m:
-        raise RuntimeError("__NEXT_DATA__ bulunamadi - sayfa yapisi degismis olabilir.")
+        raise AyiklamaHatasi(
+            "__NEXT_DATA__ bulunamadi - MGM sayfa yapisini degistirmis olabilir."
+        )
 
-    data = json.loads(m.group(1))
+    try:
+        data = json.loads(m.group(1))
+    except json.JSONDecodeError as e:
+        raise AyiklamaHatasi(f"__NEXT_DATA__ JSON olarak okunamadi: {e}") from e
 
     if "--debug" in sys.argv:
         with open("next_data.json", "w", encoding="utf-8") as f:
@@ -64,21 +106,28 @@ def raporlari_cek(icao: str = ICAO, timeout: int = 25) -> list[dict]:
         print("[debug] response    :", len(pp.get("response") or []), "kayit")
         print("[debug] next_data.json yazildi\n")
 
-    response = data["props"]["pageProps"].get("response") or []
+    try:
+        response = data["props"]["pageProps"].get("response") or []
+    except (KeyError, TypeError) as e:
+        raise AyiklamaHatasi(f"Beklenen JSON alanlari yok: {e}") from e
 
     out = []
     for blok in response:
         if (blok.get("istInfo") or {}).get("icao", "").upper() != icao.upper():
             continue
         for kayit in (blok.get("dataLast") or []):
-            metin = (kayit.get("observationText") or "").strip()
+            metin = " ".join((kayit.get("observationText") or "").split())
             if not metin:
                 continue
+            tokenlar = metin.split()
+            # "TAF AMD LTFJ ..." / "METAR COR LTFJ ..." -> duzeltme isareti
+            duzeltme = next((t for t in tokenlar[1:3] if t in DUZELTMELER), None)
             out.append({
                 "id": kayit.get("id"),                     # MGM'nin kayit numarasi
-                "tip": metin.split()[0].upper(),           # METAR / SPECI / TAF
+                "tip": tokenlar[0].upper(),                # METAR / SPECI / TAF
+                "duzeltme": duzeltme,                      # AMD / COR / None
                 "zaman": _zaman(kayit.get("observationTimeNormal")),
-                "metin": " ".join(metin.split()),
+                "metin": metin,
             })
     out.sort(key=lambda d: d["zaman"] or datetime.min.replace(tzinfo=timezone.utc),
              reverse=True)
@@ -102,9 +151,9 @@ def taf_bicimle(taf: str) -> str:
 def main():
     try:
         raporlar = raporlari_cek()
-    except requests.RequestException as e:
+    except AgHatasi as e:
         sys.exit(f"Siteye ulasilamadi: {e}")
-    except Exception as e:
+    except AyiklamaHatasi as e:
         sys.exit(f"Ayiklama hatasi: {e}")
 
     if not raporlar:
@@ -117,7 +166,8 @@ def main():
             damga = f'{r["zaman"]:%d.%m %H:%M}Z  ({yerel:%H:%M} yerel)'
         else:
             damga = "zaman yok"
-        print(f'== {r["tip"]} == {damga}')
+        baslik = r["tip"] + (f' {r["duzeltme"]}' if r.get("duzeltme") else "")
+        print(f'== {baslik} == {damga}')
         print(taf_bicimle(r["metin"]) if r["tip"] == "TAF" else r["metin"])
         print()
 
