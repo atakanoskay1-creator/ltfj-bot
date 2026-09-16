@@ -151,7 +151,12 @@ SISTEM_ISTEMI = (
     "şehir, havalimanı veya bölge adı yazma. Sadece sana verilen verilerden konuş: "
     "veride olmayan bir bilgiyi tahmin etme, ekleme, yuvarlama. Emin olmadığın bir şey "
     "varsa o satırı kısa tut. Sayıları verildiği gibi kullan. Şablonu harfiyen uygula, "
-    "başlık ve etiketleri değiştirme, giriş veya kapanış cümlesi kurma."
+    "başlık ve etiketleri değiştirme, giriş veya kapanış cümlesi kurma. "
+    "SEN BİR AÇIKLAMA KATMANISIN, KARAR VERİCİ DEĞİLSİN: pist ataması yapma, hangi "
+    "pistin 'kullanılması gerektiğini' söyleme, kesin gecikme/iptal tahmini üretme, "
+    "ATC talimatı ya da clearance önerisi verme, resmî operasyonel minimum yorumu "
+    "yapma. Sana verilen gözlemlenmiş ve hesaplanmış veriyi sade dille anlat; "
+    "operasyonel karar insana (pilot/ATC) aittir."
 )
 
 METAR_SABLONU = """\
@@ -161,7 +166,8 @@ etiketle başlasın, her satır tek cümle olsun:
 Rüzgâr: <yönü ve şiddeti günlük dille; kuvvetli veya yan rüzgâr varsa belirt>
 Görüş: <ne kadar görünüyor, uçuş için rahat mı>
 Gökyüzü: <bulut durumu ve yağış; tavan alçaksa belirt>
-Uçuşa etkisi: <normal mi, gecikme/aksama ihtimali var mı — abartma>
+Uçuşa etkisi: <verideki kısıtlayıcı unsurları (düşük görüş, kuvvetli rüzgâr, \
+fırtına vb.) yansıt; kesin gecikme/iptal tahmini üretme, ATC/pilot kararı değil>
 
 Havacılık bilmeyen birine anlatıyorsun: "BKN024" gibi kodları kullanma, "2400 fitte \
 çok bulutlu" gibi yaz. Fit yerine yaklaşık metre de ekleyebilirsin.
@@ -424,7 +430,11 @@ def baslik_kur(rapor, notlar) -> str:
     renk = ""
     if notlar and notlar["renk"]:
         kod, aciklama = notlar["renk"]
-        renk = f'  {RENK_SIMGE.get(kod, "")} <b>{kod}</b> <i>({aciklama})</i>'
+        # "LTFJ Bot seviyesi" ibaresi bilerek her seferinde tekrarlanir -
+        # BLU/WHT/GRN/YLO/AMB/RED resmi ICAO CAT I/II/III kategorisi ya da
+        # baska bir resmi havacilik durumu DEGIL, botun kendi gorus/tavan
+        # bandina gore hesapladigi bir onem seviyesi (bkz. ltfj_pist.RENK_ETIKETI).
+        renk = f'  {RENK_SIMGE.get(kod, "")} <b>{kod}</b> <i>(LTFJ Bot seviyesi — {aciklama})</i>'
     return f"{simge} <b>{html.escape(ad)}</b>  <i>{damga}</i>{renk}"
 
 
@@ -446,7 +456,9 @@ def mesaj_kur(rapor, state, onceki_metar="", uzun=None) -> str:
         if dikkat:
             s += ["", "🔴 <b>DİKKAT</b> · " + html.escape(" · ".join(dikkat))]
         if notlar["prs"]:
-            s += ["", "ℹ️ <b>Tercihli pist sistemi askıda</b> · "
+            # "askıda" degil - bu METAR'a dayali bir HESAPLANAN gosterge,
+            # PRS'yi fiilen durdurma/durdurmama karari ATC'nindir (AD 2.20 K).
+            s += ["", "ℹ️ <b>PRS için kısıtlayıcı koşul (METAR'a göre)</b> · "
                   + html.escape(", ".join(notlar["prs"]))]
 
         farklar = fark_bul(onceki_metar, rapor["metin"])
@@ -477,7 +489,9 @@ def _havacilik_blogu(n: dict, uzun: bool) -> list[str]:
             s += ["", f"✈️ <b>Pist bileşenleri</b> <i>{html.escape(kaynak)}</i>"]
             s += [f"<code>{html.escape(p)}</code>" for p in pistler]
             if n["tercih"]:
-                s.append(f'Baş rüzgârına göre uygun pist: <b>{n["tercih"]}</b>')
+                # ATC runway-in-use atamasi degil - sadece ruzgar bilesenlerine
+                # gore HESAPLANMIS meteorolojik tercih (bkz. tercih_edilen_pist()).
+                s.append(f'Meteorolojik baş rüzgârı tercihi: <b>{n["tercih"]}</b>')
 
     # Gorus operasyonu kisa bicimde de gosterilir - operasyonel olarak kritik
     if n["gorus_op"]:
@@ -612,15 +626,26 @@ def main():
     token = gerekli("TELEGRAM_BOT_TOKEN")
     chat_id = gerekli("TELEGRAM_CHAT_ID")
 
+    state = state_oku()
+
     try:
         raporlar = raporlari_cek(ICAO)
     except AgHatasi as e:
         print(f"[uyarı] MGM'ye ulaşılamadı, bu tur atlanıyor: {e}", file=sys.stderr)
+        # ONEMLI (kaynak sagligi): MGM'ye ULASILAMAMASI "yeni veri yok" ile
+        # AYNI SEY DEGIL. Onceden bu durumda fonksiyon burada dogrudan
+        # return ediyordu - sessizlik_kontrol() hic CAGRILMIYORDU, yani MGM
+        # TAMAMEN COKSE bile "veri akmıyor" alarmi hicbir zaman tetiklenemiyordu
+        # (tam da alarmin en cok gerekli oldugu an). Artik kaynak erisim
+        # hatasi da bos rapor listesiyle sessizlik_kontrol()'u calistirir -
+        # o da zaten state'teki en son BILINEN veri zamanina gore yaslandirma
+        # yapiyor (bkz. sessizlik_kontrol icindeki "zamanlar bossa" dali).
+        sessizlik_kontrol(state, [], token, chat_id)
+        state_yaz(state)
         return
     except AyiklamaHatasi as e:
         sys.exit(f"KRİTİK: veri ayıklanamadı, parser güncellenmeli.\n{e}")
 
-    state = state_oku()
     sessizlik_kontrol(state, raporlar, token, chat_id)
 
     if not raporlar:

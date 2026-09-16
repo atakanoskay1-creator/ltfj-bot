@@ -116,3 +116,59 @@ def test_ana_akis_dosyadan_dosyaya_birlestirme(tmp_path):
     yazilan = json.loads(hedef.read_text(encoding="utf-8"))
     assert yazilan["gonderilen"] == ["id:1", "id:2"]
     assert yazilan["son_renk"] == "GRN"
+
+
+def test_birlestir_son_metar_yazma_zamani_degil_gozlem_zamanina_gore_secilir():
+    """YARIS DURUMU: B state'i A'dan DAHA GEC yazilmis (guncelleme daha
+    buyuk) ama METAR'i A'nınkinden DAHA ESKI bir gozlemi tasiyor (ornegin
+    B'nin calistirmasi aginda gecikip eski/onbellekteki veriyi yazdi).
+    guncelleme'ye gore secim yapan ESKI davranis yanlislikla B'nin (daha
+    eski gozlem) METAR'ini secerdi. Dogru davranis: METAR govdesindeki
+    GERCEK gozlem zamanina (161250Z vs 161200Z) bakip A'yi secmeli."""
+    a = {
+        "son_metar": "METAR LTFJ 161250Z 06010KT 9999 SCT025 18/12 Q1015 NOSIG",
+        "son_renk": "GRN",
+        "guncelleme": "2026-01-16T13:00:00+00:00",   # A daha ERKEN yazildi
+    }
+    b = {
+        "son_metar": "METAR LTFJ 161200Z 05008KT 9999 SCT025 17/12 Q1015 NOSIG",
+        "son_renk": "YLO",
+        "guncelleme": "2026-01-16T13:05:00+00:00",   # B daha GEC yazildi ama...
+    }
+    sonuc = sb.birlestir(a, b)
+    # ...METAR'i A'dan (161250Z) daha ESKI (161200Z) - A kazanmali.
+    assert sonuc["son_metar"] == a["son_metar"]
+    assert sonuc["son_renk"] == "GRN"   # son_metar ile TUTARLI secildi
+
+
+def test_birlestir_son_metar_gozlem_zamani_cozulemezse_yazma_zamanina_duser():
+    """METAR metni DDHHMMZ icermiyorsa (test verisi ya da bozuk kayit),
+    eski davranisa (guncelleme) guvenli sekilde dusulur - crash etmez."""
+    a = {"son_metar": "GEÇERSİZ METİN", "son_renk": "GRN",
+         "guncelleme": "2026-01-01T00:00:00+00:00"}
+    b = {"son_metar": "BAŞKA GEÇERSİZ METİN", "son_renk": "YLO",
+         "guncelleme": "2026-01-01T01:00:00+00:00"}
+    sonuc = sb.birlestir(a, b)
+    assert sonuc["son_metar"] == b["son_metar"]   # guncelleme'ye gore b
+    assert sonuc["son_renk"] == "YLO"
+
+
+def test_birlestir_son_veri_zamani_kendi_degerine_gore_secilir_yazmaya_degil():
+    """son_veri_zamani ZATEN bir ISO gozlem zaman damgasi - guncelleme'ye
+    degil kendi degerine gore secilmeli. B daha ERKEN yazilmis olsa bile
+    (guncelleme kucuk) tasidigi son_veri_zamani DAHA BUYUKSE o kazanmali."""
+    a = {"son_veri_zamani": "2026-01-16T12:00:00+00:00",
+         "guncelleme": "2026-01-16T13:00:00+00:00"}   # gec yazildi
+    b = {"son_veri_zamani": "2026-01-16T12:50:00+00:00",
+         "guncelleme": "2026-01-16T12:51:00+00:00"}   # erken yazildi ama veri daha yeni
+    sonuc = sb.birlestir(a, b)
+    assert sonuc["son_veri_zamani"] == "2026-01-16T12:50:00+00:00"
+
+
+def test_birlestir_son_uyari_kendi_degerine_gore_secilir():
+    a = {"son_uyari": "2026-01-16T10:00:00+00:00",
+         "guncelleme": "2026-01-16T13:00:00+00:00"}
+    b = {"son_uyari": "2026-01-16T11:00:00+00:00",
+         "guncelleme": "2026-01-16T09:00:00+00:00"}
+    sonuc = sb.birlestir(a, b)
+    assert sonuc["son_uyari"] == "2026-01-16T11:00:00+00:00"

@@ -494,8 +494,8 @@
     if (!m.renk) { govde.innerHTML = '<span class="bos">renk durumu hesaplanamadı</span>'; return; }
     var kod = m.renk[0], aciklama = m.renk[1];
     govde.innerHTML =
-      '<div class="rozet" style="background:' + (RENK_KODU[kod] || "#666") + '">' + (RENK_SIMGE[kod] || "") + " " + kod + "</div>" +
-      '<div class="alt-satir">' + esc(aciklama) + "</div>" +
+      '<div class="rozet" title="LTFJ Bot durum seviyesi — resmî ICAO CAT I/II/III kategorisi değildir" style="background:' + (RENK_KODU[kod] || "#666") + '">' + (RENK_SIMGE[kod] || "") + " " + kod + "</div>" +
+      '<div class="alt-satir">LTFJ Bot seviyesi — ' + esc(aciklama) + "</div>" +
       '<div class="alt-satir">' + esc(m.ozet) + "</div>";
   }
 
@@ -546,7 +546,7 @@
     }).join("");
 
     govde.innerHTML = svg + altbilgi + (pistler ? '<ul class="liste">' + pistler + "</ul>" : '<span class="bos">pist bileşeni yok</span>') +
-      (m.tercih_pist ? '<div class="alt-satir">Uygun pist: <b>' + esc(m.tercih_pist) + "</b></div>" : "");
+      (m.tercih_pist ? '<div class="alt-satir">Meteorolojik tercih: <b>' + esc(m.tercih_pist) + "</b></div>" : "");
   }
 
   function renkliGovde(deger, birim, renkKodu, altSatir) {
@@ -609,7 +609,7 @@
     var m = v && v.metar;
     if (!m) return bosMetar(govde);
     var madde = (m.dikkat || []).slice();
-    if (m.prs && m.prs.length) madde.push("Tercihli pist sistemi askıda: " + m.prs.join(", "));
+    if (m.prs && m.prs.length) madde.push("PRS için kısıtlayıcı koşul (METAR'a göre): " + m.prs.join(", "));
     if (!madde.length) { govde.innerHTML = '<span class="dikkat-ok">✓ Aktif uyarı yok</span>'; return; }
     govde.innerHTML = '<ul class="dikkat-liste">' + madde.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul>";
   }
