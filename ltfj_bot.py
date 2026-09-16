@@ -34,6 +34,8 @@ from pathlib import Path
 
 import requests
 
+import ltfj_notam
+import ltfj_notam_client as notam_client
 from ltfj_analiz import cozum_dokumu, fark_bul, metar_coz, ozet_satiri, uyarilar
 from ltfj_ayarlar import AYARLAR, YEREL_TZ, ayar
 from ltfj_pist import RENK_SIMGE, havacilik_notlari
@@ -48,6 +50,7 @@ ENV = KLASOR / ".env"
 ILK_CALISTIRMADA_GONDER = True
 GECMIS_LIMIT = 200
 OLCUM_GECMIS_LIMIT = 300     # web sayfasindaki trend grafikleri icin (~6 gun)
+NOTAM_GECMIS_LIMIT = 500     # state_birlestir.py::NOTAM_GECMIS_LIMIT ile ayni
 
 SESSIZLIK_SAAT = 6
 UYARI_ARALIGI_SAAT = 12
@@ -96,7 +99,8 @@ def gerekli(ad):
 def state_oku() -> dict:
     bos = {"gonderilen": [], "ilk_calisma": True, "son_metar": "",
            "son_uyari": None, "durum_mesaj_id": None, "son_renk": None,
-           "son_veri_zamani": None, "olcum_gecmisi": [], "yorum_onbellegi": {}}
+           "son_veri_zamani": None, "olcum_gecmisi": [], "yorum_onbellegi": {},
+           "notam_gecmisi": {}, "notam_son_senkron": None}
     if not STATE.exists():
         return bos
     try:
@@ -110,8 +114,50 @@ def state_oku() -> dict:
 
 def state_yaz(state: dict):
     state["gonderilen"] = state["gonderilen"][-GECMIS_LIMIT:]
+    notam_gecmisi = state.get("notam_gecmisi") or {}
+    if len(notam_gecmisi) > NOTAM_GECMIS_LIMIT:
+        siralanmis = sorted(notam_gecmisi.items(), key=lambda kv: kv[1].get("last_seen") or "")
+        state["notam_gecmisi"] = dict(siralanmis[-NOTAM_GECMIS_LIMIT:])
     state["guncelleme"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
     STATE.write_text(json.dumps(state, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+# ------------------------------------------------------------------ notam ---
+def _notam_senkron_gerekli_mi(state: dict) -> bool:
+    """NOTAM senkronizasyonu METAR'dan BAGIMSIZ, seyrek araliklarla calisir -
+    NOTAC API kredisini gereksiz tuketmemek icin (bkz. ayarlar.json::notam.
+    senkron_araligi_saat). Anahtar tanimli degilse ya da ozellik kapaliysa
+    sessizce atlanir; bu METAR akisini hicbir sekilde etkilemez."""
+    if not ayar("notam", "aktif", varsayilan=True):
+        return False
+    if not notam_client.api_anahtari_var_mi():
+        return False
+    son = state.get("notam_son_senkron")
+    if not son:
+        return True
+    try:
+        son_dt = datetime.fromisoformat(son)
+    except ValueError:
+        return True
+    araligi_saat = ayar("notam", "senkron_araligi_saat", varsayilan=6)
+    return datetime.now(timezone.utc) - son_dt >= timedelta(hours=araligi_saat)
+
+
+def notam_senkronize(state: dict):
+    """NOTAC'tan aktif NOTAM'lari cekip yerel gecmise isler. Basarisizlik
+    (ag/yetki/ayiklama) METAR analizini bloke ETMEZ ve daha once cekilmis
+    NOTAM gecmisini SILMEZ - sadece bu turdaki senkronizasyon atlanir."""
+    if not _notam_senkron_gerekli_mi(state):
+        return
+    location = ayar("notam", "location", varsayilan="LTFJ")
+    try:
+        aktif = ltfj_notam.aktif_notamlari_getir(location)
+    except ltfj_notam.NotamServisHatasi as e:
+        print(f"[uyarı] NOTAM senkronizasyonu başarısız: {e}", file=sys.stderr)
+        return
+    state["notam_gecmisi"] = ltfj_notam.gecmisi_guncelle(state.get("notam_gecmisi") or {}, aktif)
+    state["notam_son_senkron"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    print(f"  NOTAM senkronize edildi: {len(aktif)} aktif NOTAM ({location}).")
 
 
 def anahtar(rapor: dict) -> str:
@@ -715,6 +761,14 @@ def main():
 
     # Sabitlenmis durum mesaji - yeni rapor olmasa da saat damgasi tazelenir
     durum_mesajini_guncelle(state, raporlar, token, chat_id)
+
+    # NOTAM senkronizasyonu METAR akisindan bagimsiz bir katman - basarisizligi
+    # (NOTAC erisilemez, yetki hatasi vb.) web sayfasinin METAR kismini asla
+    # bozmaz, sadece bu turdaki NOTAM guncellemesi atlanir.
+    try:
+        notam_senkronize(state)
+    except Exception as e:
+        print(f"[uyarı] NOTAM senkronizasyonu başarısız: {e}", file=sys.stderr)
 
     if ayar("web_sayfasi", varsayilan=True):
         try:

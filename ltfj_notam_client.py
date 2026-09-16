@@ -3,18 +3,24 @@
 NOTAC (https://notac.aero) API - ham HTTP istemci katmani.
 
 BILEREK KUCUK TUTULDU: bu modul SADECE HTTP istegini atar ve ham JSON'u
-oldugu gibi dondurur. NOTAC'in gercek yanit alan (field) isimlerini
-BILMIYORUZ - kullaniciyla birlikte dogrulanana kadar hicbir alan adini
-TAHMIN ETMIYORUZ. Ham yaniti sozluge (dict) donusturme/model esleme
-(notam_number, effective_start vb.) BURADA YAPILMAZ - gercek bir NOTAC
-yaniti gozlemlenip alan isimleri dogrulandiktan SONRA ayri bir modulde
-(notam_service.py / notam_model.py, henuz yazilmadi) yapilacak.
+oldugu gibi dondurur. Alan (field) isimlerini burada YORUMLAMIYORUZ/
+ESLEMIYORUZ - model esleme ltfj_notam.py'de, GERCEK bir NOTAC yaniti
+gozlemlenip alan adlari kullanıcıyla dogrulandiktan SONRA yapildi.
+
+DOGRULANMIS SOZLESME (2026-09-16, kullanicinin GitHub Actions'tan attigi
+gercek test istegiyle):
+  GET {BASE_URL}/notam/?location=<ICAO>
+  Authorization: Bearer <NOTAC_API_KEY>
+  -> 200: {"count": int, "next": <url|null>, "previous": <url|null>,
+           "results": [ {...NOTAM...}, ... ]}
+  (standart DRF sayfalama zarfi - "next" TAM bir URL'dir, sayfa numarasi
+  degil.)
+  LTFJ icin gercekten veri donuyor (test isteginde 11 aktif NOTAM) - bu,
+  daha once bilinmeyen "LTFJ/Turkiye kapsami var mi" sorusunu cozdu.
 
 VERI KAYNAGI: NOTAC'in kendi belgelemesine gore (https://notac.aero/api/
 authentication/) alttaki veri ABD FAA NOTAM Management System'den geliyor.
 NOTAC resmi bir operasyonel NOTAM/PIB kaynagi DEGILDIR - bilgi amaclidir.
-LTFJ (Turkiye) icin kapsam/güncellik garantisi yoktur; bu, gercek bir yanit
-gozlemlenene kadar acik bir risk olarak kalir.
 
 AUTHENTICATION: "Authorization: Bearer <NOTAC_API_KEY>" - token bicimi
 "lb_" + 40 hex karakter, self-service olusturulamiyor, NOTAC'tan talep
@@ -65,23 +71,14 @@ def _api_anahtari() -> str:
     return anahtar
 
 
-def notam_getir(location: str = "LTFJ", timeout: int = VARSAYILAN_TIMEOUT) -> dict:
-    """Verilen lokasyon icin NOTAC'in HAM (parse edilmemis) JSON yanitini
-    dondurur. Alan isimlerini burada yorumlamiyoruz - cagiran taraf ham
-    sozlugu alir.
-
-    Endpoint ve authentication semasi kullanicidan dogrulanmis sekilde
-    alindi (https://notac.aero/api/authentication/):
-      GET {BASE_URL}/notam/?location=<ICAO>
-      Authorization: Bearer <NOTAC_API_KEY>
-    Yanit govdesinin sekli (sayfalama, alan adlari, NOTAM listesi anahtari
-    vb.) HENUZ dogrulanmadi - bu fonksiyon bilerek "ham JSON dondur, model
-    esleme yapma" sinirinda duruyor."""
+def _istek_at(url: str, params: dict | None, timeout: int) -> dict:
+    """Ortak HTTP + hata siniflandirma katmani. notam_getir() (ilk sayfa)
+    ve sayfa_getir() (DRF'nin verdigi TAM "next" URL'si) BUNU paylasir."""
     anahtar = _api_anahtari()
     try:
         r = requests.get(
-            f"{BASE_URL}/notam/",
-            params={"location": location},
+            url,
+            params=params,
             headers={"Authorization": f"Bearer {anahtar}", "Accept": "application/json"},
             timeout=timeout,
         )
@@ -107,3 +104,17 @@ def notam_getir(location: str = "LTFJ", timeout: int = VARSAYILAN_TIMEOUT) -> di
         return r.json()
     except ValueError as e:
         raise NotamAyiklamaHatasi(f"NOTAC yanıtı geçerli JSON değil: {e}") from e
+
+
+def notam_getir(location: str = "LTFJ", timeout: int = VARSAYILAN_TIMEOUT) -> dict:
+    """Verilen lokasyon icin NOTAC'in HAM (parse edilmemis) ILK SAYFA JSON
+    yanitini dondurur: {"count", "next", "previous", "results": [...]}.
+    Sonraki sayfalar icin sayfa_getir(yanit["next"]) kullanilir."""
+    return _istek_at(f"{BASE_URL}/notam/", {"location": location}, timeout)
+
+
+def sayfa_getir(sayfa_url: str, timeout: int = VARSAYILAN_TIMEOUT) -> dict:
+    """DRF sayfalama zarfindaki "next" (ya da "previous") alaninda gelen
+    TAM URL'yi cagirir - bu URL zaten sorgu parametrelerini (location,
+    page vb.) icerir, ayrica params gecirmiyoruz."""
+    return _istek_at(sayfa_url, None, timeout)

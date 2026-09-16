@@ -19,6 +19,7 @@ from pathlib import Path
 
 GECMIS_LIMIT = 200
 OLCUM_GECMIS_LIMIT = 300
+NOTAM_GECMIS_LIMIT = 500   # state dosyasinin gereksiz buyumesini onlemek icin ust sinir
 
 # METAR/SPECI govdesindeki DDHHMMZ gozlem zaman grubu (ornek: "161250Z").
 _RE_GOZLEM_ZAMANI = re.compile(r"\b(\d{2})(\d{2})(\d{2})Z\b")
@@ -97,6 +98,41 @@ def _en_yeni_zaman_damgasi(a: dict, b: dict, alan: str) -> str | None:
     return max(degerler) if degerler else None
 
 
+def _notam_gecmisini_birlestir(a: dict, b: dict) -> dict:
+    """Iki tarafin yerel NOTAM gecmisini (id -> kayit, bkz. ltfj_notam.
+    gecmisi_guncelle) birlestirir. Ayni id ikisinde de varsa: first_seen
+    EN ERKEN, last_seen ve last_active EN SON alinir; kaydin geri kalan
+    icerigi (text, status vb.) hangi tarafin last_seen'i daha yeniyse
+    ondan gelir - boylece daha guncel bir NOTAC gozlemi kaybolmaz.
+
+    Boyut siniri asilirsa EN SON GORULENLER korunur (en eski gorulenler
+    dusurulur) - state dosyasinin sinirsiz buyumesini onlemek icin."""
+    a_gecmis = a.get("notam_gecmisi") or {}
+    b_gecmis = b.get("notam_gecmisi") or {}
+    birlesik = dict(a_gecmis)
+
+    for nid, b_kayit in b_gecmis.items():
+        a_kayit = birlesik.get(nid)
+        if a_kayit is None:
+            birlesik[nid] = b_kayit
+            continue
+        b_daha_yeni = (b_kayit.get("last_seen") or "") > (a_kayit.get("last_seen") or "")
+        yeni = dict(b_kayit if b_daha_yeni else a_kayit)
+        yeni["first_seen"] = min(
+            a_kayit.get("first_seen") or a_kayit.get("last_seen") or "",
+            b_kayit.get("first_seen") or b_kayit.get("last_seen") or "",
+        ) or None
+        yeni["last_seen"] = max(a_kayit.get("last_seen") or "", b_kayit.get("last_seen") or "") or None
+        yeni["last_active"] = max(a_kayit.get("last_active") or "", b_kayit.get("last_active") or "") or None
+        birlesik[nid] = yeni
+
+    if len(birlesik) > NOTAM_GECMIS_LIMIT:
+        siralanmis = sorted(birlesik.items(), key=lambda kv: kv[1].get("last_seen") or "")
+        birlesik = dict(siralanmis[-NOTAM_GECMIS_LIMIT:])
+
+    return birlesik
+
+
 def birlestir(a: dict, b: dict) -> dict:
     # Gonderilmis rapor kimlikleri: sirayi bozmadan birlesim
     gonderilen = list(a.get("gonderilen") or [])
@@ -128,6 +164,10 @@ def birlestir(a: dict, b: dict) -> dict:
         "son_veri_zamani": _en_yeni_zaman_damgasi(a, b, "son_veri_zamani"),
         "olcum_gecmisi": olcum_gecmisi,
         "yorum_onbellegi": onbellek,
+        "notam_gecmisi": _notam_gecmisini_birlestir(a, b),
+        # NOTAM senkronizasyonu METAR'dan bagimsiz, seyrek araliklarla
+        # calisiyor (bkz. ltfj_bot.py) - bu da dogrudan bir zaman degeri.
+        "notam_son_senkron": _en_yeni_zaman_damgasi(a, b, "notam_son_senkron"),
         "guncelleme": max(a.get("guncelleme", ""), b.get("guncelleme", "")),
     }
 
