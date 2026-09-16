@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-16T19:21:02+00:00",
+ "uretildi": "2026-09-16T19:31:02+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-16T18:50:00+00:00",
-  "metin": "METAR LTFJ 161850Z 04006KT 9999 SCT040 BKN100 18/15 Q1017 NOSIG RMK RWY24R 02006KT RWY06R 03007KT RWY24L 03004KT",
+  "zaman": "2026-09-16T19:20:00+00:00",
+  "metin": "METAR LTFJ 161920Z 04006KT 9999 FEW040 SCT120 17/15 Q1017 NOSIG RMK RWY24R 02004KT RWY06R 03005KT RWY24L 05003KT",
   "ruzgar": {
    "yon": 40,
    "hiz": 6,
@@ -14,9 +14,9 @@
   },
   "gorus": 9999,
   "cavok": false,
-  "tavan": 10000,
+  "tavan": null,
   "hava": [],
-  "sicaklik": 18,
+  "sicaklik": 17,
   "cig_noktasi": 15,
   "qnh": 1017,
   "nosig": true,
@@ -29,8 +29,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 5.8,
-    "yan": 3.9,
+    "bas": 4.1,
+    "yan": 2.8,
     "yan_taraf": "soldan",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -38,8 +38,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -3.3,
-    "yan": 2.2,
+    "bas": -2.9,
+    "yan": 0.7,
     "yan_taraf": "sağdan",
     "kuyruk": true,
     "kuyruk_asildi": false
@@ -47,8 +47,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -4.3,
-    "yan": 4.2,
+    "bas": -2.9,
+    "yan": 2.8,
     "yan_taraf": "sağdan",
     "kuyruk": true,
     "kuyruk_asildi": false
@@ -62,8 +62,8 @@
   "prs": [],
   "gorus_op": [],
   "trend": null,
-  "sis_riski": "Sis oluşma riski orta: sıcaklık–çiğ noktası aralığı 3°C, rüzgâr 6 kt, gece şartları",
-  "ozet": "Rüzgâr 040° 6kt · görüş 10+ km · tavan 10000 ft · 18°C · QNH 1017"
+  "sis_riski": "Sis oluşma riski orta: sıcaklık–çiğ noktası aralığı 2°C, rüzgâr 6 kt, gece şartları",
+  "ozet": "Rüzgâr 040° 6kt · görüş 10+ km · 17°C · QNH 1017"
  },
  "taf": {
   "zaman": "2026-09-16T16:40:00+00:00",
@@ -174,6 +174,13 @@
    "tavan": 10000,
    "qnh": 1017,
    "sicaklik": 18
+  },
+  {
+   "zaman": "2026-09-16T19:20:00+00:00",
+   "ruzgar_hiz": 6,
+   "tavan": null,
+   "qnh": 1017,
+   "sicaklik": 17
   }
  ]
 }
