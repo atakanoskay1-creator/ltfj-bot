@@ -46,6 +46,9 @@ def birlestir(a: dict, b: dict) -> dict:
         "ilk_calisma": bool(a.get("ilk_calisma", True)) and bool(b.get("ilk_calisma", True)),
         "son_metar": yeni_olan(a, b, "son_metar") or "",
         "son_uyari": yeni_olan(a, b, "son_uyari"),
+        "son_renk": yeni_olan(a, b, "son_renk"),
+        "durum_mesaj_id": yeni_olan(a, b, "durum_mesaj_id"),
+        "son_veri_zamani": yeni_olan(a, b, "son_veri_zamani"),
         "guncelleme": max(a.get("guncelleme", ""), b.get("guncelleme", "")),
     }
 

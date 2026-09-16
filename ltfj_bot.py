@@ -91,7 +91,8 @@ def gerekli(ad):
 # ------------------------------------------------------------------ state ---
 def state_oku() -> dict:
     bos = {"gonderilen": [], "ilk_calisma": True, "son_metar": "",
-           "son_uyari": None, "durum_mesaj_id": None, "son_renk": None}
+           "son_uyari": None, "durum_mesaj_id": None, "son_renk": None,
+           "son_veri_zamani": None}
     if not STATE.exists():
         return bos
     try:
@@ -453,13 +454,38 @@ def durum_mesaji_kur(raporlar: list) -> str:
 
 # ----------------------------------------------------------- kalp atisi ---
 def sessizlik_kontrol(state, raporlar, token, chat_id):
+    """MGM'den hic rapor donmemesi de (bos liste) veri akisinin kesilmesi
+    demektir - bu yuzden en yeni rapor zamanini state'e ayrica kaydedip,
+    bu turda hic rapor gelmese bile en son bilinen zamana gore yaslandiriyoruz."""
+    simdi = datetime.now(timezone.utc)
     zamanlar = [r["zaman"] for r in raporlar if r.get("zaman")]
-    if not zamanlar:
-        return
-    en_yeni, simdi = max(zamanlar), datetime.now(timezone.utc)
+
+    if zamanlar:
+        en_yeni = max(zamanlar)
+        state["son_veri_zamani"] = en_yeni.isoformat(timespec="seconds")
+    else:
+        try:
+            en_yeni = (datetime.fromisoformat(state["son_veri_zamani"])
+                       if state.get("son_veri_zamani") else None)
+        except ValueError:
+            en_yeni = None
+        if en_yeni is None:
+            return   # daha once hic veri gormedik, olcum noktasi yok
+
     yas = simdi - en_yeni
 
     if yas < timedelta(hours=SESSIZLIK_SAAT):
+        if state.get("son_uyari"):
+            try:
+                telegram_gonder(
+                    token, chat_id,
+                    f"🟢 <b>{ICAO} · veri akışı normale döndü</b>\n\n"
+                    f"En yeni rapor: {en_yeni:%d.%m %H:%M}Z."
+                )
+                print("[uyarı] Veri akışı normale döndü bildirimi gönderildi.",
+                      file=sys.stderr)
+            except Exception as e:
+                print(f"[uyarı] Düzelme bildirimi gönderilemedi: {e}", file=sys.stderr)
         state["son_uyari"] = None
         return
 
@@ -519,12 +545,13 @@ def main():
     except AyiklamaHatasi as e:
         sys.exit(f"KRİTİK: veri ayıklanamadı, parser güncellenmeli.\n{e}")
 
-    if not raporlar:
-        print("Rapor dönmedi, çıkılıyor.")
-        return
-
     state = state_oku()
     sessizlik_kontrol(state, raporlar, token, chat_id)
+
+    if not raporlar:
+        state_yaz(state)
+        print("Rapor dönmedi, çıkılıyor.")
+        return
 
     gorulen = set(state["gonderilen"])
     yeniler = [r for r in raporlar if anahtar(r) not in gorulen]
