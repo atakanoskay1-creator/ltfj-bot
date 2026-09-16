@@ -1,6 +1,6 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-16T22:31:06+00:00",
+ "uretildi": "2026-09-16T22:40:49+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
@@ -24,6 +24,7 @@
    "BLU",
    "çok iyi"
   ],
+  "renk_etiketi": "LTFJ Bot durum seviyesi",
   "dikkat": [],
   "pistler": [
    {
