@@ -2,23 +2,23 @@
 """
 LTFJ METAR/TAF Telegram bildirim botu.
 
-Bir kere calisir, isini yapar, cikar. Surekli calismaz -> GitHub Actions / systemd
-timer ile belirli araliklarla tetiklenir. Ayni raporu iki kez GONDERMEZ.
+Bir kere calisir, isini yapar, cikar. GitHub Actions / systemd timer tetikler.
 
-Dosyalar:
-  ltfj_rasat.py      -> veri cekme        (ayni klasorde olmali)
-  ltfj_analiz.py     -> METAR cozumleme   (ayni klasorde olmali)
-  .env               -> gizli anahtarlar  (GitHub Actions'ta Secrets kullanilir)
-  ltfj_state.json    -> gonderilmis rapor kayitlari (otomatik olusur)
+BILDIRIM MANTIGI
+  Sohbette SABITLENMIS tek bir "su an" mesaji durur; her raporda yerinde
+  guncellenir, telefon otmez. Ayri bildirim SADECE onemli durumda gider:
+  SPECI, TAF, duzeltme (AMD/COR), DIKKAT esigi, renk durumu degisimi.
+  Boylece gunde ~55 bildirim yerine ~3-5 bildirim olur.
+  Davranis ayarlar.json'dan degistirilebilir.
+
+Dosyalar (hepsi ayni klasorde):
+  ltfj_rasat.py   veri cekme        ltfj_analiz.py  METAR cozumleme
+  ltfj_pist.py    havacilik hesabi  ltfj_ayarlar.py ayar yukleyici
+  ltfj_sayfa.py   web sayfasi       ayarlar.json    ayarlar
+  .env            gizli anahtarlar  ltfj_state.json gecmis (otomatik)
 
 Cikis kodlari:
-  0 = her sey yolunda ya da gecici ag sorunu (bir sonraki turda telafi edilir)
-  1 = mudahale gerektiren kalici sorun (eksik ayar, MGM sayfa yapisi degismis)
-
-Kurulum:
-  pip install requests
-  .env dosyasi olustur (asagidaki ORNEK_ENV'e bak)
-  python ltfj_bot.py
+  0 = yolunda ya da gecici ag sorunu     1 = mudahale gerektiren kalici sorun
 
 Bayraklar:
   --hepsi   state'i yok sayip su anki tum raporlari gonderir (elle test)
@@ -29,34 +29,31 @@ import json
 import os
 import re
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, time, timedelta, timezone
 from pathlib import Path
 
 import requests
 
 from ltfj_analiz import cozum_dokumu, fark_bul, metar_coz, ozet_satiri, uyarilar
+from ltfj_ayarlar import AYARLAR, ayar
+from ltfj_pist import RENK_SIMGE, havacilik_notlari
 from ltfj_rasat import AgHatasi, AyiklamaHatasi, raporlari_cek
 
 # ----------------------------------------------------------------- ayarlar ---
-ICAO = "LTFJ"
+ICAO = AYARLAR.get("istasyon", "LTFJ")
 KLASOR = Path(__file__).resolve().parent
 STATE = KLASOR / "ltfj_state.json"
 ENV = KLASOR / ".env"
 
-# Ilk calistirmada gecmisi doldurup susmak yerine en yeni raporu gonderir.
 ILK_CALISTIRMADA_GONDER = True
-
-# Hafizada tutulacak gecmis kayit sayisi (dosya sismesin diye)
 GECMIS_LIMIT = 200
 
-# Kalp atisi: en yeni rapor bu kadar saatten eskiyse "veri gelmiyor" uyarisi at.
-# LTFJ'de METAR yarim saatte bir yayinlanir, 6 saat sessizlik gercekten anormal.
 SESSIZLIK_SAAT = 6
-UYARI_ARALIGI_SAAT = 12        # ayni uyariyi tekrar tekrar atmayalim
+UYARI_ARALIGI_SAAT = 12
 
-# Claude yorumu (istege bagli). ANTHROPIC_API_KEY yoksa atlanir.
 CLAUDE_MODEL = "claude-haiku-4-5-20251001"
 CLAUDE_URL = "https://api.anthropic.com/v1/messages"
+TELEGRAM = "https://api.telegram.org/bot{token}/{yontem}"
 
 SIMGE = {"METAR": "🛬", "SPECI": "⚠️", "TAF": "📅"}
 
@@ -70,7 +67,6 @@ ANTHROPIC_API_KEY=sk-ant-...
 
 # -------------------------------------------------------------------- env ---
 def env_yukle():
-    """.env dosyasini os.environ'a yukler (harici kutuphane yok)."""
     if not ENV.exists():
         return
     for satir in ENV.read_text(encoding="utf-8").splitlines():
@@ -94,7 +90,8 @@ def gerekli(ad):
 
 # ------------------------------------------------------------------ state ---
 def state_oku() -> dict:
-    bos = {"gonderilen": [], "ilk_calisma": True, "son_metar": "", "son_uyari": None}
+    bos = {"gonderilen": [], "ilk_calisma": True, "son_metar": "",
+           "son_uyari": None, "durum_mesaj_id": None, "son_renk": None}
     if not STATE.exists():
         return bos
     try:
@@ -113,7 +110,6 @@ def state_yaz(state: dict):
 
 
 def anahtar(rapor: dict) -> str:
-    """Her rapor icin benzersiz kimlik. id yoksa tip+zaman'a duser."""
     if rapor.get("id"):
         return f"id:{rapor['id']}"
     z = rapor["zaman"].isoformat() if rapor.get("zaman") else "?"
@@ -122,47 +118,46 @@ def anahtar(rapor: dict) -> str:
 
 # ----------------------------------------------------------------- claude ---
 SISTEM_ISTEMI = (
-    "Sen havacilik meteorolojisi raporlarini sade Turkceye ceviren bir asistansin. "
-    "Rapor HER ZAMAN LTFJ - Istanbul Sabiha Gokcen Havalimani icindir; baska hicbir "
-    "sehir, havalimani veya bolge adi yazma. Sadece sana verilen verilerden konus: "
-    "veride olmayan bir bilgiyi tahmin etme, ekleme, yuvarlama. Emin olmadigin bir sey "
-    "varsa o satiri kisa tut. Sayilari verildigi gibi kullan. Sablonu harfiyen uygula, "
-    "baslik ve etiketleri degistirme, giris veya kapanis cumlesi kurma."
+    "Sen havacılık meteorolojisi raporlarını sade Türkçeye çeviren bir asistansın. "
+    "Rapor HER ZAMAN LTFJ — İstanbul Sabiha Gökçen Havalimanı içindir; başka hiçbir "
+    "şehir, havalimanı veya bölge adı yazma. Sadece sana verilen verilerden konuş: "
+    "veride olmayan bir bilgiyi tahmin etme, ekleme, yuvarlama. Emin olmadığın bir şey "
+    "varsa o satırı kısa tut. Sayıları verildiği gibi kullan. Şablonu harfiyen uygula, "
+    "başlık ve etiketleri değiştirme, giriş veya kapanış cümlesi kurma."
 )
 
 METAR_SABLONU = """\
-Asagidaki gozlem raporunu su sablona gore anlat. Tam olarak 4 satir yaz, her satir \
-etiketle baslasin, her satir tek cumle olsun:
+Aşağıdaki gözlem raporunu şu şablona göre anlat. Tam olarak 4 satır yaz, her satır \
+etiketle başlasın, her satır tek cümle olsun:
 
-Ruzgar: <yonu ve siddeti gunluk dille; kuvvetli veya yan ruzgar varsa belirt>
-Gorus: <ne kadar gorunuyor, ucus icin rahat mi>
-Gokyuzu: <bulut durumu ve yagis; tavan alcaksa belirt>
-Ucusa etkisi: <normal mi, gecikme/aksama ihtimali var mi - abartma>
+Rüzgâr: <yönü ve şiddeti günlük dille; kuvvetli veya yan rüzgâr varsa belirt>
+Görüş: <ne kadar görünüyor, uçuş için rahat mı>
+Gökyüzü: <bulut durumu ve yağış; tavan alçaksa belirt>
+Uçuşa etkisi: <normal mi, gecikme/aksama ihtimali var mı — abartma>
 
-Havacilik bilmeyen birine anlatiyorsun: "BKN024" gibi kodlari kullanma, "2400 fitte \
-cok bulutlu" gibi yaz. Fit yerine yaklasik metre de ekleyebilirsin.
+Havacılık bilmeyen birine anlatıyorsun: "BKN024" gibi kodları kullanma, "2400 fitte \
+çok bulutlu" gibi yaz. Fit yerine yaklaşık metre de ekleyebilirsin.
 
 HAM RAPOR:
 {ham}
 
-COZUMLENMIS VERI (dogru kaynak budur):
+ÇÖZÜMLENMİŞ VERİ (doğru kaynak budur):
 {cozum}"""
 
 TAF_SABLONU = """\
-Asagidaki hava tahmini raporunu su sablona gore anlat. En fazla 5 satir:
+Aşağıdaki hava tahmini raporunu şu şablona göre anlat. En fazla 5 satır:
 
-Genel: <tahmin doneminin genel havasi, tek cumle>
-- <saat araligi UTC> <o donemde beklenen hava, tek cumle>
-- <varsa sonraki donem>
-Dikkat: <firtina, dusuk gorus, kuvvetli ruzgar gibi bir sey varsa; yoksa bu satiri yazma>
+Genel: <tahmin döneminin genel havası, tek cümle>
+- <saat aralığı UTC> <o dönemde beklenen hava, tek cümle>
+- <varsa sonraki dönem>
+Dikkat: <fırtına, düşük görüş, kuvvetli rüzgâr gibi bir şey varsa; yoksa bu satırı yazma>
 
-Saatler raporda oldugu gibi UTC olarak kalsin, yerel saate cevirme. TEMPO "gecici", \
-BECMG "kademeli gecis", PROB30 "ihtimal %30" demektir. Havacilik kodlarini cozerek yaz.
+Saatler raporda olduğu gibi UTC kalsın, yerel saate çevirme. TEMPO "geçici", \
+BECMG "kademeli geçiş", PROB30 "ihtimal %30" demektir. Havacılık kodlarını çözerek yaz.
 
 HAM RAPOR:
 {ham}"""
 
-# Modelin uydurabilecegi yer adlari. Biri gecerse yorumu kullanmiyoruz.
 YANLIS_YERLER = (
     "izmir", "ankara", "antalya", "adana", "bursa", "trabzon", "dalaman", "bodrum",
     "konya", "kayseri", "gaziantep", "diyarbakir", "erzurum", "samsun", "van",
@@ -174,12 +169,13 @@ TR_HARF = str.maketrans("ıİşŞğĞüÜöÖçÇâÂî", "iisSgGuUoOcCaAi")
 
 
 def _yer_hatasi(metin: str) -> str | None:
-    """Yoruma alakasiz bir yer adi karismis mi? Karistiysa o adi dondurur."""
     duz = metin.translate(TR_HARF).lower()
     return next((y for y in YANLIS_YERLER if y in duz), None)
 
 
-def claude_yorum(rapor: dict, cozum: dict | None) -> str | None:
+def claude_yorum(rapor, cozum, notlar=None) -> str | None:
+    if not ayar("mesaj", "claude_yorum", varsayilan=True):
+        return None
     api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
     if not api_key:
         return None
@@ -187,55 +183,55 @@ def claude_yorum(rapor: dict, cozum: dict | None) -> str | None:
     if rapor["tip"] == "TAF":
         istem = TAF_SABLONU.format(ham=rapor["metin"])
     else:
-        istem = METAR_SABLONU.format(ham=rapor["metin"],
-                                     cozum=cozum_dokumu(cozum))
+        veri = cozum_dokumu(cozum)
+        if notlar:
+            pistler = [p for p in notlar["pistler"] if not p.startswith("(")]
+            if pistler:
+                veri += "\nPist bileşenleri:\n  " + "\n  ".join(pistler)
+            if notlar["ws"]:
+                veri += "\nRüzgâr kesmesi: " + ", ".join(notlar["ws"])
+            if notlar["rvr"]:
+                veri += "\nPist görüş menzili: " + "; ".join(notlar["rvr"])
+        istem = METAR_SABLONU.format(ham=rapor["metin"], cozum=veri)
+
     try:
         r = requests.post(
             CLAUDE_URL,
-            headers={
-                "x-api-key": api_key,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
-            json={
-                "model": CLAUDE_MODEL,
-                "max_tokens": 500,
-                "temperature": 0,          # ayni rapor -> ayni yorum
-                "system": SISTEM_ISTEMI,
-                "messages": [{"role": "user", "content": istem}],
-            },
+            headers={"x-api-key": api_key, "anthropic-version": "2023-06-01",
+                     "content-type": "application/json"},
+            json={"model": CLAUDE_MODEL, "max_tokens": 500, "temperature": 0,
+                  "system": SISTEM_ISTEMI,
+                  "messages": [{"role": "user", "content": istem}]},
             timeout=30,
         )
         r.raise_for_status()
-        parcalar = r.json().get("content", [])
-        yorum = "".join(p.get("text", "") for p in parcalar).strip()
+        yorum = "".join(p.get("text", "")
+                        for p in r.json().get("content", [])).strip()
     except requests.RequestException as e:
-        print(f"[uyari] Claude yorumu alinamadi: {e}", file=sys.stderr)
+        print(f"[uyarı] Claude yorumu alınamadı: {e}", file=sys.stderr)
         return None
 
     if not yorum:
         return None
-
-    hatali_yer = _yer_hatasi(yorum)
-    if hatali_yer:
-        # Model alakasiz bir yer uydurmus - bu yorumu kullanmiyoruz.
-        print(f"[uyari] Yorumda alakasiz yer adi ('{hatali_yer}'), atlandi.",
+    hatali = _yer_hatasi(yorum)
+    if hatali:
+        print(f"[uyarı] Yorumda alakasız yer adı ('{hatali}'), atlandı.",
               file=sys.stderr)
         return None
-
     return yorum
 
 
+ETIKET = re.compile(r"^(Rüzgâr|Görüş|Gökyüzü|Uçuşa etkisi|Genel|Dikkat)\s*:\s*(.+)$")
+
+
 def _yorumu_bicimle(yorum: str) -> str:
-    """Etiketleri kalin yapar, madde isaretlerini duzeltir."""
     satirlar = []
     for satir in yorum.splitlines():
         satir = satir.strip()
         if not satir:
             continue
         kacis = html.escape(satir)
-        m = re.match(r"^(Ruzgar|Rüzgâr|Rüzgar|Gorus|Görüş|Gokyuzu|Gökyüzü|"
-                     r"Ucusa etkisi|Uçuşa etkisi|Genel|Dikkat)\s*:\s*(.+)$", kacis)
+        m = ETIKET.match(kacis)
         if m:
             satirlar.append(f"<b>{m.group(1)}:</b> {m.group(2)}")
         elif kacis.startswith("-"):
@@ -246,33 +242,107 @@ def _yorumu_bicimle(yorum: str) -> str:
 
 
 # --------------------------------------------------------------- telegram ---
-def telegram_gonder(token: str, chat_id: str, metin: str):
-    r = requests.post(
-        f"https://api.telegram.org/bot{token}/sendMessage",
-        json={
-            "chat_id": chat_id,
-            "text": metin,
-            "parse_mode": "HTML",
-            "disable_web_page_preview": True,
-        },
-        timeout=20,
-    )
-    r.raise_for_status()
-    if not r.json().get("ok"):
-        raise RuntimeError(f"Telegram reddetti: {r.text}")
+def _tg(token: str, yontem: str, **veri):
+    r = requests.post(TELEGRAM.format(token=token, yontem=yontem),
+                      json=veri, timeout=20)
+    cevap = r.json() if r.content else {}
+    if not cevap.get("ok"):
+        raise RuntimeError(f"Telegram {yontem} reddetti: {cevap.get('description', r.text)}")
+    return cevap.get("result")
 
 
-def mesaj_kur(rapor: dict, onceki_metar: str = "") -> str:
+def telegram_gonder(token, chat_id, metin, sessiz=False) -> int | None:
+    sonuc = _tg(token, "sendMessage", chat_id=chat_id, text=metin,
+                parse_mode="HTML", disable_web_page_preview=True,
+                disable_notification=sessiz)
+    return (sonuc or {}).get("message_id")
+
+
+def telegram_duzenle(token, chat_id, mesaj_id, metin) -> bool:
+    """Var olan mesaji yerinde gunceller. Icerik ayniysa Telegram hata doner,
+    bu bir sorun degil - sessizce True sayiyoruz."""
+    try:
+        _tg(token, "editMessageText", chat_id=chat_id, message_id=mesaj_id,
+            text=metin, parse_mode="HTML", disable_web_page_preview=True)
+        return True
+    except RuntimeError as e:
+        if "not modified" in str(e):
+            return True
+        print(f"[uyarı] Durum mesajı güncellenemedi: {e}", file=sys.stderr)
+        return False
+
+
+def telegram_sabitle(token, chat_id, mesaj_id):
+    try:
+        _tg(token, "pinChatMessage", chat_id=chat_id, message_id=mesaj_id,
+            disable_notification=True)
+    except RuntimeError as e:
+        print(f"[uyarı] Mesaj sabitlenemedi: {e}", file=sys.stderr)
+
+
+# ------------------------------------------------------------- bildirim ---
+def _sessiz_saatte_mi(zaman: datetime) -> bool:
+    s = ayar("bildirim", "sessiz_saatler", varsayilan={}) or {}
+    if not s.get("aktif"):
+        return False
+    try:
+        bas = time.fromisoformat(s.get("baslangic", "23:00"))
+        bit = time.fromisoformat(s.get("bitis", "07:00"))
+    except ValueError:
+        return False
+    simdi = zaman.astimezone().time()
+    return (bas <= simdi or simdi < bit) if bas > bit else (bas <= simdi < bit)
+
+
+# Renk durumlari kotuden iyiye siralamasi. BLU/WHT "iyi bant" sayilir.
+RENK_SIRA = {"BLU": 0, "WHT": 1, "GRN": 2, "YLO": 3, "AMB": 4, "RED": 5}
+ONEMLI_BANT = 2          # GRN ve asagisi
+
+
+def renk_onemli_mi(eski: str | None, yeni: str | None) -> bool:
+    """Renk degisimi bildirim hak ediyor mu?
+
+    BLU <-> WHT gibi iyi bant ici oynamalar bildirim uretmez - tavan 2400'den
+    2600 ft'e ciktigi icin telefon otmesin. GRN ve asagisina girmek ya da
+    oradan cikmak (duzelme) bildirim uretir.
+    """
+    if not eski or not yeni or eski == yeni:
+        return False
+    e, y = RENK_SIRA.get(eski, 0), RENK_SIRA.get(yeni, 0)
+    return e >= ONEMLI_BANT or y >= ONEMLI_BANT
+
+
+def bildirim_karari(rapor, dikkat, renk_degisti) -> tuple[bool, bool]:
+    """(ayri_mesaj_at, sessiz_olsun) dondurur."""
+    b = ayar("bildirim", "bildir", varsayilan={}) or {}
     tip = rapor["tip"]
-    duzeltme = rapor.get("duzeltme")
-    simge = SIMGE.get(tip, "ℹ️")
 
-    baslik = f"{ICAO} {tip}"
-    if duzeltme == "AMD":
-        baslik += " (DUZELTME)"
-        simge = "✏️"
-    elif duzeltme == "COR":
-        baslik += " (DUZELTILMIS)"
+    onemli = (
+        (tip == "SPECI" and b.get("speci", True))
+        or (tip == "TAF" and b.get("taf", True))
+        or (rapor.get("duzeltme") and b.get("duzeltme", True))
+        or (dikkat and b.get("dikkat", True))
+        or (renk_degisti and b.get("renk_degisimi", True))
+    )
+    if onemli:
+        return True, _sessiz_saatte_mi(rapor.get("zaman") or datetime.now(timezone.utc))
+
+    # Rutin METAR
+    kip = ayar("bildirim", "rutin_metar", varsayilan="gizle")
+    if kip == "gonder":
+        return True, False
+    if kip == "sessiz":
+        return True, True
+    return False, True          # gizle
+
+
+# ---------------------------------------------------------------- mesaj ---
+def baslik_kur(rapor, notlar) -> str:
+    tip, duzeltme = rapor["tip"], rapor.get("duzeltme")
+    simge = SIMGE.get(tip, "ℹ️")
+    ad = f"{ICAO} {tip}"
+    if duzeltme in ("AMD", "COR"):
+        ad += " (DÜZELTME)" if duzeltme == "AMD" else " (DÜZELTİLMİŞ)"
         simge = "✏️"
 
     if rapor.get("zaman"):
@@ -281,73 +351,158 @@ def mesaj_kur(rapor: dict, onceki_metar: str = "") -> str:
     else:
         damga = ""
 
-    satirlar = [f"{simge} <b>{html.escape(baslik)}</b>  <i>{damga}</i>"]
+    renk = ""
+    if notlar and notlar["renk"]:
+        kod, aciklama = notlar["renk"]
+        renk = f'  {RENK_SIMGE.get(kod, "")} <b>{kod}</b> <i>({aciklama})</i>'
+    return f"{simge} <b>{html.escape(ad)}</b>  <i>{damga}</i>{renk}"
 
+
+def mesaj_kur(rapor, onceki_metar="", uzun=None) -> str:
+    if uzun is None:
+        uzun = ayar("mesaj", "bicim", varsayilan="kisa") == "uzun"
+
+    tip = rapor["tip"]
     cozum = metar_coz(rapor["metin"]) if tip in ("METAR", "SPECI") else None
+    notlar = (havacilik_notlari(cozum, rapor["metin"], rapor.get("zaman"))
+              if cozum else None)
 
-    # METAR/SPECI icin dikkat satiri ve degisim ozeti
+    s = [baslik_kur(rapor, notlar)]
+
     if cozum:
         dikkat = uyarilar(cozum)
+        if notlar["ws"]:
+            dikkat.insert(0, "RÜZGÂR KESMESİ: " + ", ".join(notlar["ws"]))
         if dikkat:
-            satirlar.append("")
-            satirlar.append("🔴 <b>DIKKAT</b> · " + html.escape(" · ".join(dikkat)))
+            s += ["", "🔴 <b>DİKKAT</b> · " + html.escape(" · ".join(dikkat))]
+        if notlar["prs"]:
+            s += ["", "ℹ️ <b>Tercihli pist sistemi askıda</b> · "
+                  + html.escape(", ".join(notlar["prs"]))]
 
         farklar = fark_bul(onceki_metar, rapor["metin"])
         if farklar:
-            satirlar.append("")
-            satirlar.append("<b>Degisim</b>")
-            satirlar += [f"• {html.escape(f)}" for f in farklar]
+            s += ["", "<b>Değişim</b>"] + [f"• {html.escape(f)}" for f in farklar]
 
-    yorum = claude_yorum(rapor, cozum)
+    yorum = claude_yorum(rapor, cozum, notlar)
     if yorum:
-        satirlar += ["", _yorumu_bicimle(yorum)]
+        s += ["", _yorumu_bicimle(yorum)]
     elif cozum:
-        # Claude kapali ya da yorum elendi - en azindan makine ozeti olsun
-        satirlar += ["", html.escape(ozet_satiri(cozum))]
+        s += ["", html.escape(ozet_satiri(cozum))]
 
-    satirlar += ["", f'<pre>{html.escape(rapor["metin"])}</pre>']
+    if notlar and (uzun or notlar["gorus_op"]):
+        s += _havacilik_blogu(notlar, uzun)
 
-    return "\n".join(satirlar)
+    if uzun and ayar("mesaj", "ham_bulten", varsayilan=True):
+        s += ["", f'<pre>{html.escape(rapor["metin"])}</pre>']
+
+    return "\n".join(s)
+
+
+def _havacilik_blogu(n: dict, uzun: bool) -> list[str]:
+    s = []
+    if uzun:
+        pistler = [p for p in n["pistler"] if not p.startswith("(")]
+        kaynak = next((p for p in n["pistler"] if p.startswith("(")), "")
+        if pistler:
+            s += ["", f"✈️ <b>Pist bileşenleri</b> <i>{html.escape(kaynak)}</i>"]
+            s += [f"<code>{html.escape(p)}</code>" for p in pistler]
+            if n["tercih"]:
+                s.append(f'Baş rüzgârına göre uygun pist: <b>{n["tercih"]}</b>')
+
+    # Gorus operasyonu kisa bicimde de gosterilir - operasyonel olarak kritik
+    if n["gorus_op"]:
+        s += [""] + [f"👁 {html.escape(g)}" for g in n["gorus_op"]]
+
+    if not uzun:
+        return s
+
+    ekler = []
+    if n["rvr"]:
+        ekler.append(("Pist görüş menzili", "; ".join(n["rvr"])))
+    if n["son_hava"]:
+        ekler.append(("Son bir saatte", ", ".join(n["son_hava"])))
+    if n["trend"]:
+        ekler.append(("Eğilim", n["trend"]))
+    if n["sis"]:
+        ekler.append(("🌫 Sis", n["sis"].split(":", 1)[-1].strip()))
+    if ekler:
+        s.append("")
+        s += [f"<b>{html.escape(e)}</b> · {html.escape(i)}" for e, i in ekler]
+    return s
+
+
+def durum_mesaji_kur(raporlar: list) -> str:
+    """Sabitlenmis 'su an' mesaji - her raporda yerinde guncellenir."""
+    metar = next((r for r in raporlar if r["tip"] in ("METAR", "SPECI")), None)
+    taf = next((r for r in raporlar if r["tip"] == "TAF"), None)
+    simdi = datetime.now(timezone.utc).astimezone()
+
+    s = [f"📍 <b>{ICAO} · şu an</b>"]
+
+    if metar:
+        s.append(mesaj_kur(metar, uzun=True))
+    if taf:
+        yerel = taf["zaman"].astimezone() if taf.get("zaman") else None
+        damga = f'{taf["zaman"]:%d.%m %H:%MZ}' if taf.get("zaman") else ""
+        s += ["", f"📅 <b>TAF</b> <i>{damga}</i>",
+              f'<pre>{html.escape(taf["metin"])}</pre>']
+
+    s += ["", f"<i>Son güncelleme: {simdi:%d.%m %H:%M} yerel</i>"]
+    return "\n".join(s)
 
 
 # ----------------------------------------------------------- kalp atisi ---
-def sessizlik_kontrol(state: dict, raporlar: list, token: str, chat_id: str):
-    """En yeni rapor cok eskiyse haber ver. Bot calisiyor ama veri akmiyorsa
-    kimse fark etmesin istemiyoruz."""
+def sessizlik_kontrol(state, raporlar, token, chat_id):
     zamanlar = [r["zaman"] for r in raporlar if r.get("zaman")]
     if not zamanlar:
         return
-    en_yeni = max(zamanlar)
-    simdi = datetime.now(timezone.utc)
+    en_yeni, simdi = max(zamanlar), datetime.now(timezone.utc)
     yas = simdi - en_yeni
 
     if yas < timedelta(hours=SESSIZLIK_SAAT):
-        state["son_uyari"] = None        # durum normale dondu
+        state["son_uyari"] = None
         return
 
-    # Ayni uyariyi surekli tekrarlamayalim
     if state.get("son_uyari"):
         try:
-            onceki = datetime.fromisoformat(state["son_uyari"])
-            if simdi - onceki < timedelta(hours=UYARI_ARALIGI_SAAT):
+            if simdi - datetime.fromisoformat(state["son_uyari"]) < \
+                    timedelta(hours=UYARI_ARALIGI_SAAT):
                 return
         except ValueError:
             pass
 
     saat = int(yas.total_seconds() // 3600)
     mesaj = (
-        f"🟡 <b>{ICAO} · veri akmiyor</b>\n\n"
-        f"Bot calisiyor ama MGM'deki en yeni rapor <b>{saat} saat</b> oncesine ait "
+        f"🟡 <b>{ICAO} · veri akmıyor</b>\n\n"
+        f"Bot çalışıyor ama MGM'deki en yeni rapor <b>{saat} saat</b> öncesine ait "
         f"({en_yeni:%d.%m %H:%M}Z).\n\n"
-        f"Muhtemel sebepler: MGM tarafinda yayin durmus, istasyon bakimda, "
-        f"ya da sayfa yapisi degismis."
+        f"Muhtemel sebepler: MGM tarafında yayın durmuş, istasyon bakımda, "
+        f"ya da sayfa yapısı değişmiş."
     )
     try:
         telegram_gonder(token, chat_id, mesaj)
         state["son_uyari"] = simdi.isoformat(timespec="seconds")
-        print(f"[uyari] Sessizlik uyarisi gonderildi ({saat} saat).", file=sys.stderr)
+        print(f"[uyarı] Sessizlik uyarısı gönderildi ({saat} saat).", file=sys.stderr)
     except Exception as e:
-        print(f"[uyari] Sessizlik uyarisi gonderilemedi: {e}", file=sys.stderr)
+        print(f"[uyarı] Sessizlik uyarısı gönderilemedi: {e}", file=sys.stderr)
+
+
+def durum_mesajini_guncelle(state, raporlar, token, chat_id):
+    if not ayar("bildirim", "sabit_mesaj", varsayilan=True):
+        return
+    metin = durum_mesaji_kur(raporlar)
+    mesaj_id = state.get("durum_mesaj_id")
+
+    if mesaj_id and telegram_duzenle(token, chat_id, mesaj_id, metin):
+        return
+    try:
+        yeni = telegram_gonder(token, chat_id, metin, sessiz=True)
+        if yeni:
+            telegram_sabitle(token, chat_id, yeni)
+            state["durum_mesaj_id"] = yeni
+            print(f"  durum mesajı oluşturuldu ve sabitlendi (id {yeni})")
+    except Exception as e:
+        print(f"[uyarı] Durum mesajı oluşturulamadı: {e}", file=sys.stderr)
 
 
 # ------------------------------------------------------------------- main ---
@@ -359,15 +514,13 @@ def main():
     try:
         raporlar = raporlari_cek(ICAO)
     except AgHatasi as e:
-        # GECICI: bir sonraki turda telafi edilir, hata sayilmaz.
-        print(f"[uyari] MGM'ye ulasilamadi, bu tur atlaniyor: {e}", file=sys.stderr)
+        print(f"[uyarı] MGM'ye ulaşılamadı, bu tur atlanıyor: {e}", file=sys.stderr)
         return
     except AyiklamaHatasi as e:
-        # KALICI: sessizce gecersek bot haftalarca olu kalir. Gurultu cikar.
-        sys.exit(f"KRITIK: veri ayiklanamadi, parser guncellenmeli.\n{e}")
+        sys.exit(f"KRİTİK: veri ayıklanamadı, parser güncellenmeli.\n{e}")
 
     if not raporlar:
-        print("Rapor donmedi, cikiliyor.")
+        print("Rapor dönmedi, çıkılıyor.")
         return
 
     state = state_oku()
@@ -378,37 +531,70 @@ def main():
 
     if "--hepsi" in sys.argv:
         gonderilecek = list(reversed(raporlar))
-        print(f"--hepsi: {len(gonderilecek)} rapor gonderiliyor (state yok sayildi).")
+        print(f"--hepsi: {len(gonderilecek)} rapor gönderiliyor (state yok sayıldı).")
     elif state["ilk_calisma"]:
         gonderilecek = yeniler[:1] if ILK_CALISTIRMADA_GONDER else []
-        print(f"Ilk calisma. {len(yeniler)} rapor kaydediliyor, "
-              f"{len(gonderilecek)} tanesi gonderiliyor.")
+        print(f"İlk çalışma. {len(yeniler)} rapor kaydediliyor, "
+              f"{len(gonderilecek)} tanesi gönderiliyor.")
     else:
-        gonderilecek = list(reversed(yeniler))   # eskiden yeniye dogru
+        gonderilecek = list(reversed(yeniler))
         print(f"{len(gonderilecek)} yeni rapor.")
 
     onceki_metar = state.get("son_metar", "")
 
     for rapor in gonderilecek:
-        try:
-            telegram_gonder(token, chat_id, mesaj_kur(rapor, onceki_metar))
-            print(f'  gonderildi: {rapor["tip"]} {anahtar(rapor)}')
-        except Exception as e:
-            print(f'  GONDERILEMEDI ({rapor["tip"]}): {e}', file=sys.stderr)
-            continue   # bu raporu "gorulmus" saymiyoruz, sonraki turda tekrar dener
-        gorulen.add(anahtar(rapor))
-        if rapor["tip"] in ("METAR", "SPECI"):
-            onceki_metar = rapor["metin"]        # zincirleme karsilastirma
+        cozum = (metar_coz(rapor["metin"])
+                 if rapor["tip"] in ("METAR", "SPECI") else None)
+        notlar = (havacilik_notlari(cozum, rapor["metin"], rapor.get("zaman"))
+                  if cozum else None)
 
-    # Ilk calismada gondermediklerimizi de gorulmus say ki bir daha atmasin
+        # Bildirim tetikleyicisi SADECE gercek tehlike: esik uyarilari ve
+        # ruzgar kesmesi. PRS askiya alinmasi bilgi niteliginde - mesajda
+        # gorunur ama telefon oturmez, yoksa hafif yagmurda yarim saatte bir
+        # bildirim gelir.
+        dikkat = bool(uyarilar(cozum)) if cozum else False
+        if notlar and notlar["ws"]:
+            dikkat = True
+
+        renk = notlar["renk"][0] if notlar and notlar["renk"] else None
+        renk_degisti = renk_onemli_mi(state.get("son_renk"), renk)
+
+        at, sessiz = bildirim_karari(rapor, dikkat, renk_degisti)
+
+        if at:
+            try:
+                telegram_gonder(token, chat_id,
+                                mesaj_kur(rapor, onceki_metar), sessiz=sessiz)
+                print(f'  gönderildi{" (sessiz)" if sessiz else ""}: '
+                      f'{rapor["tip"]} {anahtar(rapor)}')
+            except Exception as e:
+                print(f'  GÖNDERİLEMEDİ ({rapor["tip"]}): {e}', file=sys.stderr)
+                continue
+        else:
+            print(f'  rutin, bildirim yok: {rapor["tip"]} {anahtar(rapor)}')
+
+        gorulen.add(anahtar(rapor))
+        if renk:
+            state["son_renk"] = renk
+        if rapor["tip"] in ("METAR", "SPECI"):
+            onceki_metar = rapor["metin"]
+
+    # Sabitlenmis durum mesaji - yeni rapor olmasa da saat damgasi tazelenir
+    durum_mesajini_guncelle(state, raporlar, token, chat_id)
+
+    if ayar("web_sayfasi", varsayilan=True):
+        try:
+            from ltfj_sayfa import sayfa_yaz
+            sayfa_yaz(raporlar, KLASOR / "index.html")
+        except Exception as e:
+            print(f"[uyarı] Web sayfası üretilemedi: {e}", file=sys.stderr)
+
     if state["ilk_calisma"]:
         gorulen.update(anahtar(r) for r in raporlar)
 
-    # Karsilastirma referansi: gonderilmemis olsa bile en guncel METAR
-    guncel_metar = next((r["metin"] for r in raporlar
-                         if r["tip"] in ("METAR", "SPECI")), "")
-    state["son_metar"] = guncel_metar or onceki_metar
-
+    guncel = next((r["metin"] for r in raporlar
+                   if r["tip"] in ("METAR", "SPECI")), "")
+    state["son_metar"] = guncel or onceki_metar
     state["gonderilen"] = [k for k in state["gonderilen"] if k in gorulen]
     state["gonderilen"] += [k for k in gorulen if k not in state["gonderilen"]]
     state["ilk_calisma"] = False

@@ -9,18 +9,21 @@ Harici kutuphane yok.
 import math
 import re
 
-# LTFJ pistleri 06L/24R ve 06R/24L -> pist yonu ~060/240 derece.
-# Yan ruzgar hesabi icin 060'i kullaniyoruz (240 icin sonuc ayni).
-PIST_YONU = 60
+from ltfj_ayarlar import esik
+
+# LTFJ pist ekseni, GERCEK yon (AIP AD 2.12: 06L/06R 064.10°, 24R/24L 244.12°).
+# Yan ruzgar buyuklugu iki yon icin de ayni oldugundan tek deger yetiyor.
+# Pist basi bazinda ayrintili tablo ltfj_pist.PISTLER icinde.
+PIST_YONU = 64.10
 
 # --- esikler ---------------------------------------------------------------
-GORUS_DUSUK = 1500      # metre
-GORUS_COK_DUSUK = 800   # metre
-TAVAN_DUSUK = 500       # ft
-TAVAN_COK_DUSUK = 200   # ft
-RUZGAR_KUVVETLI = 25    # kt
-HAMLE_KUVVETLI = 30     # kt
-YAN_RUZGAR_YUKSEK = 15  # kt
+GORUS_DUSUK = esik("gorus_dusuk")            # metre
+GORUS_COK_DUSUK = esik("gorus_cok_dusuk")    # metre
+TAVAN_DUSUK = esik("tavan_dusuk")            # ft
+TAVAN_COK_DUSUK = esik("tavan_cok_dusuk")    # ft
+RUZGAR_KUVVETLI = esik("ruzgar_kuvvetli")    # kt
+HAMLE_KUVVETLI = esik("hamle_kuvvetli")      # kt
+YAN_RUZGAR_YUKSEK = esik("yan_ruzgar_dikkat")  # kt
 
 # --- desenler --------------------------------------------------------------
 RE_RUZGAR = re.compile(r"^(\d{3}|VRB)(\d{2,3})(?:G(\d{2,3}))?(KT|MPS)$")
@@ -33,16 +36,16 @@ RE_BASINC = re.compile(r"^([QA])(\d{4})$")
 # Hava olayi kodlari (WMO 4678)
 SIDDET = {"-": "hafif ", "+": "kuvvetli ", "VC": "civarda "}
 TANIMLAYICI = {
-    "MI": "alcak ", "BC": "parca parca ", "PR": "kismi ", "DR": "savrulan ",
-    "BL": "suruklenen ", "SH": "saganak ", "TS": "gok gurultulu ", "FZ": "donan ",
+    "MI": "alçak ", "BC": "parça parça ", "PR": "kısmi ", "DR": "savrulan ",
+    "BL": "sürüklenen ", "SH": "sağanak ", "TS": "gök gürültülü ", "FZ": "donan ",
 }
 OLAY = {
-    "DZ": "ciseleme", "RA": "yagmur", "SN": "kar", "SG": "kar tanesi",
-    "IC": "buz kristali", "PL": "buz yagmuru", "GR": "dolu", "GS": "ufak dolu",
-    "UP": "bilinmeyen yagis", "BR": "puslu", "FG": "sis", "FU": "duman",
-    "VA": "volkanik kul", "DU": "toz", "SA": "kum", "HZ": "is",
-    "PY": "serpinti", "SQ": "ani firtina", "PO": "toz hortumu",
-    "FC": "hortum", "SS": "kum firtinasi", "DS": "toz firtinasi",
+    "DZ": "çiseleme", "RA": "yağmur", "SN": "kar", "SG": "kar tanesi",
+    "IC": "buz kristali", "PL": "buz yağmuru", "GR": "dolu", "GS": "ufak dolu",
+    "UP": "bilinmeyen yağış", "BR": "puslu", "FG": "sis", "FU": "duman",
+    "VA": "volkanik kül", "DU": "toz", "SA": "kum", "HZ": "is",
+    "PY": "serpinti", "SQ": "ani fırtına", "PO": "toz hortumu",
+    "FC": "hortum", "SS": "kum fırtınası", "DS": "toz fırtınası",
 }
 RE_HAVA = re.compile(
     r"^(-|\+|VC)?((?:MI|BC|PR|DR|BL|SH|TS|FZ)*)((?:DZ|RA|SN|SG|IC|PL|GR|GS|UP|"
@@ -71,12 +74,19 @@ def metar_coz(metin: str) -> dict:
     if "RMK" in tokenlar:                       # RMK sonrasi bize lazim degil
         tokenlar = tokenlar[:tokenlar.index("RMK")]
 
+    nosig = "NOSIG" in tokenlar
+    # Egilim grubu (TEMPO/BECMG) GELECEGI anlatir - mevcut durumla karistirmayalim.
+    # Ornek: "... BKN003 TEMPO 0400 +TSRA" -> +TSRA su an degil, beklenen.
+    for isaret in ("NOSIG", "BECMG", "TEMPO"):
+        if isaret in tokenlar:
+            tokenlar = tokenlar[:tokenlar.index(isaret)]
+
     d = {
         "ruzgar_yon": None, "ruzgar_hiz": None, "ruzgar_hamle": None,
         "degisken": None, "gorus": None, "cavok": False,
         "bulutlar": [], "tavan": None, "hava": [],
         "sicaklik": None, "cig_noktasi": None, "qnh": None,
-        "nosig": "NOSIG" in tokenlar,
+        "nosig": nosig,
     }
 
     for t in tokenlar:
@@ -148,39 +158,39 @@ def uyarilar(d: dict) -> list[str]:
     hava_metni = " ".join(d["hava"])
 
     if "TS" in hava_metni:
-        u.append("Gok gurultulu firtina")
+        u.append("Gök gürültülü fırtına")
     if "FZ" in hava_metni:
-        u.append("Donan yagis - buzlanma")
+        u.append("Donan yağış — buzlanma")
     if "FC" in hava_metni:
         u.append("Hortum bildirildi")
     if re.search(r"\bGR\b|GR$", hava_metni):
         u.append("Dolu")
     if "SN" in hava_metni or "SG" in hava_metni:
-        u.append("Kar yagisi")
+        u.append("Kar yağışı")
 
     g = d["gorus"]
     if g is not None:
         if g < GORUS_COK_DUSUK:
-            u.append(f"Gorus cok dusuk: {g} m")
+            u.append(f"Görüş çok düşük: {g} m")
         elif g < GORUS_DUSUK:
-            u.append(f"Gorus dusuk: {g} m")
+            u.append(f"Görüş düşük: {g} m")
 
     t = d["tavan"]
     if t is not None:
         if t < TAVAN_COK_DUSUK:
-            u.append(f"Tavan cok alcak: {t} ft")
+            u.append(f"Tavan çok alçak: {t} ft")
         elif t < TAVAN_DUSUK:
-            u.append(f"Tavan alcak: {t} ft")
+            u.append(f"Tavan alçak: {t} ft")
 
     hiz, hamle = d["ruzgar_hiz"], d["ruzgar_hamle"]
     if hamle and hamle >= HAMLE_KUVVETLI:
         u.append(f"Kuvvetli hamle: {hamle} kt")
     elif hiz and hiz >= RUZGAR_KUVVETLI:
-        u.append(f"Kuvvetli ruzgar: {hiz} kt")
+        u.append(f"Kuvvetli rüzgâr: {hiz} kt")
 
     yr = yan_ruzgar(d["ruzgar_yon"], max(hiz or 0, d["ruzgar_hamle"] or 0))
     if yr is not None and yr >= YAN_RUZGAR_YUKSEK:
-        u.append(f"Yan ruzgar ~{yr:.0f} kt (06/24)")
+        u.append(f"Yan rüzgâr ~{yr:.0f} kt (06/24)")
 
     return u
 
@@ -189,7 +199,7 @@ def uyarilar(d: dict) -> list[str]:
 def _ruzgar_yazi(d):
     if d["ruzgar_hiz"] is None:
         return "?"
-    yon = f'{d["ruzgar_yon"]:03d}°' if d["ruzgar_yon"] is not None else "degisken"
+    yon = f'{d["ruzgar_yon"]:03d}°' if d["ruzgar_yon"] is not None else "değişken"
     s = f'{yon} {d["ruzgar_hiz"]}kt'
     if d["ruzgar_hamle"]:
         s += f' (hamle {d["ruzgar_hamle"]})'
@@ -226,27 +236,27 @@ def fark_bul(onceki: str, simdiki: str) -> list[str]:
                 and abs(b["ruzgar_hiz"] - a["ruzgar_hiz"]) >= 5)
     hamle_fark = bool(a["ruzgar_hamle"]) != bool(b["ruzgar_hamle"])
     if yon_fark or hiz_fark or hamle_fark:
-        farklar.append(f"Ruzgar: {_ruzgar_yazi(a)} -> {_ruzgar_yazi(b)}")
+        farklar.append(f"Rüzgâr: {_ruzgar_yazi(a)} → {_ruzgar_yazi(b)}")
 
     # Gorus: bir esigi gectiyse ya da %30'dan fazla degistiyse
     ga, gb = a["gorus"], b["gorus"]
     if ga is not None and gb is not None and ga != gb:
         esik_atladi = any((ga < e) != (gb < e) for e in (800, 1500, 3000, 5000))
         if esik_atladi or abs(gb - ga) / max(ga, 1) > 0.3:
-            farklar.append(f"Gorus: {_gorus_yazi(a)} -> {_gorus_yazi(b)}")
+            farklar.append(f"Görüş: {_gorus_yazi(a)} → {_gorus_yazi(b)}")
 
     # Tavan: varligi degistiyse ya da 500 ft'den fazla oynadiysa
     ta, tb = a["tavan"], b["tavan"]
     if (ta is None) != (tb is None) or (ta and tb and abs(tb - ta) >= 500):
-        farklar.append(f"Tavan: {_tavan_yazi(a)} -> {_tavan_yazi(b)}")
+        farklar.append(f"Tavan: {_tavan_yazi(a)} → {_tavan_yazi(b)}")
 
     # Hava olayi: yeni basladi / bitti / degisti
     if set(a["hava"]) != set(b["hava"]):
-        farklar.append(f"Hava: {_hava_yazi(a)} -> {_hava_yazi(b)}")
+        farklar.append(f"Hava: {_hava_yazi(a)} → {_hava_yazi(b)}")
 
     # QNH: 2 hPa ve uzeri
     if a["qnh"] and b["qnh"] and abs(b["qnh"] - a["qnh"]) >= 2:
-        farklar.append(f'QNH: {a["qnh"]} -> {b["qnh"]} hPa')
+        farklar.append(f'QNH: {a["qnh"]} → {b["qnh"]} hPa')
 
     return farklar
 
@@ -254,47 +264,47 @@ def fark_bul(onceki: str, simdiki: str) -> list[str]:
 def cozum_dokumu(d: dict) -> str:
     """Cozumlenmis METAR'i satir satir yazar. Claude'a ham bulten yerine bunu
     veriyoruz - kendi ayikladigi seyi yanlis okuyamasin diye."""
-    s = [f"Ruzgar: {_ruzgar_yazi(d)}"]
+    s = [f"Rüzgâr: {_ruzgar_yazi(d)}"]
     if d["degisken"]:
-        s.append(f'  yon {d["degisken"][0]}° ile {d["degisken"][1]}° arasinda oynuyor')
+        s.append(f'  yön {d["degisken"][0]}° ile {d["degisken"][1]}° arasında oynuyor')
     yr = yan_ruzgar(d["ruzgar_yon"], max(d["ruzgar_hiz"] or 0, d["ruzgar_hamle"] or 0))
     if yr is not None:
-        s.append(f"  06/24 pistine gore yan ruzgar bileseni: {yr:.0f} kt")
+        s.append(f"  06/24 pistine göre yan rüzgâr bileşeni: {yr:.0f} kt")
 
-    s.append(f"Gorus: {_gorus_yazi(d)}")
-    s.append(f"Hava olayi: {_hava_yazi(d)}")
+    s.append(f"Görüş: {_gorus_yazi(d)}")
+    s.append(f"Hava olayı: {_hava_yazi(d)}")
 
     if d["bulutlar"]:
         katmanlar = []
-        ad = {"FEW": "az bulutlu (1-2/8)", "SCT": "parcali (3-4/8)",
-              "BKN": "cok bulutlu (5-7/8)", "OVC": "kapali (8/8)",
-              "VV": "dikey gorus"}
+        ad = {"FEW": "az bulutlu (1-2/8)", "SCT": "parçalı (3-4/8)",
+              "BKN": "çok bulutlu (5-7/8)", "OVC": "kapalı (8/8)",
+              "VV": "dikey görüş"}
         for b in d["bulutlar"]:
             ft = f'{b["ft"]} ft' if b["ft"] is not None else "? ft"
-            tur = {"CB": " (kumulonimbus - firtina bulutu)",
-                   "TCU": " (gelisen kule bulut)"}.get(b["tur"] or "", "")
+            tur = {"CB": " (kümülonimbus — fırtına bulutu)",
+                   "TCU": " (gelişen kule bulut)"}.get(b["tur"] or "", "")
             katmanlar.append(f'{ad.get(b["ortu"], b["ortu"])} {ft}{tur}')
         s.append("Bulutlar: " + "; ".join(katmanlar))
         if d["tavan"]:
             s.append(f'  Tavan (ilk 5/8+ katman): {d["tavan"]} ft')
     else:
-        s.append("Bulutlar: bildirilmemis")
+        s.append("Bulutlar: bildirilmemiş")
 
     if d["sicaklik"] is not None:
         nem_farki = d["sicaklik"] - d["cig_noktasi"]
-        s.append(f'Sicaklik: {d["sicaklik"]}°C, cig noktasi {d["cig_noktasi"]}°C '
-                 f'(aralik {nem_farki}°C{", nem cok yuksek" if nem_farki <= 2 else ""})')
+        s.append(f'Sıcaklık: {d["sicaklik"]}°C, çiğ noktası {d["cig_noktasi"]}°C '
+                 f'(aralık {nem_farki}°C{", nem çok yüksek" if nem_farki <= 2 else ""})')
     if d["qnh"]:
         s.append(f'QNH: {d["qnh"]} hPa')
     if d["nosig"]:
-        s.append("Egilim: NOSIG - onumuzdeki 2 saatte onemli degisiklik beklenmiyor")
+        s.append("Eğilim: NOSIG — önümüzdeki 2 saatte önemli değişiklik beklenmiyor")
 
     return "\n".join(s)
 
 
 def ozet_satiri(d: dict) -> str:
     """Tek satirlik durum ozeti - Claude yorumu kapaliyken de bir seyler yazsin."""
-    p = [f'Ruzgar {_ruzgar_yazi(d)}', f'gorus {_gorus_yazi(d)}']
+    p = [f'Rüzgâr {_ruzgar_yazi(d)}', f'görüş {_gorus_yazi(d)}']
     if d["tavan"]:
         p.append(f'tavan {d["tavan"]} ft')
     if d["hava"]:
