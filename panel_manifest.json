@@ -1,0 +1,16 @@
+{
+  "name": "LTFJ ATC Panel",
+  "short_name": "LTFJ ATC",
+  "description": "LTFJ için widget tabanlı hava trafik kontrol panosu (gayri resmî, eğitim amaçlı)",
+  "start_url": "panel.html",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#05070d",
+  "theme_color": "#05070d",
+  "icons": [
+    { "src": "panel_icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "panel_icon.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "panel_icon.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" }
+  ]
+}
