@@ -96,6 +96,7 @@ def _metar_json(rapor: dict) -> dict:
         "cig_noktasi": cozum["cig_noktasi"], "qnh": cozum["qnh"],
         "nosig": cozum["nosig"],
         "renk": list(notlar["renk"]) if notlar["renk"] else None,
+        "renk_etiketi": notlar["renk_etiketi"],
         "dikkat": dikkat,
         "pistler": pist_verisi["pistler"],
         "kuyruk_limiti": pist_verisi["kuyruk_limiti"],

@@ -493,9 +493,15 @@
     if (!m) return bosMetar(govde);
     if (!m.renk) { govde.innerHTML = '<span class="bos">renk durumu hesaplanamadı</span>'; return; }
     var kod = m.renk[0], aciklama = m.renk[1];
+    // Etiket panel_veri.json'daki renk_etiketi alanindan (ltfj_pist.RENK_ETIKETI
+    // ile ayni kaynak) geliyor - burada ayrica sabit metin YAZMIYORUZ ki
+    // Telegram/web sayfasiyla sessizce farklilasmasin. Alan eski bir
+    // panel_veri.json'da yoksa (henuz yeniden uretilmemis) makul bir
+    // varsayilana duser.
+    var renkEtiketi = m.renk_etiketi || "LTFJ Bot durum seviyesi";
     govde.innerHTML =
-      '<div class="rozet" title="LTFJ Bot durum seviyesi — resmî ICAO CAT I/II/III kategorisi değildir" style="background:' + (RENK_KODU[kod] || "#666") + '">' + (RENK_SIMGE[kod] || "") + " " + kod + "</div>" +
-      '<div class="alt-satir">LTFJ Bot seviyesi — ' + esc(aciklama) + "</div>" +
+      '<div class="rozet" title="' + esc(renkEtiketi) + ' — resmî ICAO CAT I/II/III kategorisi değildir" style="background:' + (RENK_KODU[kod] || "#666") + '">' + (RENK_SIMGE[kod] || "") + " " + kod + "</div>" +
+      '<div class="alt-satir">' + esc(renkEtiketi) + ' — ' + esc(aciklama) + "</div>" +
       '<div class="alt-satir">' + esc(m.ozet) + "</div>";
   }
 

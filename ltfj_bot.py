@@ -430,11 +430,13 @@ def baslik_kur(rapor, notlar) -> str:
     renk = ""
     if notlar and notlar["renk"]:
         kod, aciklama = notlar["renk"]
-        # "LTFJ Bot seviyesi" ibaresi bilerek her seferinde tekrarlanir -
-        # BLU/WHT/GRN/YLO/AMB/RED resmi ICAO CAT I/II/III kategorisi ya da
-        # baska bir resmi havacilik durumu DEGIL, botun kendi gorus/tavan
-        # bandina gore hesapladigi bir onem seviyesi (bkz. ltfj_pist.RENK_ETIKETI).
-        renk = f'  {RENK_SIMGE.get(kod, "")} <b>{kod}</b> <i>(LTFJ Bot seviyesi — {aciklama})</i>'
+        # Etiket ltfj_pist.RENK_ETIKETI'den geliyor (tek kaynak) - BLU/WHT/
+        # GRN/YLO/AMB/RED resmi ICAO CAT I/II/III kategorisi ya da baska bir
+        # resmi havacilik durumu DEGIL, botun kendi gorus/tavan bandina gore
+        # hesapladigi bir onem seviyesi. Bu ibareyi burada ayrica sabit
+        # metin olarak YAZMIYORUZ ki ltfj_sayfa.py/panel.html ile ayni
+        # kaynaktan gelsin, aralarinda sessizce farklilasmasin.
+        renk = f'  {RENK_SIMGE.get(kod, "")} <b>{kod}</b> <i>({notlar["renk_etiketi"]} — {aciklama})</i>'
     return f"{simge} <b>{html.escape(ad)}</b>  <i>{damga}</i>{renk}"
 
 

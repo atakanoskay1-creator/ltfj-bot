@@ -234,9 +234,12 @@ def _kart(rapor: dict) -> str:
     if notlar and notlar["renk"]:
         kod, aciklama = notlar["renk"]
         # title tooltip: bu resmi bir ICAO CAT I/II/III kategorisi degil,
-        # botun kendi durum seviyesi (bkz. ltfj_pist.RENK_ETIKETI).
-        rozet = (f'<span class="rozet" title="LTFJ Bot durum seviyesi — resmî '
-                 f'ICAO CAT I/II/III kategorisi değildir" '
+        # botun kendi durum seviyesi - etiket ltfj_pist.RENK_ETIKETI'den
+        # (notlar["renk_etiketi"]) geliyor, burada ayrica sabit metin
+        # olarak YAZMIYORUZ ki diger ekranlarla (Telegram, ATC panel)
+        # sessizce farklilasmasin.
+        rozet = (f'<span class="rozet" title="{html.escape(notlar["renk_etiketi"])} — '
+                 f'resmî ICAO CAT I/II/III kategorisi değildir" '
                  f'style="background:{RENK_KODU.get(kod, "#64748b")}">'
                  f'{RENK_SIMGE.get(kod, "")} {kod} · {html.escape(aciklama)}</span>')
 
