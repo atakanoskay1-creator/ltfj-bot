@@ -17,6 +17,7 @@ import sys
 from pathlib import Path
 
 GECMIS_LIMIT = 200
+OLCUM_GECMIS_LIMIT = 300
 
 
 def oku(yol: Path) -> dict:
@@ -40,6 +41,17 @@ def birlestir(a: dict, b: dict) -> dict:
     gonderilen = list(a.get("gonderilen") or [])
     gonderilen += [k for k in (b.get("gonderilen") or []) if k not in gonderilen]
 
+    # Olcum gecmisi (trend grafikleri): zaman damgasina gore birlesim
+    gecmis = {g["zaman"]: g for g in (a.get("olcum_gecmisi") or []) if g.get("zaman")}
+    for g in (b.get("olcum_gecmisi") or []):
+        if g.get("zaman"):
+            gecmis.setdefault(g["zaman"], g)
+    olcum_gecmisi = sorted(gecmis.values(), key=lambda g: g["zaman"])[-OLCUM_GECMIS_LIMIT:]
+
+    # Claude yorum onbellegi: ham metin anahtarina gore birlesim
+    onbellek = dict(a.get("yorum_onbellegi") or {})
+    onbellek.update(b.get("yorum_onbellegi") or {})
+
     return {
         "gonderilen": gonderilen[-GECMIS_LIMIT:],
         # Iki taraftan biri bile calismissa artik ilk calisma degiliz
@@ -49,6 +61,8 @@ def birlestir(a: dict, b: dict) -> dict:
         "son_renk": yeni_olan(a, b, "son_renk"),
         "durum_mesaj_id": yeni_olan(a, b, "durum_mesaj_id"),
         "son_veri_zamani": yeni_olan(a, b, "son_veri_zamani"),
+        "olcum_gecmisi": olcum_gecmisi,
+        "yorum_onbellegi": onbellek,
         "guncelleme": max(a.get("guncelleme", ""), b.get("guncelleme", "")),
     }
 

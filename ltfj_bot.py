@@ -93,7 +93,7 @@ def gerekli(ad):
 def state_oku() -> dict:
     bos = {"gonderilen": [], "ilk_calisma": True, "son_metar": "",
            "son_uyari": None, "durum_mesaj_id": None, "son_renk": None,
-           "son_veri_zamani": None, "olcum_gecmisi": []}
+           "son_veri_zamani": None, "olcum_gecmisi": [], "yorum_onbellegi": {}}
     if not STATE.exists():
         return bos
     try:
@@ -249,6 +249,35 @@ def claude_yorum(rapor, cozum, notlar=None) -> str | None:
     return yorum
 
 
+YORUM_ONBELLEK_LIMIT = 4
+
+
+def _yorum_getir(state: dict, rapor: dict, cozum, notlar=None) -> str | None:
+    """claude_yorum sonucunu ham rapor metnine gore onbellekler.
+
+    durum_mesajini_guncelle() HER calistirmada (yeni rapor olmasa bile)
+    sabitlenmis mesaji yeniden kuruyor; onbellek olmadan degismeyen bir
+    METAR bile her ~15 dakikada bir Claude'a yeniden soruluyordu - Claude
+    cagrisi calistirmanin ~17 saniyesini yiyordu. Ayni METAR ayni calistirma
+    icinde (bildirim + durum mesaji) iki kez de sorulabiliyordu. Ayni ham
+    metin -> ayni cozum/notlar -> ayni istem oldugundan metne gore
+    onbellekleme guvenli. Basarisiz/filtrelenmis (None) sonuclar
+    onbelleklenmez ki bir sonraki calistirmada tekrar denensin."""
+    onbellek = state.setdefault("yorum_onbellegi", {})
+    metin = rapor["metin"]
+    if metin in onbellek:
+        return onbellek[metin]
+
+    yorum = claude_yorum(rapor, cozum, notlar)
+    if yorum is not None:
+        onbellek[metin] = yorum
+        fazla = len(onbellek) - YORUM_ONBELLEK_LIMIT
+        if fazla > 0:
+            for eski in list(onbellek)[:fazla]:
+                del onbellek[eski]
+    return yorum
+
+
 ETIKET = re.compile(r"^(Rüzgâr|Görüş|Gökyüzü|Uçuşa etkisi|Genel|Dikkat)\s*:\s*(.+)$")
 
 
@@ -386,7 +415,7 @@ def baslik_kur(rapor, notlar) -> str:
     return f"{simge} <b>{html.escape(ad)}</b>  <i>{damga}</i>{renk}"
 
 
-def mesaj_kur(rapor, onceki_metar="", uzun=None) -> str:
+def mesaj_kur(rapor, state, onceki_metar="", uzun=None) -> str:
     if uzun is None:
         uzun = ayar("mesaj", "bicim", varsayilan="kisa") == "uzun"
 
@@ -411,7 +440,7 @@ def mesaj_kur(rapor, onceki_metar="", uzun=None) -> str:
         if farklar:
             s += ["", "<b>Değişim</b>"] + [f"• {html.escape(f)}" for f in farklar]
 
-    yorum = claude_yorum(rapor, cozum, notlar)
+    yorum = _yorum_getir(state, rapor, cozum, notlar)
     if yorum:
         s += ["", _yorumu_bicimle(yorum)]
     elif cozum:
@@ -459,7 +488,7 @@ def _havacilik_blogu(n: dict, uzun: bool) -> list[str]:
     return s
 
 
-def durum_mesaji_kur(raporlar: list) -> str:
+def durum_mesaji_kur(raporlar: list, state: dict) -> str:
     """Sabitlenmis 'su an' mesaji - her raporda yerinde guncellenir."""
     metar = next((r for r in raporlar if r["tip"] in ("METAR", "SPECI")), None)
     taf = next((r for r in raporlar if r["tip"] == "TAF"), None)
@@ -468,7 +497,7 @@ def durum_mesaji_kur(raporlar: list) -> str:
     s = [f"📍 <b>{ICAO} · şu an</b>"]
 
     if metar:
-        s.append(mesaj_kur(metar, uzun=True))
+        s.append(mesaj_kur(metar, state, uzun=True))
     if taf:
         yerel = taf["zaman"].astimezone() if taf.get("zaman") else None
         damga = f'{taf["zaman"]:%d.%m %H:%MZ}' if taf.get("zaman") else ""
@@ -543,7 +572,7 @@ def sessizlik_kontrol(state, raporlar, token, chat_id):
 def durum_mesajini_guncelle(state, raporlar, token, chat_id):
     if not ayar("bildirim", "sabit_mesaj", varsayilan=True):
         return
-    metin = durum_mesaji_kur(raporlar)
+    metin = durum_mesaji_kur(raporlar, state)
     mesaj_id = state.get("durum_mesaj_id")
 
     if mesaj_id and telegram_duzenle(token, chat_id, mesaj_id, metin):
@@ -620,7 +649,7 @@ def main():
         if at:
             try:
                 telegram_gonder(token, chat_id,
-                                mesaj_kur(rapor, onceki_metar), sessiz=sessiz)
+                                mesaj_kur(rapor, state, onceki_metar), sessiz=sessiz)
                 print(f'  gönderildi{" (sessiz)" if sessiz else ""}: '
                       f'{rapor["tip"]} {anahtar(rapor)}')
             except Exception as e:
