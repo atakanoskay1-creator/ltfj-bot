@@ -97,6 +97,7 @@ def test_birlestir_bos_taraflarla_crash_etmez():
         "gonderilen": [], "ilk_calisma": True, "son_metar": "",
         "son_uyari": None, "son_renk": None, "durum_mesaj_id": None,
         "son_veri_zamani": None, "olcum_gecmisi": [], "yorum_onbellegi": {},
+        "notam_gecmisi": {}, "notam_son_senkron": None,
         "guncelleme": "",
     }
 
@@ -172,3 +173,54 @@ def test_birlestir_son_uyari_kendi_degerine_gore_secilir():
          "guncelleme": "2026-01-16T09:00:00+00:00"}
     sonuc = sb.birlestir(a, b)
     assert sonuc["son_uyari"] == "2026-01-16T11:00:00+00:00"
+
+
+# ------------------------------------------------------------- notam gecmisi
+def test_birlestir_notam_gecmisi_yeni_id_eklenir():
+    a = {"notam_gecmisi": {"id1": {"number": "A1/26", "first_seen": "2026-01-01T00:00:00Z",
+                                     "last_seen": "2026-01-01T00:00:00Z", "last_active": "2026-01-01T00:00:00Z"}}}
+    b = {"notam_gecmisi": {"id2": {"number": "A2/26", "first_seen": "2026-01-02T00:00:00Z",
+                                     "last_seen": "2026-01-02T00:00:00Z", "last_active": "2026-01-02T00:00:00Z"}}}
+    sonuc = sb.birlestir(a, b)
+    assert set(sonuc["notam_gecmisi"]) == {"id1", "id2"}
+
+
+def test_birlestir_notam_gecmisi_ayni_id_en_erken_first_en_gec_last():
+    a = {"notam_gecmisi": {"id1": {"number": "A1/26", "first_seen": "2026-01-01T00:00:00Z",
+                                     "last_seen": "2026-01-05T00:00:00Z", "last_active": "2026-01-05T00:00:00Z"}}}
+    b = {"notam_gecmisi": {"id1": {"number": "A1/26", "first_seen": "2026-01-03T00:00:00Z",
+                                     "last_seen": "2026-01-10T00:00:00Z", "last_active": "2026-01-10T00:00:00Z"}}}
+    sonuc = sb.birlestir(a, b)
+    kayit = sonuc["notam_gecmisi"]["id1"]
+    assert kayit["first_seen"] == "2026-01-01T00:00:00Z"   # a'nin daha erken first_seen'i
+    assert kayit["last_seen"] == "2026-01-10T00:00:00Z"    # b'nin daha gec last_seen'i
+    assert kayit["last_active"] == "2026-01-10T00:00:00Z"
+
+
+def test_birlestir_notam_gecmisi_icerik_daha_yeni_gorulenden_gelir():
+    a = {"notam_gecmisi": {"id1": {"text": "ESKI METIN", "status": "active",
+                                     "first_seen": "2026-01-01T00:00:00Z",
+                                     "last_seen": "2026-01-01T00:00:00Z", "last_active": "2026-01-01T00:00:00Z"}}}
+    b = {"notam_gecmisi": {"id1": {"text": "YENI METIN", "status": "withdrawn",
+                                     "first_seen": "2026-01-01T00:00:00Z",
+                                     "last_seen": "2026-01-10T00:00:00Z", "last_active": "2026-01-01T00:00:00Z"}}}
+    sonuc = sb.birlestir(a, b)
+    kayit = sonuc["notam_gecmisi"]["id1"]
+    assert kayit["text"] == "YENI METIN"   # b daha yeni gorulmus, icerik ondan
+    assert kayit["status"] == "withdrawn"
+
+
+def test_birlestir_notam_son_senkron_kendi_degerine_gore():
+    a = {"notam_son_senkron": "2026-01-01T00:00:00Z", "guncelleme": "2026-01-05T00:00:00Z"}
+    b = {"notam_son_senkron": "2026-01-10T00:00:00Z", "guncelleme": "2026-01-02T00:00:00Z"}
+    sonuc = sb.birlestir(a, b)
+    assert sonuc["notam_son_senkron"] == "2026-01-10T00:00:00Z"
+
+
+def test_birlestir_notam_gecmisi_boyut_siniri_en_eski_gorulenler_dusurulur():
+    buyuk_gecmis = {
+        f"id{i}": {"last_seen": f"2026-01-{(i % 28) + 1:02d}T00:00:00Z", "first_seen": "x", "last_active": "x"}
+        for i in range(sb.NOTAM_GECMIS_LIMIT + 50)
+    }
+    sonuc = sb.birlestir({"notam_gecmisi": buyuk_gecmis}, {})
+    assert len(sonuc["notam_gecmisi"]) == sb.NOTAM_GECMIS_LIMIT

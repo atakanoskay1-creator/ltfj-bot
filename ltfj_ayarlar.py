@@ -56,6 +56,17 @@ VARSAYILAN = {
     "mesaj": {"bicim": "kisa", "ham_bulten": True, "claude_yorum": True},
     "web_sayfasi": True,
     "atc_paneli": True,
+    "notam": {
+        # NOTAC entegrasyonu tamamen opsiyonel - NOTAC_API_KEY ortam
+        # degiskeni tanimli degilse zaten sessizce devre disi kalir
+        # (bkz. ltfj_notam_client.api_anahtari_var_mi()); "aktif": False
+        # anahtar tanimli olsa bile ozelligi kapatmak icin ayrica bir anahtar.
+        "aktif": True,
+        # NOTAM METAR kadar sik degismiyor - varsayilan olarak 6 saatte bir
+        # senkronize ediyoruz (API kredisini gereksiz tuketmemek icin).
+        "senkron_araligi_saat": 6,
+        "location": "LTFJ",
+    },
 }
 
 

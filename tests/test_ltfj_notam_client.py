@@ -129,3 +129,27 @@ def test_api_anahtari_hata_mesajlarinda_gorunmez(monkeypatch):
         with pytest.raises(nc.NotamAgHatasi) as hata2:
             nc.notam_getir("LTFJ")
     assert gizli_anahtar not in str(hata2.value)
+
+
+# --------------------------------------------------------------- sayfalama
+def test_sayfa_getir_next_url_dogrudan_cagirir(monkeypatch):
+    """DRF 'next' alani TAM bir URL - sayfa_getir() ayrica params
+    eklememeli, URL'yi oldugu gibi cagirmali."""
+    monkeypatch.setenv("NOTAC_API_KEY", "lb_" + "a" * 40)
+    yanit = _sahte_yanit(200, json_deger={"count": 1, "next": None, "previous": None, "results": []})
+    tam_url = "https://notac.aero/api/v1/notam/?location=LTFJ&page=2"
+    with patch("requests.get", return_value=yanit) as mock_get:
+        sonuc = nc.sayfa_getir(tam_url)
+    assert sonuc["count"] == 1
+    args, kwargs = mock_get.call_args
+    assert args[0] == tam_url
+    assert kwargs["params"] is None
+
+
+def test_notam_getir_standart_sayfalama_zarfini_donduruyor(monkeypatch):
+    monkeypatch.setenv("NOTAC_API_KEY", "lb_" + "a" * 40)
+    ham = {"count": 11, "next": None, "previous": None, "results": [{"id": "x"}]}
+    yanit = _sahte_yanit(200, json_deger=ham)
+    with patch("requests.get", return_value=yanit):
+        sonuc = nc.notam_getir("LTFJ")
+    assert sonuc == ham
