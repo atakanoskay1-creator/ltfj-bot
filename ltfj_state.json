@@ -23,15 +23,16 @@
   "id:51747888",
   "id:51749884",
   "id:51756816",
-  "id:51761726"
+  "id:51761726",
+  "id:51772423"
  ],
  "ilk_calisma": false,
- "guncelleme": "2026-09-16T18:20:56+00:00",
- "son_metar": "METAR LTFJ 161750Z 04007KT 9999 SCT040 BKN100 18/15 Q1017 NOSIG RMK RWY24R 03006KT 350V060 RWY06R 04006KT RWY24L 03004KT",
+ "guncelleme": "2026-09-16T18:31:04+00:00",
+ "son_metar": "METAR LTFJ 161820Z 03006KT 9999 SCT040 BKN100 18/15 Q1017 NOSIG RMK RWY24R 02006KT RWY06R 02007KT RWY24L 01005KT",
  "son_uyari": null,
  "durum_mesaj_id": 30,
  "son_renk": "BLU",
- "son_veri_zamani": "2026-09-16T17:50:00+00:00",
+ "son_veri_zamani": "2026-09-16T18:20:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -123,12 +124,19 @@
    "tavan": 10000,
    "qnh": 1017,
    "sicaklik": 18
+  },
+  {
+   "zaman": "2026-09-16T18:20:00+00:00",
+   "ruzgar_hiz": 6,
+   "tavan": 10000,
+   "qnh": 1017,
+   "sicaklik": 18
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 161650Z 03008KT 9999 SCT040 BKN100 18/15 Q1017 NOSIG RMK RWY24R 01008KT RWY06R 02008KT RWY24L 01006KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 8 knot (yaklaşık 15 km/s) hafif rüzgâr esiyor, yan rüzgâr bileşeni 4 knot seviyesinde.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuşa engel yok.\n\n**Gökyüzü:** 4000 feet (yaklaşık 1200 metre) yükseklikte parçalı bulutlar, 10000 feet (yaklaşık 3000 metre) yükseklikte çok bulutlu katman var, yağış yok.\n\n**Uçuşa etkisi:** Hava koşulları normal, gecikme veya aksama beklenmiyorum.",
   "TAF LTFJ 161640Z 1618/1718 04009KT 9999 SCT040 BKN100 BECMG 1620/1624 CAVOK BECMG 1702/1705 SCT030 BKN090 PROB30 TEMPO 1708/1712 04015G25KT -SHRA BECMG 1715/1718 CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken bulutlu hava beklenmektedir.\n\n- **1618/1620 UTC** Rüzgar 040° 9 knot, görüş 9999 metre, 4000 ft'de parça bulut, 10000 ft'de kırık bulut.\n- **1620/1624 UTC** Kademeli geçişle CAVOK (görüş ve bulut koşulları iyi).\n- **1702/1705 UTC** Kademeli geçişle 3000 ft'de parça bulut, 9000 ft'de kırık bulut.\n- **1708/1712 UTC** İhtimal %30 ile geçici olarak rüzgar 040° 15 knot, rüzgar esintisi 25 knot ve hafif sağanak yağış; **1715/1718 UTC** kademeli geçişle CAVOK.",
   "METAR LTFJ 161720Z 04007KT 9999 SCT040 BKN100 18/15 Q1017 NOSIG RMK RWY24R 02007KT RWY06R 04008KT RWY24L 03004KT": "**Rüzgâr:** Kuzeydoğudan 7 knot (hafif) rüzgâr esiyor, yan bileşen çok az.\n\n**Görüş:** 10 kilometre ve daha fazla görüş var, uçuşa engel yok.\n\n**Gökyüzü:** 4000 feet'te (yaklaşık 1200 metre) parçalı bulutlar, 10000 feet'te (yaklaşık 3000 metre) çok bulutlu, yağış yok.\n\n**Uçuşa etkisi:** Normal şartlar, gecikme beklenmiyorum.",
-  "METAR LTFJ 161750Z 04007KT 9999 SCT040 BKN100 18/15 Q1017 NOSIG RMK RWY24R 03006KT 350V060 RWY06R 04006KT RWY24L 03004KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 7 knot (hafif) rüzgâr esiyor, yan rüzgâr bileşeni 3 knot seviyesinde.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için rahat koşullar.\n\n**Gökyüzü:** 4000 metre yükseklikte parçalı bulutlar, 10000 metre yükseklikte çok bulutlu, yağış yok.\n\n**Uçuşa etkisi:** Normal şartlar, gecikme veya aksama beklenmiyorum."
+  "METAR LTFJ 161750Z 04007KT 9999 SCT040 BKN100 18/15 Q1017 NOSIG RMK RWY24R 03006KT 350V060 RWY06R 04006KT RWY24L 03004KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 7 knot (hafif) rüzgâr esiyor, yan rüzgâr bileşeni 3 knot seviyesinde.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için rahat koşullar.\n\n**Gökyüzü:** 4000 metre yükseklikte parçalı bulutlar, 10000 metre yükseklikte çok bulutlu, yağış yok.\n\n**Uçuşa etkisi:** Normal şartlar, gecikme veya aksama beklenmiyorum.",
+  "METAR LTFJ 161820Z 03006KT 9999 SCT040 BKN100 18/15 Q1017 NOSIG RMK RWY24R 02006KT RWY06R 02007KT RWY24L 01005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 6 knot hızla esen hafif rüzgâr, 24 pistine göre yan bileşeni 3 knot.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi, uçuşa engel yok.\n\n**Gökyüzü:** 4000 feet yükseklikte parçalı bulutlar, 10000 feet yükseklikte çok bulutlu, yağış yok.\n\n**Uçuşa etkisi:** Normal şartlar, gecikme beklenmez."
  }
 }
