@@ -674,6 +674,13 @@ def main():
         except Exception as e:
             print(f"[uyarı] Web sayfası üretilemedi: {e}", file=sys.stderr)
 
+    if ayar("atc_paneli", varsayilan=True):
+        try:
+            from ltfj_panel import panel_verisi_yaz
+            panel_verisi_yaz(raporlar, state.get("olcum_gecmisi", []), KLASOR / "panel_veri.json")
+        except Exception as e:
+            print(f"[uyarı] ATC panel verisi üretilemedi: {e}", file=sys.stderr)
+
     if state["ilk_calisma"]:
         gorulen.update(anahtar(r) for r in raporlar)
 

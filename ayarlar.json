@@ -40,5 +40,6 @@
   "claude_yorum": true
  },
 
- "web_sayfasi": true
+ "web_sayfasi": true,
+ "atc_paneli": true
 }
