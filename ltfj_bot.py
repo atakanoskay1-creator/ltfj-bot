@@ -63,6 +63,9 @@ TELEGRAM_BOT_TOKEN=123456:AA...
 TELEGRAM_CHAT_ID=987654321
 # Asagidaki satir istege bagli - silersen Claude yorumu yapilmaz
 ANTHROPIC_API_KEY=sk-ant-...
+# Asagidaki satir istege bagli - silersen NOTAM ozelligi sessizce devre disi
+# kalir (henuz entegrasyon tamamlanmadi - bkz. ltfj_notam_client.py)
+NOTAC_API_KEY=lb_...
 """
 
 
