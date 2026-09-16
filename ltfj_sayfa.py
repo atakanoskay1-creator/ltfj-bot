@@ -105,22 +105,209 @@ SABLON = """<!DOCTYPE html>
   .grafik {{ width:100%; height:64px; display:block; }}
   .grafik-eksen {{ display:flex; justify-content:space-between;
                     font-size:.72rem; color:var(--soluk); margin-top:2px; }}
+
+  .bolum-baslik {{ font-weight:650; font-size:1.05rem; margin:28px 0 12px; }}
+  .notam-uyari {{
+    background:rgba(234,179,8,.12); border:1px solid rgba(234,179,8,.4);
+    border-radius:10px; padding:10px 12px; margin-bottom:14px; font-size:.85rem;
+  }}
+  .notam-kart {{
+    border-bottom:1px solid var(--cizgi); padding:12px 0;
+  }}
+  .notam-kart:last-child {{ border-bottom:none; }}
+  .notam-ust {{ display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+                margin-bottom:6px; }}
+  .notam-no {{ font-weight:650; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }}
+  .notam-etiket {{
+    padding:2px 8px; border-radius:999px; font-size:.72rem; font-weight:600;
+    background:var(--kod-bg); border:1px solid var(--cizgi); color:var(--soluk);
+  }}
+  .notam-durum {{ font-size:.75rem; color:var(--soluk); margin-left:auto; }}
+  .notam-ozet {{ font-size:.88rem; margin:4px 0; }}
+  .notam-metin {{
+    background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:8px;
+    padding:10px; font-size:.78rem; line-height:1.5; margin-top:6px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; white-space:pre-wrap;
+    word-break:break-word;
+  }}
+  .notam-kaynak {{ font-size:.72rem; color:var(--soluk); margin-top:6px; }}
+  .notam-bos {{ color:var(--soluk); font-size:.88rem; padding:8px 0; }}
+  .notam-arama {{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }}
+  .notam-arama input, .notam-arama select {{
+    flex:1 1 140px; padding:8px 10px; border-radius:8px; border:1px solid var(--cizgi);
+    background:var(--bg); color:var(--metin); font-size:.85rem;
+  }}
+  .notam-arama button {{
+    padding:8px 14px; border-radius:8px; border:none; background:var(--vurgu);
+    color:var(--bg); font-weight:650; font-size:.85rem; cursor:pointer;
+  }}
+  .notam-arama-not {{ color:var(--soluk); font-size:.78rem; margin:-8px 0 12px; }}
 </style>
 </head>
 <body>
 <div class="sar">
 <header>
   <h1>{icao} · İstanbul Sabiha Gökçen</h1>
-  <div class="alt">Kaynak: MGM · Son güncelleme {guncelleme}</div>
+  <div class="alt">Kaynak: MGM/METAR · Son güncelleme {guncelleme}</div>
 </header>
 {govde}
+
+<div class="bolum-baslik">NOTAM — Bilgi Amaçlı</div>
+<div class="notam-uyari">
+  ⚠️ Bilgi amaçlıdır. Operasyon öncesi güncel resmî NOTAM/PIB kontrol edilmelidir.
+  Kaynak: NOTAC (FAA NOTAM Management System tabanlı üçüncü taraf servis) —
+  resmî bir Türk/EUROCONTROL NOTAM kaynağı değildir. Bu bölüm hiçbir operasyonel
+  öneri üretmez; aşağıdaki meteorolojik analiz bu veriden bağımsızdır.
+</div>
+
+<div class="kart">
+  <div class="basrow"><span class="tip">Aktif NOTAM'lar</span>
+    <span class="zaman" id="notam-senkron-zamani"></span></div>
+  <div id="notam-aktif-liste"><div class="notam-bos">Yükleniyor…</div></div>
+</div>
+
+<div class="kart">
+  <div class="basrow"><span class="tip">NOTAM Geçmişi / Arama</span></div>
+  <div class="notam-arama-not">
+    Bu arama yalnızca botun bugüne kadar yerel olarak gördüğü NOTAM'ları
+    kapsar — NOTAC'ın kendi tam arşivi değildir.
+  </div>
+  <div class="notam-arama">
+    <input type="text" id="notam-q" placeholder="Numara, pist, anahtar kelime…">
+    <input type="date" id="notam-tarih-baslangic">
+    <input type="date" id="notam-tarih-bitis">
+    <select id="notam-durum">
+      <option value="">Tüm durumlar</option>
+    </select>
+    <button type="button" id="notam-ara-btn">Ara</button>
+  </div>
+  <div id="notam-arama-sonuc"><div class="notam-bos">Yükleniyor…</div></div>
+</div>
 <footer>
   Bu sayfa otomatik üretilir. Operasyonel kullanım için resmî kaynaklara başvurun.
   Renk rozetleri (BLU/WHT/GRN/YLO/AMB/RED) resmî bir ICAO CAT I/II/III kategorisi
   değil, bu botun kendi durum seviyesidir. "Meteorolojik tercih" bir ATC pist
-  ataması değildir.
+  ataması değildir. NOTAM bölümü NOTAC kaynaklıdır, resmî NOTAM/PIB'in yerine
+  geçmez.
 </footer>
 </div>
+<script>
+(function () {{
+  "use strict";
+  function esc(s) {{
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {{
+      return {{"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}}[c];
+    }});
+  }}
+
+  var veri = null;
+  var aktifEl = document.getElementById("notam-aktif-liste");
+  var senkronEl = document.getElementById("notam-senkron-zamani");
+  var sonucEl = document.getElementById("notam-arama-sonuc");
+  var durumSelectEl = document.getElementById("notam-durum");
+
+  function notamKarti(n) {{
+    var etiketler = (n.tags || []).map(function (t) {{
+      return '<span class="notam-etiket">' + esc(t) + "</span>";
+    }}).join("");
+    var kategori = n.category_etiketi
+      ? '<span class="notam-etiket">' + esc(n.category_etiketi) + "</span>" : "";
+    var pistler = (n.affected_elements || []).map(function (e) {{
+      return e.ref ? '<span class="notam-etiket">' + esc(e.ref) + "</span>" : "";
+    }}).join("");
+    var ozet = n.reading_short
+      ? '<div class="notam-ozet">' + esc(n.reading_short) +
+        ' <span style="color:var(--soluk); font-size:.75rem;">(NOTAC otomatik özeti — hata içerebilir)</span></div>'
+      : "";
+    return (
+      '<div class="notam-kart">' +
+      '<div class="notam-ust"><span class="notam-no">' + esc(n.number || "—") + "</span>" +
+      kategori + etiketler + pistler +
+      '<span class="notam-durum">' + esc(n.status || "") + "</span></div>" +
+      ozet +
+      "<details><summary style=\\"cursor:pointer; font-size:.82rem; color:var(--soluk);\\">Ham NOTAM metni</summary>" +
+      '<div class="notam-metin">' + esc(n.text || "") + "</div></details>" +
+      '<div class="notam-kaynak">Kaynak: NOTAC · geçerlilik: ' +
+      esc(n.effective_start || "—") + " → " + esc(n.effective_end || "—") + "</div>" +
+      "</div>"
+    );
+  }}
+
+  function aktifGoster() {{
+    if (!veri) return;
+    senkronEl.textContent = veri.son_senkron
+      ? "son senkron " + veri.son_senkron.replace("T", " ").slice(0, 16)
+      : "henüz senkronize edilmedi";
+    if (!veri.son_senkron) {{
+      aktifEl.innerHTML = '<div class="notam-bos">NOTAM verisi şu anda alınamıyor.</div>';
+    }} else if (!veri.aktif.length) {{
+      aktifEl.innerHTML = '<div class="notam-bos">Aktif NOTAM bulunmuyor.</div>';
+    }} else {{
+      aktifEl.innerHTML = veri.aktif.map(notamKarti).join("");
+    }}
+  }}
+
+  function durumSecenekleriDoldur() {{
+    var gorulen = {{}};
+    (veri.gecmis || []).forEach(function (n) {{ if (n.status) gorulen[n.status] = true; }});
+    Object.keys(gorulen).sort().forEach(function (d) {{
+      var o = document.createElement("option");
+      o.value = d; o.textContent = d;
+      durumSelectEl.appendChild(o);
+    }});
+  }}
+
+  function aramaCalistir() {{
+    if (!veri) return;
+    var q = document.getElementById("notam-q").value.trim().toLowerCase();
+    var ts = document.getElementById("notam-tarih-baslangic").value;
+    var te = document.getElementById("notam-tarih-bitis").value;
+    var durum = durumSelectEl.value;
+
+    var sonuclar = (veri.gecmis || []).filter(function (n) {{
+      if (durum && n.status !== durum) return false;
+      if (q) {{
+        var alanlar = [n.number, n.text, n.reading_short, n.reading_long]
+          .concat(n.tags || [])
+          .concat((n.affected_elements || []).map(function (e) {{ return e.ref; }}))
+          .filter(Boolean).join(" ").toLowerCase();
+        if (alanlar.indexOf(q) === -1) return false;
+      }}
+      if (ts && n.effective_end && n.effective_end < ts) return false;
+      if (te && n.effective_start && n.effective_start > te) return false;
+      return true;
+    }});
+
+    sonucEl.innerHTML = sonuclar.length
+      ? sonuclar.map(notamKarti).join("")
+      : '<div class="notam-bos">Sonuç bulunamadı.</div>';
+  }}
+
+  function veriYukle() {{
+    fetch("notam_veri.json?_=" + Date.now(), {{cache: "no-store"}})
+      .then(function (r) {{ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }})
+      .then(function (v) {{
+        veri = v;
+        aktifGoster();
+        durumSecenekleriDoldur();
+        aramaCalistir();
+      }})
+      .catch(function (err) {{
+        var mesaj = '<div class="notam-bos">NOTAM verisi şu anda alınamıyor.</div>';
+        aktifEl.innerHTML = mesaj;
+        sonucEl.innerHTML = mesaj;
+        senkronEl.textContent = "";
+        console.error("[notam] veri yüklenemedi:", err);
+      }});
+  }}
+
+  document.getElementById("notam-ara-btn").addEventListener("click", aramaCalistir);
+  document.getElementById("notam-q").addEventListener("keydown", function (e) {{
+    if (e.key === "Enter") aramaCalistir();
+  }});
+  veriYukle();
+}})();
+</script>
 </body>
 </html>
 """

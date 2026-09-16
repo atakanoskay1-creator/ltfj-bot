@@ -66,8 +66,8 @@ TELEGRAM_BOT_TOKEN=123456:AA...
 TELEGRAM_CHAT_ID=987654321
 # Asagidaki satir istege bagli - silersen Claude yorumu yapilmaz
 ANTHROPIC_API_KEY=sk-ant-...
-# Asagidaki satir istege bagli - silersen NOTAM ozelligi sessizce devre disi
-# kalir (henuz entegrasyon tamamlanmadi - bkz. ltfj_notam_client.py)
+# Asagidaki satir istege bagli - silersen NOTAM ozelligi (bkz. ltfj_notam.py)
+# sessizce devre disi kalir, METAR/TAF/RVR analizi hicbir sekilde etkilenmez
 NOTAC_API_KEY=lb_...
 """
 
@@ -155,8 +155,13 @@ def notam_senkronize(state: dict):
     except ltfj_notam.NotamServisHatasi as e:
         print(f"[uyarı] NOTAM senkronizasyonu başarısız: {e}", file=sys.stderr)
         return
-    state["notam_gecmisi"] = ltfj_notam.gecmisi_guncelle(state.get("notam_gecmisi") or {}, aktif)
-    state["notam_son_senkron"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    # Ayni "simdi" hem gecmisteki last_seen'e hem notam_son_senkron'a yazilir -
+    # web katmani "su an aktif" kaydini last_seen == notam_son_senkron
+    # esitligiyle belirliyor (bkz. ltfj_notam.notam_veri_yaz), iki ayri
+    # datetime.now() cagrisi bu esitligi kirar.
+    simdi = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    state["notam_gecmisi"] = ltfj_notam.gecmisi_guncelle(state.get("notam_gecmisi") or {}, aktif, simdi)
+    state["notam_son_senkron"] = simdi
     print(f"  NOTAM senkronize edildi: {len(aktif)} aktif NOTAM ({location}).")
 
 
@@ -769,6 +774,13 @@ def main():
         notam_senkronize(state)
     except Exception as e:
         print(f"[uyarı] NOTAM senkronizasyonu başarısız: {e}", file=sys.stderr)
+
+    if ayar("notam", "aktif", varsayilan=True):
+        try:
+            ltfj_notam.notam_veri_yaz(state, KLASOR / "notam_veri.json",
+                                       ayar("notam", "location", varsayilan="LTFJ"))
+        except Exception as e:
+            print(f"[uyarı] NOTAM web verisi üretilemedi: {e}", file=sys.stderr)
 
     if ayar("web_sayfasi", varsayilan=True):
         try:

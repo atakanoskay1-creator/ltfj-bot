@@ -27,7 +27,9 @@ gercek "GET /notam/?location=LTFJ" istegine gore, bkz. ltfj_notam_client.py):
   YERINE degil, YANINDA tutulur) - NOTAC'in kendi sitesindeki uyarisina
   gore "generated automatically and may contain errors".
 """
+import json
 from datetime import datetime, timezone
+from pathlib import Path
 
 import ltfj_notam_client as client
 
@@ -232,3 +234,43 @@ def gecmisi_guncelle(eski_gecmis: dict, yeni_kayitlar: list[dict], simdi: str | 
     # (bu NOTAM'in "hala su an gorunuyor" olmadigini dogal olarak yansitir),
     # kaydi SILMIYORUZ.
     return gecmis
+
+
+# ----------------------------------------------------------------- web veri
+def notam_veri_yaz(state: dict, hedef: Path, location: str = LOCATION):
+    """MOD 5 (web arayuzu) icin index.html'in fetch() ile okudugu ayri bir
+    JSON dosyasi uretir - panel_veri.json'un ltfj_panel.py::panel_verisi_yaz
+    ile ayni deseni (Python hesaplar/yazar, sayfa istemci tarafinda okur).
+
+    "aktif" listesi, yerel gecmisteki last_seen'i EN SON senkronla (state's
+    notam_son_senkron) TAM ESLESEN ve status'u 'active' olan kayitlardan
+    olusur - yani "NOTAC'in bir onceki sorguda gercekten dondurdugu" liste.
+    Bu, botun GORDUGU yerel gecmis ile NOTAC'in kendi arsivini KARISTIRMAZ
+    (bkz. modul docstring'i ve kullanicinin MOD3 ayrimi talebi): "gecmis"
+    alani SADECE bu botun sync'lerde bugune kadar gordugu kayitlardir,
+    NOTAC'in tam tarihsel arsivi degildir - bu netlik web tarafinda da
+    ayrica metinle belirtilir (bkz. ltfj_sayfa.py)."""
+    son_senkron = state.get("notam_son_senkron")
+    gecmis = state.get("notam_gecmisi") or {}
+
+    tum_kayitlar = sorted(
+        gecmis.values(),
+        key=lambda k: k.get("last_seen") or "",
+        reverse=True,
+    )
+    aktif = [
+        k for k in tum_kayitlar
+        if son_senkron and k.get("last_seen") == son_senkron and k.get("status") == "active"
+    ]
+
+    veri = {
+        "istasyon": location,
+        "kaynak": KAYNAK_ETIKETI,
+        "bilgi_uyarisi": BILGI_UYARISI,
+        "uretildi": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "son_senkron": son_senkron,
+        "aktif": aktif,
+        "gecmis": tum_kayitlar,
+    }
+
+    hedef.write_text(json.dumps(veri, ensure_ascii=False, indent=1), encoding="utf-8")
