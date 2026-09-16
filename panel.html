@@ -502,7 +502,7 @@
   function renderRuzgar(govde, v) {
     var m = v && v.metar;
     if (!m) return bosMetar(govde);
-    var yon = m.ruzgar.yon, hiz = m.ruzgar.hiz, hamle = m.ruzgar.hamle;
+    var yon = m.ruzgar.yon, hiz = m.ruzgar.hiz, hamle = m.ruzgar.hamle, degisken = m.ruzgar.degisken;
     var cx = 100, cy = 100, r = 78;
     var svg = '<svg viewBox="0 0 200 200" width="100%" height="200" style="display:block">';
     // pusula halkasi
@@ -534,8 +534,14 @@
     }
     svg += "</svg>";
 
+    // yon RAPORLANMIS olsa bile ayrica bir degisken-yon araligi (ör.
+    // "020V090") varsa bunu sessizce atlamayalim - tek bir kesin yonmus
+    // gibi gorunmesin.
+    var degiskenMetni = (degisken && degisken.length === 2)
+      ? " (değişken " + String(degisken[0]).padStart(3, "0") + "°–" + String(degisken[1]).padStart(3, "0") + "°)"
+      : "";
     var altbilgi = '<div class="alt-satir">' + (yon != null ? (String(yon).padStart(3, "0") + "°") : "VRB") +
-      (hiz != null ? " / " + hiz + " kt" : "") + (hamle ? " (hamle " + hamle + " kt)" : "") + "</div>";
+      (hiz != null ? " / " + hiz + " kt" : "") + (hamle ? " (hamle " + hamle + " kt)" : "") + degiskenMetni + "</div>";
 
     var pistler = (m.pistler || []).map(function (p) {
       var yanTxt = p.yan.toFixed(0) + " kt " + esc(p.yan_taraf);
