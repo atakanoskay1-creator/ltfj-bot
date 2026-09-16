@@ -1,0 +1,44 @@
+{
+ "_aciklama": "Botun tum ayarlari burada. Degistirip kaydet, kod duzenlemeye gerek yok.",
+
+ "istasyon": "LTFJ",
+
+ "esikler": {
+  "_aciklama": "Bu degerlerin altina/ustune cikildiginda DIKKAT satiri olusur.",
+  "gorus_dusuk": 1500,
+  "gorus_cok_dusuk": 800,
+  "tavan_dusuk": 500,
+  "tavan_cok_dusuk": 200,
+  "ruzgar_kuvvetli": 25,
+  "hamle_kuvvetli": 30,
+  "yan_ruzgar_dikkat": 15
+ },
+
+ "bildirim": {
+  "_aciklama": "rutin_metar: 'sessiz' = sohbete duser ama telefon otmez, 'gizle' = hic mesaj atmaz (sadece sabit mesaj guncellenir), 'gonder' = normal bildirim",
+  "sabit_mesaj": true,
+  "rutin_metar": "gizle",
+  "bildir": {
+   "speci": true,
+   "taf": true,
+   "duzeltme": true,
+   "dikkat": true,
+   "renk_degisimi": true
+  },
+  "sessiz_saatler": {
+   "_aciklama": "Bu saatler arasinda hicbir bildirim sesi cikmaz (mesaj yine duser). Yerel saat.",
+   "aktif": false,
+   "baslangic": "23:00",
+   "bitis": "07:00"
+  }
+ },
+
+ "mesaj": {
+  "_aciklama": "kisa = durum + degisim + tek cumle. uzun = pist bilesenleri, RVR, ham bulten de dahil.",
+  "bicim": "kisa",
+  "ham_bulten": true,
+  "claude_yorum": true
+ },
+
+ "web_sayfasi": true
+}
