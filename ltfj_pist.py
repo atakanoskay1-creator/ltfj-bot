@@ -114,38 +114,57 @@ def kuyruk_limiti(cozum: dict) -> tuple[int, str]:
             else (KUYRUK_LIMIT_KURU, "kuru pist"))
 
 
-def _pist_ruzgar_kaynagi(cozum: dict, metin: str) -> tuple[list[tuple], str]:
-    """RMK'daki olculen pist anemometreleri (AD 2.15) varsa onlari, yoksa
-    alan METAR ruzgarina (TERCIHLI_PISTLER uzerinden) dusen (pist,yon,hiz)
-    aday listesini ve kaynak etiketini dondurur. Hiz her zaman
-    max(sabit, hamle) - PRS/kuyruk-limiti karsilastirmalari en kotu
-    (hamleli) durumu esas alir.
+def _pist_ruzgar_kaynagi(cozum: dict, metin: str) -> list[dict]:
+    """Her pist basi icin ayri ayri ruzgar kaynagi secer: RMK'da o pist icin
+    olculen anemometre verisi (AD 2.15) varsa onu, yoksa o pist icin tek
+    tek alan METAR ruzgarina duser. Hiz her zaman max(sabit, hamle) -
+    PRS/kuyruk-limiti karsilastirmalari en kotu (hamleli) durumu esas alir.
+
+    ONEMLI (F2 duzeltmesi): RMK KISMEN raporlandiginda (ornegin sadece
+    RWY06R ve RWY24L bildirilmis) onceki surum RMK'da GECMEYEN pistleri
+    (06L, 24R) tamamen atliyordu - sanki o pistler icin veri yokmus gibi.
+    Artik her pist BAGIMSIZ olarak degerlendiriliyor: RMK'da varsa
+    anemometre, yoksa alan METAR ruzgarina duser. Boylece hicbir pist
+    sessizce kayip gitmez.
 
     NOT: tercih_edilen_pist() KASITLI olarak farkli bir mantik kullanir
     (hamlesiz sabit ruzgar, eksik veride None'u oldugu gibi birakir) - bu
-    yardimciyi kullanmiyor, davranisini degistirmemek icin ayri birakildi.
-    pist_raporu() ve kuyruk_asanlar()'da BIREBIR ayni olan kod buraya
-    tasindi."""
-    olculenler = pist_ruzgarlari(metin)
-    if olculenler:
-        kaynak = [(o["pist"], o["yon"], max(o["hiz"] or 0, o["hamle"] or 0))
-                  for o in olculenler]
-        return kaynak, "AD 2.15 anemometreleri"
-    hiz = max(cozum["ruzgar_hiz"] or 0, cozum["ruzgar_hamle"] or 0)
-    kaynak = [(p, cozum["ruzgar_yon"], hiz) for p in TERCIHLI_PISTLER]
-    return kaynak, "alan rüzgârından"
+    yardimciyi kullanmiyor, davranisini degistirmemek icin ayri birakildi."""
+    olculenler = {o["pist"]: o for o in pist_ruzgarlari(metin)}
+    alan_hiz = max(cozum["ruzgar_hiz"] or 0, cozum["ruzgar_hamle"] or 0)
+    alan_yon = cozum["ruzgar_yon"]
+
+    kaynaklar = []
+    for pist in TERCIHLI_PISTLER:
+        o = olculenler.get(pist)
+        if o:
+            kaynaklar.append({
+                "pist": pist, "yon": o["yon"],
+                "hiz": max(o["hiz"] or 0, o["hamle"] or 0),
+                "kaynak": "AD 2.15 anemometreleri",
+            })
+        else:
+            kaynaklar.append({
+                "pist": pist, "yon": alan_yon, "hiz": alan_hiz,
+                "kaynak": "alan rüzgârından",
+            })
+    return kaynaklar
 
 
 def pist_raporu(cozum: dict, metin: str) -> list[str]:
     """Her pist basi icin okunakli bilesen satiri."""
-    kaynak, etiket = _pist_ruzgar_kaynagi(cozum, metin)
+    kaynaklar = _pist_ruzgar_kaynagi(cozum, metin)
     limit, limit_gerekce = kuyruk_limiti(cozum)
 
     satirlar = []
-    for pist, yon, hiz in sorted(kaynak):
+    kaynak_gruplari: dict[str, list[str]] = {}
+    for k in sorted(kaynaklar, key=lambda k: k["pist"]):
+        pist, yon, hiz = k["pist"], k["yon"], k["hiz"]
         yonu = _pist_yonu(pist)
         if yonu is None:
             continue
+        kaynak_gruplari.setdefault(k["kaynak"], []).append(pist)
+
         bas, yan, taraf = bilesenler(yon, hiz, yonu)
         if bas is None:
             satirlar.append(f"{pist}: rüzgâr değişken, bileşen hesaplanamıyor")
@@ -165,6 +184,13 @@ def pist_raporu(cozum: dict, metin: str) -> list[str]:
         satirlar.append(f"{pist}: {uzun}, {yanlama}")
 
     if satirlar:
+        if len(kaynak_gruplari) == 1:
+            etiket = next(iter(kaynak_gruplari))
+        else:
+            etiket = "; ".join(
+                f"{', '.join(pistler)}: {kaynak}"
+                for kaynak, pistler in kaynak_gruplari.items()
+            )
         satirlar.append(f"({etiket}; kuyruk limiti {limit} kt — {limit_gerekce})")
     return satirlar
 
@@ -189,10 +215,11 @@ def tercih_edilen_pist(cozum: dict, metin: str) -> str | None:
 def kuyruk_asanlar(cozum: dict, metin: str) -> list[str]:
     """PRS arka ruzgar limitini asan pist baslari."""
     limit, _ = kuyruk_limiti(cozum)
-    adaylar, _ = _pist_ruzgar_kaynagi(cozum, metin)
+    adaylar = _pist_ruzgar_kaynagi(cozum, metin)
 
     asanlar = []
-    for pist, yon, hiz in adaylar:
+    for k in adaylar:
+        pist, yon, hiz = k["pist"], k["yon"], k["hiz"]
         yonu = _pist_yonu(pist)
         if yonu is None:
             continue
@@ -213,28 +240,41 @@ def rvr_kayitlari(metin: str) -> list[dict]:
             "deger": int(deger),
             "on_ek": on_ek or "",
             "ust": int(v_deger) if v_deger else None,
+            "ust_on_ek": v_ek or "",
             "egilim": egilim,
         })
     return out
+
+
+_RVR_ONEK_METNI = {"P": "en az ", "M": "en fazla "}
 
 
 def rvr_gruplari(metin: str) -> list[str]:
     out = []
     for r in rvr_kayitlari(metin):
         s = f'{r["pist"]}: '
-        s += {"P": "en az ", "M": "en fazla "}.get(r["on_ek"], "")
+        s += _RVR_ONEK_METNI.get(r["on_ek"], "")
         s += f'{r["deger"]} m'
         if r["ust"]:
-            s += f' – {r["ust"]} m arası değişken'
+            s += (f' – {_RVR_ONEK_METNI.get(r["ust_on_ek"], "")}'
+                  f'{r["ust"]} m arası değişken')
         if r["egilim"]:
             s += f', {RVR_EGILIM[r["egilim"]]}'
         out.append(s)
     return out
 
 
-def en_dusuk_rvr(metin: str) -> int | None:
+def _en_dusuk_rvr_kaydi(metin: str) -> dict | None:
+    """en_dusuk_rvr()'daki minimum degeri tasiyan RVR kaydinin tamamini
+    dondurur (P/M onekine erismek icin - gorus_operasyonu() esik
+    karsilastirmasinda kullanir)."""
     kayitlar = rvr_kayitlari(metin)
-    return min((r["deger"] for r in kayitlar), default=None)
+    return min(kayitlar, key=lambda r: r["deger"], default=None)
+
+
+def en_dusuk_rvr(metin: str) -> int | None:
+    kayit = _en_dusuk_rvr_kaydi(metin)
+    return kayit["deger"] if kayit else None
 
 
 def ruzgar_kesmesi(metin: str) -> list[str]:
@@ -264,7 +304,8 @@ def metar_trendi(metin: str) -> str | None:
 def gorus_operasyonu(cozum: dict, metin: str) -> list[str]:
     """Dusuk gorus kalkis usulleri ve ILS kategorisi acisindan durum."""
     notlar = []
-    rvr = en_dusuk_rvr(metin)
+    kayit = _en_dusuk_rvr_kaydi(metin)
+    rvr = kayit["deger"] if kayit else None
     gorus = cozum.get("gorus")
     olcut = rvr if rvr is not None else gorus
 
@@ -280,6 +321,12 @@ def gorus_operasyonu(cozum: dict, metin: str) -> list[str]:
         notlar.append(
             f"Tipik CAT I eşiği olan {CAT1_TIPIK_RVR} m altında; "
             f"06R tek CAT II pisti (AD 2.19). Kesin minimumlar yaklaşma kartında."
+        )
+    if kayit and kayit["on_ek"] == "M":
+        notlar.append(
+            f"R{kayit['pist']} RVR değeri 'M' önekiyle raporlandı — gerçek "
+            f"değer {rvr} m'den daha düşük olabilir (ICAO Annex 3: sensörün "
+            f"ölçebildiği en düşük değer)."
         )
     return notlar
 

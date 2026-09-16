@@ -242,6 +242,15 @@ def claude_yorum(rapor, cozum, notlar=None) -> str | None:
     except requests.RequestException as e:
         print(f"[uyarı] Claude yorumu alınamadı: {e}", file=sys.stderr)
         return None
+    except (ValueError, TypeError, AttributeError, KeyError) as e:
+        # r.json() gecersiz JSON donebilir (ValueError/JSONDecodeError) ya da
+        # gecerli JSON olup beklenen sekilde olmayabilir (orn. "content": null
+        # -> TypeError, bir eleman dict degil -> AttributeError). Her iki
+        # durumda da Claude yorumu YOK sayilir, calisma cokmemeli (bkz. main()
+        # akisindaki durum_mesajini_guncelle() cagrisi).
+        print(f"[uyarı] Claude yanıtı beklenmeyen biçimde ({e!r}), atlandı.",
+              file=sys.stderr)
+        return None
 
     if not yorum:
         return None

@@ -88,6 +88,15 @@ def test_kuyruk_asanlar_kuvvetli_kuyrukta_dolar():
     assert kuyruk_asanlar(d, metin) == ["06L", "06R"]
 
 
+def test_kuyruk_asanlar_rmk_kismi_iken_eksik_pist_alan_ruzgarina_duser():
+    """F2: RMK sadece 24R/24L icin anemometre verisi tasiyorsa, RMK'da hic
+    gecmeyen 06L/06R onceden TAMAMEN atlaniyordu (kuyruk limiti asimi bile
+    olsa raporlanmiyordu). Alan METAR ruzgari (240/25) bu pistlerde guclu
+    kuyruk ruzgari anlamina geliyor - artik dogru sekilde yakalaniyor."""
+    d = metar_coz(o.PIST_RUZGARI_RMK_KISMEN_KUYRUK)
+    assert kuyruk_asanlar(d, o.PIST_RUZGARI_RMK_KISMEN_KUYRUK) == ["06L", "06R"]
+
+
 # ------------------------------------------------------------ kuyruk_limiti
 def test_kuyruk_limiti_yagis_varsa_islak_5kt():
     d = metar_coz(o.YAGMUR)
@@ -129,12 +138,19 @@ def test_pist_raporu_golden_alan_ruzgari():
 
 
 def test_pist_raporu_golden_rmk_anemometreleri():
+    """F2 duzeltmesinden ONCE bu test 06L'in RMK'da bildirilmedigi icin
+    ciktida hic gorunmedigini sabitliyordu (o pist sessizce kayboluyordu).
+    Duzeltmeden sonra RMK'da GECMEYEN her pist kendi basina alan METAR
+    ruzgarina (04007KT) duser ve ciktida kalir; kaynak karisikligi
+    footer'da pist bazinda ayristirilarak belirtilir."""
     d = metar_coz(o.PIST_RUZGARI_RMK)
     assert pist_raporu(d, o.PIST_RUZGARI_RMK) == [
+        "06L: baş 6 kt, yan 3 kt soldan",
         "06R: baş 4 kt, yan 6 kt soldan",
         "24L: KUYRUK 5 kt, yan 3 kt sağdan",
         "24R: KUYRUK 3 kt, yan 6 kt sağdan",
-        "(AD 2.15 anemometreleri; kuyruk limiti 5 kt — ıslak/kirli pist varsayımı)",
+        "(06L: alan rüzgârından; 06R, 24L, 24R: AD 2.15 anemometreleri; "
+        "kuyruk limiti 5 kt — ıslak/kirli pist varsayımı)",
     ]
 
 
@@ -153,7 +169,8 @@ def test_pist_raporu_degisken_ruzgarda_bilesen_hesaplanamaz_mesaji():
 # ------------------------------------------------------------------- RVR
 def test_rvr_kayitlari_tekli():
     kayitlar = rvr_kayitlari(o.RVR_TEK)
-    assert kayitlar == [{"pist": "06R", "deger": 550, "on_ek": "", "ust": None, "egilim": "N"}]
+    assert kayitlar == [{"pist": "06R", "deger": 550, "on_ek": "", "ust": None,
+                          "ust_on_ek": "", "egilim": "N"}]
 
 
 def test_rvr_kayitlari_p_m_onekleri():
@@ -170,6 +187,21 @@ def test_rvr_kayitlari_degisken():
 def test_rvr_gruplari_metin_bicimi():
     assert rvr_gruplari(o.RVR_TEK) == ["06R: 550 m, sabit"]
     assert rvr_gruplari(o.RVR_DEGISKEN) == ["06R: 400 m – 800 m arası değişken, yükseliyor"]
+
+
+def test_rvr_kayitlari_degisken_ust_oneki_korunur():
+    """F1: degisken RVR'nin ust (ikinci) degerindeki P/M oneki onceden
+    regex'te yakalanip sessizce atiliyordu (v_ek grubu kullanilmiyordu).
+    Artik ust_on_ek alaninda saklaniyor."""
+    kayitlar = rvr_kayitlari(o.RVR_DEGISKEN_UST_ONEKLI)
+    assert kayitlar[0]["ust_on_ek"] == "P"
+    assert kayitlar[0]["ust_on_ek"] != ""
+
+
+def test_rvr_gruplari_ust_oneki_metne_yansir():
+    assert rvr_gruplari(o.RVR_DEGISKEN_UST_ONEKLI) == [
+        "06R: 600 m – en az 2000 m arası değişken, sabit"
+    ]
 
 
 def test_en_dusuk_rvr_rvr_yoksa_none():
@@ -198,6 +230,23 @@ def test_gorus_operasyonu_rvr_yoksa_gorus_kullanilir():
     d = metar_coz(metin)
     notlar = gorus_operasyonu(d, metin)
     assert any("CAT I" in n for n in notlar)  # 300m < 550 tipik esik
+
+
+def test_gorus_operasyonu_m_onekli_rvr_uyari_notu_ekler():
+    """F1: 'M' oneki (ICAO Annex 3) gercek RVR'nin raporlanandan daha
+    dusuk olabilecegini belirtir. Esik karsilastirmasi (< / kesin sayisal
+    sinir) BILEREK degistirilmiyor - bu Python'un degil pilotun/ATC'nin
+    yorumlayacagi bir operasyonel karardir; kod sadece oneki bilgisini
+    acikca yuzeye cikarir."""
+    d = metar_coz(o.RVR_M_ESIK)
+    notlar = gorus_operasyonu(d, o.RVR_M_ESIK)
+    assert any("'M' önekiyle" in n and "R06R" in n for n in notlar)
+
+
+def test_gorus_operasyonu_m_oneki_yoksa_uyari_notu_olmaz():
+    d = metar_coz(o.RVR_TEK)
+    notlar = gorus_operasyonu(d, o.RVR_TEK)
+    assert not any("önekiyle" in n for n in notlar)
 
 
 # ------------------------------------------------------------------- PRS
