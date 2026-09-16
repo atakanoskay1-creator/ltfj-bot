@@ -14,9 +14,10 @@
   "id:51695648"
  ],
  "ilk_calisma": false,
- "guncelleme": "2026-09-16T12:31:04+00:00",
+ "guncelleme": "2026-09-16T12:40:02+00:00",
  "son_metar": "METAR LTFJ 161220Z 06007KT 020V080 9999 -SHRA BKN030 BKN080 19/17 Q1017 NOSIG RMK RWY24R 04006KT 350V080 RWY06R 04007KT RWY24L 04006KT",
  "son_uyari": null,
  "durum_mesaj_id": 30,
- "son_renk": "BLU"
+ "son_renk": "BLU",
+ "son_veri_zamani": "2026-09-16T12:20:00+00:00"
 }
