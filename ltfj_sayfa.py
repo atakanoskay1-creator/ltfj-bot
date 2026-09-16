@@ -7,6 +7,7 @@ GitHub Pages yayinlar. Ek altyapi yok. Sayfa tek dosya - harici CSS/JS yok.
 """
 
 import html
+import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -14,6 +15,12 @@ from ltfj_analiz import metar_coz, ozet_satiri, uyarilar
 from ltfj_ayarlar import YEREL_TZ
 from ltfj_pist import RENK_SIMGE, havacilik_notlari
 from ltfj_rasat import taf_bicimle
+
+# ltfj_bot.py::ETIKET/_yorumu_bicimle ile AYNI etiket kumesi - ama bu web'e
+# ozel bir bicimlendirici (Telegram HTML "\n" ile, web "<br>" ile ayrilir).
+# Burada YENI bir Claude cagrisi YAPILMAZ - sadece state.yorum_onbellegi'nde
+# (Telegram icin) zaten hesaplanmis metin okunur (bkz. _kart/sayfa_yaz).
+_ETIKET = re.compile(r"^(Rüzgâr|Görüş|Gökyüzü|Uçuşa etkisi|Genel|Dikkat)\s*:\s*(.+)$")
 
 RENK_KODU = {
     "BLU": "#3b82f6", "WHT": "#94a3b8", "GRN": "#22c55e",
@@ -79,6 +86,12 @@ SABLON = """<!DOCTYPE html>
     border-radius:10px; padding:10px 12px; margin:12px 0; font-size:.9rem;
   }}
   .ozet {{ color:var(--soluk); font-size:.92rem; margin:10px 0; }}
+  .yorum {{
+    background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:10px;
+    padding:10px 12px; margin:12px 0; font-size:.88rem; line-height:1.6;
+  }}
+  .yorum-etiket {{ color:var(--soluk); font-size:.72rem; margin-bottom:4px; }}
+  .pist-kaynak {{ color:var(--soluk); font-size:.78rem; margin-top:6px; }}
   table {{ width:100%; border-collapse:collapse; font-size:.88rem; margin-top:10px; }}
   td {{ padding:7px 0; border-bottom:1px solid var(--cizgi); }}
   td:first-child {{ color:var(--soluk); width:42%; }}
@@ -404,11 +417,32 @@ def _trend_bolumu(gecmis: list) -> str:
             f'<div class="grafik-grid">{"".join(bloklar)}</div></div>')
 
 
-def _kart(rapor: dict) -> str:
+def _yorum_html(yorum: str) -> str:
+    """Claude'un state.yorum_onbellegi'nde (Telegram ile PAYLAŞILAN onbellek)
+    zaten hesaplanmış metnini web icin bicimlendirir - burada YENI bir
+    Claude cagrisi YAPILMAZ, sadece mevcut metin okunur."""
+    satirlar = []
+    for satir in yorum.splitlines():
+        satir = satir.strip()
+        if not satir:
+            continue
+        kacis = html.escape(satir)
+        m = _ETIKET.match(kacis)
+        if m:
+            satirlar.append(f"<b>{m.group(1)}:</b> {m.group(2)}")
+        elif kacis.startswith("-"):
+            satirlar.append("•" + kacis[1:])
+        else:
+            satirlar.append(kacis)
+    return "<br>".join(satirlar)
+
+
+def _kart(rapor: dict, yorum_onbellegi: dict | None = None) -> str:
     tip = rapor["tip"]
     cozum = metar_coz(rapor["metin"]) if tip in ("METAR", "SPECI") else None
     notlar = (havacilik_notlari(cozum, rapor["metin"], rapor.get("zaman"))
               if cozum else None)
+    yorum = (yorum_onbellegi or {}).get(rapor["metin"])
 
     ad = tip + (f' {rapor["duzeltme"]}' if rapor.get("duzeltme") else "")
     if rapor.get("zaman"):
@@ -434,6 +468,11 @@ def _kart(rapor: dict) -> str:
          f'<span class="tip">{html.escape(ad)}</span>'
          f'<span class="zaman">{html.escape(zaman)}</span>{rozet}</div>']
 
+    if yorum:
+        p.append('<div class="yorum"><div class="yorum-etiket">'
+                  '🤖 Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</div>'
+                  f'{_yorum_html(yorum)}</div>')
+
     if cozum:
         dikkat = uyarilar(cozum)
         if notlar["ws"]:
@@ -445,7 +484,14 @@ def _kart(rapor: dict) -> str:
         p.append(f'<div class="ozet">{html.escape(ozet_satiri(cozum))}</div>')
 
         satirlar = []
-        pistler = [x for x in notlar["pistler"] if not x.startswith("(")]
+        ham_pistler = notlar["pistler"]
+        pistler = [x for x in ham_pistler if not x.startswith("(")]
+        # "(...)" satiri hangi pistin GERCEK AD 2.15 anemometre verisinden,
+        # hangisinin (o pist icin RMK'da veri yoksa) alan METAR ruzgarindan
+        # HESAPLANDIGINI belirtir - Telegram/ATC panel bunu zaten gosteriyor;
+        # burada da SESSIZCE ATILMAMASI gerekiyor, yoksa dört pist de esit
+        # kesinlikte olcumus gibi yanlis bir izlenim verir.
+        pist_kaynagi = next((x.strip("() ") for x in ham_pistler if x.startswith("(")), None)
         for x in pistler:
             pist, _, deger = x.partition(":")
             satirlar.append((f"Pist {pist}", deger.strip()))
@@ -464,6 +510,8 @@ def _kart(rapor: dict) -> str:
             p.append("<table>" + "".join(
                 f"<tr><td>{html.escape(a)}</td><td>{html.escape(b)}</td></tr>"
                 for a, b in satirlar) + "</table>")
+        if pist_kaynagi:
+            p.append(f'<div class="pist-kaynak">✈️ {html.escape(pist_kaynagi)}</div>')
 
         p.append('<div><a class="panel-link" href="panel.html">🛫 ATC Panelinde aç →</a></div>')
 
@@ -472,14 +520,20 @@ def _kart(rapor: dict) -> str:
     return "".join(p)
 
 
-def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path):
+def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict | None = None):
+    """yorum_onbellegi: state["yorum_onbellegi"] (ham rapor metni -> Claude
+    yorumu/cevirisi) - Telegram ile PAYLASILAN onbellek, burada okunur,
+    YENIDEN hesaplanmaz. Verilmezse (ornegin eski cagiran kod) kartlar
+    sadece deterministik (Claude'suz) bilgiyi gosterir - hicbir sekilde
+    hata vermez."""
     simdi = datetime.now(timezone.utc).astimezone(YEREL_TZ)
     sira = {"SPECI": 0, "METAR": 1, "TAF": 2}
     sirali = sorted(raporlar, key=lambda r: (sira.get(r["tip"], 9),
                                              -(r["zaman"].timestamp()
                                                if r.get("zaman") else 0)))
     govde = (_trend_bolumu(gecmis)
-             + ("".join(_kart(r) for r in sirali) or "<div class='kart'>Rapor yok.</div>"))
+             + ("".join(_kart(r, yorum_onbellegi) for r in sirali)
+                or "<div class='kart'>Rapor yok.</div>"))
     icao = raporlar[0].get("icao", "LTFJ") if raporlar else "LTFJ"
 
     hedef.write_text(

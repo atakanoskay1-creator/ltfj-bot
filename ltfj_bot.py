@@ -785,7 +785,8 @@ def main():
     if ayar("web_sayfasi", varsayilan=True):
         try:
             from ltfj_sayfa import sayfa_yaz
-            sayfa_yaz(raporlar, state.get("olcum_gecmisi", []), KLASOR / "index.html")
+            sayfa_yaz(raporlar, state.get("olcum_gecmisi", []), KLASOR / "index.html",
+                      state.get("yorum_onbellegi", {}))
         except Exception as e:
             print(f"[uyarı] Web sayfası üretilemedi: {e}", file=sys.stderr)
 
