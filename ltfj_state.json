@@ -13,15 +13,16 @@
   "id:51684776",
   "id:51695648",
   "id:51701932",
-  "id:51710655"
+  "id:51710655",
+  "id:51713526"
  ],
  "ilk_calisma": false,
- "guncelleme": "2026-09-16T13:50:55+00:00",
- "son_metar": "METAR LTFJ 161320Z 05007KT 9999 -SHRA BKN040 BKN090 19/16 Q1017 NOSIG RMK RWY24R 02006KT RWY06R 04006KT 360V060 RWY24L 04005KT",
+ "guncelleme": "2026-09-16T14:01:24+00:00",
+ "son_metar": "METAR LTFJ 161350Z 04008KT 9999 -SHRA BKN040 BKN090 18/17 Q1017 NOSIG RMK RWY24R 02006KT RWY06R 04008KT RWY24L 04007KT",
  "son_uyari": null,
  "durum_mesaj_id": 30,
  "son_renk": "BLU",
- "son_veri_zamani": "2026-09-16T13:20:00+00:00",
+ "son_veri_zamani": "2026-09-16T13:50:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -50,7 +51,16 @@
    "tavan": 4000,
    "qnh": 1017,
    "sicaklik": 19
+  },
+  {
+   "zaman": "2026-09-16T13:50:00+00:00",
+   "ruzgar_hiz": 8,
+   "tavan": 4000,
+   "qnh": 1017,
+   "sicaklik": 18
   }
  ],
- "yorum_onbellegi": {}
+ "yorum_onbellegi": {
+  "METAR LTFJ 161350Z 04008KT 9999 -SHRA BKN040 BKN090 18/17 Q1017 NOSIG RMK RWY24R 02006KT RWY06R 04008KT RWY24L 04007KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 8 knot hızla esen rüzgâr, yan bileşeni 3 knot düzeyinde.\n\n**Görüş:** 10 kilometre ve üzeri görüş mesafesi, uçuşa uygun.\n\n**Gökyüzü:** 1200 metre civarında çok bulutlu, 2700 metre civarında da çok bulutlu katmanlar; hafif sağanak yağmur var.\n\n**Uçuşa etkisi:** Normal uçuş koşulları, ancak 24L pistinde kuyruk rüzgârı sınırı aşıyor."
+ }
 }
