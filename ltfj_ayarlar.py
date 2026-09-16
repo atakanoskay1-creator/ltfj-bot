@@ -38,6 +38,7 @@ VARSAYILAN = {
     },
     "mesaj": {"bicim": "kisa", "ham_bulten": True, "claude_yorum": True},
     "web_sayfasi": True,
+    "atc_paneli": True,
 }
 
 

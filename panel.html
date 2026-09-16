@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LTFJ · ATC Panel</title>
+<meta name="description" content="LTFJ için widget tabanlı, koyu temalı hava trafik kontrol panosu">
+<style>
+  :root {
+    --bg:#05070d; --panel:#0d1420; --panel2:#101a2c; --cizgi:#1c2942;
+    --metin:#e6edf7; --soluk:#8291ab; --soluk2:#5b6a85;
+    --accent:#38bdf8; --iyi:#22c55e; --uyari:#f59e0b; --kotu:#ef4444;
+    --blu:#3b82f6; --wht:#94a3b8; --grn:#22c55e; --ylo:#eab308; --amb:#f97316; --red:#ef4444;
+  }
+  * { box-sizing:border-box; }
+  html, body { background:var(--bg); }
+  body {
+    margin:0; color:var(--metin); min-height:100vh;
+    font:15px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .uyari-seridi {
+    background:#3a2a0a; color:#fbbf24; border-bottom:1px solid #5c4110;
+    font-size:.78rem; text-align:center; padding:5px 10px; letter-spacing:.02em;
+  }
+  header {
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    padding:12px 18px; border-bottom:1px solid var(--cizgi); background:var(--panel);
+    position:sticky; top:0; z-index:20;
+  }
+  header h1 { font-size:1.05rem; margin:0; font-weight:700; letter-spacing:-.01em; }
+  header h1 span { color:var(--soluk); font-weight:500; }
+  .tazelik { font-size:.76rem; padding:3px 9px; border-radius:999px; background:#132036; color:var(--soluk); white-space:nowrap; }
+  .tazelik.uyari { background:#3a2a0a; color:#fbbf24; }
+  .tazelik.kotu { background:#3a1010; color:#fca5a5; }
+  .rol-secici { display:flex; gap:4px; background:#0a1220; border:1px solid var(--cizgi); border-radius:9px; padding:3px; }
+  .rol-secici button {
+    background:transparent; border:0; color:var(--soluk); font:inherit; font-weight:650;
+    font-size:.78rem; padding:5px 12px; border-radius:6px; cursor:pointer; letter-spacing:.03em;
+  }
+  .rol-secici button.aktif { background:var(--accent); color:#04141f; }
+  .spacer { flex:1; }
+  .gizli-bar { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .gizli-bar .etiket { font-size:.72rem; color:var(--soluk2); }
+  .chip {
+    font-size:.74rem; color:var(--soluk); background:#0a1220; border:1px solid var(--cizgi);
+    border-radius:999px; padding:4px 10px; cursor:pointer;
+  }
+  .chip:hover { color:var(--metin); border-color:var(--accent); }
+  button.yenile {
+    background:#0a1220; border:1px solid var(--cizgi); color:var(--soluk);
+    border-radius:8px; padding:6px 10px; font:inherit; font-size:.78rem; cursor:pointer;
+  }
+  button.yenile:hover { color:var(--metin); border-color:var(--accent); }
+
+  main { padding:16px; max-width:1600px; margin:0 auto; }
+  #grid {
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(270px, 1fr)); gap:14px;
+  }
+  .w {
+    background:var(--panel); border:1px solid var(--cizgi); border-radius:14px;
+    padding:0; display:flex; flex-direction:column; min-height:150px;
+  }
+  .w.dragging { opacity:.35; }
+  .w.buyuk { grid-column:span 2; }
+  @media (max-width:640px) { .w.buyuk { grid-column:span 1; } }
+  .w-bas {
+    display:flex; align-items:center; gap:8px; padding:10px 12px;
+    border-bottom:1px solid var(--cizgi); cursor:grab; user-select:none;
+  }
+  .w-bas:active { cursor:grabbing; }
+  .w-bas .tutamac { color:var(--soluk2); font-size:.9rem; }
+  .w-bas .baslik { font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--soluk); }
+  .w-bas .gizle { margin-left:auto; background:none; border:0; color:var(--soluk2); cursor:pointer; font-size:.85rem; padding:2px 4px; }
+  .w-bas .gizle:hover { color:var(--kotu); }
+  .w-govde { padding:14px; flex:1; display:flex; flex-direction:column; gap:8px; justify-content:center; }
+
+  .buyuk-sayi { font-size:2.3rem; font-weight:700; letter-spacing:-.02em; font-variant-numeric:tabular-nums; line-height:1.05; }
+  .birim { font-size:1rem; color:var(--soluk); font-weight:500; margin-left:4px; }
+  .alt-satir { font-size:.8rem; color:var(--soluk); }
+  .rozet { display:inline-flex; align-items:center; gap:6px; font-weight:700; font-size:.82rem; padding:4px 10px; border-radius:999px; color:#04141f; width:fit-content; }
+  .liste { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; font-size:.84rem; }
+  .liste li { display:flex; justify-content:space-between; gap:10px; color:var(--metin); }
+  .liste li b { font-variant-numeric:tabular-nums; }
+  .kuyruk-uyari { color:var(--kotu); font-weight:700; }
+  .bos { color:var(--soluk2); font-size:.85rem; font-style:italic; }
+  .spark { width:100%; height:56px; display:block; margin-top:2px; }
+  .spark-bos { font-size:.76rem; color:var(--soluk2); font-style:italic; }
+  pre.ham {
+    background:#0a1120; border:1px solid var(--cizgi); border-radius:9px; padding:9px 10px;
+    font:.76rem/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--soluk);
+    white-space:pre-wrap; word-break:break-word; margin:6px 0 0;
+  }
+  .taf-satir { padding:2px 0; }
+  .dikkat-ok { color:var(--iyi); font-weight:650; }
+  .dikkat-liste { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .dikkat-liste li {
+    background:#2a0f10; border:1px solid #5c1f22; color:#fca5a5; border-radius:9px;
+    padding:8px 10px; font-size:.84rem; font-weight:600;
+  }
+  footer { text-align:center; color:var(--soluk2); font-size:.74rem; padding:18px 12px 30px; }
+</style>
+</head>
+<body>
+
+<div class="uyari-seridi">⚠️ SİMÜLASYON / EĞİTİM AMAÇLI — resmî kaynak değildir, gerçek ATC operasyonlarında kullanılamaz</div>
+
+<header>
+  <h1>LTFJ <span>· ATC Panel</span></h1>
+  <span id="tazelik" class="tazelik">yükleniyor…</span>
+  <div class="spacer"></div>
+  <div class="gizli-bar" id="gizliBar"></div>
+  <div class="rol-secici" role="group" aria-label="Kontrolör rolü">
+    <button data-rol="TWR" id="rolTWR">KULE</button>
+    <button data-rol="APP" id="rolAPP">YAKLAŞMA</button>
+  </div>
+  <button class="yenile" id="yenileBtn">⟳ Yenile</button>
+</header>
+
+<main>
+  <div id="grid"></div>
+</main>
+
+<footer>Veri: MGM rasat sayfası (gayri resmî). Widget sırası ve seçimi bu tarayıcıda saklanır. LTFJ ATC Panel — hobi projesi.</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var DATA_URL = "panel_veri.json";
+  var STORAGE_KEY = "ltfj_panel_v1";
+  var REFRESH_MS = 60000;
+  var GRAFIK_PENCERE_SAAT = 6;
+  var GRAFIK_MIN_NOKTA = 2;
+  var GRAFIK_YEDEK_NOKTA = 12;
+
+  var RENK_KODU = { BLU:"#3b82f6", WHT:"#94a3b8", GRN:"#22c55e", YLO:"#eab308", AMB:"#f97316", RED:"#ef4444" };
+  var RENK_SIMGE = { BLU:"🔵", WHT:"⚪", GRN:"🟢", YLO:"🟡", AMB:"🟠", RED:"🔴" };
+
+  var WIDGETS = {
+    durum:    { baslik: "Genel Durum",         buyuk:false, render: renderDurum },
+    ruzgar:   { baslik: "Rüzgâr / Pist",        buyuk:true,  render: renderRuzgar },
+    rvr:      { baslik: "Pist Görüş Menzili",   buyuk:false, render: renderRVR },
+    gorus:    { baslik: "Görüş",                buyuk:false, render: renderGorus },
+    tavan:    { baslik: "Bulut Tabanı",         buyuk:false, render: renderTavan },
+    qnh:      { baslik: "QNH",                  buyuk:false, render: renderQNH },
+    sicaklik: { baslik: "Sıcaklık / Çiğ N.",    buyuk:false, render: renderSicaklik },
+    dikkat:   { baslik: "Uyarılar",             buyuk:false, render: renderDikkat },
+    taf:      { baslik: "TAF",                  buyuk:true,  render: renderTAF },
+  };
+
+  var PRESETS = {
+    TWR: ["durum", "ruzgar", "rvr", "dikkat", "gorus", "tavan", "qnh", "sicaklik", "taf"],
+    APP: ["durum", "qnh", "tavan", "gorus", "dikkat", "ruzgar", "sicaklik", "rvr", "taf"],
+  };
+
+  var grid = document.getElementById("grid");
+  var tazelikEl = document.getElementById("tazelik");
+  var gizliBar = document.getElementById("gizliBar");
+  var veri = null;
+  var layout = yukleDuzen();
+
+  // ---------------------------------------------------------------- duzen ---
+  function varsayilanDuzen(rol) {
+    return { rol: rol, sira: PRESETS[rol].slice(), gizli: [] };
+  }
+
+  function yukleDuzen() {
+    try {
+      var ham = localStorage.getItem(STORAGE_KEY);
+      if (!ham) return varsayilanDuzen("TWR");
+      var d = JSON.parse(ham);
+      if (!d || !Array.isArray(d.sira)) return varsayilanDuzen("TWR");
+      var bilinen = Object.keys(WIDGETS);
+      d.sira = d.sira.filter(function (k) { return bilinen.indexOf(k) !== -1; });
+      bilinen.forEach(function (k) {
+        if (d.sira.indexOf(k) === -1 && (d.gizli || []).indexOf(k) === -1) d.sira.push(k);
+      });
+      d.gizli = (d.gizli || []).filter(function (k) { return bilinen.indexOf(k) !== -1; });
+      return d;
+    } catch (e) { return varsayilanDuzen("TWR"); }
+  }
+
+  function kaydetDuzen() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(layout)); } catch (e) { /* localStorage yoksa sessizce gec */ }
+  }
+
+  function rolUygula(rol) {
+    layout = varsayilanDuzen(rol);
+    kaydetDuzen();
+    izgaraKur();
+    guncelleTumWidgetlar();
+    rolDugmeleriGuncelle();
+  }
+
+  function rolDugmeleriGuncelle() {
+    document.getElementById("rolTWR").classList.toggle("aktif", layout.rol === "TWR");
+    document.getElementById("rolAPP").classList.toggle("aktif", layout.rol === "APP");
+  }
+
+  // ---------------------------------------------------------------- izgara ---
+  function izgaraKur() {
+    grid.innerHTML = "";
+    layout.sira.forEach(function (key) {
+      if (layout.gizli.indexOf(key) !== -1) return;
+      var w = WIDGETS[key];
+      if (!w) return;
+      var sec = document.createElement("section");
+      sec.className = "w" + (w.buyuk ? " buyuk" : "");
+      sec.draggable = true;
+      sec.dataset.key = key;
+      sec.innerHTML =
+        '<div class="w-bas">' +
+          '<span class="tutamac">⠿</span>' +
+          '<span class="baslik">' + w.baslik + '</span>' +
+          '<button class="gizle" title="Widgetı gizle" data-gizle="' + key + '">✕</button>' +
+        '</div>' +
+        '<div class="w-govde" data-govde="' + key + '"><span class="bos">veri bekleniyor…</span></div>';
+      grid.appendChild(sec);
+    });
+    gizliBarKur();
+    surukleBirakBagla();
+  }
+
+  function gizliBarKur() {
+    gizliBar.innerHTML = "";
+    if (!layout.gizli.length) return;
+    var etiket = document.createElement("span");
+    etiket.className = "etiket";
+    etiket.textContent = "Gizli:";
+    gizliBar.appendChild(etiket);
+    layout.gizli.forEach(function (key) {
+      var w = WIDGETS[key];
+      if (!w) return;
+      var chip = document.createElement("button");
+      chip.className = "chip";
+      chip.textContent = "+ " + w.baslik;
+      chip.addEventListener("click", function () {
+        layout.gizli = layout.gizli.filter(function (k) { return k !== key; });
+        if (layout.sira.indexOf(key) === -1) layout.sira.push(key);
+        kaydetDuzen();
+        izgaraKur();
+        guncelleTumWidgetlar();
+      });
+      gizliBar.appendChild(chip);
+    });
+  }
+
+  grid.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-gizle]");
+    if (!btn) return;
+    var key = btn.getAttribute("data-gizle");
+    layout.sira = layout.sira.filter(function (k) { return k !== key; });
+    layout.gizli.push(key);
+    kaydetDuzen();
+    izgaraKur();
+    guncelleTumWidgetlar();
+  });
+
+  // ------------------------------------------------------- surukle-birak ---
+  function surukleBirakBagla() {
+    var tumu = grid.querySelectorAll(".w");
+    tumu.forEach(function (el) {
+      el.addEventListener("dragstart", function () { el.classList.add("dragging"); });
+      el.addEventListener("dragend", function () {
+        el.classList.remove("dragging");
+        layout.sira = [].slice.call(grid.querySelectorAll(".w")).map(function (n) { return n.dataset.key; });
+        kaydetDuzen();
+      });
+    });
+  }
+
+  grid.addEventListener("dragover", function (e) {
+    e.preventDefault();
+    var suruklenen = grid.querySelector(".w.dragging");
+    if (!suruklenen) return;
+    var sonraki = surukleSonrakiElemani(e.clientY, e.clientX);
+    if (sonraki == null) grid.appendChild(suruklenen);
+    else grid.insertBefore(suruklenen, sonraki);
+  });
+
+  function surukleSonrakiElemani(y) {
+    var elemanlar = [].slice.call(grid.querySelectorAll(".w:not(.dragging)"));
+    var enYakin = { fark: -Infinity, el: null };
+    elemanlar.forEach(function (el) {
+      var kutu = el.getBoundingClientRect();
+      var fark = y - kutu.top - kutu.height / 2;
+      if (fark < 0 && fark > enYakin.fark) enYakin = { fark: fark, el: el };
+    });
+    return enYakin.el;
+  }
+
+  // ------------------------------------------------------------ tazelik ---
+  function tazelikGuncelle() {
+    if (!veri || !veri.uretildi) return;
+    var uretildi = new Date(veri.uretildi);
+    var farkDk = Math.round((Date.now() - uretildi.getTime()) / 60000);
+    var metin = farkDk <= 0 ? "az önce güncellendi" : farkDk + " dk önce güncellendi";
+    tazelikEl.textContent = metin;
+    tazelikEl.className = "tazelik" + (farkDk >= 60 ? " kotu" : farkDk >= 20 ? " uyari" : "");
+  }
+
+  // -------------------------------------------------------------- veri ---
+  function veriYukle() {
+    fetch(DATA_URL + "?_=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function (v) {
+        veri = v;
+        tazelikGuncelle();
+        guncelleTumWidgetlar();
+      })
+      .catch(function (err) {
+        tazelikEl.textContent = "panel_veri.json okunamadı";
+        tazelikEl.className = "tazelik kotu";
+        console.error("[panel] veri yüklenemedi:", err);
+      });
+  }
+
+  function guncelleTumWidgetlar() {
+    Object.keys(WIDGETS).forEach(function (key) {
+      var govde = grid.querySelector('[data-govde="' + key + '"]');
+      if (!govde) return;
+      try { WIDGETS[key].render(govde, veri); }
+      catch (e) { govde.innerHTML = '<span class="bos">render hatası</span>'; console.error(key, e); }
+    });
+  }
+
+  // ------------------------------------------------------------ yardimci ---
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function gecmisNoktalari(gecmis, alan, sinir) {
+    var out = [];
+    (gecmis || []).forEach(function (g) {
+      var t = Date.parse(g.zaman);
+      if (isNaN(t)) return;
+      if (sinir != null && t < sinir) return;
+      if (g[alan] == null) return;
+      out.push([t, g[alan]]);
+    });
+    out.sort(function (a, b) { return a[0] - b[0]; });
+    return out;
+  }
+
+  function grafikVerisi(gecmis, alan) {
+    var simdi = Date.now();
+    var sinir = simdi - GRAFIK_PENCERE_SAAT * 3600 * 1000;
+    var noktalar = gecmisNoktalari(gecmis, alan, sinir);
+    if (noktalar.length >= GRAFIK_MIN_NOKTA) return noktalar;
+    var tumu = gecmisNoktalari(gecmis, alan, null);
+    return tumu.slice(-GRAFIK_YEDEK_NOKTA);
+  }
+
+  function sparkline(noktalar, renk) {
+    if (noktalar.length < 2) return '<div class="spark-bos">yetersiz veri</div>';
+    var w = 280, h = 56;
+    var vals = noktalar.map(function (p) { return p[1]; });
+    var vMin = Math.min.apply(null, vals), vMax = Math.max.apply(null, vals);
+    if (vMin === vMax) { vMin -= 1; vMax += 1; }
+    var pad = (vMax - vMin) * 0.15; vMin -= pad; vMax += pad;
+    var t0 = noktalar[0][0], t1 = noktalar[noktalar.length - 1][0];
+    var span = (t1 - t0) || 1;
+    function x(t) { return 4 + (w - 8) * ((t - t0) / span); }
+    function y(v) { return h - 4 - (h - 8) * ((v - vMin) / (vMax - vMin)); }
+    var d = noktalar.map(function (p, i) { return (i === 0 ? "M" : "L") + x(p[0]).toFixed(1) + "," + y(p[1]).toFixed(1); }).join(" ");
+    var lx = x(noktalar[noktalar.length - 1][0]), ly = y(noktalar[noktalar.length - 1][1]);
+    return '<svg viewBox="0 0 ' + w + ' ' + h + '" class="spark" preserveAspectRatio="none">' +
+      '<path d="' + d + '" fill="none" stroke="' + renk + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<circle cx="' + lx.toFixed(1) + '" cy="' + ly.toFixed(1) + '" r="3" fill="' + renk + '"/></svg>';
+  }
+
+  function polar(cx, cy, bearingDeg, r) {
+    var rad = bearingDeg * Math.PI / 180;
+    return { x: cx + r * Math.sin(rad), y: cy - r * Math.cos(rad) };
+  }
+
+  // ------------------------------------------------------------ widgetlar ---
+  function bosMetar(govde) { govde.innerHTML = '<span class="bos">METAR/SPECI yok</span>'; }
+
+  function renderDurum(govde, v) {
+    var m = v && v.metar;
+    if (!m) return bosMetar(govde);
+    if (!m.renk) { govde.innerHTML = '<span class="bos">renk durumu hesaplanamadı</span>'; return; }
+    var kod = m.renk[0], aciklama = m.renk[1];
+    govde.innerHTML =
+      '<div class="rozet" style="background:' + (RENK_KODU[kod] || "#666") + '">' + (RENK_SIMGE[kod] || "") + " " + kod + "</div>" +
+      '<div class="alt-satir">' + esc(aciklama) + "</div>" +
+      '<div class="alt-satir">' + esc(m.ozet) + "</div>";
+  }
+
+  function renderRuzgar(govde, v) {
+    var m = v && v.metar;
+    if (!m) return bosMetar(govde);
+    var yon = m.ruzgar.yon, hiz = m.ruzgar.hiz, hamle = m.ruzgar.hamle;
+    var cx = 100, cy = 100, r = 78;
+    var svg = '<svg viewBox="0 0 200 200" width="100%" height="200" style="display:block">';
+    // pusula halkasi
+    svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="#1c2942" stroke-width="1"/>';
+    [0, 90, 180, 270].forEach(function (b) {
+      var p1 = polar(cx, cy, b, r), p2 = polar(cx, cy, b, r - 7);
+      svg += '<line x1="' + p1.x.toFixed(1) + '" y1="' + p1.y.toFixed(1) + '" x2="' + p2.x.toFixed(1) + '" y2="' + p2.y.toFixed(1) + '" stroke="#5b6a85" stroke-width="1.5"/>';
+    });
+    var kN = polar(cx, cy, 0, r + 12);
+    svg += '<text x="' + kN.x.toFixed(1) + '" y="' + (kN.y + 4).toFixed(1) + '" fill="#5b6a85" font-size="10" text-anchor="middle">N</text>';
+    // pist ekseni (06/24, gercek yon 64.10 / 244.12 - LTFJ AIP AD 2.12)
+    var PIST_YONU = 64.10;
+    var u1 = polar(cx, cy, PIST_YONU, r - 4), u2 = polar(cx, cy, PIST_YONU + 180, r - 4);
+    svg += '<line x1="' + u1.x.toFixed(1) + '" y1="' + u1.y.toFixed(1) + '" x2="' + u2.x.toFixed(1) + '" y2="' + u2.y.toFixed(1) + '" stroke="#e6edf7" stroke-width="6" stroke-linecap="round" opacity=".85"/>';
+    var e1 = polar(cx, cy, PIST_YONU, r + 14), e2 = polar(cx, cy, PIST_YONU + 180, r + 14);
+    svg += '<text x="' + e1.x.toFixed(1) + '" y="' + (e1.y + 4).toFixed(1) + '" fill="#e6edf7" font-size="11" font-weight="700" text-anchor="middle">06</text>';
+    svg += '<text x="' + e2.x.toFixed(1) + '" y="' + (e2.y + 4).toFixed(1) + '" fill="#e6edf7" font-size="11" font-weight="700" text-anchor="middle">24</text>';
+    // ruzgar oku: "geldigi" yonden merkeze doru
+    if (yon == null) {
+      svg += '<circle cx="' + cx + '" cy="' + cy + '" r="5" fill="#38bdf8"/>';
+      svg += '<text x="' + cx + '" y="' + (cy + 26) + '" fill="#38bdf8" font-size="11" text-anchor="middle" font-weight="700">DEĞİŞKEN</text>';
+    } else if (!hiz) {
+      svg += '<circle cx="' + cx + '" cy="' + cy + '" r="5" fill="#8291ab"/>';
+      svg += '<text x="' + cx + '" y="' + (cy + 26) + '" fill="#8291ab" font-size="11" text-anchor="middle" font-weight="700">SAKİN</text>';
+    } else {
+      var kuyrukU = polar(cx, cy, yon, r - 6), ucU = polar(cx, cy, yon, 26);
+      svg += '<line x1="' + kuyrukU.x.toFixed(1) + '" y1="' + kuyrukU.y.toFixed(1) + '" x2="' + ucU.x.toFixed(1) + '" y2="' + ucU.y.toFixed(1) + '" stroke="#f59e0b" stroke-width="4" stroke-linecap="round" marker-end="url(#ok)"/>';
+      svg += '<defs><marker id="ok" markerWidth="10" markerHeight="10" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#f59e0b"/></marker></defs>';
+    }
+    svg += "</svg>";
+
+    var altbilgi = '<div class="alt-satir">' + (yon != null ? (String(yon).padStart(3, "0") + "°") : "VRB") +
+      (hiz != null ? " / " + hiz + " kt" : "") + (hamle ? " (hamle " + hamle + " kt)" : "") + "</div>";
+
+    var pistler = (m.pistler || []).map(function (p) {
+      var yanTxt = p.yan.toFixed(0) + " kt " + esc(p.yan_taraf);
+      var basTxt = p.kuyruk
+        ? '<span class="' + (p.kuyruk_asildi ? "kuyruk-uyari" : "") + '">KUYRUK ' + Math.abs(p.bas).toFixed(0) + " kt" + (p.kuyruk_asildi ? " ⚠" : "") + "</span>"
+        : "baş " + p.bas.toFixed(0) + " kt";
+      return "<li><span>" + esc(p.pist) + "</span><b>" + basTxt + " · " + yanTxt + "</b></li>";
+    }).join("");
+
+    govde.innerHTML = svg + altbilgi + (pistler ? '<ul class="liste">' + pistler + "</ul>" : '<span class="bos">pist bileşeni yok</span>') +
+      (m.tercih_pist ? '<div class="alt-satir">Uygun pist: <b>' + esc(m.tercih_pist) + "</b></div>" : "");
+  }
+
+  function renkliGovde(deger, birim, renkKodu, altSatir) {
+    var renk = renkKodu ? (RENK_KODU[renkKodu] || "#8291ab") : null;
+    return '<div class="buyuk-sayi"' + (renk ? ' style="color:' + renk + '"' : "") + ">" + deger +
+      (birim ? '<span class="birim">' + birim + "</span>" : "") + "</div>" +
+      (altSatir ? '<div class="alt-satir">' + altSatir + "</div>" : "");
+  }
+
+  function renderRVR(govde, v) {
+    var m = v && v.metar;
+    if (!m) return bosMetar(govde);
+    if (!m.rvr || !m.rvr.length) {
+      govde.innerHTML = renkliGovde(m.cavok ? "CAVOK" : (m.gorus != null ? (m.gorus >= 9999 ? "10+" : m.gorus) : "?"),
+        m.cavok || m.gorus == null || m.gorus >= 9999 ? "" : "m", m.renk ? m.renk[0] : null,
+        "RVR yayınlanmıyor — görüş değeri");
+      return;
+    }
+    govde.innerHTML = '<ul class="liste">' + m.rvr.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul>" +
+      (m.gorus_op && m.gorus_op.length ? '<div class="alt-satir">' + m.gorus_op.map(esc).join("<br>") + "</div>" : "");
+  }
+
+  function renderGorus(govde, v) {
+    var m = v && v.metar;
+    if (!m) return bosMetar(govde);
+    var deger = m.cavok ? "CAVOK" : (m.gorus == null ? "?" : (m.gorus >= 9999 ? "10+" : m.gorus));
+    var birim = m.cavok || m.gorus == null || m.gorus >= 9999 ? "" : "m";
+    govde.innerHTML = renkliGovde(deger, birim, m.renk ? m.renk[0] : null, m.hava && m.hava.length ? esc(m.hava.join(" ")) : "");
+  }
+
+  function renderTavan(govde, v) {
+    var m = v && v.metar;
+    if (!m) return bosMetar(govde);
+    var deger = m.tavan == null ? "—" : m.tavan;
+    var altSatir = m.tavan == null ? "bildirilmemiş" : "";
+    if (m.sis_riski) altSatir = (altSatir ? altSatir + "<br>" : "") + "🌫 " + esc(m.sis_riski);
+    govde.innerHTML = renkliGovde(deger, m.tavan == null ? "" : "ft", m.renk ? m.renk[0] : null, altSatir);
+  }
+
+  function renderQNH(govde, v) {
+    var m = v && v.metar;
+    if (!m) return bosMetar(govde);
+    var noktalar = grafikVerisi(v.gecmis, "qnh");
+    govde.innerHTML = renkliGovde(m.qnh == null ? "—" : m.qnh, m.qnh == null ? "" : "hPa", null, "") +
+      sparkline(noktalar, "#38bdf8");
+  }
+
+  function renderSicaklik(govde, v) {
+    var m = v && v.metar;
+    if (!m) return bosMetar(govde);
+    var fark = (m.sicaklik != null && m.cig_noktasi != null) ? (m.sicaklik - m.cig_noktasi) : null;
+    govde.innerHTML =
+      '<div class="buyuk-sayi">' + (m.sicaklik == null ? "—" : m.sicaklik) + '<span class="birim">°C</span></div>' +
+      '<div class="alt-satir">Çiğ noktası ' + (m.cig_noktasi == null ? "—" : m.cig_noktasi + "°C") +
+      (fark != null ? " · Δ " + fark + "°C" : "") + "</div>" +
+      sparkline(grafikVerisi(v.gecmis, "sicaklik"), "#f87171");
+  }
+
+  function renderDikkat(govde, v) {
+    var m = v && v.metar;
+    if (!m) return bosMetar(govde);
+    var madde = (m.dikkat || []).slice();
+    if (m.prs && m.prs.length) madde.push("Tercihli pist sistemi askıda: " + m.prs.join(", "));
+    if (!madde.length) { govde.innerHTML = '<span class="dikkat-ok">✓ Aktif uyarı yok</span>'; return; }
+    govde.innerHTML = '<ul class="dikkat-liste">' + madde.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul>";
+  }
+
+  function renderTAF(govde, v) {
+    var t = v && v.taf;
+    if (!t) { govde.innerHTML = '<span class="bos">TAF yok</span>'; return; }
+    var bicimli = t.metin.replace(/\s(?=(FM\d|BECMG|TEMPO|PROB\d))/g, "\n    ");
+    govde.innerHTML = '<pre class="ham">' + esc(bicimli) + "</pre>";
+  }
+
+  // -------------------------------------------------------------- basla ---
+  document.getElementById("rolTWR").addEventListener("click", function () { rolUygula("TWR"); });
+  document.getElementById("rolAPP").addEventListener("click", function () { rolUygula("APP"); });
+  document.getElementById("yenileBtn").addEventListener("click", veriYukle);
+
+  izgaraKur();
+  rolDugmeleriGuncelle();
+  veriYukle();
+  setInterval(veriYukle, REFRESH_MS);
+  setInterval(tazelikGuncelle, 10000);
+})();
+</script>
+</body>
+</html>

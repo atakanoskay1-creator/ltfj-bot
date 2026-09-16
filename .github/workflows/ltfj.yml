@@ -51,7 +51,7 @@ jobs:
         run: |
           set -u
           DAL="${GITHUB_REF_NAME}"
-          DOSYALAR="ltfj_state.json index.html"
+          DOSYALAR="ltfj_state.json index.html panel_veri.json"
 
           if [ -z "$(git status --porcelain ${DOSYALAR})" ]; then
             echo "Degisiklik yok, commit yok."
@@ -76,14 +76,17 @@ jobs:
             echo "Uzaktaki state ile birlestiriliyor (deneme ${deneme})..."
 
             # Bizim surumu kenara al, uzaktakine hizalan, sonra ikisini birlestir.
-            # index.html her calistirmada yeniden uretildigi icin birlestirme
-            # gerektirmez - bizimki daha yenidir, oldugu gibi geri yazilir.
+            # index.html ve panel_veri.json her calistirmada yeniden uretildigi
+            # icin birlestirme gerektirmez - bizimki daha yenidir, oldugu gibi
+            # geri yazilir.
             cp ltfj_state.json /tmp/bizim_state.json
             cp index.html /tmp/bizim_index.html 2>/dev/null || true
+            cp panel_veri.json /tmp/bizim_panel_veri.json 2>/dev/null || true
             git fetch origin "${DAL}"
             git reset --hard "origin/${DAL}"
             python state_birlestir.py ltfj_state.json /tmp/bizim_state.json
             cp /tmp/bizim_index.html index.html 2>/dev/null || true
+            cp /tmp/bizim_panel_veri.json panel_veri.json 2>/dev/null || true
           done
 
           echo "3 denemede de push edilemedi." >&2
