@@ -16,15 +16,16 @@
   "id:51710655",
   "id:51713526",
   "id:51721659",
-  "id:51724405"
+  "id:51724405",
+  "id:51732919"
  ],
  "ilk_calisma": false,
- "guncelleme": "2026-09-16T15:21:05+00:00",
- "son_metar": "METAR LTFJ 161450Z 04010KT 9999 -SHRA BKN040 BKN090 18/16 Q1017 NOSIG RMK RWY24R 02006KT RWY06R 03009KT RWY24L 04007KT",
+ "guncelleme": "2026-09-16T15:31:12+00:00",
+ "son_metar": "METAR LTFJ 161520Z 05011KT 9999 BKN040 BKN090 18/15 Q1017 RESHRA NOSIG RMK RWY24R 02009KT 360V110 RWY06R 03010KT RWY24L 03008KT",
  "son_uyari": null,
  "durum_mesaj_id": 30,
  "son_renk": "BLU",
- "son_veri_zamani": "2026-09-16T14:50:00+00:00",
+ "son_veri_zamani": "2026-09-16T15:20:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -74,12 +75,19 @@
    "tavan": 4000,
    "qnh": 1017,
    "sicaklik": 18
+  },
+  {
+   "zaman": "2026-09-16T15:20:00+00:00",
+   "ruzgar_hiz": 11,
+   "tavan": 4000,
+   "qnh": 1017,
+   "sicaklik": 18
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 161350Z 04008KT 9999 -SHRA BKN040 BKN090 18/17 Q1017 NOSIG RMK RWY24R 02006KT RWY06R 04008KT RWY24L 04007KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 8 knot hızla esen rüzgâr, yan bileşeni 3 knot düzeyinde.\n\n**Görüş:** 10 kilometre ve üzeri görüş mesafesi, uçuşa uygun.\n\n**Gökyüzü:** 1200 metre civarında çok bulutlu, 2700 metre civarında da çok bulutlu katmanlar; hafif sağanak yağmur var.\n\n**Uçuşa etkisi:** Normal uçuş koşulları, ancak 24L pistinde kuyruk rüzgârı sınırı aşıyor.",
   "METAR LTFJ 161420Z 05008KT 9999 -SHRA BKN040 BKN090 18/17 Q1017 NOSIG RMK RWY24R 02007KT RWY06R 03008KT RWY24L 02006KT": "**Rüzgâr:** Kuzeydoğudan 8 knot hızla esen hafif rüzgâr, yan bileşen çok az.\n\n**Görüş:** 10 kilometre ve üzeri görüş mesafesi, uçuşa uygun.\n\n**Gökyüzü:** 4000 feet (yaklaşık 1200 metre) yükseklikte çok bulutlu, 9000 feet'te de bulutlu, hafif sağanak yağmur var.\n\n**Uçuşa etkisi:** Normal şartlar, önemli değişiklik beklenmiyorsa da sağanak nedeniyle dikkat gerekli.",
   "TAF LTFJ 161040Z 1612/1712 05009KT 9999 BKN030 BKN080 TEMPO 1612/1614 -SHRA BECMG 1614/1616 SCT040 BKN090 BECMG 1616/1619 CAVOK BECMG 1702/1705 SCT030 BKN080 PROB30 TEMPO 1708/1712 03015G25KT -SHRA": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken bulutlu hava beklenmektedir.\n\n- **1612/1614 UTC** Geçici olarak hafif yağmur beklenmektedir.\n- **1614/1616 UTC** Bulutlar kademeli olarak dağılacak, görüş açılacaktır.\n- **1616/1619 UTC** Kademeli olarak hava tamamen açılacaktır.\n- **1702/1705 UTC** Kademeli olarak bulutlar yeniden artacaktır; 1708/1712 UTC arasında %30 ihtimalle geçici hafif yağmur ve rüzgar artışı (3 derece, 15 knot ortalama, 25 knot esen) beklenmektedir.",
-  "METAR LTFJ 161450Z 04010KT 9999 -SHRA BKN040 BKN090 18/16 Q1017 NOSIG RMK RWY24R 02006KT RWY06R 03009KT RWY24L 04007KT": "Rüzgâr: Kuzey-kuzeydoğudan 10 knot hızla esen rüzgâr, 24L pistine kuyruk rüzgârı bileşeni 6 knot olup operasyonel limiti aşmaktadır.\n\nGörüş: 10 kilometre ve üzeri mesafede görüş çok iyi, uçuşa engel değildir.\n\nGökyüzü: Yaklaşık 1200 metre ve 2700 metre yükseklikte çok bulutlu tabakalar bulunmakta, hafif sağanak yağmuru eşlik etmektedir.\n\nUçuşa etkisi: 24L pistine kuyruk rüzgârı sınırı nedeniyle alternatif pist kullanımı gerekebilir, aksi takdirde normal operasyon beklenmektedir."
+  "METAR LTFJ 161450Z 04010KT 9999 -SHRA BKN040 BKN090 18/16 Q1017 NOSIG RMK RWY24R 02006KT RWY06R 03009KT RWY24L 04007KT": "Rüzgâr: Kuzey-kuzeydoğudan 10 knot hızla esen rüzgâr, 24L pistine kuyruk rüzgârı bileşeni 6 knot olup operasyonel limiti aşmaktadır.\n\nGörüş: 10 kilometre ve üzeri mesafede görüş çok iyi, uçuşa engel değildir.\n\nGökyüzü: Yaklaşık 1200 metre ve 2700 metre yükseklikte çok bulutlu tabakalar bulunmakta, hafif sağanak yağmuru eşlik etmektedir.\n\nUçuşa etkisi: 24L pistine kuyruk rüzgârı sınırı nedeniyle alternatif pist kullanımı gerekebilir, aksi takdirde normal operasyon beklenmektedir.",
+  "METAR LTFJ 161520Z 05011KT 9999 BKN040 BKN090 18/15 Q1017 RESHRA NOSIG RMK RWY24R 02009KT 360V110 RWY06R 03010KT RWY24L 03008KT": "**Rüzgâr:** Kuzeydoğudan 11 knot hızla esen rüzgâr, kullanılan pistlere göre yan bileşeni çok az (3 knot civarı).\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuşlar için rahat koşullar.\n\n**Gökyüzü:** 4000 metre yükseklikte çok bulutlu, 9000 metrede de bulutlu; yağış yok, hava temiz.\n\n**Uçuşa etkisi:** Normal uçuş koşulları, gecikme veya aksama beklenmiyorum."
  }
 }

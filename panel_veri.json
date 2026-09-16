@@ -1,25 +1,23 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-16T15:21:05+00:00",
+ "uretildi": "2026-09-16T15:31:12+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-16T14:50:00+00:00",
-  "metin": "METAR LTFJ 161450Z 04010KT 9999 -SHRA BKN040 BKN090 18/16 Q1017 NOSIG RMK RWY24R 02006KT RWY06R 03009KT RWY24L 04007KT",
+  "zaman": "2026-09-16T15:20:00+00:00",
+  "metin": "METAR LTFJ 161520Z 05011KT 9999 BKN040 BKN090 18/15 Q1017 RESHRA NOSIG RMK RWY24R 02009KT 360V110 RWY06R 03010KT RWY24L 03008KT",
   "ruzgar": {
-   "yon": 40,
-   "hiz": 10,
+   "yon": 50,
+   "hiz": 11,
    "hamle": null,
    "degisken": null
   },
   "gorus": 9999,
   "cavok": false,
   "tavan": 4000,
-  "hava": [
-   "-SHRA"
-  ],
+  "hava": [],
   "sicaklik": 18,
-  "cig_noktasi": 16,
+  "cig_noktasi": 15,
   "qnh": 1017,
   "nosig": true,
   "renk": [
@@ -31,8 +29,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 7.5,
-    "yan": 5.0,
+    "bas": 8.3,
+    "yan": 5.6,
     "yan_taraf": "soldan",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -40,34 +38,32 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -6.4,
-    "yan": 2.9,
+    "bas": -6.6,
+    "yan": 4.5,
     "yan_taraf": "sağdan",
     "kuyruk": true,
-    "kuyruk_asildi": true
+    "kuyruk_asildi": false
    },
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -4.3,
-    "yan": 4.2,
+    "bas": -6.5,
+    "yan": 6.3,
     "yan_taraf": "sağdan",
     "kuyruk": true,
     "kuyruk_asildi": false
    }
   ],
   "pist_kaynagi": "anemometre",
-  "kuyruk_limiti": 5,
-  "kuyruk_gerekce": "ıslak/kirli pist varsayımı",
+  "kuyruk_limiti": 10,
+  "kuyruk_gerekce": "kuru pist",
   "tercih_pist": "06R",
   "rvr": [],
-  "prs": [
-   "24L için arka rüzgâr 5 kt üstü"
-  ],
+  "prs": [],
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 040° 10kt · görüş 10+ km · tavan 4000 ft · hafif sağanak yağmur · 18°C · QNH 1017"
+  "ozet": "Rüzgâr 050° 11kt · görüş 10+ km · tavan 4000 ft · 18°C · QNH 1017"
  },
  "taf": {
   "zaman": "2026-09-16T10:40:00+00:00",
@@ -119,6 +115,13 @@
   {
    "zaman": "2026-09-16T14:50:00+00:00",
    "ruzgar_hiz": 10,
+   "tavan": 4000,
+   "qnh": 1017,
+   "sicaklik": 18
+  },
+  {
+   "zaman": "2026-09-16T15:20:00+00:00",
+   "ruzgar_hiz": 11,
    "tavan": 4000,
    "qnh": 1017,
    "sicaklik": 18
