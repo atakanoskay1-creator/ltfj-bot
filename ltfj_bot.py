@@ -35,7 +35,7 @@ from pathlib import Path
 import requests
 
 from ltfj_analiz import cozum_dokumu, fark_bul, metar_coz, ozet_satiri, uyarilar
-from ltfj_ayarlar import AYARLAR, ayar
+from ltfj_ayarlar import AYARLAR, YEREL_TZ, ayar
 from ltfj_pist import RENK_SIMGE, havacilik_notlari
 from ltfj_rasat import AgHatasi, AyiklamaHatasi, raporlari_cek
 
@@ -347,7 +347,7 @@ def _sessiz_saatte_mi(zaman: datetime) -> bool:
         bit = time.fromisoformat(s.get("bitis", "07:00"))
     except ValueError:
         return False
-    simdi = zaman.astimezone().time()
+    simdi = zaman.astimezone(YEREL_TZ).time()
     return (bas <= simdi or simdi < bit) if bas > bit else (bas <= simdi < bit)
 
 
@@ -403,7 +403,7 @@ def baslik_kur(rapor, notlar) -> str:
         simge = "✏️"
 
     if rapor.get("zaman"):
-        yerel = rapor["zaman"].astimezone()
+        yerel = rapor["zaman"].astimezone(YEREL_TZ)
         damga = f'{rapor["zaman"]:%d.%m %H:%MZ} · {yerel:%H:%M} yerel'
     else:
         damga = ""
@@ -492,15 +492,18 @@ def durum_mesaji_kur(raporlar: list, state: dict) -> str:
     """Sabitlenmis 'su an' mesaji - her raporda yerinde guncellenir."""
     metar = next((r for r in raporlar if r["tip"] in ("METAR", "SPECI")), None)
     taf = next((r for r in raporlar if r["tip"] == "TAF"), None)
-    simdi = datetime.now(timezone.utc).astimezone()
+    simdi = datetime.now(timezone.utc).astimezone(YEREL_TZ)
 
     s = [f"📍 <b>{ICAO} · şu an</b>"]
 
     if metar:
         s.append(mesaj_kur(metar, state, uzun=True))
     if taf:
-        yerel = taf["zaman"].astimezone() if taf.get("zaman") else None
-        damga = f'{taf["zaman"]:%d.%m %H:%MZ}' if taf.get("zaman") else ""
+        if taf.get("zaman"):
+            yerel = taf["zaman"].astimezone(YEREL_TZ)
+            damga = f'{taf["zaman"]:%d.%m %H:%MZ} · {yerel:%H:%M} yerel'
+        else:
+            damga = ""
         s += ["", f"📅 <b>TAF</b> <i>{damga}</i>",
               f'<pre>{html.escape(taf["metin"])}</pre>']
 

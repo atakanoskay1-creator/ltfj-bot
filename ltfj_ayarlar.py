@@ -9,9 +9,26 @@ sadece degistirmek istedigin satiri yazman yeter.
 
 import json
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 KLASOR = Path(__file__).resolve().parent
 DOSYA = KLASOR / "ayarlar.json"
+
+# LTFJ Turkiye'de, "yerel saat" her zaman Europe/Istanbul demektir. Bunu
+# python'un `datetime.astimezone()` (argumansiz) cagrisina birakmak,
+# sonucu calisma ortaminin (OS/konteyner) TZ ayarina baglar - sessiz
+# saatler gibi karar mantigi bu sekilde ortam degisince fark edilmeden
+# kayabilir. Tum modul bu SABIT uzerinden "yerel" hesaplasin diye burada.
+YEREL_TZ = ZoneInfo("Europe/Istanbul")
+
+# LTFJ pist ekseni GERCEK yonleri (AIP AD 2.12, AIRAC AMDT 07/26). Hem
+# ltfj_analiz.py (yan_ruzgar - Telegram ozet mesajindaki crosswind) hem de
+# ltfj_pist.py (PISTLER - pist basi bazinda bas/kuyruk/yan bilesenleri) bu
+# TEK degerden besleniyor. Ikisi ayri ayri "64.10"/"244.12" hardcode etseydi,
+# gelecekte bir AIRAC guncellemesinde biri degisip digeri unutulursa iki
+# hesap sessizce birbirinden sapardi.
+PIST_EKSENI_06 = 64.10
+PIST_EKSENI_24 = 244.12
 
 VARSAYILAN = {
     "istasyon": "LTFJ",

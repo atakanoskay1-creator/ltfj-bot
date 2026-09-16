@@ -9,12 +9,13 @@ Harici kutuphane yok.
 import math
 import re
 
-from ltfj_ayarlar import esik
+from ltfj_ayarlar import PIST_EKSENI_06, esik
 
-# LTFJ pist ekseni, GERCEK yon (AIP AD 2.12: 06L/06R 064.10°, 24R/24L 244.12°).
+# LTFJ pist ekseni, GERCEK yon (ltfj_ayarlar.PIST_EKSENI_06 - AIP AD 2.12).
 # Yan ruzgar buyuklugu iki yon icin de ayni oldugundan tek deger yetiyor.
-# Pist basi bazinda ayrintili tablo ltfj_pist.PISTLER icinde.
-PIST_YONU = 64.10
+# Pist basi bazinda ayrintili tablo ltfj_pist.PISTLER icinde - o da ayni
+# ltfj_ayarlar sabitlerinden besleniyor, burada AYRICA hardcode edilmiyor.
+PIST_YONU = PIST_EKSENI_06
 
 # --- esikler ---------------------------------------------------------------
 GORUS_DUSUK = esik("gorus_dusuk")            # metre

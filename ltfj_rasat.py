@@ -17,6 +17,8 @@ from datetime import datetime, timezone
 
 import requests
 
+from ltfj_ayarlar import YEREL_TZ
+
 BASE = "https://rasat.mgm.gov.tr/result"
 ICAO = "LTFJ"
 
@@ -162,7 +164,7 @@ def main():
 
     for r in raporlar:
         if r["zaman"]:
-            yerel = r["zaman"].astimezone()
+            yerel = r["zaman"].astimezone(YEREL_TZ)
             damga = f'{r["zaman"]:%d.%m %H:%M}Z  ({yerel:%H:%M} yerel)'
         else:
             damga = "zaman yok"

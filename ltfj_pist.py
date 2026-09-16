@@ -22,14 +22,17 @@ import math
 import re
 from datetime import datetime, timedelta, timezone
 
+from ltfj_ayarlar import PIST_EKSENI_06, PIST_EKSENI_24
 from ltfj_ayarlar import esik as _esik
 
 # --- LTFJ sabitleri (AIP AD 2) ---------------------------------------------
+# Yon degerleri ltfj_ayarlar.PIST_EKSENI_06/24'ten geliyor (ltfj_analiz.py
+# ile TEK ortak kaynak - bkz. oradaki PIST_YONU aciklamasi).
 PISTLER = {
-    "06L": {"yon": 64.10, "lda": 2910, "ils": "CAT I"},
-    "24R": {"yon": 244.12, "lda": 3000, "ils": "CAT I"},
-    "06R": {"yon": 64.10, "lda": 3540, "ils": "CAT II"},
-    "24L": {"yon": 244.12, "lda": 3540, "ils": "CAT I"},
+    "06L": {"yon": PIST_EKSENI_06, "lda": 2910, "ils": "CAT I"},
+    "24R": {"yon": PIST_EKSENI_24, "lda": 3000, "ils": "CAT I"},
+    "06R": {"yon": PIST_EKSENI_06, "lda": 3540, "ils": "CAT II"},
+    "24L": {"yon": PIST_EKSENI_24, "lda": 3540, "ils": "CAT I"},
 }
 TERCIHLI_PISTLER = ("06L", "24R", "06R", "24L")     # AD 2.20 K
 
@@ -111,19 +114,32 @@ def kuyruk_limiti(cozum: dict) -> tuple[int, str]:
             else (KUYRUK_LIMIT_KURU, "kuru pist"))
 
 
-def pist_raporu(cozum: dict, metin: str) -> list[str]:
-    """Her pist basi icin okunakli bilesen satiri."""
-    olculenler = pist_ruzgarlari(metin)
-    limit, limit_gerekce = kuyruk_limiti(cozum)
+def _pist_ruzgar_kaynagi(cozum: dict, metin: str) -> tuple[list[tuple], str]:
+    """RMK'daki olculen pist anemometreleri (AD 2.15) varsa onlari, yoksa
+    alan METAR ruzgarina (TERCIHLI_PISTLER uzerinden) dusen (pist,yon,hiz)
+    aday listesini ve kaynak etiketini dondurur. Hiz her zaman
+    max(sabit, hamle) - PRS/kuyruk-limiti karsilastirmalari en kotu
+    (hamleli) durumu esas alir.
 
+    NOT: tercih_edilen_pist() KASITLI olarak farkli bir mantik kullanir
+    (hamlesiz sabit ruzgar, eksik veride None'u oldugu gibi birakir) - bu
+    yardimciyi kullanmiyor, davranisini degistirmemek icin ayri birakildi.
+    pist_raporu() ve kuyruk_asanlar()'da BIREBIR ayni olan kod buraya
+    tasindi."""
+    olculenler = pist_ruzgarlari(metin)
     if olculenler:
         kaynak = [(o["pist"], o["yon"], max(o["hiz"] or 0, o["hamle"] or 0))
                   for o in olculenler]
-        etiket = "AD 2.15 anemometreleri"
-    else:
-        hiz = max(cozum["ruzgar_hiz"] or 0, cozum["ruzgar_hamle"] or 0)
-        kaynak = [(p, cozum["ruzgar_yon"], hiz) for p in TERCIHLI_PISTLER]
-        etiket = "alan rüzgârından"
+        return kaynak, "AD 2.15 anemometreleri"
+    hiz = max(cozum["ruzgar_hiz"] or 0, cozum["ruzgar_hamle"] or 0)
+    kaynak = [(p, cozum["ruzgar_yon"], hiz) for p in TERCIHLI_PISTLER]
+    return kaynak, "alan rüzgârından"
+
+
+def pist_raporu(cozum: dict, metin: str) -> list[str]:
+    """Her pist basi icin okunakli bilesen satiri."""
+    kaynak, etiket = _pist_ruzgar_kaynagi(cozum, metin)
+    limit, limit_gerekce = kuyruk_limiti(cozum)
 
     satirlar = []
     for pist, yon, hiz in sorted(kaynak):
@@ -173,12 +189,7 @@ def tercih_edilen_pist(cozum: dict, metin: str) -> str | None:
 def kuyruk_asanlar(cozum: dict, metin: str) -> list[str]:
     """PRS arka ruzgar limitini asan pist baslari."""
     limit, _ = kuyruk_limiti(cozum)
-    olculenler = pist_ruzgarlari(metin)
-    adaylar = ([(o["pist"], o["yon"], max(o["hiz"] or 0, o["hamle"] or 0))
-                for o in olculenler] or
-               [(p, cozum["ruzgar_yon"],
-                 max(cozum["ruzgar_hiz"] or 0, cozum["ruzgar_hamle"] or 0))
-                for p in TERCIHLI_PISTLER])
+    adaylar, _ = _pist_ruzgar_kaynagi(cozum, metin)
 
     asanlar = []
     for pist, yon, hiz in adaylar:

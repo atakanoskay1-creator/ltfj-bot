@@ -11,6 +11,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from ltfj_analiz import metar_coz, ozet_satiri, uyarilar
+from ltfj_ayarlar import YEREL_TZ
 from ltfj_pist import RENK_SIMGE, havacilik_notlari
 from ltfj_rasat import taf_bicimle
 
@@ -189,7 +190,8 @@ def _grafik_blogu(alan: str, baslik: str, birim: str, renk: str,
     if not svg:
         return ""
     son_deger = noktalar[-1][1]
-    baslangic, bitis = noktalar[0][0].astimezone(), noktalar[-1][0].astimezone()
+    baslangic = noktalar[0][0].astimezone(YEREL_TZ)
+    bitis = noktalar[-1][0].astimezone(YEREL_TZ)
     return (
         f'<div><div class="grafik-baslik"><span>{html.escape(baslik)}</span>'
         f'<span class="grafik-son">{son_deger:.0f} {html.escape(birim)}</span></div>'
@@ -220,7 +222,7 @@ def _kart(rapor: dict) -> str:
 
     ad = tip + (f' {rapor["duzeltme"]}' if rapor.get("duzeltme") else "")
     if rapor.get("zaman"):
-        yerel = rapor["zaman"].astimezone()
+        yerel = rapor["zaman"].astimezone(YEREL_TZ)
         zaman = f'{rapor["zaman"]:%d.%m %H:%M}Z · {yerel:%H:%M} yerel'
     else:
         zaman = ""
@@ -274,7 +276,7 @@ def _kart(rapor: dict) -> str:
 
 
 def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path):
-    simdi = datetime.now(timezone.utc).astimezone()
+    simdi = datetime.now(timezone.utc).astimezone(YEREL_TZ)
     sira = {"SPECI": 0, "METAR": 1, "TAF": 2}
     sirali = sorted(raporlar, key=lambda r: (sira.get(r["tip"], 9),
                                              -(r["zaman"].timestamp()
