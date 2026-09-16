@@ -198,12 +198,21 @@ def uyarilar(d: dict) -> list[str]:
 
 # ------------------------------------------------------------------ fark ---
 def _ruzgar_yazi(d):
+    """GOZLEMLENEN ruzgar yon/hiz metni. METAR tamamen VRB ise ("degisken
+    3kt") yon zaten None'dur. Ama bir ORTALAMA yon RAPORLANIP ayrica bir
+    degisken-yon grubu ('020V090' gibi) da varsa, yon tek basina ("050°")
+    sanki kesinmis gibi gorunur - oysa ruzgar o aralikta salinip duruyor.
+    Bu yuzden degisken grup varsa metne acikca ekleniyor, sessizce
+    atlanmiyor."""
     if d["ruzgar_hiz"] is None:
         return "?"
     yon = f'{d["ruzgar_yon"]:03d}°' if d["ruzgar_yon"] is not None else "değişken"
     s = f'{yon} {d["ruzgar_hiz"]}kt'
     if d["ruzgar_hamle"]:
         s += f' (hamle {d["ruzgar_hamle"]})'
+    if d.get("degisken"):
+        v1, v2 = d["degisken"]
+        s += f' (değişken {v1:03d}°–{v2:03d}°)'
     return s
 
 
@@ -265,9 +274,9 @@ def fark_bul(onceki: str, simdiki: str) -> list[str]:
 def cozum_dokumu(d: dict) -> str:
     """Cozumlenmis METAR'i satir satir yazar. Claude'a ham bulten yerine bunu
     veriyoruz - kendi ayikladigi seyi yanlis okuyamasin diye."""
+    # _ruzgar_yazi() zaten degisken yon aralagini metne gomuyor - burada
+    # ayrica tekrar etmiyoruz (Claude'a ayni bilgiyi iki kez vermeyelim).
     s = [f"Rüzgâr: {_ruzgar_yazi(d)}"]
-    if d["degisken"]:
-        s.append(f'  yön {d["degisken"][0]}° ile {d["degisken"][1]}° arasında oynuyor')
     yr = yan_ruzgar(d["ruzgar_yon"], max(d["ruzgar_hiz"] or 0, d["ruzgar_hamle"] or 0))
     if yr is not None:
         s.append(f"  06/24 pistine göre yan rüzgâr bileşeni: {yr:.0f} kt")

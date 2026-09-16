@@ -16,6 +16,18 @@ Sabitler LTFJ AIP AD 2'den alinmistir (AIRAC AMDT 07/26):
 ONEMLI: METAR ruzgari GERCEK kuzeye gore verilir; pist NUMARASI manyetiktir.
 (06 numarasi = 064.10° gercek - 6.1° sapma = 058° manyetik.) Bilesen hesabinda
 gercek yonu kullaniyoruz - aksi halde 6 derecelik sistematik hata olusur.
+
+VERI TABANLI TASNIF (bu modulun ciktisini tuketen katmanlar icin):
+  GOZLEMLENEN   dogrudan METAR/RMK/RVR/WS metninden okunan (yon, hiz, RVR
+                degeri, hava olayi...).
+  HESAPLANAN    GOZLEMLENEN'den deterministik matematikle turetilen (bas/
+                kuyruk/yan ruzgar bileseni, en dusuk RVR...).
+  CIKARSANAN    dogrudan veride olmayip METAR'da bulunmayan bir alan (ornegin
+                RWYCC) icin konservatif varsayimla doldurulan deger (ornegin
+                yagis varsa "islak pist" kabulu). Bu fonksiyonlarin cogu bunu
+                donus degerinin yaninda acik gerekce metniyle belirtir
+                (ornegin kuyruk_limiti()'nin ikinci elemani); resmi bir AIP/
+                operator limiti degildir.
 """
 
 import math
@@ -69,7 +81,8 @@ RVR_EGILIM = {"U": "yükseliyor", "D": "düşüyor", "N": "sabit"}
 
 # ------------------------------------------------------- pist ruzgarlari ---
 def pist_ruzgarlari(metin: str) -> list[dict]:
-    """RMK bolumundeki pist basi ruzgarlarini ayiklar (AD 2.15: THR'den 220 M)."""
+    """RMK bolumundeki pist basi ruzgarlarini ayiklar (AD 2.15: THR'den 220 M).
+    GOZLEMLENEN veri - dogrudan RMK metninden okunur."""
     if "RMK" not in metin:
         return []
     out = []
@@ -87,12 +100,56 @@ def pist_ruzgarlari(metin: str) -> list[dict]:
 
 
 def bilesenler(yon, hiz, pist_yonu):
-    """(bas_ruzgari, yan_ruzgar, yan_taraf). bas_ruzgari negatifse kuyruk ruzgaridir."""
+    """(bas_ruzgari, yan_ruzgar, yan_taraf). bas_ruzgari negatifse kuyruk
+    ruzgaridir. HESAPLANAN - GOZLEMLENEN yon/hizdan deterministik turetilir."""
     if yon is None or hiz is None:
         return None, None, None
     aci = math.radians(yon - pist_yonu)
     return hiz * math.cos(aci), abs(hiz * math.sin(aci)), \
         ("sağdan" if math.sin(aci) >= 0 else "soldan")
+
+
+def bilesenler_araligi(yon1: int, yon2: int, hiz, pist_yonu: float) -> dict | None:
+    """Degisken ruzgar yonu (METAR'da ör. '020V090' grubu) icin pist
+    bilesenlerinin ALABILECEGI degeri tek bir sayi yerine bir ARALIK olarak
+    verir. HESAPLANAN - ama girdisi (yon araligi) zaten belirsiz oldugundan
+    cikti da belirsizligi acikca tasir; tek bir "kesin" sayi UYDURULMAZ.
+
+    METAR'daki degisken yon grubu, ruzgarin gozlemlenen sure icinde SAAT
+    YONUNDE yon1'den yon2'ye kadar taradigi ark'i belirtir (ICAO Annex 3).
+    Analitik turev yerine 1 derecelik adimlarla sayisal tarama yapiyoruz -
+    METAR zaten yon bilgisini 10 derece cozunurlukte veriyor, bu yeterli
+    hassasiyette ve kod olarak cok daha basit/dogrulanabilir."""
+    if hiz is None or yon1 is None or yon2 is None:
+        return None
+    ark = []
+    y = yon1 % 360
+    hedef = yon2 % 360
+    for _ in range(361):
+        ark.append(y)
+        if y == hedef:
+            break
+        y = (y + 1) % 360
+    bas_degerleri, yan_degerleri = [], []
+    for yon in ark:
+        bas, yan, _ = bilesenler(yon, hiz, pist_yonu)
+        bas_degerleri.append(bas)
+        yan_degerleri.append(yan)
+    return {
+        "bas_min": min(bas_degerleri), "bas_max": max(bas_degerleri),
+        "yan_max": max(yan_degerleri),
+    }
+
+
+def _aralik_metni(aralik: dict) -> str:
+    bas_min, bas_max, yan_max = aralik["bas_min"], aralik["bas_max"], aralik["yan_max"]
+    if bas_min >= 0:
+        bas_metni = f"baş {bas_min:.0f}–{bas_max:.0f} kt"
+    elif bas_max <= 0:
+        bas_metni = f"KUYRUK {abs(bas_max):.0f}–{abs(bas_min):.0f} kt"
+    else:
+        bas_metni = f"KUYRUK azami {abs(bas_min):.0f} kt – baş azami {bas_max:.0f} kt"
+    return f"{bas_metni}, yan azami {yan_max:.0f} kt"
 
 
 def _pist_yonu(pist: str) -> float | None:
@@ -107,78 +164,119 @@ def _pist_yonu(pist: str) -> float | None:
 
 def kuyruk_limiti(cozum: dict) -> tuple[int, str]:
     """AD 2.20 K: kuru pistte 10 kt, RWYCC dusukse 5 kt.
-    RWYCC METAR'da yok - yagis varsa pisti islak kabul ediyoruz."""
+    CIKARSANAN: RWYCC METAR'da yok - yagis varsa pisti islak kabul ediyoruz.
+    Bu resmi bir RWYCC raporu DEGIL, konservatif bir tahmindir (gerekce
+    metni bunu aciklar)."""
     hava = " ".join(cozum.get("hava") or [])
     islak = any(k in hava for k in ISLAK_YAPAN)
-    return ((KUYRUK_LIMIT_ISLAK, "ıslak/kirli pist varsayımı") if islak
-            else (KUYRUK_LIMIT_KURU, "kuru pist"))
+    return ((KUYRUK_LIMIT_ISLAK,
+              "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış nedeniyle "
+              "ıslak/kirli pist kabul edildi") if islak
+            else (KUYRUK_LIMIT_KURU,
+              "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi"))
 
 
-def _pist_ruzgar_kaynagi(cozum: dict, metin: str) -> list[dict]:
-    """Her pist basi icin ayri ayri ruzgar kaynagi secer: RMK'da o pist icin
-    olculen anemometre verisi (AD 2.15) varsa onu, yoksa o pist icin tek
-    tek alan METAR ruzgarina duser. Hiz her zaman max(sabit, hamle) -
-    PRS/kuyruk-limiti karsilastirmalari en kotu (hamleli) durumu esas alir.
+def pist_ruzgar_kaynagi(cozum: dict, metin: str) -> list[dict]:
+    """TEK ortak (canonical) per-pist ruzgar kaynagi modeli. pist_raporu(),
+    tercih_edilen_pist(), kuyruk_asanlar() VE ltfj_panel.py BURADAN besleniyor
+    - ayni METAR icin farkli tuketicilerin farkli sonuca varmasini onlemek
+    icin tek bir fonksiyon var.
 
-    ONEMLI (F2 duzeltmesi): RMK KISMEN raporlandiginda (ornegin sadece
-    RWY06R ve RWY24L bildirilmis) onceki surum RMK'da GECMEYEN pistleri
-    (06L, 24R) tamamen atliyordu - sanki o pistler icin veri yokmus gibi.
-    Artik her pist BAGIMSIZ olarak degerlendiriliyor: RMK'da varsa
-    anemometre, yoksa alan METAR ruzgarina duser. Boylece hicbir pist
-    sessizce kayip gitmez.
+    Her pist icin RMK'da (AD 2.15 anemometreleri) o pist adina GOZLEMLENEN
+    veri varsa onu, yoksa alan METAR ruzgarina TEK TEK duser - bir pistin
+    RMK'da bulunmayisi diger pistlerin de atlanmasina yol acmaz (bu, F2
+    olarak duzeltilen sinifta bir hataydi ve ayni desen onceden
+    tercih_edilen_pist() ve ltfj_panel.py::_pist_verisi() icinde AYRI AYRI
+    tekrarlanmisti - artik hepsi bu fonksiyona indirgeniyor).
 
-    NOT: tercih_edilen_pist() KASITLI olarak farkli bir mantik kullanir
-    (hamlesiz sabit ruzgar, eksik veride None'u oldugu gibi birakir) - bu
-    yardimciyi kullanmiyor, davranisini degistirmemek icin ayri birakildi."""
+    Sabit (hiz_sabit) ve hamle (hiz_hamle) degerleri AYRI tasinir - hangi
+    tuketicinin "worst case" (PRS/kuyruk limiti) mi yoksa "sakin ruzgar"
+    (tercih_edilen_pist) mi istedigine kendisi karar versin; burada
+    onceden max() alip tek sayiya indirgemek bu ayrimi kaybederdi."""
     olculenler = {o["pist"]: o for o in pist_ruzgarlari(metin)}
-    alan_hiz = max(cozum["ruzgar_hiz"] or 0, cozum["ruzgar_hamle"] or 0)
-    alan_yon = cozum["ruzgar_yon"]
-
     kaynaklar = []
     for pist in TERCIHLI_PISTLER:
         o = olculenler.get(pist)
         if o:
             kaynaklar.append({
                 "pist": pist, "yon": o["yon"],
-                "hiz": max(o["hiz"] or 0, o["hamle"] or 0),
+                "hiz_sabit": o["hiz"], "hiz_hamle": o["hamle"],
+                "degisken": o["degisken"],
                 "kaynak": "AD 2.15 anemometreleri",
             })
         else:
             kaynaklar.append({
-                "pist": pist, "yon": alan_yon, "hiz": alan_hiz,
+                "pist": pist, "yon": cozum["ruzgar_yon"],
+                "hiz_sabit": cozum["ruzgar_hiz"], "hiz_hamle": cozum["ruzgar_hamle"],
+                "degisken": cozum.get("degisken"),
                 "kaynak": "alan rüzgârından",
             })
     return kaynaklar
 
 
+def _hiz_worst(k: dict) -> int:
+    return max(k["hiz_sabit"] or 0, k["hiz_hamle"] or 0)
+
+
 def pist_raporu(cozum: dict, metin: str) -> list[str]:
-    """Her pist basi icin okunakli bilesen satiri."""
-    kaynaklar = _pist_ruzgar_kaynagi(cozum, metin)
+    """Her pist basi icin okunakli bilesen satiri. HESAPLANAN."""
+    kaynaklar = pist_ruzgar_kaynagi(cozum, metin)
     limit, limit_gerekce = kuyruk_limiti(cozum)
 
     satirlar = []
     kaynak_gruplari: dict[str, list[str]] = {}
     for k in sorted(kaynaklar, key=lambda k: k["pist"]):
-        pist, yon, hiz = k["pist"], k["yon"], k["hiz"]
+        pist = k["pist"]
         yonu = _pist_yonu(pist)
         if yonu is None:
             continue
         kaynak_gruplari.setdefault(k["kaynak"], []).append(pist)
 
-        bas, yan, taraf = bilesenler(yon, hiz, yonu)
+        yon = k["yon"]
+        hiz_sabit, hiz_hamle = k["hiz_sabit"], k["hiz_hamle"]
+
+        if k["degisken"]:
+            yon1, yon2 = k["degisken"]
+            aralik = bilesenler_araligi(yon1, yon2, _hiz_worst(k) or hiz_sabit, yonu)
+            if aralik is None:
+                satirlar.append(f"{pist}: rüzgâr değişken, bileşen hesaplanamıyor")
+            else:
+                satirlar.append(
+                    f"{pist}: {_aralik_metni(aralik)} — yön {yon1:03d}–{yon2:03d}° "
+                    f"arası değişken, kesin bileşen hesaplanamıyor"
+                )
+            continue
+
+        bas, yan, taraf = bilesenler(yon, hiz_sabit, yonu)
         if bas is None:
             satirlar.append(f"{pist}: rüzgâr değişken, bileşen hesaplanamıyor")
             continue
 
+        hamleli = hiz_hamle is not None and hiz_hamle > (hiz_sabit or 0)
+        bas_g = yan_g = None
+        if hamleli:
+            bas_g, yan_g, _ = bilesenler(yon, hiz_hamle, yonu)
+
+        bas_worst = bas_g if bas_g is not None else bas
+        asildi = bas_worst < 0 and abs(bas_worst) > limit
+
         if bas >= 0:
             uzun = f"baş {bas:.0f} kt"
+            if hamleli and bas_g is not None:
+                uzun += (f" (hamleli baş {bas_g:.0f} kt)" if bas_g >= 0
+                          else f" (hamleli KUYRUK {abs(bas_g):.0f} kt)")
         else:
             uzun = f"KUYRUK {abs(bas):.0f} kt"
-            if abs(bas) > limit:
-                uzun += f" (PRS limiti {limit} kt aşıldı)"
+            if hamleli and bas_g is not None:
+                uzun += f" (hamleli {abs(bas_g):.0f} kt)"
+        if asildi:
+            uzun += f" (PRS limiti {limit} kt aşıldı)"
 
         yanlama = f"yan {yan:.0f} kt {taraf}"
-        if yan >= YAN_RUZGAR_DIKKAT:
+        if hamleli and yan_g is not None and round(yan_g) != round(yan):
+            yanlama += f" (hamleli {yan_g:.0f} kt)"
+        yan_worst = yan_g if (hamleli and yan_g is not None and yan_g > yan) else yan
+        if yan_worst >= YAN_RUZGAR_DIKKAT:
             yanlama += " (yüksek)"
 
         satirlar.append(f"{pist}: {uzun}, {yanlama}")
@@ -196,41 +294,54 @@ def pist_raporu(cozum: dict, metin: str) -> list[str]:
 
 
 def tercih_edilen_pist(cozum: dict, metin: str) -> str | None:
-    """En cok bas ruzgari alan pist basi."""
-    olculenler = pist_ruzgarlari(metin)
-    adaylar = ([(o["pist"], o["yon"], o["hiz"]) for o in olculenler] or
-               [(p, cozum["ruzgar_yon"], cozum["ruzgar_hiz"]) for p in TERCIHLI_PISTLER])
+    """Meteorolojik baş rüzgârı tercihi: en çok baş rüzgârı alan pist başı.
+
+    ÖNEMLİ: Bu bir ATC 'runway-in-use' ataması DEĞİLDİR - program NOTAM,
+    pist kapanışı, trafik akışı, yaklaşma prosedürü, SID/STAR veya ATC
+    koordinasyonunu bilmez. Sadece rüzgâr bileşenlerine göre HESAPLANMIŞ bir
+    tercihtir; aktif pisti ATC belirler (AIP AD 2.20 K).
+
+    Sabit (hamlesiz) rüzgâr kullanılır - geçici bir hamle tercih kararını
+    sallamamalı. pist_ruzgar_kaynagi() ile AYNI per-pist kaynak modelini
+    kullanır (RMK'da olmayan pist artık burada da atlanmıyor - önceden bu
+    fonksiyon RMK varsa SADECE RMK'daki pistleri değerlendiriyordu, F2 ile
+    aynı sınıfta ayrı bir hataydı)."""
+    kaynaklar = pist_ruzgar_kaynagi(cozum, metin)
 
     en_iyi, en_iyi_bas = None, None
-    for pist, yon, hiz in adaylar:
-        yonu = _pist_yonu(pist)
+    for k in kaynaklar:
+        yonu = _pist_yonu(k["pist"])
         if yonu is None:
             continue
-        bas, _, _ = bilesenler(yon, hiz, yonu)
+        bas, _, _ = bilesenler(k["yon"], k["hiz_sabit"], yonu)
         if bas is not None and (en_iyi_bas is None or bas > en_iyi_bas):
-            en_iyi, en_iyi_bas = pist, bas
+            en_iyi, en_iyi_bas = k["pist"], bas
     return en_iyi
 
 
 def kuyruk_asanlar(cozum: dict, metin: str) -> list[str]:
-    """PRS arka ruzgar limitini asan pist baslari."""
+    """PRS arka ruzgar limitini asan pist baslari. Worst-case (hamleli)
+    hiz kullanilir - limit asimi kontrolu en kotu senaryoyu esas almali."""
     limit, _ = kuyruk_limiti(cozum)
-    adaylar = _pist_ruzgar_kaynagi(cozum, metin)
+    kaynaklar = pist_ruzgar_kaynagi(cozum, metin)
 
     asanlar = []
-    for k in adaylar:
-        pist, yon, hiz = k["pist"], k["yon"], k["hiz"]
-        yonu = _pist_yonu(pist)
+    for k in kaynaklar:
+        yonu = _pist_yonu(k["pist"])
         if yonu is None:
             continue
-        bas, _, _ = bilesenler(yon, hiz, yonu)
+        bas, _, _ = bilesenler(k["yon"], _hiz_worst(k), yonu)
         if bas is not None and bas < 0 and abs(bas) > limit:
-            asanlar.append(pist)
+            asanlar.append(k["pist"])
     return sorted(asanlar)
 
 
 # -------------------------------------------------------- RVR / WS / RE ---
 def rvr_kayitlari(metin: str) -> list[dict]:
+    """GOZLEMLENEN. on_ek/ust_on_ek P (bu değer veya üzeri) ya da M (bu
+    değer veya altı) niteleyicilerini taşır (ICAO Annex 3) - sadece
+    görüntüleme için değil, esik_karsilastir() bunları asıl karşılaştırmada
+    kullanır."""
     govde = metin.split("RMK")[0]
     out = []
     for m in RE_RVR.finditer(govde):
@@ -265,9 +376,10 @@ def rvr_gruplari(metin: str) -> list[str]:
 
 
 def _en_dusuk_rvr_kaydi(metin: str) -> dict | None:
-    """en_dusuk_rvr()'daki minimum degeri tasiyan RVR kaydinin tamamini
-    dondurur (P/M onekine erismek icin - gorus_operasyonu() esik
-    karsilastirmasinda kullanir)."""
+    """en_dusuk_rvr()'daki minimum degeri tasiyan RVR kaydinin TAMAMINI
+    (pist kimligi + P/M niteligi dahil) dondurur. Coklu pist RVR'si
+    raporlandiginda 'en dusuk' rakami hangi pistin oldugu bilgisi olmadan
+    ATC acisindan anlamsizdir (bkz. modul basi VERI TABANLI TASNIF notu)."""
     kayitlar = rvr_kayitlari(metin)
     return min(kayitlar, key=lambda r: r["deger"], default=None)
 
@@ -277,62 +389,88 @@ def en_dusuk_rvr(metin: str) -> int | None:
     return kayit["deger"] if kayit else None
 
 
-def ruzgar_kesmesi(metin: str) -> list[str]:
-    govde = metin.split("RMK")[0]
-    return ["tüm pistlerde" if "ALL" in m.group(1)
-            else m.group(1).replace("RWY", "pist ")
-            for m in RE_WS.finditer(govde)]
+def esik_karsilastir(deger: int, on_ek: str, esik: int) -> str:
+    """Bir RVR (veya baska P/M nitelikli) degerin bir esikten KESIN olarak
+    altinda olup olmadigini ICAO Annex 3 P/M anlamlariyla belirler:
 
+      P<deger>  -> gercek deger BU DEGER YA DA UZERINDEDIR (ust sinir yok)
+      M<deger>  -> gercek deger BU DEGER YA DA ALTINDADIR (alt sinir yok)
+      (oneksiz) -> deger kesindir
 
-def son_hava(metin: str) -> list[str]:
-    from ltfj_analiz import _hava_turkce
-    govde = metin.split("RMK")[0]
-    return [_hava_turkce(m.group(1)) for m in RE_SON_HAVA.finditer(govde)]
+    Donus: "evet" (kesinlikle esigin altinda), "hayir" (kesinlikle esik ya
+    da uzerinde), "belirsiz" (P/M niteligi nedeniyle KESIN cevap verilemez -
+    ornegin M0600 ile 550 esigi: gercek deger 0-600 arasinda herhangi bir
+    sey olabilir, 550'nin altinda mi ustunde mi bilinmiyor).
 
-
-def metar_trendi(metin: str) -> str | None:
-    govde = metin.split("RMK")[0]
-    m = RE_TREND.search(govde)
-    if not m:
-        return None
-    tur = "Kademeli geçiş" if m.group(1) == "BECMG" else "Geçici"
-    kalan = " ".join(m.group(2).split())
-    return f"{tur}: {kalan}" if kalan else tur
+    Boylece nitelikli bir deger asla sessizce "tam sayiymis gibi" kesin
+    esik karsilastirmasina sokulmuyor - kullanicinin '...basitçe 1500 olarak
+    kabul edip rvr<1500 seklinde degerlendirmek yanlis olabilir' uyarisinin
+    karsiligi budur."""
+    if on_ek == "P":
+        return "hayir" if deger >= esik else "belirsiz"
+    if on_ek == "M":
+        return "evet" if deger < esik else "belirsiz"
+    return "evet" if deger < esik else "hayir"
 
 
 # ------------------------------------------------- LVTO ve CAT durumu ---
 def gorus_operasyonu(cozum: dict, metin: str) -> list[str]:
-    """Dusuk gorus kalkis usulleri ve ILS kategorisi acisindan durum."""
+    """Dusuk gorus kalkis usulleri ve ILS kategorisi acisindan durum.
+    HESAPLANAN + P/M nitelikli RVR'de gerektiginde acikca BELIRSIZ ciktisi
+    (bkz. esik_karsilastir)."""
     notlar = []
     kayit = _en_dusuk_rvr_kaydi(metin)
-    rvr = kayit["deger"] if kayit else None
     gorus = cozum.get("gorus")
-    olcut = rvr if rvr is not None else gorus
 
-    if olcut is None:
-        return notlar
+    if kayit is not None:
+        pist_etiketi = f"R{kayit['pist']} "
+        deger_metni = f'{_RVR_ONEK_METNI.get(kayit["on_ek"], "")}{kayit["deger"]} m'
 
-    if rvr is not None and rvr < LVTO_RVR:
-        notlar.append(
-            f"LVTO yürürlükte (RVR {rvr} m < {LVTO_RVR} m) — "
-            f"düşük görüş kalkışları sadece 06R'den (AD 2.20 S)"
-        )
-    if olcut < CAT1_TIPIK_RVR:
-        notlar.append(
-            f"Tipik CAT I eşiği olan {CAT1_TIPIK_RVR} m altında; "
-            f"06R tek CAT II pisti (AD 2.19). Kesin minimumlar yaklaşma kartında."
-        )
-    if kayit and kayit["on_ek"] == "M":
-        notlar.append(
-            f"R{kayit['pist']} RVR değeri 'M' önekiyle raporlandı — gerçek "
-            f"değer {rvr} m'den daha düşük olabilir (ICAO Annex 3: sensörün "
-            f"ölçebildiği en düşük değer)."
-        )
+        lvto = esik_karsilastir(kayit["deger"], kayit["on_ek"], LVTO_RVR)
+        if lvto == "evet":
+            notlar.append(
+                f"LVTO yürürlükte ({pist_etiketi}RVR {deger_metni} < {LVTO_RVR} m) — "
+                f"düşük görüş kalkışları sadece 06R'den (AD 2.20 S)"
+            )
+        elif lvto == "belirsiz":
+            notlar.append(
+                f"LVTO durumu belirsiz — {pist_etiketi}RVR {deger_metni} olarak "
+                f"raporlandı, gerçek değer {LVTO_RVR} m eşiğinin altında olabilir "
+                f"(ICAO Annex 3 'M' niteliği: sensörün ölçebildiği en düşük değer)"
+            )
+
+        cat1 = esik_karsilastir(kayit["deger"], kayit["on_ek"], CAT1_TIPIK_RVR)
+        if cat1 == "evet":
+            notlar.append(
+                f"{pist_etiketi}RVR {deger_metni}, tipik CAT I eşiği olan "
+                f"{CAT1_TIPIK_RVR} m altında; 06R tek CAT II pisti (AD 2.19). "
+                f"Kesin minimumlar yaklaşma kartında."
+            )
+        elif cat1 == "belirsiz":
+            notlar.append(
+                f"CAT I durumu belirsiz — {pist_etiketi}RVR {deger_metni} olarak "
+                f"raporlandı, gerçek değer {CAT1_TIPIK_RVR} m tipik eşiğin "
+                f"altında olabilir (ICAO Annex 3 'M' niteliği)"
+            )
+    elif gorus is not None:
+        # RVR hic raporlanmamis - gorus mesafesi tek gozlemlenen olcu.
+        # LVTO tanimi AIP'de ozel olarak RVR'ye bagli (AD 2.20 S), bu yuzden
+        # gorus mesafesiyle LVTO iddia edilmez - sadece CAT I kiyasi yapilir.
+        if gorus < CAT1_TIPIK_RVR:
+            notlar.append(
+                f"Görüş {gorus} m, tipik CAT I eşiği olan {CAT1_TIPIK_RVR} m "
+                f"altında (RVR raporlanmadı, görüş mesafesi kullanıldı); "
+                f"06R tek CAT II pisti (AD 2.19). Kesin minimumlar yaklaşma kartında."
+            )
+
     return notlar
 
 
 def prs_askida(cozum: dict, metin: str) -> list[str]:
-    """AD 2.20 K-3: tercihli pist sisteminin uygulanamayacagi durumlar."""
+    """AD 2.20 K-3: METAR verisine göre tercihli pist sisteminin (PRS)
+    uygulanmasını kısıtlayan meteorolojik koşullar. Bu fonksiyon resmi bir
+    ATC PRS iptal kararı DEĞİL, METAR'a dayalı bir HESAPLANAN göstergedir -
+    gerçek karar ATC'nindir (AD 2.20 K madde 2-3)."""
     sebepler = []
     hava = " ".join(cozum.get("hava") or [])
 
@@ -346,13 +484,26 @@ def prs_askida(cozum: dict, metin: str) -> list[str]:
     if asanlar:
         limit, _ = kuyruk_limiti(cozum)
         sebepler.append(f"{', '.join(asanlar)} için arka rüzgâr {limit} kt üstü")
-    rvr = en_dusuk_rvr(metin)
-    if rvr is not None and rvr < LVTO_RVR:
-        sebepler.append("düşük görüş operasyonları")
+
+    kayit = _en_dusuk_rvr_kaydi(metin)
+    if kayit is not None:
+        durum = esik_karsilastir(kayit["deger"], kayit["on_ek"], LVTO_RVR)
+        if durum == "evet":
+            sebepler.append(f"düşük görüş operasyonları (R{kayit['pist']} RVR)")
+        elif durum == "belirsiz":
+            sebepler.append(
+                f"düşük görüş operasyonları olabilir — R{kayit['pist']} RVR "
+                f"'{kayit['on_ek']}{kayit['deger']:04d}' niteliğiyle belirsiz"
+            )
     return sebepler
 
 
 # ---------------------------------------------------------- renk durumu ---
+# UYARI: Bu renkler resmi CAT I/II/III yaklasma minimumlari veya baska bir
+# resmi havacilik kategorisi DEGILDIR. LTFJ Bot'a ozgu, gorus/tavan
+# bandlarina gore hesaplanan bir "durum seviyesi/onem derecesi"
+# gostergesidir - tuketici katmanlar (Telegram/web/panel) bunu boyle
+# etiketlemelidir.
 RENK_DURUMLARI = [
     ("BLU", 2500, 8000),
     ("WHT", 1500, 5000),
@@ -366,6 +517,7 @@ RENK_ACIKLAMA = {
     "BLU": "çok iyi", "WHT": "iyi", "GRN": "kabul edilebilir",
     "YLO": "sınırlı", "AMB": "çok sınırlı", "RED": "minimumların altında",
 }
+RENK_ETIKETI = "LTFJ Bot durum seviyesi"  # resmi CAT I/II/III degil - bkz. yukarisi
 
 
 def renk_durumu(cozum: dict) -> tuple[str, str] | None:
@@ -413,7 +565,10 @@ def _gunes_saatleri(gun: datetime) -> tuple[datetime, datetime] | None:
 
 
 def sis_riski(cozum: dict, zaman: datetime | None) -> str | None:
-    """Sis henuz yokken olusma riskini onden haber verir."""
+    """Sis henuz yokken olusma riskini onden haber verir. CIKARSANAN /
+    heuristik - resmi bir tahmin (forecast) DEGILDIR, sadece dewpoint
+    spread + ruzgar + gece/gunduz'e dayali bir METAR-tabanli gosterge.
+    Donen metin bunu acikca belirtir."""
     if cozum.get("sicaklik") is None or cozum.get("cig_noktasi") is None:
         return None
     if any(k in " ".join(cozum.get("hava", [])) for k in ("FG", "BR")):
@@ -438,21 +593,69 @@ def sis_riski(cozum: dict, zaman: datetime | None) -> str | None:
     if seviye == "düşük":
         return None
 
-    return (f"Sis oluşma riski {seviye}: sıcaklık–çiğ noktası aralığı {aralik}°C, "
+    # NOT: cagiran taraflarin bir kismi (ltfj_bot.py, ltfj_sayfa.py) bu
+    # metni ilk ':' isaretinden BOLUP sadece sonrasini gosteriyor (etiket
+    # zaten "Sis" diye ayrica basiliyor) - bu yuzden seviye VE heuristik
+    # uyarisi bilerek ':' isaretinden SONRAYA konuyor, yoksa sessizce
+    # kaybolurlardi.
+    return (f"Sis oluşum göstergesi: {seviye} (METAR tabanlı heuristik, "
+            f"resmi tahmin değil) — sıcaklık–çiğ noktası aralığı {aralik}°C, "
             f"rüzgâr {ruzgar} kt" + (", gece şartları" if gece else ""))
 
 
 # ------------------------------------------------------- toplu derleme ---
 def havacilik_notlari(cozum: dict, metin: str, zaman: datetime | None) -> dict:
+    """Tek bir METAR icin TUM havacilik turevlerini tasiyan ortak sonuc -
+    Telegram, web sayfasi, ATC paneli ve Claude istemi BURADAN beslenir ki
+    ayni METAR icin farkli ekranlarda farkli hesap ortaya cikmasin.
+
+    "varsayimlar": bu METAR icin fiilen devrede olan CIKARSANAN (inferred)
+    bilgilerin duz metin listesi - RWYCC bildirilmedigi icin yapilan
+    kuyruk-limiti varsayimi, sis olusum heuristigi vb. Boylece bu bilgiler
+    tek bir yerden toplanip (ornegin ATC panelinde ayri bir "ASSUMPTIONS"
+    bolumu olarak, ya da Claude istemine ek baglam olarak) gosterilebilir -
+    OBSERVED/CALCULATED degerlerle ayni satirda kaybolup gitmezler."""
+    _, limit_gerekce = kuyruk_limiti(cozum)
+    sis = sis_riski(cozum, zaman)
+
+    varsayimlar = [limit_gerekce]
+    if sis:
+        varsayimlar.append(sis)
+
     return {
         "renk": renk_durumu(cozum),
+        "renk_etiketi": RENK_ETIKETI,
         "pistler": pist_raporu(cozum, metin),
         "tercih": tercih_edilen_pist(cozum, metin),
         "rvr": rvr_gruplari(metin),
         "ws": ruzgar_kesmesi(metin),
         "son_hava": son_hava(metin),
         "trend": metar_trendi(metin),
-        "sis": sis_riski(cozum, zaman),
+        "sis": sis,
         "gorus_op": gorus_operasyonu(cozum, metin),
         "prs": prs_askida(cozum, metin),
+        "varsayimlar": varsayimlar,
     }
+
+
+def ruzgar_kesmesi(metin: str) -> list[str]:
+    govde = metin.split("RMK")[0]
+    return ["tüm pistlerde" if "ALL" in m.group(1)
+            else m.group(1).replace("RWY", "pist ")
+            for m in RE_WS.finditer(govde)]
+
+
+def son_hava(metin: str) -> list[str]:
+    from ltfj_analiz import _hava_turkce
+    govde = metin.split("RMK")[0]
+    return [_hava_turkce(m.group(1)) for m in RE_SON_HAVA.finditer(govde)]
+
+
+def metar_trendi(metin: str) -> str | None:
+    govde = metin.split("RMK")[0]
+    m = RE_TREND.search(govde)
+    if not m:
+        return None
+    tur = "Kademeli geçiş" if m.group(1) == "BECMG" else "Geçici"
+    kalan = " ".join(m.group(2).split())
+    return f"{tur}: {kalan}" if kalan else tur

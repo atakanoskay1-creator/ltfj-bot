@@ -17,51 +17,58 @@ from pathlib import Path
 from ltfj_analiz import metar_coz, ozet_satiri, uyarilar
 from ltfj_pist import (
     PISTLER,
-    TERCIHLI_PISTLER,
     bilesenler,
     havacilik_notlari,
     kuyruk_limiti,
-    pist_ruzgarlari,
+    pist_ruzgar_kaynagi,
 )
 
 
 def _pist_verisi(cozum: dict, metin: str) -> dict:
     """Pist basi ruzgar bilesenlerini SAYISAL olarak dondurur (panel.html
     kendi SVG okunu ve etiketlerini bunlardan cizer - onceden bicimlenmis
-    metin degil)."""
-    olculenler = pist_ruzgarlari(metin)
+    metin degil).
+
+    pist_ruzgar_kaynagi() ile AYNI ortak per-pist kaynak modelini kullanir.
+    Onceden bu fonksiyon kendi kopyasini (RMK varsa TUM pistleri RMK'dan,
+    yoksa hepsini alan ruzgarindan) tutuyordu - RMK KISMEN raporlandiginda
+    (F2 sinifinda bir hata) ATC panelinde de pistler sessizce kayboluyordu,
+    Telegram tarafinda F2 duzeltmesi bu dosyaya hic yansimamisti."""
+    kaynaklar = pist_ruzgar_kaynagi(cozum, metin)
     limit, limit_gerekce = kuyruk_limiti(cozum)
 
-    if olculenler:
-        kaynak = [(o["pist"], o["yon"], max(o["hiz"] or 0, o["hamle"] or 0))
-                  for o in olculenler]
-        kaynak_tipi = "anemometre"
-    else:
-        hiz = max(cozum["ruzgar_hiz"] or 0, cozum["ruzgar_hamle"] or 0)
-        kaynak = [(p, cozum["ruzgar_yon"], hiz) for p in TERCIHLI_PISTLER]
-        kaynak_tipi = "alan_ruzgari"
-
     pistler = []
-    for pist, yon, hiz in kaynak:
+    for k in kaynaklar:
+        pist, yon = k["pist"], k["yon"]
         yonu = PISTLER.get(pist, {}).get("yon")
         if yonu is None or yon is None:
             continue
-        bas, yan, taraf = bilesenler(yon, hiz, yonu)
+        hiz_sabit, hiz_hamle = k["hiz_sabit"], k["hiz_hamle"]
+        bas, yan, taraf = bilesenler(yon, hiz_sabit, yonu)
         if bas is None:
             continue
+        hamleli = hiz_hamle is not None and hiz_hamle > (hiz_sabit or 0)
+        bas_g = yan_g = None
+        if hamleli:
+            bas_g, yan_g, _ = bilesenler(yon, hiz_hamle, yonu)
+        bas_worst = bas_g if bas_g is not None else bas
+
         pistler.append({
             "pist": pist,
             "yon_gercek": yonu,
             "bas": round(bas, 1),
             "yan": round(yan, 1),
             "yan_taraf": taraf,
+            "bas_hamle": round(bas_g, 1) if bas_g is not None else None,
+            "yan_hamle": round(yan_g, 1) if yan_g is not None else None,
+            "degisken": bool(k["degisken"]),
+            "kaynak": k["kaynak"],
             "kuyruk": bas < 0,
-            "kuyruk_asildi": bool(bas < 0 and abs(bas) > limit),
+            "kuyruk_asildi": bool(bas_worst < 0 and abs(bas_worst) > limit),
         })
 
     return {
         "pistler": sorted(pistler, key=lambda p: p["pist"]),
-        "kaynak": kaynak_tipi,
         "kuyruk_limiti": limit,
         "kuyruk_gerekce": limit_gerekce,
     }
@@ -91,7 +98,6 @@ def _metar_json(rapor: dict) -> dict:
         "renk": list(notlar["renk"]) if notlar["renk"] else None,
         "dikkat": dikkat,
         "pistler": pist_verisi["pistler"],
-        "pist_kaynagi": pist_verisi["kaynak"],
         "kuyruk_limiti": pist_verisi["kuyruk_limiti"],
         "kuyruk_gerekce": pist_verisi["kuyruk_gerekce"],
         "tercih_pist": notlar["tercih"],

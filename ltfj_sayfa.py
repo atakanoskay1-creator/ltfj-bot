@@ -116,6 +116,9 @@ SABLON = """<!DOCTYPE html>
 {govde}
 <footer>
   Bu sayfa otomatik üretilir. Operasyonel kullanım için resmî kaynaklara başvurun.
+  Renk rozetleri (BLU/WHT/GRN/YLO/AMB/RED) resmî bir ICAO CAT I/II/III kategorisi
+  değil, bu botun kendi durum seviyesidir. "Meteorolojik tercih" bir ATC pist
+  ataması değildir.
 </footer>
 </div>
 </body>
@@ -230,7 +233,11 @@ def _kart(rapor: dict) -> str:
     rozet = ""
     if notlar and notlar["renk"]:
         kod, aciklama = notlar["renk"]
-        rozet = (f'<span class="rozet" style="background:{RENK_KODU.get(kod, "#64748b")}">'
+        # title tooltip: bu resmi bir ICAO CAT I/II/III kategorisi degil,
+        # botun kendi durum seviyesi (bkz. ltfj_pist.RENK_ETIKETI).
+        rozet = (f'<span class="rozet" title="LTFJ Bot durum seviyesi — resmî '
+                 f'ICAO CAT I/II/III kategorisi değildir" '
+                 f'style="background:{RENK_KODU.get(kod, "#64748b")}">'
                  f'{RENK_SIMGE.get(kod, "")} {kod} · {html.escape(aciklama)}</span>')
 
     p = [f'<div class="kart"><div class="basrow">'
@@ -253,7 +260,7 @@ def _kart(rapor: dict) -> str:
             pist, _, deger = x.partition(":")
             satirlar.append((f"Pist {pist}", deger.strip()))
         if notlar["tercih"]:
-            satirlar.append(("Uygun pist", notlar["tercih"]))
+            satirlar.append(("Meteorolojik tercih", notlar["tercih"]))
         if notlar["rvr"]:
             satirlar.append(("Pist görüş menzili", "; ".join(notlar["rvr"])))
         if notlar["trend"]:

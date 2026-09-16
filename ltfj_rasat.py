@@ -59,13 +59,21 @@ class AyiklamaHatasi(RasatHatasi):
 
 
 def _sayfayi_getir(params, timeout):
-    """MGM sayfasini getirir, takilirsa birkac kez tekrar dener."""
+    """MGM sayfasini getirir, GECICI hatalarda (timeout/baglanti/5xx) birkac
+    kez tekrar dener. KALICI istemci hatalarinda (4xx) DENEMIYOR - ayni
+    istek tekrar ayni sonucu verir, DENEME dongusunun bekleme surelerini
+    (5, 10 sn) bosuna tuketmenin anlami yok."""
     son_hata = None
     for i in range(1, DENEME + 1):
         try:
             r = requests.get(BASE, params=params, headers=HEADERS,
                              timeout=(10, timeout))   # (baglanti, okuma)
-            r.raise_for_status()
+            if 400 <= r.status_code < 500:
+                raise AgHatasi(
+                    f"MGM {r.status_code} döndürdü (kalıcı istemci hatası, "
+                    f"tekrar denenmedi): {r.reason}"
+                )
+            r.raise_for_status()   # 5xx -> HTTPError, asagida retry edilir
             return r
         except requests.RequestException as e:
             son_hata = e

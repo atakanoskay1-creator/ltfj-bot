@@ -494,15 +494,15 @@
     if (!m.renk) { govde.innerHTML = '<span class="bos">renk durumu hesaplanamadı</span>'; return; }
     var kod = m.renk[0], aciklama = m.renk[1];
     govde.innerHTML =
-      '<div class="rozet" style="background:' + (RENK_KODU[kod] || "#666") + '">' + (RENK_SIMGE[kod] || "") + " " + kod + "</div>" +
-      '<div class="alt-satir">' + esc(aciklama) + "</div>" +
+      '<div class="rozet" title="LTFJ Bot durum seviyesi — resmî ICAO CAT I/II/III kategorisi değildir" style="background:' + (RENK_KODU[kod] || "#666") + '">' + (RENK_SIMGE[kod] || "") + " " + kod + "</div>" +
+      '<div class="alt-satir">LTFJ Bot seviyesi — ' + esc(aciklama) + "</div>" +
       '<div class="alt-satir">' + esc(m.ozet) + "</div>";
   }
 
   function renderRuzgar(govde, v) {
     var m = v && v.metar;
     if (!m) return bosMetar(govde);
-    var yon = m.ruzgar.yon, hiz = m.ruzgar.hiz, hamle = m.ruzgar.hamle;
+    var yon = m.ruzgar.yon, hiz = m.ruzgar.hiz, hamle = m.ruzgar.hamle, degisken = m.ruzgar.degisken;
     var cx = 100, cy = 100, r = 78;
     var svg = '<svg viewBox="0 0 200 200" width="100%" height="200" style="display:block">';
     // pusula halkasi
@@ -534,8 +534,14 @@
     }
     svg += "</svg>";
 
+    // yon RAPORLANMIS olsa bile ayrica bir degisken-yon araligi (ör.
+    // "020V090") varsa bunu sessizce atlamayalim - tek bir kesin yonmus
+    // gibi gorunmesin.
+    var degiskenMetni = (degisken && degisken.length === 2)
+      ? " (değişken " + String(degisken[0]).padStart(3, "0") + "°–" + String(degisken[1]).padStart(3, "0") + "°)"
+      : "";
     var altbilgi = '<div class="alt-satir">' + (yon != null ? (String(yon).padStart(3, "0") + "°") : "VRB") +
-      (hiz != null ? " / " + hiz + " kt" : "") + (hamle ? " (hamle " + hamle + " kt)" : "") + "</div>";
+      (hiz != null ? " / " + hiz + " kt" : "") + (hamle ? " (hamle " + hamle + " kt)" : "") + degiskenMetni + "</div>";
 
     var pistler = (m.pistler || []).map(function (p) {
       var yanTxt = p.yan.toFixed(0) + " kt " + esc(p.yan_taraf);
@@ -546,7 +552,7 @@
     }).join("");
 
     govde.innerHTML = svg + altbilgi + (pistler ? '<ul class="liste">' + pistler + "</ul>" : '<span class="bos">pist bileşeni yok</span>') +
-      (m.tercih_pist ? '<div class="alt-satir">Uygun pist: <b>' + esc(m.tercih_pist) + "</b></div>" : "");
+      (m.tercih_pist ? '<div class="alt-satir">Meteorolojik tercih: <b>' + esc(m.tercih_pist) + "</b></div>" : "");
   }
 
   function renkliGovde(deger, birim, renkKodu, altSatir) {
@@ -609,7 +615,7 @@
     var m = v && v.metar;
     if (!m) return bosMetar(govde);
     var madde = (m.dikkat || []).slice();
-    if (m.prs && m.prs.length) madde.push("Tercihli pist sistemi askıda: " + m.prs.join(", "));
+    if (m.prs && m.prs.length) madde.push("PRS için kısıtlayıcı koşul (METAR'a göre): " + m.prs.join(", "));
     if (!madde.length) { govde.innerHTML = '<span class="dikkat-ok">✓ Aktif uyarı yok</span>'; return; }
     govde.innerHTML = '<ul class="dikkat-liste">' + madde.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul>";
   }

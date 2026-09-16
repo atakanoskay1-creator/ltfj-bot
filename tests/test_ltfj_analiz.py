@@ -5,7 +5,7 @@ import math
 import pytest
 
 import ornekler as o
-from ltfj_analiz import fark_bul, metar_coz, uyarilar, yan_ruzgar
+from ltfj_analiz import cozum_dokumu, fark_bul, metar_coz, ozet_satiri, uyarilar, yan_ruzgar
 
 
 # --------------------------------------------------------- kategori testleri
@@ -45,6 +45,39 @@ def test_degisken_yon_grubu():
     d = metar_coz(o.DEGISKEN_YON_GRUBU)
     assert d["degisken"] == (20, 90)
     assert d["ruzgar_yon"] == 50  # taban ruzgar ayri, degisken ek bilgi
+
+
+def test_ozet_satiri_vrb_ruzgarda_degisken_yazar():
+    d = metar_coz(o.DEGISKEN_RUZGAR)  # VRB03KT
+    assert "değişken" in ozet_satiri(d)
+
+
+def test_ozet_satiri_ortalama_yon_ustune_degisken_grubu_varsa_kaybolmaz():
+    """DUZELTME: onceden ozet_satiri() (Telegram kisa ozet, web karti ve ATC
+    panel 'ozet' alaninin ortak kaynagi) bir ORTALAMA yon raporlanip ayrica
+    bir degisken-yon grubu ('020V090') da varsa bunu sessizce atliyordu -
+    '050° 8kt' tek kesin bir yonmus gibi gorunuyordu. Artik degisken araligi
+    metne ekleniyor."""
+    d = metar_coz(o.DEGISKEN_YON_GRUBU)  # 05008KT 020V090
+    ozet = ozet_satiri(d)
+    assert "050°" in ozet
+    assert "değişken" in ozet
+    assert "020°" in ozet and "090°" in ozet
+
+
+def test_cozum_dokumu_degisken_yon_grubunu_iceriyor_tekrar_etmiyor():
+    d = metar_coz(o.DEGISKEN_YON_GRUBU)
+    dokum = cozum_dokumu(d)
+    assert dokum.count("değişken") == 1   # tek satirda, tekrarlanmiyor
+    assert "020°" in dokum and "090°" in dokum
+
+
+def test_fark_bul_ruzgar_satirinda_degisken_grubu_gorunur():
+    onceki = "METAR LTFJ 161250Z 05010KT 9999 SCT025 18/12 Q1015 NOSIG"
+    simdiki = "METAR LTFJ 161320Z 09010KT 020V090 9999 SCT025 18/12 Q1015 NOSIG"
+    farklar = fark_bul(onceki, simdiki)
+    ruzgar_satiri = next(f for f in farklar if f.startswith("Rüzgâr"))
+    assert "değişken" in ruzgar_satiri
 
 
 def test_hamle():
