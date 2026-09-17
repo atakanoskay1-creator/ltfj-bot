@@ -12,6 +12,7 @@ import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import ltfj_lvo_referans as lvo
 from ltfj_analiz import metar_coz, ozet_satiri, uyarilar
 from ltfj_ayarlar import YEREL_TZ
 from ltfj_pist import RENK_SIMGE, havacilik_notlari
@@ -183,6 +184,61 @@ SABLON = """<!DOCTYPE html>
   }}
   .notam-arama-not {{ color:var(--soluk); font-size:.78rem; margin:-8px 0 12px; }}
 
+  /* LVO REFERENCE - METAR/NOTAM/ATC Notes'tan gorsel olarak ayri, saf
+     bilgi/referans paneli. Hicbir karar uretmez (bkz. ltfj_lvo_referans.py). */
+  .lvo-alt-baslik {{
+    font-weight:650; font-size:.92rem; margin:18px 0 8px; display:flex;
+    align-items:center; gap:8px;
+  }}
+  .lvo-alt-baslik:first-child {{ margin-top:0; }}
+  .lvo-provenance {{
+    display:inline-block; padding:2px 8px; border-radius:999px; font-size:.68rem;
+    font-weight:700; letter-spacing:.02em; background:var(--kod-bg);
+    border:1px solid var(--cizgi); color:var(--soluk);
+  }}
+  .lvo-tablo {{ width:100%; border-collapse:collapse; font-size:.82rem; margin:6px 0 10px; }}
+  .lvo-tablo th, .lvo-tablo td {{
+    padding:6px 8px; border-bottom:1px solid var(--cizgi); text-align:left;
+    width:auto;
+  }}
+  .lvo-tablo th {{ color:var(--soluk); font-weight:600; font-size:.72rem; }}
+  .lvo-esik-liste {{ font-size:.85rem; margin:4px 0 12px; }}
+  .lvo-esik-satir {{
+    display:flex; justify-content:space-between; gap:10px; padding:6px 0;
+    border-bottom:1px solid var(--cizgi);
+  }}
+  .lvo-esik-satir:last-child {{ border-bottom:none; }}
+  .lvo-esik-deger {{ font-weight:650; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }}
+  .lvo-not-listesi {{ font-size:.78rem; color:var(--soluk); margin:8px 0 0; padding-left:18px; }}
+  .lvo-not-listesi li {{ margin-bottom:4px; }}
+  .lvo-awos-grid {{ display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; }}
+  .lvo-awos-kart {{
+    border:1px solid var(--cizgi); border-radius:10px; padding:10px 12px; background:var(--kod-bg);
+  }}
+  .lvo-awos-pist {{ font-weight:650; margin-bottom:6px; }}
+  .lvo-awos-deger {{ display:flex; justify-content:space-between; font-size:.85rem; padding:3px 0; }}
+  .lvo-awos-alt {{ font-size:.72rem; color:var(--soluk); margin-top:6px; }}
+  .lvo-stale {{
+    color:#ef4444; font-weight:700; margin-left:6px;
+  }}
+  .lvo-form {{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; align-items:flex-end; }}
+  .lvo-form label {{ display:block; font-size:.72rem; color:var(--soluk); margin-bottom:3px; }}
+  .lvo-form input, .lvo-form select {{
+    padding:8px 10px; border-radius:8px; border:1px solid var(--cizgi);
+    background:var(--bg); color:var(--metin); font-size:.85rem; width:100%; box-sizing:border-box;
+  }}
+  .lvo-form-alan {{ flex:1 1 100px; }}
+  .lvo-form button {{
+    padding:8px 14px; border-radius:8px; border:none; background:var(--vurgu);
+    color:var(--bg); font-weight:650; font-size:.85rem; cursor:pointer; flex-shrink:0;
+  }}
+  .lvo-atis-durum {{
+    font-size:1.05rem; font-weight:700; padding:8px 12px; border-radius:8px;
+    background:var(--kod-bg); border:1px solid var(--cizgi); display:inline-block;
+  }}
+  .lvo-hata {{ color:#ef4444; font-size:.8rem; margin-top:6px; min-height:1.1em; }}
+  .lvo-esik-kaynak {{ font-size:.72rem; color:var(--soluk); display:block; margin-top:2px; }}
+
   .atc-not-ekle-btn {{
     margin-left:auto; padding:6px 12px; border-radius:8px; border:none;
     background:var(--vurgu); color:var(--bg); font-weight:650; font-size:.82rem;
@@ -276,6 +332,62 @@ SABLON = """<!DOCTYPE html>
   <button type="button" class="yenile" id="sayfa-yenile-btn">⟳ Yenile</button>
 </header>
 {govde}
+
+<div class="bolum-baslik">LVO REFERENCE</div>
+<div class="notam-uyari">
+  ⚠️ Bilgi amaçlıdır. Operasyonel karar yerine geçmez. Güncel AIP, ATIS, AWOS
+  ve resmî yayınlar kontrol edilmelidir.
+</div>
+
+<div class="kart">
+{lvo_referans_html}
+
+  <div class="lvo-alt-baslik">B) AWOS RVR
+    <span class="lvo-provenance">MANUAL AWOS</span></div>
+  <div id="lvo-awos-liste"><div class="notam-bos">Yükleniyor…</div></div>
+  <div class="lvo-form">
+    <div class="lvo-form-alan">
+      <label for="lvo-awos-pist">Runway</label>
+      <select id="lvo-awos-pist"><option value="06R">06R</option><option value="24R">24R</option></select>
+    </div>
+    <div class="lvo-form-alan">
+      <label for="lvo-awos-tdz">TDZ (m)</label>
+      <input type="number" id="lvo-awos-tdz" min="0" max="9999" inputmode="numeric">
+    </div>
+    <div class="lvo-form-alan">
+      <label for="lvo-awos-mid">MID (m)</label>
+      <input type="number" id="lvo-awos-mid" min="0" max="9999" inputmode="numeric">
+    </div>
+    <div class="lvo-form-alan">
+      <label for="lvo-awos-end">STOP-END (m)</label>
+      <input type="number" id="lvo-awos-end" min="0" max="9999" inputmode="numeric">
+    </div>
+    <button type="button" id="lvo-awos-kaydet">SAVE AWOS RVR</button>
+  </div>
+  <div id="lvo-awos-hata" class="lvo-hata"></div>
+
+  <div class="lvo-alt-baslik">C) ATIS LVO State
+    <span class="lvo-provenance">MANUAL ATIS</span></div>
+  <div id="lvo-atis-durum"><div class="notam-bos">Yükleniyor…</div></div>
+  <div class="lvo-form">
+    <div class="lvo-form-alan">
+      <label for="lvo-atis-state">State</label>
+      <select id="lvo-atis-state">
+        <option value="NORMAL">NORMAL</option>
+        <option value="LVO PREPARATION">LVO PREPARATION</option>
+        <option value="LVO IN PROGRESS">LVO IN PROGRESS</option>
+        <option value="LVTO IN PROGRESS">LVTO IN PROGRESS</option>
+        <option value="UNKNOWN">UNKNOWN</option>
+      </select>
+    </div>
+    <button type="button" id="lvo-atis-kaydet">SAVE ATIS STATE</button>
+  </div>
+  <div id="lvo-atis-hata" class="lvo-hata"></div>
+
+  <div class="lvo-alt-baslik">D) LVO Related NOTAM
+    <span class="lvo-provenance">NOTAM</span></div>
+  <div id="lvo-notam-liste"><div class="notam-bos">Yükleniyor…</div></div>
+</div>
 
 <div class="bolum-baslik">NOTAM — Bilgi Amaçlı</div>
 <div class="notam-uyari">
@@ -526,6 +638,296 @@ SABLON = """<!DOCTYPE html>
     if (e.key === "Enter") aramaCalistir();
   }});
   veriYukle();
+}})();
+</script>
+<script>
+(function () {{
+  "use strict";
+  // LVO REFERENCE paneli - METAR/NOTAM/ATC Notes'tan TAMAMEN bağımsız bir
+  // bilgi katmanı, yukarıdaki hiçbir script'le değişken/durum PAYLAŞMAZ.
+  // Bu script SADECE mevcut bilgileri (AWOS RVR manuel girişi, ATIS LVO
+  // durumu, LVO ile ilişkili NOTAM'lar) provenance ve zaman damgasıyla
+  // GÖSTERİR - hiçbir operasyonel karar (LVO aktif mi, CAT II kullanılabilir
+  // mi, hangi pist kullanılmalı) ÜRETMEZ. AWOS/ATIS değerleri asla METAR'dan
+  // türetilmez, sadece kullanıcının manuel girdiği değerlerdir. Okuma/yazma
+  // ATC Notes ile AYNI Firebase veritabanına, farklı path'lere (awos_rvr,
+  // atis_state) yapılır - ayrı bir proje/kurulum gerekmez.
+  var DB_URL = {atc_notes_db_url};
+  var STALE_ESIK_DK = 30;   // SADECE veri tazeliği göstergesi - operasyonel bir minima DEĞİL
+  var AWOS_PISTLER = ["06R", "24R"];
+  var AWOS_POZISYONLAR = ["TDZ", "MID", "STOP-END"];
+  var LVO_NOTAM_ANAHTAR_KELIMELER = [
+    "runway", "rwy", "ils", "localizer", "glide", "approach light", "yaklaşma işık",
+    "runway light", "pist ışık", "taxiway", "taksi yolu", "stop bar", "rvr", "awos",
+    "atis", "low visibility", "düşük görüş", "aerodrome equipment", "havalimanı ekipman",
+  ];
+
+  var awosListeEl = document.getElementById("lvo-awos-liste");
+  var atisDurumEl = document.getElementById("lvo-atis-durum");
+  var notamListeEl = document.getElementById("lvo-notam-liste");
+  var awosHataEl = document.getElementById("lvo-awos-hata");
+  var atisHataEl = document.getElementById("lvo-atis-hata");
+  var awosKaydetBtn = document.getElementById("lvo-awos-kaydet");
+  var atisKaydetBtn = document.getElementById("lvo-atis-kaydet");
+  var sonAwosGonderim = 0;
+  var sonAtisGonderim = 0;
+
+  function tabanUrl(yol) {{
+    var taban = DB_URL;
+    while (taban.length && taban.charAt(taban.length - 1) === "/") {{
+      taban = taban.slice(0, -1);
+    }}
+    return taban + "/" + yol + ".json";
+  }}
+
+  function yasGoster(ms) {{
+    var dk = Math.floor((Date.now() - ms) / 60000);
+    if (dk < 1) return "az önce";
+    if (dk < 60) return dk + " dk önce";
+    var saat = Math.floor(dk / 60), kalanDk = dk % 60;
+    return saat + " sa " + kalanDk + " dk önce";
+  }}
+
+  // -------------------------------------------------------------- AWOS
+  function awosGoster(kayitlar) {{
+    if (!DB_URL) {{ awosListeEl.textContent = "AWOS RVR: NOT AVAILABLE"; return; }}
+    var enSon = {{}};
+    Object.keys(kayitlar || {{}}).forEach(function (id) {{
+      var k = kayitlar[id];
+      if (!k || typeof k.entered_at !== "number") return;
+      var anahtar = k.runway + "|" + k.position;
+      if (!enSon[anahtar] || k.entered_at > enSon[anahtar].entered_at) enSon[anahtar] = k;
+    }});
+
+    var verilerVarMi = false;
+    var grid = document.createElement("div");
+    grid.className = "lvo-awos-grid";
+
+    AWOS_PISTLER.forEach(function (pist) {{
+      var kart = document.createElement("div");
+      kart.className = "lvo-awos-kart";
+      var baslik = document.createElement("div");
+      baslik.className = "lvo-awos-pist";
+      baslik.textContent = pist;
+      kart.appendChild(baslik);
+
+      var pistteVeriVar = false;
+      var enYeniZaman = 0;
+      AWOS_POZISYONLAR.forEach(function (poz) {{
+        var kayit = enSon[pist + "|" + poz];
+        var satir = document.createElement("div");
+        satir.className = "lvo-awos-deger";
+        var etiket = document.createElement("span");
+        etiket.textContent = poz;
+        satir.appendChild(etiket);
+        var deger = document.createElement("span");
+        if (kayit) {{
+          pistteVeriVar = true;
+          verilerVarMi = true;
+          if (kayit.entered_at > enYeniZaman) enYeniZaman = kayit.entered_at;
+          deger.textContent = kayit.value + " " + kayit.unit;
+          if ((Date.now() - kayit.entered_at) > STALE_ESIK_DK * 60000) {{
+            var staleEl = document.createElement("span");
+            staleEl.className = "lvo-stale";
+            staleEl.textContent = "STALE";
+            deger.appendChild(staleEl);
+          }}
+        }} else {{
+          deger.textContent = "—";
+        }}
+        satir.appendChild(deger);
+        kart.appendChild(satir);
+      }});
+
+      if (pistteVeriVar) {{
+        var alt = document.createElement("div");
+        alt.className = "lvo-awos-alt";
+        alt.textContent = "MANUAL AWOS · " + yasGoster(enYeniZaman);
+        kart.appendChild(alt);
+      }}
+      grid.appendChild(kart);
+    }});
+
+    awosListeEl.innerHTML = "";
+    if (!verilerVarMi) {{
+      awosListeEl.textContent = "AWOS RVR: NOT AVAILABLE";
+    }} else {{
+      awosListeEl.appendChild(grid);
+    }}
+  }}
+
+  function awosYukle() {{
+    if (!DB_URL) {{ awosGoster({{}}); return; }}
+    fetch(tabanUrl("awos_rvr") + "?_=" + Date.now())
+      .then(function (r) {{ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }})
+      .then(awosGoster)
+      .catch(function (err) {{
+        awosListeEl.textContent = "AWOS RVR: NOT AVAILABLE";
+        console.error("[lvo] awos okuma hatası:", err);
+      }});
+  }}
+
+  document.getElementById("lvo-awos-kaydet").addEventListener("click", function () {{
+    awosHataEl.textContent = "";
+    if (!DB_URL) {{ awosHataEl.textContent = "LVO paneli şu anda yapılandırılmamış."; return; }}
+    if (Date.now() - sonAwosGonderim < 3000) return;
+
+    var pist = document.getElementById("lvo-awos-pist").value;
+    var alanlar = [
+      {{poz: "TDZ", el: document.getElementById("lvo-awos-tdz")}},
+      {{poz: "MID", el: document.getElementById("lvo-awos-mid")}},
+      {{poz: "STOP-END", el: document.getElementById("lvo-awos-end")}},
+    ];
+    var gonderilecekler = [];
+    for (var i = 0; i < alanlar.length; i++) {{
+      var ham = alanlar[i].el.value.trim();
+      if (ham === "") continue;
+      var sayi = Number(ham);
+      if (!isFinite(sayi) || sayi < 0 || sayi > 9999) {{
+        awosHataEl.textContent = alanlar[i].poz + " değeri 0-9999 arası bir sayı olmalı.";
+        return;
+      }}
+      gonderilecekler.push({{position: alanlar[i].poz, value: sayi}});
+    }}
+    if (!gonderilecekler.length) {{
+      awosHataEl.textContent = "En az bir RVR değeri girin.";
+      return;
+    }}
+
+    awosKaydetBtn.disabled = true;
+    Promise.all(gonderilecekler.map(function (g) {{
+      return fetch(tabanUrl("awos_rvr"), {{
+        method: "POST",
+        headers: {{"Content-Type": "application/json"}},
+        body: JSON.stringify({{
+          runway: pist, position: g.position, value: g.value, unit: "m",
+          entered_at: {{".sv": "timestamp"}}, source: "MANUAL AWOS",
+        }}),
+      }}).then(function (r) {{ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }});
+    }}))
+      .then(function () {{
+        sonAwosGonderim = Date.now();
+        alanlar.forEach(function (a) {{ a.el.value = ""; }});
+        awosYukle();
+      }})
+      .catch(function (err) {{
+        awosHataEl.textContent = "AWOS RVR kaydedilemedi, tekrar deneyin.";
+        console.error("[lvo] awos yazma hatası:", err);
+      }})
+      .finally(function () {{ awosKaydetBtn.disabled = false; }});
+  }});
+
+  // -------------------------------------------------------------- ATIS
+  function atisGoster(kayitlar) {{
+    atisDurumEl.innerHTML = "";
+    if (!DB_URL) {{ atisDurumEl.textContent = "ATIS LVO STATE: UNKNOWN"; return; }}
+
+    var enSon = null;
+    Object.keys(kayitlar || {{}}).forEach(function (id) {{
+      var k = kayitlar[id];
+      if (!k || typeof k.entered_at !== "number") return;
+      if (!enSon || k.entered_at > enSon.entered_at) enSon = k;
+    }});
+
+    var kutu = document.createElement("div");
+    kutu.className = "lvo-atis-durum";
+    kutu.textContent = enSon ? enSon.state : "ATIS LVO STATE: UNKNOWN";
+    atisDurumEl.appendChild(kutu);
+    if (enSon) {{
+      var alt = document.createElement("div");
+      alt.className = "lvo-awos-alt";
+      alt.textContent = "MANUAL ATIS · " + yasGoster(enSon.entered_at);
+      atisDurumEl.appendChild(alt);
+    }}
+  }}
+
+  function atisYukle() {{
+    if (!DB_URL) {{ atisGoster({{}}); return; }}
+    fetch(tabanUrl("atis_state") + "?_=" + Date.now())
+      .then(function (r) {{ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }})
+      .then(atisGoster)
+      .catch(function (err) {{
+        atisDurumEl.textContent = "";
+        atisDurumEl.textContent = "ATIS LVO STATE: UNKNOWN";
+        console.error("[lvo] atis okuma hatası:", err);
+      }});
+  }}
+
+  document.getElementById("lvo-atis-kaydet").addEventListener("click", function () {{
+    atisHataEl.textContent = "";
+    if (!DB_URL) {{ atisHataEl.textContent = "LVO paneli şu anda yapılandırılmamış."; return; }}
+    if (Date.now() - sonAtisGonderim < 3000) return;
+
+    var durum = document.getElementById("lvo-atis-state").value;
+    atisKaydetBtn.disabled = true;
+    fetch(tabanUrl("atis_state"), {{
+      method: "POST",
+      headers: {{"Content-Type": "application/json"}},
+      body: JSON.stringify({{state: durum, entered_at: {{".sv": "timestamp"}}, source: "MANUAL ATIS"}}),
+    }})
+      .then(function (r) {{ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }})
+      .then(function () {{ sonAtisGonderim = Date.now(); atisYukle(); }})
+      .catch(function (err) {{
+        atisHataEl.textContent = "ATIS durumu kaydedilemedi, tekrar deneyin.";
+        console.error("[lvo] atis yazma hatası:", err);
+      }})
+      .finally(function () {{ atisKaydetBtn.disabled = false; }});
+  }});
+
+  // ------------------------------------------------------- LVO-ilişkili NOTAM
+  function notamKarti(n) {{
+    var kart = document.createElement("div");
+    kart.className = "notam-kart";
+    var ust = document.createElement("div");
+    ust.className = "notam-ust";
+    if (n.status === "active") {{
+      var nokta = document.createElement("span");
+      nokta.className = "notam-aktif-nokta";
+      nokta.title = "Aktif NOTAM";
+      ust.appendChild(nokta);
+    }}
+    var no = document.createElement("span");
+    no.className = "notam-no";
+    no.textContent = n.number || "—";
+    ust.appendChild(no);
+    kart.appendChild(ust);
+    var metin = document.createElement("div");
+    metin.className = "notam-ozet";
+    metin.textContent = n.reading_short || n.text || "";
+    kart.appendChild(metin);
+    return kart;
+  }}
+
+  function notamLvoIliskiliMi(n) {{
+    var alanlar = [n.text, n.reading_short, n.reading_long, n.category_etiketi]
+      .concat(n.tags || [])
+      .filter(Boolean).join(" ").toLowerCase();
+    return LVO_NOTAM_ANAHTAR_KELIMELER.some(function (kw) {{ return alanlar.indexOf(kw) !== -1; }});
+  }}
+
+  function notamYukle() {{
+    fetch("notam_veri.json?_=" + Date.now(), {{cache: "no-store"}})
+      .then(function (r) {{ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }})
+      .then(function (v) {{
+        var aktif = (v && v.aktif) || [];
+        var iliskili = aktif.filter(notamLvoIliskiliMi);
+        notamListeEl.innerHTML = "";
+        if (!iliskili.length) {{
+          notamListeEl.textContent = "No LVO-related NOTAM in local cache";
+        }} else {{
+          iliskili.forEach(function (n) {{ notamListeEl.appendChild(notamKarti(n)); }});
+        }}
+      }})
+      .catch(function (err) {{
+        notamListeEl.textContent = "No LVO-related NOTAM in local cache";
+        console.error("[lvo] notam okuma hatası:", err);
+      }});
+  }}
+
+  awosYukle();
+  atisYukle();
+  notamYukle();
+  setInterval(function () {{ awosYukle(); atisYukle(); }}, 45000);
 }})();
 </script>
 <script>
@@ -810,6 +1212,50 @@ def _trend_bolumu(gecmis: list) -> str:
             f'<div class="grafik-grid">{"".join(bloklar)}</div></div>')
 
 
+def _lvo_dokuman_referans_html() -> str:
+    """LVO REFERENCE panelinin A) DOCUMENT REFERENCE bolumu - TAMAMEN
+    ltfj_lvo_referans.py'deki STATIK veriden uretilir, calisma zamani
+    verisine (METAR/NOTAM/AWOS/ATIS) HICBIR bagimliligi yoktur. Bu
+    fonksiyon hicbir karsilastirma/karar YAPMAZ, sadece dokuman metnini
+    tabloya/listeye dokup HTML'e cevirir."""
+    pist_satirlari = "".join(
+        f"<tr><td>{html.escape(p['pist'])}</td><td>{html.escape(p['kategori'])}</td>"
+        f"<td>{html.escape(p['inis_rvr'])}</td><td>{html.escape(p['kalkis_rvr'])}</td>"
+        f"<td>{html.escape(p['aciklama'])}</td></tr>"
+        for p in lvo.PIST_TABLOSU
+    )
+    esik_satirlari = "".join(
+        '<div class="lvo-esik-satir"><span>RVR &lt; '
+        f'<span class="lvo-esik-deger">{e["esik_altinda_m"]} m</span> — '
+        f'{html.escape(e["safha"])}'
+        f'<span class="lvo-esik-kaynak">{html.escape(e["kaynak_madde"])}'
+        + (f' · {html.escape(e["not"])}' if e["not"] else "")
+        + "</span></span></div>"
+        for e in lvo.RVR_ESIKLERI
+    )
+    kategori_satirlari = "".join(
+        f"<tr><td>{html.escape(k['kategori'])}</td><td>{html.escape(k['rvr'])}</td>"
+        f"<td>{html.escape(k['dh'])}</td></tr>"
+        for k in lvo.KATEGORI_TANIMLARI
+    )
+    not_maddeleri = "".join(f"<li>{html.escape(n)}</li>" for n in lvo.UYARI_NOTLARI)
+
+    return (
+        '<div class="lvo-alt-baslik">A) Document Reference '
+        f'<span class="lvo-provenance">{html.escape(lvo.DOKUMAN["etiket"])}</span></div>'
+        f'<div style="font-size:.85rem;">{html.escape(lvo.DOKUMAN["baslik"])}<br>'
+        f'<b>{html.escape(lvo.DOKUMAN["dok_no"])} {html.escape(lvo.DOKUMAN["rev_no"])} — '
+        f'{html.escape(lvo.DOKUMAN["rev_tarihi"])}</b></div>'
+        '<table class="lvo-tablo"><thead><tr><th>Pist</th><th>Kategori</th>'
+        "<th>İniş RVR (m)</th><th>Kalkış RVR (m)</th><th>Açıklama</th></tr></thead>"
+        f"<tbody>{pist_satirlari}</tbody></table>"
+        '<table class="lvo-tablo"><thead><tr><th>Kategori</th><th>RVR</th><th>DH</th></tr></thead>'
+        f"<tbody>{kategori_satirlari}</tbody></table>"
+        f'<div class="lvo-esik-liste">{esik_satirlari}</div>'
+        f'<ul class="lvo-not-listesi">{not_maddeleri}</ul>'
+    )
+
+
 def _yorum_html(yorum: str) -> str:
     """Claude'un state.yorum_onbellegi'nde (Telegram ile PAYLAŞILAN onbellek)
     zaten hesaplanmış metnini web icin bicimlendirir - burada YENI bir
@@ -938,6 +1384,7 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
     hedef.write_text(
         SABLON.format(icao=html.escape(icao), govde=govde,
                       guncelleme=f"{simdi:%d.%m.%Y %H:%M} yerel",
-                      atc_notes_db_url=json.dumps(atc_notes_db_url or "")),
+                      atc_notes_db_url=json.dumps(atc_notes_db_url or ""),
+                      lvo_referans_html=_lvo_dokuman_referans_html()),
         encoding="utf-8")
     print(f"  web sayfası yazıldı: {hedef.name}")
