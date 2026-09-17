@@ -67,9 +67,22 @@ SABLON = """<!DOCTYPE html>
     padding:24px 16px 48px;
   }}
   .sar {{ max-width:680px; margin:0 auto; }}
-  header {{ margin-bottom:20px; }}
+  header {{
+    margin-bottom:20px; display:flex; align-items:flex-start;
+    justify-content:space-between; gap:12px;
+  }}
+  .header-metin {{ min-width:0; }}
   h1 {{ font-size:1.5rem; margin:0 0 4px; letter-spacing:-.02em; }}
   .alt {{ color:var(--soluk); font-size:.875rem; }}
+  button.yenile {{
+    flex-shrink:0; background:var(--kod-bg); border:1px solid var(--cizgi);
+    color:var(--soluk); border-radius:8px; padding:8px 12px; font:inherit;
+    font-size:.82rem; font-weight:650; cursor:pointer; white-space:nowrap;
+  }}
+  button.yenile:hover {{ color:var(--metin); border-color:var(--vurgu); }}
+  @media (max-width:480px) {{
+    button.yenile {{ padding:8px 10px; font-size:.78rem; }}
+  }}
   .kart {{
     background:var(--kart); border:1px solid var(--cizgi); border-radius:14px;
     padding:18px; margin-bottom:16px;
@@ -256,8 +269,11 @@ SABLON = """<!DOCTYPE html>
 <body>
 <div class="sar">
 <header>
-  <h1>{icao} · İstanbul Sabiha Gökçen</h1>
-  <div class="alt">Kaynak: MGM/METAR · Son güncelleme {guncelleme}</div>
+  <div class="header-metin">
+    <h1>{icao} · İstanbul Sabiha Gökçen</h1>
+    <div class="alt">Kaynak: MGM/METAR · Son güncelleme {guncelleme}</div>
+  </div>
+  <button type="button" class="yenile" id="sayfa-yenile-btn">⟳ Yenile</button>
 </header>
 {govde}
 
@@ -683,6 +699,19 @@ SABLON = """<!DOCTYPE html>
   // bile FAB uzerindeki aktif-not sayisi guncel kalsin diye.
   veriYukle();
   setInterval(veriYukle, POLL_ARALIGI_MS);
+}})();
+</script>
+<script>
+(function () {{
+  "use strict";
+  // Sayfanin METAR/TAF/pist govdesi bot her calistiginda YENIDEN uretilen
+  // statik bir dosyadir (canli bir fetch() ile guncellenmez) - "Yenile"
+  // butonu bu yuzden butun sayfayi, tarayici onbellegini atlayacak sekilde
+  // (cache-buster query param) yeniden yukler; boylece NOTAM/ATC Notes
+  // bolumleri de en guncel notam_veri.json/Firebase verisiyle acilir.
+  document.getElementById("sayfa-yenile-btn").addEventListener("click", function () {{
+    window.location.href = window.location.pathname + "?_=" + Date.now();
+  }});
 }})();
 </script>
 </body>
