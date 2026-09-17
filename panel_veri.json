@@ -1,14 +1,14 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-17T14:51:11+00:00",
+ "uretildi": "2026-09-17T15:01:30+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-17T14:20:00+00:00",
-  "metin": "METAR LTFJ 171420Z 04016KT 9999 SCT035 BKN100 23/15 Q1014 NOSIG RMK RWY24R 03015KT 010V070 RWY06R 03017KT RWY24L 04017KT",
+  "zaman": "2026-09-17T14:50:00+00:00",
+  "metin": "METAR LTFJ 171450Z 04015KT 9999 SCT032 BKN100 22/15 Q1014 NOSIG RMK RWY24R 02015KT RWY06R 03014KT 360V060 RWY24L 05014KT 010V070",
   "ruzgar": {
    "yon": 40,
-   "hiz": 16,
+   "hiz": 15,
    "hamle": null,
    "degisken": null
   },
@@ -16,7 +16,7 @@
   "cavok": false,
   "tavan": 10000,
   "hava": [],
-  "sicaklik": 23,
+  "sicaklik": 22,
   "cig_noktasi": 15,
   "qnh": 1014,
   "nosig": true,
@@ -30,8 +30,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 14.6,
-    "yan": 6.5,
+    "bas": 13.7,
+    "yan": 6.1,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -43,12 +43,12 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 14.1,
-    "yan": 9.5,
+    "bas": 11.6,
+    "yan": 7.8,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": false,
+    "degisken": true,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -56,12 +56,12 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -15.5,
-    "yan": 6.9,
+    "bas": -13.6,
+    "yan": 3.4,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": false,
+    "degisken": true,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": true
@@ -69,12 +69,12 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -12.4,
-    "yan": 8.4,
+    "bas": -10.8,
+    "yan": 10.4,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": true
@@ -90,7 +90,7 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 040° 16kt · görüş 10+ km · tavan 10000 ft · 23°C · QNH 1014"
+  "ozet": "Rüzgâr 040° 15kt · görüş 10+ km · tavan 10000 ft · 22°C · QNH 1014"
  },
  "taf": {
   "zaman": "2026-09-17T10:40:00+00:00",
@@ -474,6 +474,13 @@
    "tavan": 10000,
    "qnh": 1014,
    "sicaklik": 23
+  },
+  {
+   "zaman": "2026-09-17T14:50:00+00:00",
+   "ruzgar_hiz": 15,
+   "tavan": 10000,
+   "qnh": 1014,
+   "sicaklik": 22
   }
  ]
 }
