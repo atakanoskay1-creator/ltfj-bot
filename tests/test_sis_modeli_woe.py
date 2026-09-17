@@ -76,13 +76,22 @@ def test_onset_adaylari_sisli_anlari_disliyor():
 
 # ------------------------------------------------------------------ WoE
 def _woe_verisi():
-    """spread dustukce hedef olasiligi artan sentetik veri."""
+    """spread dustukce hedef olasiligi artan sentetik veri.
+
+    Gunler BIREBIR AYNI OLMAMALI: ayni olsalardi blok bootstrap'in varyansi
+    sifir olur, guven araligi testi de aslinda hicbir sey olcmezdi (ilk
+    surumde oyleydi ve iki hesaplama yolunun 1e-15'lik kayan nokta farki
+    testi CI'da dusurdu)."""
+    import random
+    rastgele = random.Random(7)
     satirlar = []
     for gun in range(60):
+        # gunun "sisliligi" gunden gune degissin
+        egilim = rastgele.random()
         for i in range(24):
             spread = (i % 8) * 1.0
             satirlar.append({"gun": f"2024-01-{gun+1:02d}", "spread": spread,
-                             "hedef": spread < 1.5 and i % 2 == 0})
+                             "hedef": spread < 1.5 and rastgele.random() < egilim})
     return satirlar
 
 
@@ -107,8 +116,13 @@ def test_blok_bootstrap_araligi_iv_yi_kapsiyor():
     t = woe.kova_tablosu(veri, "spread", "hedef")
     sinirlar = [x["ust"] for x in t[:-1]]
     alt, ust = woe.iv_guven_araligi(veri, "spread", "hedef", "gun", sinirlar, tekrar=80)
-    assert alt <= woe.iv(t) <= ust
+    # Tolerans: nokta tahmini kova tablosundan, bootstrap ise sayaclardan
+    # hesaplandigi icin toplama sirasi farkli - matematiksel olarak ayni deger
+    # son basamakta ayrisabilir (Python surumune gore de degisir).
+    tolerans = 1e-9
+    assert alt - tolerans <= woe.iv(t) <= ust + tolerans
     assert alt > 0
+    assert ust > alt          # gunler farkli oldugu icin aralik dar olmamali
 
 
 def test_bos_kova_woe_yi_sonsuz_yapmiyor():
