@@ -1238,6 +1238,13 @@ def _lvo_dokuman_referans_html() -> str:
         f"<td>{html.escape(k['dh'])}</td></tr>"
         for k in lvo.KATEGORI_TANIMLARI
     )
+    bulut_satirlari = "".join(
+        '<div class="lvo-esik-satir"><span>'
+        f'{html.escape(b["safha"])} — {html.escape(b["esik"])}'
+        f'<span class="lvo-esik-kaynak">{html.escape(b["kaynak_madde"])}</span>'
+        "</span></div>"
+        for b in lvo.BULUT_TABANI_ESIKLERI
+    )
     not_maddeleri = "".join(f"<li>{html.escape(n)}</li>" for n in lvo.UYARI_NOTLARI)
 
     return (
@@ -1251,7 +1258,13 @@ def _lvo_dokuman_referans_html() -> str:
         f"<tbody>{pist_satirlari}</tbody></table>"
         '<table class="lvo-tablo"><thead><tr><th>Kategori</th><th>RVR</th><th>DH</th></tr></thead>'
         f"<tbody>{kategori_satirlari}</tbody></table>"
+        '<div style="font-size:.8rem;font-weight:600;margin-top:.4rem;">'
+        "RVR eşikleri (madde 6.1.ee)</div>"
         f'<div class="lvo-esik-liste">{esik_satirlari}</div>'
+        '<div style="font-size:.8rem;font-weight:600;margin-top:.4rem;">'
+        "Bulut tabanı (ceiling) eşikleri — RVR'dan bağımsız, paralel tetikleyici</div>"
+        f'<div class="lvo-esik-liste">{bulut_satirlari}</div>'
+        f'<div style="font-size:.8rem;margin-top:.4rem;">{html.escape(lvo.BULUT_PILOT_RAPORU_ISTISNASI)}</div>'
         f'<ul class="lvo-not-listesi">{not_maddeleri}</ul>'
     )
 

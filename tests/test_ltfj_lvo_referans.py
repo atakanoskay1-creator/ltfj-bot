@@ -61,6 +61,27 @@ def test_kategori_tanimlari_rvr_ve_dh_birlikte_tasiniyor():
     assert "300" in cat2["rvr"] and "550" in cat2["rvr"]
 
 
+def test_bulut_tabani_esikleri_rvrdan_bagimsiz_iki_safhayi_tasir():
+    """Madde 6.2.a ve 6.3.1.a - Hazirlik ve CAT II Inis safhalari RVR'a EK
+    olarak bulut tabaniyla da tetiklenir; bu iki safha icin ayri kayit
+    olmali, RVR_ESIKLERI ile birlestirilip TEK bir esik haline getirilmemeli."""
+    safhalar = {b["safha"] for b in lvo.BULUT_TABANI_ESIKLERI}
+    assert "LVO Hazırlık Safhası" in safhalar
+    assert any("İniş" in s and "06R" in s for s in safhalar)
+    for b in lvo.BULUT_TABANI_ESIKLERI:
+        assert b["kaynak_madde"] in ("6.2.a", "6.3.1.a")
+
+
+def test_bulut_pilot_raporu_istisnasi_metni_var():
+    """Madde 6.3.1.b/6.4.b - RVR limitlerinin USTUNDE olsa dahi bulut
+    olusumunun pilot raporuyla teyidi tek basina baslatma/sonlandirma
+    gerekcesi olabilir; bu istisna sayisal bir esik DEGIL, metin olarak
+    aynen tasinmali."""
+    assert "pilot raporlarıyla" in lvo.BULUT_PILOT_RAPORU_ISTISNASI
+    assert "6.3.1.b" in lvo.BULUT_PILOT_RAPORU_ISTISNASI
+    assert "6.4.b" in lvo.BULUT_PILOT_RAPORU_ISTISNASI
+
+
 def test_uyari_notlari_bos_degil():
     assert len(lvo.UYARI_NOTLARI) >= 1
     assert all(isinstance(n, str) and n for n in lvo.UYARI_NOTLARI)
