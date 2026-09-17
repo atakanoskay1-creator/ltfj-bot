@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-17T01:11:06+00:00",
+ "uretildi": "2026-09-17T01:20:55+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
   "zaman": "2026-09-17T00:50:00+00:00",
-  "metin": "METAR LTFJ 170050Z 08005KT 7000 1400NE R06L/P1500N R24R/P1500N R06R/P1500N R24L/1400U BR FEW002 BKN080 15/15 Q1015 NOSIG RMK RWY24R 07003KT RWY06R 07005KT RWY24L 06004KT",
+  "metin": "METAR LTFJ 170050Z 08005KT 7000 1400NE R06L/P1500N R24R/P1500N R06R/P1500N R24L/1400U PRFG FEW002 BKN080 15/15 Q1015 NOSIG RMK RWY24R 07003KT RWY06R 07005KT RWY24L 06004KT",
   "ruzgar": {
    "yon": 80,
    "hiz": 5,
@@ -16,7 +16,7 @@
   "cavok": false,
   "tavan": 8000,
   "hava": [
-   "BR"
+   "PRFG"
   ],
   "sicaklik": 15,
   "cig_noktasi": 15,
@@ -95,7 +95,7 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 080° 5kt · görüş 7000 m · tavan 8000 ft · puslu · 15°C · QNH 1015"
+  "ozet": "Rüzgâr 080° 5kt · görüş 7000 m · tavan 8000 ft · kısmi sis · 15°C · QNH 1015"
  },
  "taf": {
   "zaman": "2026-09-16T22:40:00+00:00",
