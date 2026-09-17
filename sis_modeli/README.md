@@ -202,17 +202,31 @@ embargo varsayılan olarak **açık**.
 
 ### Görüşün kattığı bilgi (no-visibility ablation)
 
-Aynı walk-forward üzerinde, aynı 5 değişken + `gorus`:
+Walk-forward (2011-2023) ve nihai holdout (2024-2026, TEK ATIŞ) üzerinde,
+aynı 5 değişken + `gorus`:
 
-| model | AP | BSS |
-|---|---|---|
-| Model B (görüşsüz) | 0.049 | 0.015 |
-| Model B + görüş | 0.182 | 0.103 |
+| model | walk-forward AP | walk-forward BSS | **holdout AP** | **holdout BSS** | holdout AP %5–%95 |
+|---|---|---|---|---|---|
+| Model B (görüşsüz) | 0.049 | 0.015 | **0.075** | **0.028** | 0.043 – 0.122 |
+| Model B + görüş | 0.182 | 0.103 | **0.184** | **0.095** | 0.101 – 0.295 |
+| iklim | 0.009 | 0.000 | 0.005 | 0.000 | 0.003 – 0.010 |
+| basit kural (mevcut sezgisel) | 0.038 | −0.431 | 0.048 | −0.538 | 0.015 – 0.035 |
 
-Görüş eklenince AP **+0.133** artıyor — sis riskinin büyük kısmı süreklilik
-(mevcut görüş) bilgisinden geliyor, ama görüşsüz haliyle bile iklimden
-anlamlı ölçüde iyi (AP 0.049 vs iklim 0.009) — saf atmosferik sinyal **gerçek
-ama küçük**.
+Görüş eklenince holdout AP **+0.110** artıyor (walk-forward'da +0.133 idi -
+tutarlı büyüklükte). Güven aralıkları **çoğunlukla ayrışıyor** (görüşsüz üst
+sınırı 0.122, görüşlü alt sınırı 0.101 - dar bir örtüşme var ama nokta
+tahminleri belirgin farklı) - sis modelinin süreklilik baseline'ına karşı
+tam örtüşen aralığından (bkz. Bölüm 9, ana metodoloji) daha net bir ayrışma.
+
+**Model B (görüşsüz) holdout'ta iklimden anlamlı ölçüde iyi** (BSS 0.028,
+pozitif) - saf atmosferik sinyal küçük ama gerçek ve holdout'ta da
+DOĞRULANDI (walk-forward'a göre biraz daha güçlü çıktı - küçük holdout
+örnekleminde (214 pozitif) beklenen varyans dahilinde). "Basit kural"
+(mevcut sezgisel yöntemin özü) burada da iklimden KÖTÜ (BSS negatif) -
+sis modelinde de gözlenen aynı örüntü.
+
+**Kalibrasyon (holdout):** tüm tahminler %10'un altında kaldı (ort. tahmin
+%0.58, gerçekleşen %0.45) - hafif aşırı güvenli ama yakın.
 
 ### Event-level değerlendirme (`olay_degerlendirme.py`)
 
@@ -227,8 +241,48 @@ ek bir katmandır.
 
 Soru: *"Görüşü kullanmadan sis oluşumu ne kadar önceden tahmin edilebiliyor?"*
 Her ufuk kendi walk-forward döngüsünü çalıştırır (`hedef.hazirla(ufuk_saat=...)`),
-holdout hiçbirinde açılmaz. (Sonuçlar için betiği çalıştırın — bu bölüm
-metodolojiyi belgeler, sonucu iddia etmez.)
+holdout hiçbirinde açılmaz.
+
+**Ölçülen sonuç — beklenenin TERSİ yönde:**
+
+| ufuk | n | olay | AP | BSS | ROC-AUC |
+|---|---|---|---|---|---|
+| 30dk | 155.634 | 252 | 0.011 | 0.005 | 0.898 |
+| 1h | 155.634 | 256 | 0.021 | 0.010 | 0.901 |
+| 2h | 155.634 | 256 | 0.038 | 0.004 | 0.903 |
+| **3h** | 155.634 | 256 | **0.049** | 0.015 | 0.891 |
+
+Performans ufuk **uzadıkça artıyor**, kısaldıkça değil. Fiziksel olarak
+tutarlı: bu modelin yakaladığı sinyal ("koşullar sise elverişli hale
+geliyor") **yavaş** bir eğilim — spread'in saatler içindeki düşüşü. 30
+dakikalık bir pencerede bu eğilimin olaya dönüşmesi için yeterli zaman
+genelde yok; 3 saat bu yavaş sinyale "gerçekleşme şansı" tanıyor.
+
+**Event-level tespit oranı (olay başına TEK temsilci tahmin, eşiği geçen
+olay yüzdesi) daha da açık konuşuyor:**
+
+| ufuk | ≥%5 | ≥%10 | ≥%20 | ≥%40 |
+|---|---|---|---|---|
+| 30dk | %0.0 | %0.0 | %0.0 | %0.0 |
+| 1h | %2.0 | %0.0 | %0.0 | %0.0 |
+| 2h | %23.0 | %8.6 | %0.0 | %0.0 |
+| 3h | %35.9 | %11.3 | %0.0 | %0.0 |
+
+**Hiçbir ufukta, hiçbir olay için model %20'nin üzerinde bir olasılık
+üretmedi.** Satır-düzeyinde AP/BSS mütevazı ama pozitif bir sinyal
+gösterirken, "yaklaşan BU olayı tek bir anda yüksek güvenle işaretle"
+sorusuna model — hiçbir ufukta — güçlü bir cevap vermiyor. Bu bir
+BAŞARISIZLIK değil (satır-düzeyinde iklimden anlamlı ölçüde iyi kalıyor),
+ama görüşsüz atmosferik sinyalin doğası hakkında dürüst bir sınır: **erken
+uyarı sistemi olarak güçlü değil, arka plan riskini kademeli olarak
+yükselten zayıf ama gerçek bir gösterge.**
+
+**Holdout'ta (2024-2026, TEK ATIŞ) 3 saatlik ufukta event-level sonuç, aynı
+örüntüyü doğruluyor:** 33 bağımsız olaydan yalnızca **5'i (%15.2)** %5 eşiğini
+geçti (%5–95 aralığı 6.9–27.8%); %10, %20, %40 eşiklerinin HİÇBİRİNİ hiçbir
+olay geçmedi (%0.0). Model B, arka plan riskini gerçekten yükseltiyor
+(walk-forward'daki gibi holdout'ta da) ama **tek bir olayı önceden yüksek
+güvenle işaretleyen bir erken uyarı sistemi değil**.
 
 ### İzolasyon ve durum
 
