@@ -53,6 +53,6 @@
  "atc_notes": {
   "_aciklama": "database_url'i Firebase Console > Realtime Database'den alip buraya yaz (ornek: https://PROJE-ADI-default-rtdb.europe-west1.firebasedatabase.app). Bu URL gizli degil - guvenlik firebase-rules.json ile saglanir. Bos birakilirsa web sayfasindaki ATC Notes bolumu 'yapilandirilmamis' gosterir.",
   "aktif": true,
-  "database_url": "https://console.firebase.google.com/u/0/project/ltfj-39d4b/database/ltfj-39d4b-default-rtdb/data"
+  "database_url": "https://ltfj-39d4b-default-rtdb.europe-west1.firebasedatabase.app/"
  }
 }
