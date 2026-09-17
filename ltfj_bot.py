@@ -189,7 +189,12 @@ def anahtar(rapor: dict) -> str:
 
 def olcum_gecmisini_guncelle(state: dict, raporlar: list):
     """METAR/SPECI degerlerini state'e ekler - web sayfasindaki trend
-    grafikleri bu gecmisten beslenir. Ayni zaman damgali kayit tekrarlanmaz."""
+    grafikleri bu gecmisten beslenir. Ayni zaman damgali kayit tekrarlanmaz.
+
+    cig_noktasi, istatistiksel sis olasiligi kartinin spread egilimini
+    hesaplayabilmesi icin tutuluyor (bkz. ltfj_sis_olasilik). Eski kayitlarda
+    bulunmaz; o durumda egilim ozelligi devre disi kalir ve model onsuz
+    calisir - olculdu, etkisi ihmal edilebilir."""
     mevcut = {g["zaman"] for g in state.get("olcum_gecmisi", [])}
     yeni = []
     for r in raporlar:
@@ -205,6 +210,7 @@ def olcum_gecmisini_guncelle(state: dict, raporlar: list):
             "tavan": d["tavan"],
             "qnh": d["qnh"],
             "sicaklik": d["sicaklik"],
+            "cig_noktasi": d["cig_noktasi"],
         })
     if not yeni:
         return

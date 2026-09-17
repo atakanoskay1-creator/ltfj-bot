@@ -14,6 +14,7 @@ from pathlib import Path
 
 import ltfj_lvo_farkindalik as farkindalik
 import ltfj_lvo_referans as lvo
+import ltfj_sis_olasilik as sis_olasilik
 import ltfj_vfr as vfr
 from ltfj_analiz import metar_coz, ozet_satiri, uyarilar
 from ltfj_ayarlar import YEREL_TZ
@@ -156,6 +157,15 @@ SABLON = """<!DOCTYPE html>
     box-shadow:0 2px 10px rgba(0,0,0,.35);
   }}
   .grafik-imlec[hidden], .grafik-nokta[hidden], .grafik-balon[hidden] {{ display:none; }}
+
+  .sis-olasilik-deger {{
+    font-size:2.2rem; font-weight:700; line-height:1.1; margin:6px 0 2px;
+  }}
+  .sis-olasilik-alt {{ font-size:.85rem; color:var(--soluk); }}
+  .sis-olasilik-not {{
+    font-size:.74rem; color:var(--soluk); margin-top:10px; line-height:1.5;
+    border-top:1px solid var(--cizgi); padding-top:8px;
+  }}
 
   .bolum-baslik {{ font-weight:650; font-size:1.05rem; margin:28px 0 12px; }}
   .notam-uyari {{
@@ -383,6 +393,7 @@ SABLON = """<!DOCTYPE html>
   <button type="button" class="yenile" id="sayfa-yenile-btn">⟳ Yenile</button>
 </header>
 {govde}
+{sis_olasilik_html}
 
 <div class="kart">
   <div class="basrow notam-aktif-baslik" id="lvo-baslik" role="button" tabindex="0"
@@ -1424,6 +1435,74 @@ def _lvo_dokuman_referans_html() -> str:
     )
 
 
+def _spread_egilimi(gecmis: list, simdi: datetime, saat: int = 3) -> float | None:
+    """Son 'saat' saatteki spread (sicaklik - cig noktasi) degisimi.
+
+    Eski gecmis kayitlarinda cig_noktasi YOKTUR (alan sonradan eklendi);
+    o durumda None doner ve model bu ozellik olmadan calisir - olculdu,
+    holdout AP degismiyor."""
+    if not gecmis:
+        return None
+
+    def spread(g):
+        s, c = g.get("sicaklik"), g.get("cig_noktasi")
+        return None if s is None or c is None else s - c
+
+    simdiki, hedef_zaman = None, simdi - timedelta(hours=saat)
+    en_yakin, en_kucuk_fark = None, timedelta(minutes=45)
+    for g in gecmis:
+        try:
+            z = datetime.fromisoformat(g["zaman"])
+        except (KeyError, ValueError, TypeError):
+            continue
+        if spread(g) is None:
+            continue
+        if simdiki is None or z > simdiki[0]:
+            simdiki = (z, spread(g))
+        fark = abs(z - hedef_zaman)
+        if fark < en_kucuk_fark:
+            en_yakin, en_kucuk_fark = spread(g), fark
+    if simdiki is None or en_yakin is None:
+        return None
+    return simdiki[1] - en_yakin
+
+
+def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
+                        simdi: datetime) -> str:
+    """Istatistiksel sis olasiligi karti.
+
+    ltfj_pist.sis_riski()'nin YERINE GECMEZ - ayri, bagimsiz bir gostergedir.
+    Katsayilar dondurulmus modelden gelir (bkz. ltfj_sis_olasilik)."""
+    if not guncel_cozum:
+        return ""
+    ruzgar_k = sis_olasilik.ruzgar_kuzey_bileseni(
+        guncel_cozum.get("ruzgar_yon"), guncel_cozum.get("ruzgar_hiz"))
+    sicaklik, cig = guncel_cozum.get("sicaklik"), guncel_cozum.get("cig_noktasi")
+    p = sis_olasilik.olasilik(
+        spread=None if sicaklik is None or cig is None else sicaklik - cig,
+        gorus=guncel_cozum.get("gorus"),
+        saat=simdi.astimezone(timezone.utc).hour,
+        ruzgar_kuzey=ruzgar_k,
+        spread_egilim_3=_spread_egilimi(gecmis, simdi))
+    if p is None:
+        return ""
+
+    yuzde = f"{100 * p:.0f}" if p >= 0.01 else f"{100 * p:.1f}"
+    return (
+        '<div class="kart sis-olasilik">'
+        '<div class="basrow"><span class="tip">İstatistiksel sis olasılığı</span>'
+        '<span class="lvo-provenance">İSTATİSTİKSEL</span></div>'
+        f'<div class="sis-olasilik-deger">%{yuzde}</div>'
+        f'<div class="sis-olasilik-alt">Önümüzdeki {sis_olasilik.HEDEF_UFUK_SAAT} saat '
+        f'içinde görüşün {sis_olasilik.HEDEF_GORUS_M} m altına düşme olasılığı</div>'
+        '<div class="sis-olasilik-not">LTFJ\'nin 2011–2023 METAR arşivinden '
+        'öğrenilmiş istatistiksel bir tahmindir; resmî tahmin değildir, TAF\'ın '
+        'yerine geçmez ve yukarıdaki "Sis riski" göstergesinden bağımsız olarak '
+        'hesaplanır.</div>'
+        '</div>'
+    )
+
+
 def _lvo_farkindalik_html(guncel_cozum: dict | None, taf_tavan: int | None) -> str:
     """LVO REFERENCE panelinin basindaki 'Farkindalik Notlari' alt bolumu -
     METAR (guncel_cozum) ve TAF'in (taf_tavan) KENDI gorus/tavan degerlerini
@@ -1616,6 +1695,7 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
                       atc_notes_db_url=json.dumps(atc_notes_db_url or ""),
                       lvo_referans_html=_lvo_dokuman_referans_html(),
                       lvo_farkindalik_html=_lvo_farkindalik_html(guncel_cozum, taf_tavan),
+                      sis_olasilik_html=_sis_olasiligi_html(guncel_cozum, gecmis, simdi),
                       rvr_esikleri_json=json.dumps(lvo.RVR_ESIKLERI, ensure_ascii=False),
                       vfr_html=_vfr_sekmesi_html(guncel_cozum)),
         encoding="utf-8")
