@@ -1,18 +1,18 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-17T09:51:26+00:00",
+ "uretildi": "2026-09-17T10:01:26+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-17T09:20:00+00:00",
-  "metin": "METAR LTFJ 170920Z 10006KT 060V170 9999 SCT030 BKN080 23/14 Q1016 NOSIG RMK RWY24R 09007KT 060V140 RWY06R 10006KT 050V130 RWY24L 08005KT 010V180",
+  "zaman": "2026-09-17T09:50:00+00:00",
+  "metin": "METAR LTFJ 170950Z 07008KT 030V110 9999 SCT030 BKN080 23/14 Q1015 NOSIG RMK RWY24R 05006KT 020V090 RWY06R 02008KT 350V070 RWY24L VRB04KT",
   "ruzgar": {
-   "yon": 100,
-   "hiz": 6,
+   "yon": 70,
+   "hiz": 8,
    "hamle": null,
    "degisken": [
-    60,
-    170
+    30,
+    110
    ]
   },
   "gorus": 9999,
@@ -21,7 +21,7 @@
   "hava": [],
   "sicaklik": 23,
   "cig_noktasi": 14,
-  "qnh": 1016,
+  "qnh": 1015,
   "nosig": true,
   "renk": [
    "BLU",
@@ -33,8 +33,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 4.9,
-    "yan": 3.5,
+    "bas": 8.0,
+    "yan": 0.8,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -46,9 +46,9 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 4.9,
-    "yan": 3.5,
-    "yan_taraf": "sağdan",
+    "bas": 5.7,
+    "yan": 5.6,
+    "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
     "degisken": true,
@@ -57,24 +57,11 @@
     "kuyruk_asildi": false
    },
    {
-    "pist": "24L",
-    "yon_gercek": 244.12,
-    "bas": -4.8,
-    "yan": 1.4,
-    "yan_taraf": "soldan",
-    "bas_hamle": null,
-    "yan_hamle": null,
-    "degisken": true,
-    "kaynak": "AD 2.15 anemometreleri",
-    "kuyruk": true,
-    "kuyruk_asildi": false
-   },
-   {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -6.3,
-    "yan": 3.1,
-    "yan_taraf": "soldan",
+    "bas": -5.8,
+    "yan": 1.5,
+    "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
     "degisken": true,
@@ -91,7 +78,7 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 100° 6kt (değişken 060°–170°) · görüş 10+ km · tavan 8000 ft · 23°C · QNH 1016"
+  "ozet": "Rüzgâr 070° 8kt (değişken 030°–110°) · görüş 10+ km · tavan 8000 ft · 23°C · QNH 1015"
  },
  "taf": {
   "zaman": "2026-09-17T04:40:00+00:00",
@@ -404,6 +391,13 @@
    "ruzgar_hiz": 6,
    "tavan": 8000,
    "qnh": 1016,
+   "sicaklik": 23
+  },
+  {
+   "zaman": "2026-09-17T09:50:00+00:00",
+   "ruzgar_hiz": 8,
+   "tavan": 8000,
+   "qnh": 1015,
    "sicaklik": 23
   }
  ]
