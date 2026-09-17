@@ -19,6 +19,7 @@ web sayfasındaki LVO script'i (ltfj_sayfa.py) AYNI mantığı, bu modülün
 export ettiği RVR_ESIKLERI ile JavaScript'te tekrar uygular (embedded JSON
 üzerinden, tek kaynaktan - ltfj_lvo_referans.RVR_ESIKLERI)."""
 
+from ltfj_analiz import RE_BULUT, TAVAN_KATMANLARI
 from ltfj_lvo_referans import RVR_ESIKLERI
 
 # madde 6.2.a / 6.3.1.a - CAT II bulut tabanı aralığının (100-200 ft) üst
@@ -40,11 +41,32 @@ def metar_tavan_notu(cozum: dict | None) -> str | None:
             f"100–200 ft, madde 6.2.a/6.3.1.a). {_HEDGE}")
 
 
+def taf_en_dusuk_tavan_ft(taf_metni: str) -> int | None:
+    """TAF metninin TÜM dönemlerindeki (FM/BECMG/TEMPO/PROB dahil) en düşük
+    tavanını bulur. ltfj_analiz.metar_coz() METAR için BECMG/TEMPO sonrasını
+    BİLEREK atar (bir METAR'a eklenmiş eğilim grubudur, 'şu anki durum'
+    değil) - ama TAF'ın KENDİSİ zaten çok dönemli bir belge; burada o
+    kesme YAPILMAZ, tüm dönemler taranır (aksi halde örn. bir BECMG
+    grubundaki düşük tavan sessizce atlanırdı)."""
+    tokenlar = taf_metni.split()
+    if "RMK" in tokenlar:
+        tokenlar = tokenlar[:tokenlar.index("RMK")]
+    en_dusuk = None
+    for t in tokenlar:
+        m = RE_BULUT.match(t)
+        if not m:
+            continue
+        ortu, taban, _tur = m.groups()
+        if ortu not in TAVAN_KATMANLARI or taban == "///":
+            continue
+        ft = int(taban) * 100
+        en_dusuk = ft if en_dusuk is None else min(en_dusuk, ft)
+    return en_dusuk
+
+
 def taf_tavan_notu(en_dusuk_tavan_ft: int | None) -> str | None:
-    """en_dusuk_tavan_ft: TAF metninde gecen TÜM BKN/OVC/VV katmanlarının en
-    düşüğü (metar_coz()'un zaten hesapladığı 'tavan' alanı, TAF metnine
-    uygulanmış hali - TAF'in TEK bir donem/BECMG/TEMPO ayrimi yapilmadan
-    tüm geçerlilik süresi için en kötü/en düşük tavanı)."""
+    """en_dusuk_tavan_ft: taf_en_dusuk_tavan_ft()'in döndürdüğü değer -
+    TAF'in TÜM dönemlerinde (BECMG/TEMPO dahil) geçen en düşük tavan."""
     if en_dusuk_tavan_ft is None or en_dusuk_tavan_ft >= CEILING_FARKINDALIK_ESIGI_FT:
         return None
     return (f"TAF döneminde öngörülen en düşük tavan {en_dusuk_tavan_ft} ft — düşük. "
