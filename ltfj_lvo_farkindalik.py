@@ -27,7 +27,7 @@ geçmiş arşivde bu koşullarda düşük tavanın ne sıklıkta görüldüğü 
 ltfj_tavan_tablosu.py başındadır."""
 
 import ltfj_tavan_tablosu as tavan_tablosu
-from ltfj_analiz import RE_BULUT, TAVAN_KATMANLARI
+from ltfj_analiz import RE_BULUT, TAVAN_KATMANLARI, tokenla
 from ltfj_lvo_referans import RVR_ESIKLERI
 
 # madde 6.2.a / 6.3.1.a - CAT II bulut tabanı aralığının (100-200 ft) üst
@@ -62,7 +62,7 @@ def taf_en_dusuk_tavan_ft(taf_metni: str) -> int | None:
     değil) - ama TAF'ın KENDİSİ zaten çok dönemli bir belge; burada o
     kesme YAPILMAZ, tüm dönemler taranır (aksi halde örn. bir BECMG
     grubundaki düşük tavan sessizce atlanırdı)."""
-    tokenlar = taf_metni.split()
+    tokenlar = tokenla(taf_metni)
     if "RMK" in tokenlar:
         tokenlar = tokenlar[:tokenlar.index("RMK")]
     en_dusuk = None

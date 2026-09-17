@@ -644,5 +644,5 @@ def metar_trendi(metin: str) -> str | None:
     if not m:
         return None
     tur = "Kademeli geçiş" if m.group(1) == "BECMG" else "Geçici"
-    kalan = " ".join(m.group(2).split())
+    kalan = " ".join(m.group(2).split()).rstrip("=").strip()
     return f"{tur}: {kalan}" if kalan else tur
