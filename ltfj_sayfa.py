@@ -137,6 +137,19 @@ SABLON = """<!DOCTYPE html>
     background:var(--kod-bg); border:1px solid var(--cizgi); color:var(--soluk);
   }}
   .notam-durum {{ font-size:.75rem; color:var(--soluk); margin-left:auto; }}
+  .notam-aktif-nokta {{
+    display:inline-block; width:8px; height:8px; border-radius:999px;
+    background:#22c55e; box-shadow:0 0 0 2px rgba(34,197,94,.25); flex-shrink:0;
+  }}
+  .notam-aktif-baslik {{ cursor:pointer; user-select:none; }}
+  .notam-aktif-sayi {{
+    color:var(--soluk); font-size:.82rem; margin-left:auto; margin-right:4px;
+  }}
+  .notam-ok {{
+    font-size:.7rem; color:var(--soluk); transition:transform .15s ease;
+    display:inline-block;
+  }}
+  .notam-ok.acik {{ transform:rotate(90deg); }}
   .notam-ozet {{ font-size:.88rem; margin:4px 0; }}
   .notam-metin {{
     background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:8px;
@@ -257,9 +270,14 @@ SABLON = """<!DOCTYPE html>
 </div>
 
 <div class="kart">
-  <div class="basrow"><span class="tip">Aktif NOTAM'lar</span>
-    <span class="zaman" id="notam-senkron-zamani"></span></div>
-  <div id="notam-aktif-liste"><div class="notam-bos">Yükleniyor…</div></div>
+  <div class="basrow notam-aktif-baslik" id="notam-aktif-baslik" role="button" tabindex="0"
+       aria-expanded="false">
+    <span class="tip">Aktif NOTAM'lar</span>
+    <span class="notam-aktif-sayi" id="notam-aktif-sayi"></span>
+    <span class="zaman" id="notam-senkron-zamani"></span>
+    <span class="notam-ok" id="notam-aktif-ok">▶</span>
+  </div>
+  <div id="notam-aktif-liste" hidden><div class="notam-bos">Yükleniyor…</div></div>
 </div>
 
 <div class="kart">
@@ -340,7 +358,12 @@ SABLON = """<!DOCTYPE html>
   }}
 
   var veri = null;
+  var aktifAcikMi = false;
+  var aramaYapildiMi = false;
   var aktifEl = document.getElementById("notam-aktif-liste");
+  var aktifBaslikEl = document.getElementById("notam-aktif-baslik");
+  var aktifSayiEl = document.getElementById("notam-aktif-sayi");
+  var aktifOkEl = document.getElementById("notam-aktif-ok");
   var senkronEl = document.getElementById("notam-senkron-zamani");
   var sonucEl = document.getElementById("notam-arama-sonuc");
   var durumSelectEl = document.getElementById("notam-durum");
@@ -358,9 +381,16 @@ SABLON = """<!DOCTYPE html>
       ? '<div class="notam-ozet">' + esc(n.reading_short) +
         ' <span style="color:var(--soluk); font-size:.75rem;">(NOTAC otomatik özeti — hata içerebilir)</span></div>'
       : "";
+    // Aktif NOTAM'lari (status === "active") yesil bir noktayla isaretle -
+    // hem "Aktif NOTAM'lar" listesinde hem arama sonuclarinda ayni kart
+    // uretici kullanildigindan, arama sonucundaki aktif kayitlar da
+    // otomatik olarak isaretlenmis olur.
+    var aktifNoktasi = n.status === "active"
+      ? '<span class="notam-aktif-nokta" title="Aktif NOTAM"></span>' : "";
     return (
       '<div class="notam-kart">' +
-      '<div class="notam-ust"><span class="notam-no">' + esc(n.number || "—") + "</span>" +
+      '<div class="notam-ust">' + aktifNoktasi +
+      '<span class="notam-no">' + esc(n.number || "—") + "</span>" +
       kategori + etiketler + pistler +
       '<span class="notam-durum">' + esc(n.status || "") + "</span></div>" +
       ozet +
@@ -372,17 +402,37 @@ SABLON = """<!DOCTYPE html>
     );
   }}
 
+  function aktifPaneliAcKapat(zorlaAc) {{
+    aktifAcikMi = zorlaAc != null ? zorlaAc : !aktifAcikMi;
+    aktifEl.hidden = !aktifAcikMi;
+    aktifBaslikEl.setAttribute("aria-expanded", String(aktifAcikMi));
+    aktifOkEl.textContent = aktifAcikMi ? "▼" : "▶";
+    aktifOkEl.classList.toggle("acik", aktifAcikMi);
+  }}
+
   function aktifGoster() {{
     if (!veri) return;
     senkronEl.textContent = veri.son_senkron
       ? "son senkron " + veri.son_senkron.replace("T", " ").slice(0, 16)
       : "henüz senkronize edilmedi";
+
     if (!veri.son_senkron) {{
+      aktifSayiEl.textContent = "";
       aktifEl.innerHTML = '<div class="notam-bos">NOTAM verisi şu anda alınamıyor.</div>';
-    }} else if (!veri.aktif.length) {{
+      return;
+    }}
+
+    var aktifler = (veri.aktif || []).slice().sort(function (a, b) {{
+      return (a.number || "").localeCompare(b.number || "");
+    }});
+    aktifSayiEl.textContent = aktifler.length
+      ? aktifler.length + " aktif"
+      : "aktif yok";
+
+    if (!aktifler.length) {{
       aktifEl.innerHTML = '<div class="notam-bos">Aktif NOTAM bulunmuyor.</div>';
     }} else {{
-      aktifEl.innerHTML = veri.aktif.map(notamKarti).join("");
+      aktifEl.innerHTML = aktifler.map(notamKarti).join("");
     }}
   }}
 
@@ -398,6 +448,7 @@ SABLON = """<!DOCTYPE html>
 
   function aramaCalistir() {{
     if (!veri) return;
+    aramaYapildiMi = true;
     var q = document.getElementById("notam-q").value.trim().toLowerCase();
     var ts = document.getElementById("notam-tarih-baslangic").value;
     var te = document.getElementById("notam-tarih-bitis").value;
@@ -429,7 +480,16 @@ SABLON = """<!DOCTYPE html>
         veri = v;
         aktifGoster();
         durumSecenekleriDoldur();
-        aramaCalistir();
+        // Arama SADECE kullanici gercekten arama yaptiginda calisir - sayfa
+        // ilk acildiginda (ya da veri yeniden yuklendiginde, kullanici henuz
+        // hicbir kriter girmediyse) sonuc alani BOS kalir, "tum gecmis"
+        // otomatik dokulmez.
+        if (aramaYapildiMi) {{
+          aramaCalistir();
+        }} else {{
+          sonucEl.innerHTML = '<div class="notam-bos">Arama yapmak için yukarıdaki '
+            + "alanları doldurup “Ara”ya basın.</div>";
+        }}
       }})
       .catch(function (err) {{
         var mesaj = '<div class="notam-bos">NOTAM verisi şu anda alınamıyor.</div>';
@@ -439,6 +499,11 @@ SABLON = """<!DOCTYPE html>
         console.error("[notam] veri yüklenemedi:", err);
       }});
   }}
+
+  aktifBaslikEl.addEventListener("click", function () {{ aktifPaneliAcKapat(); }});
+  aktifBaslikEl.addEventListener("keydown", function (e) {{
+    if (e.key === "Enter" || e.key === " ") {{ e.preventDefault(); aktifPaneliAcKapat(); }}
+  }});
 
   document.getElementById("notam-ara-btn").addEventListener("click", aramaCalistir);
   document.getElementById("notam-q").addEventListener("keydown", function (e) {{
