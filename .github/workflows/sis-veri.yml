@@ -1,0 +1,68 @@
+name: Sis modeli verisi
+
+# LTFJ METAR arsivini IEM'den ceker ve TURETILMIS ozellik dosyasini repoya
+# yazar. Elle tetiklenir - zamanlanmis calismasi YOKTUR, cunku tarihsel arsiv
+# her 15 dakikada bir degismez ve ana botun akisiyla hicbir ilgisi yoktur.
+on:
+  workflow_dispatch:
+    inputs:
+      baslangic:
+        description: "Başlangıç yılı"
+        required: false
+        default: "2003"
+      bitis:
+        description: "Bitiş yılı (boş bırakılırsa içinde bulunulan yıl)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sis-modeli-verisi
+  cancel-in-progress: false
+
+jobs:
+  veri:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45      # 20+ yillik arsiv yil yil indiriliyor
+
+    steps:
+      - name: Repoyu al
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Bagimliliklar
+        run: pip install --quiet requests
+
+      - name: Arsivi cek ve turetilmis veriyi uret
+        run: |
+          set -eu
+          BITIS="${{ inputs.bitis }}"
+          if [ -z "${BITIS}" ]; then BITIS="$(date -u +%Y)"; fi
+          python -m sis_modeli.veri_cek \
+            --baslangic "${{ inputs.baslangic }}" \
+            --bitis "${BITIS}"
+
+      - name: Kesif istatistikleri
+        run: python -m sis_modeli.istatistik
+
+      - name: Turetilmis veriyi repoya yaz
+        run: |
+          set -eu
+          DOSYA="sis_modeli/veri/ltfj_ozellik.csv.gz"
+
+          if [ -z "$(git status --porcelain ${DOSYA})" ]; then
+            echo "Veri degismedi, commit yok."
+            exit 0
+          fi
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "${DOSYA}"
+          git commit -m "sis modeli: türetilmiş METAR özellik verisi güncellendi [skip ci]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
