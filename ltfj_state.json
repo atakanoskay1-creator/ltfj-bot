@@ -44,14 +44,15 @@
   "id:51864492",
   "id:51872279",
   "id:51875266",
-  "id:51883269"
+  "id:51883269",
+  "id:51887753"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 170320Z 06005KT 9999 FEW014 BKN070 16/15 Q1015 NOSIG RMK RWY24R VRB02KT RWY06R 04006KT RWY24L 04005KT",
+ "son_metar": "METAR LTFJ 170350Z 06006KT 9999 SCT030 BKN070 16/15 Q1015 NOSIG RMK RWY24R 04004KT 340V070 RWY06R 05005KT RWY24L 02005KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-17T03:20:00+00:00",
+ "son_veri_zamani": "2026-09-17T03:50:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -276,13 +277,20 @@
    "tavan": 7000,
    "qnh": 1015,
    "sicaklik": 16
+  },
+  {
+   "zaman": "2026-09-17T03:50:00+00:00",
+   "ruzgar_hiz": 6,
+   "tavan": 7000,
+   "qnh": 1015,
+   "sicaklik": 16
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 170220Z 05005KT 9999 FEW002 SCT080 15/14 Q1015 NOSIG RMK RWY24R 01004KT RWY06R 02006KT RWY24L 01003KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/s) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Düşük seviyede az bulutlu (200 feet, yaklaşık 60 metre), daha yüksekte parçalı bulutlu (8000 feet, yaklaşık 2400 metre), yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor; rüzgâr, görüş ve hava olayları operasyonel açıdan olumsuz etki göstermemektedir.",
   "METAR LTFJ 170250Z 05005KT 9999 FEW003 BKN070 16/15 Q1015 NOSIG RMK RWY24R 04003KT 360V080 RWY06R 03007KT RWY24L 03005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/saat) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için rahat.\n\n**Gökyüzü:** Alçakta az bulut (yaklaşık 300 metre), üstte çok bulutlu tabaka (yaklaşık 2100 metre), yağış yok.\n\n**Uçuşa etkisi:** Çok yüksek nem nedeniyle sis oluşma riski vardır, ancak şu anda görüş ve rüzgâr koşulları kısıtlayıcı değildir.",
   "TAF AMD LTFJ 170100Z 1701/1724 03009KT 9999 FEW002 BKN080 TEMPO 1701/1705 1700 PRFG BECMG 1704/1707 BKN030 BKN080 PROB30 TEMPO 1708/1712 04015G25KT -SHRA FEW020CB BKN030 BECMG 1715/1718 CAVOK BECMG 1721/1724 SCT035": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 17 Ocak 01:00 UTC başlangıçlı tahmin; başlangıçta hafif rüzgar ve az bulutluluk, gün içinde geçici görüş azalması ve yağış olasılığı, akşam saatlerinde iyileşme bekleniyor.\n\n- **1701/1705 UTC:** Geçici olarak 1700 metre görüş ve mist.\n- **1708/1712 UTC:** %30 ihtimal ile geçici olarak 15-25 düğün rüzgar, hafif sağanak ve gök gürültülü bulutlar.\n- **1715/1718 UTC:** Kademeli geçiş ile CAVOK (görüş ve bulut koşulları iyi).",
-  "METAR LTFJ 170320Z 06005KT 9999 FEW014 BKN070 16/15 Q1015 NOSIG RMK RWY24R VRB02KT RWY06R 04006KT RWY24L 04005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/saat) hafif rüzgâr esiyor, yan bileşen önemsiz.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Düşük seviyede az bulut (yaklaşık 1400 metre), daha yüksekte çok bulut (yaklaşık 7000 metre) var; yağış yok.\n\n**Uçuşa etkisi:** Hava koşulları kısıtlayıcı değil; düşük görüş, kuvvetli rüzgâr veya fırtına bulunmuyor."
+  "METAR LTFJ 170320Z 06005KT 9999 FEW014 BKN070 16/15 Q1015 NOSIG RMK RWY24R VRB02KT RWY06R 04006KT RWY24L 04005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/saat) hafif rüzgâr esiyor, yan bileşen önemsiz.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Düşük seviyede az bulut (yaklaşık 1400 metre), daha yüksekte çok bulut (yaklaşık 7000 metre) var; yağış yok.\n\n**Uçuşa etkisi:** Hava koşulları kısıtlayıcı değil; düşük görüş, kuvvetli rüzgâr veya fırtına bulunmuyor.",
+  "METAR LTFJ 170350Z 06006KT 9999 SCT030 BKN070 16/15 Q1015 NOSIG RMK RWY24R 04004KT 340V070 RWY06R 05005KT RWY24L 02005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 6 knot (yaklaşık 11 km/saat) hafif rüzgâr esiyor, yan bileşen önemli değil.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat.\n\n**Gökyüzü:** Yaklaşık 3000 metreden başlayan parçalı bulutlar, 7000 metreden çok bulutlu tabaka var; yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve yağış kısıtlaması yoktur; hava koşulları operasyonel açıdan sınırlayıcı unsur içermemektedir."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -604,5 +612,5 @@
   }
  },
  "notam_son_senkron": "2026-09-16T23:41:16+00:00",
- "guncelleme": "2026-09-17T03:51:03+00:00"
+ "guncelleme": "2026-09-17T04:01:18+00:00"
 }
