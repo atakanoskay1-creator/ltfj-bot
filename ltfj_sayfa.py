@@ -135,6 +135,27 @@ SABLON = """<!DOCTYPE html>
   .grafik {{ width:100%; height:64px; display:block; }}
   .grafik-eksen {{ display:flex; justify-content:space-between;
                     font-size:.72rem; color:var(--soluk); margin-top:2px; }}
+  /* Imlec/parmak altindaki noktanin saat+degerini gosteren balon. Dokunmatik
+     cihazda dikey sayfa kaydirma bozulmasin diye touch-action:pan-y - yatay
+     surukleme grafigi tarar, dikey kaydirma normal calisir. */
+  .grafik-sarmal {{ position:relative; touch-action:pan-y; }}
+  .grafik-imlec {{
+    position:absolute; top:0; bottom:0; width:1px; background:var(--soluk);
+    opacity:.55; pointer-events:none;
+  }}
+  .grafik-nokta {{
+    position:absolute; width:9px; height:9px; border-radius:999px;
+    background:var(--metin); border:2px solid var(--kart);
+    transform:translate(-50%,-50%); pointer-events:none;
+  }}
+  .grafik-balon {{
+    position:absolute; top:0;
+    background:var(--kart); border:1px solid var(--cizgi); border-radius:7px;
+    padding:3px 8px; font-size:.74rem; font-weight:600; white-space:nowrap;
+    color:var(--metin); pointer-events:none; z-index:3;
+    box-shadow:0 2px 10px rgba(0,0,0,.35);
+  }}
+  .grafik-imlec[hidden], .grafik-nokta[hidden], .grafik-balon[hidden] {{ display:none; }}
 
   .bolum-baslik {{ font-weight:650; font-size:1.05rem; margin:28px 0 12px; }}
   .notam-uyari {{
@@ -1153,6 +1174,80 @@ SABLON = """<!DOCTYPE html>
   ortu.addEventListener("click", function (e) {{ if (e.target === ortu) ortu.hidden = true; }});
 }})();
 </script>
+<script>
+(function () {{
+  "use strict";
+  // Trend grafiklerinde imlecin/parmagin altindaki noktanin saatini ve
+  // degerini gosterir. Fare: uzerine gelince gorunur, ayrilinca kaybolur.
+  // Dokunmatik: basili tutup surukledikce gosterir, parmak kalkinca kaybolur.
+  // Nokta verisi sayfa uretilirken data-noktalar'a gomulu - hicbir fetch()
+  // yapilmaz (bkz. ltfj_sayfa._grafik_blogu).
+  var kutular = document.querySelectorAll(".grafik-kutu");
+  Array.prototype.forEach.call(kutular, function (kutu) {{
+    var noktalar;
+    try {{
+      noktalar = JSON.parse(kutu.getAttribute("data-noktalar") || "[]");
+    }} catch (e) {{
+      return;
+    }}
+    if (!noktalar.length) return;
+
+    var sarmal = kutu.querySelector(".grafik-sarmal");
+    var imlec = kutu.querySelector(".grafik-imlec");
+    var nokta = kutu.querySelector(".grafik-nokta");
+    var balon = kutu.querySelector(".grafik-balon");
+    if (!sarmal || !imlec || !nokta || !balon) return;
+    var basili = false;
+
+    function gizle() {{
+      basili = false;
+      imlec.hidden = true;
+      nokta.hidden = true;
+      balon.hidden = true;
+    }}
+
+    function goster(olay) {{
+      var alan = sarmal.getBoundingClientRect();
+      if (!alan.width) return;
+      var oran = (olay.clientX - alan.left) / alan.width;
+      var enYakin = noktalar[0], enKisa = Infinity;
+      for (var i = 0; i < noktalar.length; i++) {{
+        var uzaklik = Math.abs(noktalar[i].x - oran);
+        if (uzaklik < enKisa) {{ enKisa = uzaklik; enYakin = noktalar[i]; }}
+      }}
+      var px = enYakin.x * alan.width;
+      imlec.style.left = px + "px";
+      nokta.style.left = px + "px";
+      nokta.style.top = (enYakin.y * alan.height) + "px";
+      balon.textContent = enYakin.s + " · " + enYakin.d;
+      imlec.hidden = false;
+      nokta.hidden = false;
+      balon.hidden = false;
+      // balon grafik kutusunun ICINDE kalsin: yatayda kenarlarda kirpilmasin,
+      // dikeyde noktanin TERS tarafina gecsin (noktayi ve baslik satirini
+      // kapatmasin).
+      var genislik = balon.offsetWidth;
+      balon.style.left = Math.max(0, Math.min(px - genislik / 2, alan.width - genislik)) + "px";
+      balon.style.top = (enYakin.y < 0.5 ? alan.height - balon.offsetHeight : 0) + "px";
+    }}
+
+    sarmal.addEventListener("pointerenter", function (e) {{
+      if (e.pointerType === "mouse") goster(e);
+    }});
+    sarmal.addEventListener("pointermove", function (e) {{
+      if (e.pointerType === "mouse" || basili) goster(e);
+    }});
+    sarmal.addEventListener("pointerdown", function (e) {{
+      if (e.pointerType !== "mouse") {{ basili = true; goster(e); }}
+    }});
+    sarmal.addEventListener("pointerleave", gizle);
+    sarmal.addEventListener("pointerup", function (e) {{
+      if (e.pointerType !== "mouse") gizle();
+    }});
+    sarmal.addEventListener("pointercancel", gizle);
+  }});
+}})();
+</script>
 </body>
 </html>
 """
@@ -1187,7 +1282,11 @@ def _grafik_verisi(gecmis: list, alan: str, simdi: datetime) -> list:
     return _gecmis_noktalari(gecmis, alan, None)[-GRAFIK_YEDEK_NOKTA:]
 
 
-def _svg_cizgi(noktalar: list, renk: str, genislik=600, yukseklik=64) -> str | None:
+def _svg_cizgi(noktalar: list, renk: str, genislik=600, yukseklik=64) -> tuple | None:
+    """(svg, oranlar) dondurur. oranlar: her nokta icin (x, y) - SVG kutusuna
+    gore 0-1 arasi ORAN. SVG preserveAspectRatio="none" ile esnedigi icin bu
+    oranlar istemcide dogrudan piksele cevrilebilir (bkz. grafik balonu
+    script'i) - viewBox birimlerini JS'e tasimaya gerek kalmaz."""
     if len(noktalar) < 2:
         return None
     degerler = [v for _, v in noktalar]
@@ -1210,27 +1309,46 @@ def _svg_cizgi(noktalar: list, renk: str, genislik=600, yukseklik=64) -> str | N
                     for i, (z, v) in enumerate(noktalar))
     son_x, son_y = x(noktalar[-1][0]), y(noktalar[-1][1])
 
-    return (f'<svg viewBox="0 0 {genislik} {yukseklik}" class="grafik" '
-            f'preserveAspectRatio="none">'
-            f'<path d="{yol}" fill="none" stroke="{renk}" stroke-width="2" '
-            f'stroke-linejoin="round" stroke-linecap="round"/>'
-            f'<circle cx="{son_x:.1f}" cy="{son_y:.1f}" r="3" fill="{renk}"/>'
-            f'</svg>')
+    oranlar = [(x(z) / genislik, y(v) / yukseklik) for z, v in noktalar]
+
+    svg = (f'<svg viewBox="0 0 {genislik} {yukseklik}" class="grafik" '
+           f'preserveAspectRatio="none">'
+           f'<path d="{yol}" fill="none" stroke="{renk}" stroke-width="2" '
+           f'stroke-linejoin="round" stroke-linecap="round"/>'
+           f'<circle cx="{son_x:.1f}" cy="{son_y:.1f}" r="3" fill="{renk}"/>'
+           f'</svg>')
+    return svg, oranlar
 
 
 def _grafik_blogu(alan: str, baslik: str, birim: str, renk: str,
                    gecmis: list, simdi: datetime) -> str:
     noktalar = _grafik_verisi(gecmis, alan, simdi)
-    svg = _svg_cizgi(noktalar, renk)
-    if not svg:
+    cizim = _svg_cizgi(noktalar, renk)
+    if not cizim:
         return ""
+    svg, oranlar = cizim
     son_deger = noktalar[-1][1]
     baslangic = noktalar[0][0].astimezone(YEREL_TZ)
     bitis = noktalar[-1][0].astimezone(YEREL_TZ)
+
+    # Imlecin/parmagin altindaki noktayi bulabilmek icin nokta koordinatlari
+    # ve okunabilir metinleri data- niteligine gomulur (istemcide ayrica bir
+    # istek YAPILMAZ - sayfa zaten statik uretiliyor).
+    nokta_verisi = [
+        {"x": round(xo, 4), "y": round(yo, 4),
+         "s": f"{z.astimezone(YEREL_TZ):%H:%M}", "d": f"{v:.0f} {birim}"}
+        for (xo, yo), (z, v) in zip(oranlar, noktalar)
+    ]
+
     return (
-        f'<div><div class="grafik-baslik"><span>{html.escape(baslik)}</span>'
+        f'<div class="grafik-kutu" '
+        f'data-noktalar="{html.escape(json.dumps(nokta_verisi, ensure_ascii=False))}">'
+        f'<div class="grafik-baslik"><span>{html.escape(baslik)}</span>'
         f'<span class="grafik-son">{son_deger:.0f} {html.escape(birim)}</span></div>'
-        f'{svg}'
+        f'<div class="grafik-sarmal">{svg}'
+        f'<div class="grafik-imlec" hidden></div>'
+        f'<div class="grafik-nokta" hidden></div>'
+        f'<div class="grafik-balon" hidden></div></div>'
         f'<div class="grafik-eksen"><span>{baslangic:%H:%M}</span>'
         f'<span>{bitis:%H:%M}</span></div></div>'
     )
