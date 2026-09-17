@@ -27,9 +27,22 @@
     padding:24px 16px 48px;
   }
   .sar { max-width:680px; margin:0 auto; }
-  header { margin-bottom:20px; }
+  header {
+    margin-bottom:20px; display:flex; align-items:flex-start;
+    justify-content:space-between; gap:12px;
+  }
+  .header-metin { min-width:0; }
   h1 { font-size:1.5rem; margin:0 0 4px; letter-spacing:-.02em; }
   .alt { color:var(--soluk); font-size:.875rem; }
+  button.yenile {
+    flex-shrink:0; background:var(--kod-bg); border:1px solid var(--cizgi);
+    color:var(--soluk); border-radius:8px; padding:8px 12px; font:inherit;
+    font-size:.82rem; font-weight:650; cursor:pointer; white-space:nowrap;
+  }
+  button.yenile:hover { color:var(--metin); border-color:var(--vurgu); }
+  @media (max-width:480px) {
+    button.yenile { padding:8px 10px; font-size:.78rem; }
+  }
   .kart {
     background:var(--kart); border:1px solid var(--cizgi); border-radius:14px;
     padding:18px; margin-bottom:16px;
@@ -216,10 +229,13 @@
 <body>
 <div class="sar">
 <header>
-  <h1>LTFJ · İstanbul Sabiha Gökçen</h1>
-  <div class="alt">Kaynak: MGM/METAR · Son güncelleme 17.09.2026 09:44 yerel</div>
+  <div class="header-metin">
+    <h1>LTFJ · İstanbul Sabiha Gökçen</h1>
+    <div class="alt">Kaynak: MGM/METAR · Son güncelleme 17.09.2026 09:57 yerel</div>
+  </div>
+  <button type="button" class="yenile" id="sayfa-yenile-btn">⟳ Yenile</button>
 </header>
-<div class="kart"><div class="grafik-ust">Trend</div><div class="grafik-grid"><div><div class="grafik-baslik"><span>Rüzgâr</span><span class="grafik-son">8 kt</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,42.8 L57.8,42.8 L111.6,53.5 L165.5,42.8 L219.3,42.8 L273.1,42.8 L326.9,32.0 L380.7,32.0 L434.5,32.0 L488.4,32.0 L542.2,32.0 L596.0,10.5" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="10.5" r="3" fill="#3b82f6"/></svg><div class="grafik-eksen"><span>03:50</span><span>09:20</span></div></div><div><div class="grafik-baslik"><span>Bulut tavanı</span><span class="grafik-son">9000 ft</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,32.0 L57.8,32.0 L219.3,53.5 L273.1,53.5 L326.9,53.5 L380.7,53.5 L434.5,53.5 L488.4,10.5 L542.2,10.5 L596.0,10.5" fill="none" stroke="#22c55e" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="10.5" r="3" fill="#22c55e"/></svg><div class="grafik-eksen"><span>03:50</span><span>09:20</span></div></div><div><div class="grafik-baslik"><span>QNH</span><span class="grafik-son">1015 hPa</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,32.0 L57.8,32.0 L111.6,32.0 L165.5,32.0 L219.3,32.0 L273.1,32.0 L326.9,32.0 L380.7,32.0 L434.5,32.0 L488.4,32.0 L542.2,32.0 L596.0,32.0" fill="none" stroke="#eab308" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="32.0" r="3" fill="#eab308"/></svg><div class="grafik-eksen"><span>03:50</span><span>09:20</span></div></div><div><div class="grafik-baslik"><span>Sıcaklık</span><span class="grafik-son">19 °C</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,53.5 L57.8,53.5 L111.6,53.5 L165.5,53.5 L219.3,42.8 L273.1,42.8 L326.9,42.8 L380.7,42.8 L434.5,32.0 L488.4,32.0 L542.2,21.2 L596.0,10.5" fill="none" stroke="#ef4444" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="10.5" r="3" fill="#ef4444"/></svg><div class="grafik-eksen"><span>03:50</span><span>09:20</span></div></div></div></div><div class="kart"><div class="basrow"><span class="tip">METAR</span><span class="zaman">17.09 06:20Z · 09:20 yerel</span><span class="rozet" title="LTFJ Bot durum seviyesi — resmî ICAO CAT I/II/III kategorisi değildir" style="background:#3b82f6">🔵 BLU · çok iyi</span></div><div class="yorum"><div class="yorum-etiket">🤖 Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</div>**Rüzgâr:** Kuzey-kuzeydoğudan 8 knot hızla esen hafif rüzgâr, pistle neredeyse hizalı akıyor.<br>**Görüş:** 10 kilometre ve daha fazla görüş mesafesi, uçuş için rahat koşullar.<br>**Gökyüzü:** 3300 metre yükseklikte parçalı bulutlar, 9000 metre yükseklikte çok bulutlu katman, yağış yok.<br>**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor; rüzgâr, görüş ve bulut durumu operasyonel sınırlar içindedir.</div><div class="ozet">Rüzgâr 040° 8kt · görüş 10+ km · tavan 9000 ft · 19°C · QNH 1015</div><table><tr><td>Pist 06L</td><td>040° 8 kt</td></tr><tr><td>Pist 06R</td><td>030° (değişken 350°–050°) 6 kt</td></tr><tr><td>Pist 24L</td><td>030° 7 kt</td></tr><tr><td>Pist 24R</td><td>040° (değişken 360°–060°) 4 kt</td></tr><tr><td>Meteorolojik tercih</td><td>06L</td></tr></table><div class="pist-kaynak">✈️ 06L: alan rüzgârından; 06R, 24L, 24R: AD 2.15 anemometreleri; kuyruk limiti 10 kt — CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi</div><div><a class="panel-link" href="panel.html">🛫 ATC Panelinde aç →</a></div><pre>METAR LTFJ 170620Z 04008KT 9999 SCT033 BKN090 19/16 Q1015 NOSIG RMK RWY24R 04004KT 360V060 RWY06R 03006KT 350V050 RWY24L 03007KT</pre></div><div class="kart"><div class="basrow"><span class="tip">TAF</span><span class="zaman">17.09 04:40Z · 07:40 yerel</span></div><div class="yorum"><div class="yorum-etiket">🤖 Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</div>**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde kuzey-kuzeybatı rüzgarı ve kırılgan bulutluluk beklenmektedir.<br>• **1706/1712 UTC:** Rüzgar 04007KT, görüş 9999 m, orta bulutluluk 3000 ft ve 8000 ft seviyelerinde. 1708/1712 UTC arasında geçici olarak rüzgar 04017KT&#x27;ye artacak, hafif sağanak ve gök gürültülü bulutlar 1800 ft&#x27;de, bulutluluk 2500 ft&#x27;de beklenmektedir.<br>• **1712/1715 UTC:** %30 ihtimalle geçici olarak rüzgar 04018KT, hafif sağanak ve gök gürültülü bulutlar 2000 ft&#x27;de, bulutluluk 2500 ft&#x27;de.<br>• **1715/1718 UTC:** Kademeli geçişle bulutluluk 3000 ft&#x27;ye yükselmektedir.</div><pre>TAF LTFJ 170440Z 1706/1806 04007KT 9999 BKN030 BKN080
+<div class="kart"><div class="grafik-ust">Trend</div><div class="grafik-grid"><div><div class="grafik-baslik"><span>Rüzgâr</span><span class="grafik-son">5 kt</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,42.8 L57.8,53.5 L111.6,42.8 L165.5,42.8 L219.3,42.8 L273.1,32.0 L326.9,32.0 L380.7,32.0 L434.5,32.0 L488.4,32.0 L542.2,10.5 L596.0,42.8" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="42.8" r="3" fill="#3b82f6"/></svg><div class="grafik-eksen"><span>04:20</span><span>09:50</span></div></div><div><div class="grafik-baslik"><span>Bulut tavanı</span><span class="grafik-son">9000 ft</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,32.0 L165.5,53.5 L219.3,53.5 L273.1,53.5 L326.9,53.5 L380.7,53.5 L434.5,10.5 L488.4,10.5 L542.2,10.5 L596.0,10.5" fill="none" stroke="#22c55e" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="10.5" r="3" fill="#22c55e"/></svg><div class="grafik-eksen"><span>04:20</span><span>09:50</span></div></div><div><div class="grafik-baslik"><span>QNH</span><span class="grafik-son">1016 hPa</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,53.5 L57.8,53.5 L111.6,53.5 L165.5,53.5 L219.3,53.5 L273.1,53.5 L326.9,53.5 L380.7,53.5 L434.5,53.5 L488.4,53.5 L542.2,53.5 L596.0,10.5" fill="none" stroke="#eab308" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="10.5" r="3" fill="#eab308"/></svg><div class="grafik-eksen"><span>04:20</span><span>09:50</span></div></div><div><div class="grafik-baslik"><span>Sıcaklık</span><span class="grafik-son">19 °C</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,53.5 L57.8,53.5 L111.6,53.5 L165.5,42.8 L219.3,42.8 L273.1,42.8 L326.9,42.8 L380.7,32.0 L434.5,32.0 L488.4,21.2 L542.2,10.5 L596.0,10.5" fill="none" stroke="#ef4444" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="10.5" r="3" fill="#ef4444"/></svg><div class="grafik-eksen"><span>04:20</span><span>09:50</span></div></div></div></div><div class="kart"><div class="basrow"><span class="tip">METAR</span><span class="zaman">17.09 06:50Z · 09:50 yerel</span><span class="rozet" title="LTFJ Bot durum seviyesi — resmî ICAO CAT I/II/III kategorisi değildir" style="background:#3b82f6">🔵 BLU · çok iyi</span></div><div class="yorum"><div class="yorum-etiket">🤖 Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</div>**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (hafif) rüzgâr esiyor, yan bileşen önemli değil.<br>**Görüş:** 10 kilometre ve daha fazla görüş var, uçuş için rahat.<br>**Gökyüzü:** Yaklaşık 1000 metre yükseklikte parçalı bulutlar, 2700 metre yükseklikte çok bulutlu katman var; yağış yok.<br>**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur göstermiyor, hava koşulları uçuş için uygun.</div><div class="ozet">Rüzgâr 060° 5kt · görüş 10+ km · tavan 9000 ft · 19°C · QNH 1016</div><table><tr><td>Pist 06L</td><td>060° 5 kt</td></tr><tr><td>Pist 06R</td><td>020° 5 kt</td></tr><tr><td>Pist 24L</td><td>040° 5 kt</td></tr><tr><td>Pist 24R</td><td>050° (değişken 020°–080°) 4 kt</td></tr><tr><td>Meteorolojik tercih</td><td>06L</td></tr></table><div class="pist-kaynak">✈️ 06L: alan rüzgârından; 06R, 24L, 24R: AD 2.15 anemometreleri; kuyruk limiti 10 kt — CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi</div><div><a class="panel-link" href="panel.html">🛫 ATC Panelinde aç →</a></div><pre>METAR LTFJ 170650Z 06005KT 9999 SCT033 BKN090 19/16 Q1016 NOSIG RMK RWY24R 05004KT 020V080 RWY06R 02005KT RWY24L 04005KT</pre></div><div class="kart"><div class="basrow"><span class="tip">TAF</span><span class="zaman">17.09 04:40Z · 07:40 yerel</span></div><div class="yorum"><div class="yorum-etiket">🤖 Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</div>**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde kuzey-kuzeybatı rüzgarı ve kırılgan bulutluluk beklenmektedir.<br>• **1706/1712 UTC:** Rüzgar 04007 knot, görüş 9999 metre, 3000 feet&#x27;te parçalı bulut, 8000 feet&#x27;te parçalı bulut. 1708/1712 UTC arasında geçici olarak rüzgar 04017 knot&#x27;a çıkacak, hafif sağanak ve gök gürültülü bulut (1800 feet&#x27;te az, 2500 feet&#x27;te parçalı) beklenmektedir.<br>• **1712/1715 UTC:** %30 ihtimalle geçici olarak rüzgar 04018 knot, hafif sağanak ve gök gürültülü bulut (2000 feet&#x27;te az, 2500 feet&#x27;te parçalı).<br>• **1715/1718 UTC:** Kademeli geçişle 3000 feet&#x27;te dağınık buluta geçiş.</div><pre>TAF LTFJ 170440Z 1706/1806 04007KT 9999 BKN030 BKN080
     TEMPO 1708/1712 04017KT -SHRA FEW018CB BKN025
     PROB30
     TEMPO 1712/1715 04018KT -SHRA FEW020CB BKN025
@@ -647,6 +663,19 @@
   // bile FAB uzerindeki aktif-not sayisi guncel kalsin diye.
   veriYukle();
   setInterval(veriYukle, POLL_ARALIGI_MS);
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  // Sayfanin METAR/TAF/pist govdesi bot her calistiginda YENIDEN uretilen
+  // statik bir dosyadir (canli bir fetch() ile guncellenmez) - "Yenile"
+  // butonu bu yuzden butun sayfayi, tarayici onbellegini atlayacak sekilde
+  // (cache-buster query param) yeniden yukler; boylece NOTAM/ATC Notes
+  // bolumleri de en guncel notam_veri.json/Firebase verisiyle acilir.
+  document.getElementById("sayfa-yenile-btn").addEventListener("click", function () {
+    window.location.href = window.location.pathname + "?_=" + Date.now();
+  });
 })();
 </script>
 </body>
