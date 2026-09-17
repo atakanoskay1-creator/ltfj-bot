@@ -21,8 +21,16 @@ import math
 import random
 from collections import Counter, defaultdict
 
-# Kova birlestirme yalnizca BOYUTA gore yapilir (bkz. kova_tablosu).
-KOVA_MIN_ORAN = 0.03        # her kova en az %3 gozlem
+# Kova birlestirme MUTLAK gozlem sayisina gore yapilir, ORANA gore DEGIL.
+#
+# Neden: nadir olayda sinyal tanimi geregi verinin kucuk bir kisminda oturur.
+# Gorus degiskeninde gozlemlerin %87'si 9999-10000 m; bilgi tasiyan dusuk
+# gorus bolgesi ise verinin %3'unden azi. Oransal bir alt sinir (eski
+# KOVA_MIN_ORAN=%3) tam da bu bolgeyi komsusuna katip sinyali yok ediyordu -
+# gorus 3 kovaya dusuyor ve model sureklilik baseline'ina yeniliyordu.
+# Mutlak sinir bunu cozer: 200+ gozlemli bir kova, verinin %0.3'u olsa bile
+# guvenilir bir oran tahmini verir.
+KOVA_MIN_GOZLEM = 200
 # Bunun altinda pozitifi olan kova "kararsiz" olarak ISARETLENIR ama
 # birlestirilmez - birlestirmek nadir olayda sinyali yok eder.
 KOVA_MIN_POZITIF = 10
@@ -57,9 +65,13 @@ def iv_yorumla(iv: float) -> str:
 
 
 def _esitlik_kovalari(degerler: list, hedef_kova: int) -> list:
-    """Esit frekansli kova sinirlari (quantile binning). Ayni degerin birden
-    fazla kovaya bolunmesini onler - ornegin spread'de 1.0 cok sik tekrar
-    ettigi icin sinir olarak SECILEMEZ."""
+    """Kova sinirlari uretir.
+
+    Once esit frekansli (quantile) sinirlar denenir. Ancak dagilim tek bir
+    degerde yigilmissa (gorus: gozlemlerin %87'si 9999-10000 m) quantile
+    sinirlari cakisir ve elde cok az sinir kalir - tam da bilgi tasiyan
+    seyrek kuyruk tek kovaya sikisir. Bu durumda FARKLI DEGERLER uzerinden
+    de sinir uretilir, boylece seyrek ama ayirt edici bolge cozunur."""
     sirali = sorted(degerler)
     n = len(sirali)
     sinirlar = []
@@ -67,6 +79,17 @@ def _esitlik_kovalari(degerler: list, hedef_kova: int) -> list:
         d = sirali[k * n // hedef_kova]
         if not sinirlar or d > sinirlar[-1]:
             sinirlar.append(d)
+
+    # Yigilmis dagilim: quantile yeterli sinir uretemedi
+    if len(sinirlar) < hedef_kova // 2:
+        farkli = sorted(set(sirali))
+        if len(farkli) > 2:
+            ek = []
+            for k in range(1, hedef_kova):
+                d = farkli[k * len(farkli) // hedef_kova]
+                if d not in ek:
+                    ek.append(d)
+            sinirlar = sorted(set(sinirlar) | set(ek))
     return sinirlar
 
 
@@ -106,8 +129,7 @@ def kova_tablosu(satirlar: list, alan: str, hedef: str,
     # gosteriyor. (Bu, sentetik testte yakalanan gercek bir hataydi.)
     while sinirlar:
         top, _ = say(sinirlar)
-        n = len(veri)
-        zayif = [k for k in sorted(top) if top[k] < KOVA_MIN_ORAN * n]
+        zayif = [k for k in sorted(top) if top[k] < KOVA_MIN_GOZLEM]
         if not zayif:
             break
         sinirlar.pop(min(zayif[0], len(sinirlar) - 1))
