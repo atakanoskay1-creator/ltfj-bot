@@ -64,4 +64,4 @@ Kurulum:
 Bu yazılım tamamen **eğitim, simülasyon ve hobi amaçlı** olarak geliştirilmiştir. Havacılıkta hava durumu verileri hayati önem taşır. Bu botun sağladığı veriler gecikmeli, eksik veya hatalı olabilir. **Gerçek uçuş planlamaları veya gerçek havacılık operasyonları için kesinlikle KULLANILAMAZ.** Gerçek uçuş operasyonları için sadece yetkili ve resmi meteoroloji servis sağlayıcılarını kullanınız.
 
 ---
-*Bu proje [Atakan Oskay](https://github.com/atakanoskay1-creator) tarafından geliştirilmiştir.*
+
