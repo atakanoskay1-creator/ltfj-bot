@@ -279,6 +279,38 @@
   #atc-not-kaydet { background:var(--vurgu); color:var(--bg); }
   #atc-not-iptal { background:var(--kod-bg); color:var(--metin); border:1px solid var(--cizgi); }
   #atc-not-kaydet:disabled { opacity:.6; cursor:default; }
+
+  /* Sayfa kenarinda kucuk VFR gosterge sekmesi - EN SON METAR/SPECI'nin
+     gorus/tavaninin VFR esikleriyle karsilastirilmis sonucunu yesil/kirmizi
+     gosterir, tiklaninca sebepleri acan kucuk bir panel acilir. */
+  .vfr-sekme {
+    position:fixed; top:96px; right:0; z-index:58; border:none;
+    padding:10px 7px; border-radius:10px 0 0 10px; color:#fff;
+    font-weight:700; font-size:.8rem; letter-spacing:.05em; cursor:pointer;
+    writing-mode:vertical-rl; text-orientation:mixed;
+    box-shadow:0 2px 10px rgba(0,0,0,.3);
+  }
+  .vfr-sekme.vfr-yesil { background:#22c55e; }
+  .vfr-sekme.vfr-kirmizi { background:#ef4444; }
+  .vfr-sekme.vfr-bilinmiyor { background:#64748b; }
+  .vfr-panel-ortu {
+    position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:62;
+    display:flex; align-items:flex-start; justify-content:flex-end; padding:16px;
+  }
+  .vfr-panel-ortu[hidden] { display:none; }
+  .vfr-panel {
+    background:var(--kart); border:1px solid var(--cizgi); border-radius:14px;
+    max-width:340px; width:100%; padding:16px; margin-top:80px;
+    box-shadow:0 8px 32px rgba(0,0,0,.35);
+  }
+  .vfr-panel-ust { display:flex; align-items:center; gap:10px; }
+  .vfr-panel-ust h3 { margin:0; font-size:1rem; display:flex; align-items:center; gap:8px; flex:1; }
+  .vfr-nokta { width:10px; height:10px; border-radius:999px; display:inline-block; flex-shrink:0; }
+  .vfr-nokta.yesil { background:#22c55e; }
+  .vfr-nokta.kirmizi { background:#ef4444; }
+  .vfr-nokta.bilinmiyor { background:#64748b; }
+  .vfr-panel ul { margin:10px 0 0; padding-left:18px; font-size:.85rem; }
+  .vfr-panel .vfr-esik { color:var(--soluk); font-size:.72rem; margin-top:10px; }
 </style>
 </head>
 <body>
@@ -286,7 +318,7 @@
 <header>
   <div class="header-metin">
     <h1>LTFJ · İstanbul Sabiha Gökçen</h1>
-    <div class="alt">Kaynak: MGM/METAR · Son güncelleme 17.09.2026 11:01 yerel</div>
+    <div class="alt">Kaynak: MGM/METAR · Son güncelleme 17.09.2026 11:05 yerel</div>
   </div>
   <button type="button" class="yenile" id="sayfa-yenile-btn">⟳ Yenile</button>
 </header>
@@ -430,13 +462,17 @@
     </div>
   </div>
 </div>
+
+<button type="button" id="vfr-sekme" class="vfr-sekme vfr-yesil" aria-label="VFR durumu" title="VFR şartları sağlanıyor">VFR</button><div id="vfr-panel-ortu" class="vfr-panel-ortu" hidden><div class="vfr-panel"><div class="vfr-panel-ust"><h3><span class="vfr-nokta yesil"></span>VFR şartları sağlanıyor</h3><button type="button" id="vfr-panel-kapat" class="atc-panel-kapat" aria-label="Kapat">✕</button></div><ul><li>Görüş ve tavan eşiklerin üzerinde.</li></ul><div class="vfr-esik">Eşik: görüş ≥ 5000 m, tavan ≥ 1500 ft (ICAO Annex 2, Tablo 3-1 — FL100 altı, CTR/TMA). Bilgi amaçlıdır, resmî VFR/IFR tespiti yerine geçmez.</div></div></div>
 <footer>
   Bu sayfa otomatik üretilir. Operasyonel kullanım için resmî kaynaklara başvurun.
   Renk rozetleri (BLU/WHT/GRN/YLO/AMB/RED) resmî bir ICAO CAT I/II/III kategorisi
   değil, bu botun kendi durum seviyesidir. "Meteorolojik tercih" bir ATC pist
   ataması değildir. NOTAM bölümü NOTAC kaynaklıdır, resmî NOTAM/PIB'in yerine
   geçmez. ATC Notes bölümü kimlik doğrulaması olmayan, paylaşımlı ve geçici
-  (48 saat) bir not panosudur; resmî bir bilgi kaynağı değildir.
+  (48 saat) bir not panosudur; resmî bir bilgi kaynağı değildir. VFR sekmesi
+  son METAR/SPECI'nin görüş/tavan değerlerini ICAO Annex 2 eşikleriyle
+  karşılaştıran bilgilendirici bir göstergedir; resmî VFR/IFR tespiti değildir.
 </footer>
 </div>
 <script>
@@ -1077,6 +1113,20 @@
   document.getElementById("sayfa-yenile-btn").addEventListener("click", function () {
     window.location.href = window.location.pathname + "?_=" + Date.now();
   });
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  // VFR sekmesi/paneli TAMAMEN statik render edilir (bkz. ltfj_vfr.py) -
+  // burada sadece acma/kapama var, hicbir fetch() yapilmaz.
+  var sekme = document.getElementById("vfr-sekme");
+  var ortu = document.getElementById("vfr-panel-ortu");
+  var kapat = document.getElementById("vfr-panel-kapat");
+  if (!sekme || !ortu) return;
+  sekme.addEventListener("click", function () { ortu.hidden = false; });
+  if (kapat) kapat.addEventListener("click", function () { ortu.hidden = true; });
+  ortu.addEventListener("click", function (e) { if (e.target === ortu) ortu.hidden = true; });
 })();
 </script>
 </body>
