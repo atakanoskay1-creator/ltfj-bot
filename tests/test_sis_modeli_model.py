@@ -86,7 +86,7 @@ def test_l2_secimi_yalnizca_egitim_verisini_kullaniyor():
         egitim += [_kayit(yil, spread=0.5, hedef=(i % 3 == 0)) for i in range(600)]
         egitim += [_kayit(yil, spread=8.0) for _ in range(1200)]
     beta, tablolar, l2 = model.egit_secerek(egitim, ["spread"])
-    assert l2 in (10.0, 50.0, 200.0, 1000.0)
+    assert l2 in model.L2_ADAYLARI
     assert "spread" in tablolar
     sisli = model.olasilik(beta, _kayit(2014, spread=0.5), tablolar)
     acik = model.olasilik(beta, _kayit(2014, spread=8.0), tablolar)
@@ -150,3 +150,16 @@ def test_blok_guven_araligi_gun_bazinda_orneklyor():
     alt, ust = degerlendir.blok_guven_araligi(kayitlar, tahminler, gercekler,
                                               degerlendir.brier, tekrar=50)
     assert alt <= degerlendir.brier(tahminler, gercekler) <= ust
+
+
+def test_l2_izgarasi_notr_ve_a_priori():
+    """Izgara sonuclara BAKILMADAN secilmis log-ondalik bir aralik olmali.
+
+    Onceki surumde izgara, manuel bir taramanin walk-forward TEST sonuclari
+    gorulduKTEN SONRA daraltilmisti; secim temizken arama uzayi degerlendirme
+    verisinden etkilenmisti (ikinci dereceden sizinti). Olculdu: notr izgara
+    ayni sonucu veriyor - yine de itiraza yer birakmamak icin notr tutuluyor."""
+    assert model.L2_ADAYLARI == (0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0)
+    # her ardisik aday tam bir ondalik basamak uzakta (elle secilmemis)
+    for a, b in zip(model.L2_ADAYLARI, model.L2_ADAYLARI[1:]):
+        assert abs(b / a - 10.0) < 1e-9
