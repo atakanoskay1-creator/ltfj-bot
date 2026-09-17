@@ -59,6 +59,12 @@ Kurulum:
 4. Realtime Database sayfasının üstünde görünen veritabanı URL'inizi (ör. `https://PROJE-ADI-default-rtdb.europe-west1.firebasedatabase.app`) `ayarlar.json`'daki `atc_notes.database_url` alanına yazın. Web sayfası bu URL'e doğrudan `fetch()` ile REST istekleri atar (ayrı bir SDK/CDN gerekmez). **Bu URL gizli değildir** — Firebase'in kendi tasarımı gereği istemci tarafında (web sayfasında) görünür; güvenlik 3. adımdaki Rules ile sağlanır.
 5. **Project settings > Service accounts > Generate new private key** ile bir JSON dosyası indirin. **Bu dosya gizlidir** — reponun **Settings > Secrets and variables > Actions** kısmına `FIREBASE_SERVICE_ACCOUNT` adıyla (JSON içeriğinin tamamını) ve `FIREBASE_DATABASE_URL` adıyla veritabanı URL'inizi Repository Secret olarak ekleyin.
 
+> **Not:** `firebase-rules.json` LVO panelinin manuel AWOS RVR/ATIS giriş yolları (`awos_rvr`, `atis_state`) için de kurallar içerir — ATC Notes'u zaten kurduysanız **aynı Firebase projesini** kullanabilirsiniz, sadece Rules sekmesindeki içeriği dosyanın güncel haliyle yeniden yapıştırıp **Publish** etmeniz yeterli (yeni bir proje/veritabanı gerekmez).
+
+### 5. LVO Reference Paneli
+
+LVO Reference paneli, "SABİHA GÖKÇEN HAVALİMANI DÜŞÜK GÖRÜŞ OPERASYONLARI TALİMATI" (TL.007 Rev.1, 16.08.2024) dokümanındaki referans RVR eşiklerini gösterir, ve ATC'nin manuel olarak gireceği AWOS RVR (06R/24R × TDZ/MID/STOP-END) ile ATIS LVO durumunu paylaşımlı olarak tutar. **Bu panel hiçbir operasyonel karar üretmez** — METAR'dan RVR türetmez, NOTAM/AWOS/ATIS'i birleştirerek "LVO aktif" gibi bir sonuç çıkarmaz; sadece mevcut bilgileri kaynağıyla birlikte gösterir. Yukarıdaki ATC Notes kurulumuyla **aynı Firebase veritabanını** kullanır — ayrıca bir kurulum gerekmez, sadece `firebase-rules.json`'ın güncel halinin Rules sekmesine yapıştırılmış olması yeterlidir.
+
 ## ⚠️ Yasal Uyarı
 
 Bu yazılım tamamen **eğitim, simülasyon ve hobi amaçlı** olarak geliştirilmiştir. Havacılıkta hava durumu verileri hayati önem taşır. Bu botun sağladığı veriler gecikmeli, eksik veya hatalı olabilir. **Gerçek uçuş planlamaları veya gerçek havacılık operasyonları için kesinlikle KULLANILAMAZ.** Gerçek uçuş operasyonları için sadece yetkili ve resmi meteoroloji servis sağlayıcılarını kullanınız.
