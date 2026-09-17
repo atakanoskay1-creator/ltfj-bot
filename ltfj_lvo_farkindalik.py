@@ -17,14 +17,28 @@ girişinden (gerçek ölçüm) okunur; o veri Firebase'de (yalnızca istemci
 tarafında) yaşadığı için buradaki rvr_notu() sunucu tarafında ÇAĞRILMAZ -
 web sayfasındaki LVO script'i (ltfj_sayfa.py) AYNI mantığı, bu modülün
 export ettiği RVR_ESIKLERI ile JavaScript'te tekrar uygular (embedded JSON
-üzerinden, tek kaynaktan - ltfj_lvo_referans.RVR_ESIKLERI)."""
+üzerinden, tek kaynaktan - ltfj_lvo_referans.RVR_ESIKLERI).
 
+Notların ÜÇÜ eşik karşılaştırmasıdır (metar_tavan_notu, taf_tavan_notu,
+rvr_notu): okunan değer dokümanın kendi eşiğinin altında mı? Dördüncüsü
+(tavan_istatistik_notu) farklı bir cinstir - bir eşik geçildiği için değil,
+geçmiş arşivde bu koşullarda düşük tavanın ne sıklıkta görüldüğü için
+çıkar. O yüzden mutlak yüzde değil KAT söyler; gerekçesi
+ltfj_tavan_tablosu.py başındadır."""
+
+import ltfj_tavan_tablosu as tavan_tablosu
 from ltfj_analiz import RE_BULUT, TAVAN_KATMANLARI
 from ltfj_lvo_referans import RVR_ESIKLERI
 
 # madde 6.2.a / 6.3.1.a - CAT II bulut tabanı aralığının (100-200 ft) üst
 # sınırı; METAR/TAF tavanı bu değerin altındaysa farkındalık notu üretilir.
 CEILING_FARKINDALIK_ESIGI_FT = 200
+
+# İstatistiksel tavan notu bu KAT'ın altında üretilmez. Taban oran ~%1;
+# 3 kat, tablonun 26 hücresinin en riskli 9'unu seçer ve gözlemlerin
+# yalnızca %6.4'ünde gerçekleşir - yani not seyrek çıkar, sürekli yanıp
+# duran bir uyarı olmaz. Eşik a priori; sonuçlara bakılarak ayarlanmadı.
+TAVAN_KAT_ESIGI = 3.0
 
 _HEDGE = "LVO şartları oluşabilir. Resmî bir tespit değildir."
 
@@ -84,3 +98,40 @@ def rvr_notu(pist: str, pozisyon: str, deger_m: int) -> str | None:
     return (f"{pist} {pozisyon} AWOS RVR {deger_m} m — dokümanın "
             f"{en_derin['esik_altinda_m']} m eşiğinin ({en_derin['safha']}) altında. "
             f"{_HEDGE}")
+
+
+def tavan_istatistik_notu(cozum: dict | None) -> str | None:
+    """METAR'in KENDI spread/gorus degerlerini dondurulmus tavan tablosunda
+    (ltfj_tavan_tablosu) arar ve GORELI risk olarak not eder.
+
+    Digerlerinden farki: bu not bir ESIK GECILDIGI icin degil, gecmis
+    arsivde bu kosullarda ne siklikta dusuk tavan goruldugu icin cikar.
+    Bu yuzden metin MUTLAK YUZDE degil KAT soyler - tablonun seviyesi
+    donemler arasi ~2.3 kat kayiyor, sirasi ise tasiniyor (bkz.
+    ltfj_tavan_tablosu bas kismi).
+
+    Tablonun hedefi 500 ft; CAT II esigi (200 ft) DEGIL. Nedeni arsivde:
+    200 ft esiginde 18 yilda yalnizca ~61 bagimsiz olay var, tablo
+    kurulamiyor. Metin bu yuzden 500 ft'i acikca yaziyor - okuyanin CAT II
+    sandigi bir sey sunulmuyor.
+    """
+    if not cozum:
+        return None
+    sicaklik, cig = cozum.get("sicaklik"), cozum.get("cig_noktasi")
+    if sicaklik is None or cig is None:
+        return None
+    hucre = tavan_tablosu.kat(spread=sicaklik - cig, gorus=cozum.get("gorus"))
+    if hucre is None or hucre["kat"] < TAVAN_KAT_ESIGI:
+        return None
+
+    metin = (
+        f"Spread {hucre['spread_araligi']} / görüş {hucre['gorus_araligi']} "
+        f"bandında, önümüzdeki {tavan_tablosu.HEDEF_UFUK_SAAT} saat içinde bulut "
+        f"tabanının {tavan_tablosu.HEDEF_TAVAN_FT} ft altına düşmesi uzun dönem "
+        f"ortalamasının ~{hucre['kat']:.0f} katı "
+        f"(%5–95: {hucre['alt']:.0f}–{hucre['ust']:.0f}×)."
+    )
+    if hucre["ince"]:
+        metin += f" Bu bantta yalnızca {hucre['n']} gözlem var; aralık geniş."
+    return (f"{metin} LTFJ {tavan_tablosu.KAYNAK_DONEM} arşivinden öğrenilmiş "
+            f"GÖRELİ bir orandır, mutlak olasılık değildir. {_HEDGE}")
