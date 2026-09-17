@@ -553,7 +553,7 @@ def _gunes_saatleri(gun: datetime) -> tuple[datetime, datetime] | None:
 
 def sis_riski(cozum: dict, zaman: datetime | None) -> str | None:
     """Sis henuz yokken olusma riskini onden haber verir. CIKARSANAN /
-    heuristik - resmi bir tahmin (forecast) DEGILDIR, sadece dewpoint
+    sezgisel yontem - resmi bir tahmin (forecast) DEGILDIR, sadece dewpoint
     spread + ruzgar + gece/gunduz'e dayali bir METAR-tabanli gosterge.
     Donen metin bunu acikca belirtir."""
     if cozum.get("sicaklik") is None or cozum.get("cig_noktasi") is None:
@@ -582,10 +582,10 @@ def sis_riski(cozum: dict, zaman: datetime | None) -> str | None:
 
     # NOT: cagiran taraflarin bir kismi (ltfj_bot.py, ltfj_sayfa.py) bu
     # metni ilk ':' isaretinden BOLUP sadece sonrasini gosteriyor (etiket
-    # zaten "Sis" diye ayrica basiliyor) - bu yuzden seviye VE heuristik
-    # uyarisi bilerek ':' isaretinden SONRAYA konuyor, yoksa sessizce
+    # zaten "Sis" diye ayrica basiliyor) - bu yuzden seviye VE sezgisel
+    # yontem uyarisi bilerek ':' isaretinden SONRAYA konuyor, yoksa sessizce
     # kaybolurlardi.
-    return (f"Sis oluşum göstergesi: {seviye} (METAR tabanlı heuristik, "
+    return (f"Sis oluşum göstergesi: {seviye} (METAR tabanlı sezgisel yöntem, "
             f"resmi tahmin değil) — sıcaklık–çiğ noktası aralığı {aralik}°C, "
             f"rüzgâr {ruzgar} kt" + (", gece şartları" if gece else ""))
 

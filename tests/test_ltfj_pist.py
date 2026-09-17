@@ -425,15 +425,15 @@ def test_renk_durumu_ikisi_de_yoksa_none():
 # ------------------------------------------------------------ sis riski
 def test_sis_riski_metnin_disclaimer_ilk_ikinokta_sonrasinda_hayatta_kalir():
     """ltfj_bot.py/ltfj_sayfa.py sis_riski() metnini ilk ':' isaretinden
-    BOLUP sadece sonraki kismi gosteriyor. 'METAR tabanlı heuristik' uyarisi
-    ve seviye kelimesi bu bolme sonrasi da kalmali, yoksa kullaniciya
-    kesin bir tahmin gibi gorunur."""
+    BOLUP sadece sonraki kismi gosteriyor. 'METAR tabanlı sezgisel yöntem'
+    uyarisi ve seviye kelimesi bu bolme sonrasi da kalmali, yoksa
+    kullaniciya kesin bir tahmin gibi gorunur."""
     metin = "METAR LTFJ 161250Z 06003KT 9999 SCT025 10/09 Q1015 NOSIG"
     d = metar_coz(metin)
     tam = sis_riski(d, None)
     assert tam is not None
     sonrasi = tam.split(":", 1)[-1].strip()
-    assert "heuristik" in sonrasi
+    assert "sezgisel yöntem" in sonrasi
     assert "resmi tahmin değil" in sonrasi
     assert "orta" in sonrasi or "yüksek" in sonrasi
 
