@@ -51,6 +51,78 @@ izin vermediği için yerelden çekilemez.
   basit bir baseline'a (süreklilik + iklim) karşı skor. Bu yapılmadan hiçbir
   sonuç "model çalışıyor" diye sunulmaz.
 
+## Veri kalitesi: bilinen arşiv kusurları
+
+Arşiv ham gözlem değil, **bildirim** kaydıdır; bildirim pratiği değiştiğinde
+etiketler de kayar. Ölçülen iki kusur:
+
+**1) Düşük tavan eksik bildirimi (2011–2016).** Bildirilen tavan değerlerinin
+500 ft katlarına yığılma oranı %89'dan %72'ye düşerken `<1000 ft` oranı
+%1.5'ten %4.5'e çıkıyor. İstanbul'da alçak bulut 3 katına çıkmadı; insan
+gözlemcinin "3000" dediği yere ceilometre "900" diyor. Bu yüzden tavan
+çalışması yalnızca **2017 sonrası** üzerinde kurulur
+(`tavan.REJIM_ILK_YIL`). `<200 ft` bu kaymayı göstermez — VV bildirimi siste
+zorunlu ve yoruma kapalıdır.
+
+**2) Sahte doymuş hava (2021–2023).** `spread = 0` (T = Td) oranı:
+
+| dönem | spread=0 oranı | bunların CAVOK olanı | sis oranı |
+|---|---|---|---|
+| 2011–2020 | %0.6–2.8 | %21.5 | %0.2–0.8 |
+| **2021–2023** | **%5.9–12.7** | **%52.3** | %0.3–0.8 |
+| 2024–2026 | %0.6–1.0 | %11.0 | %0.2 |
+
+2022'de her ay — haziran, temmuz, ağustos dahil — gözlemlerin %7–24'ü
+"doymuş hava" bildiriyor ve bunların yarısından fazlası CAVOK. Doymuş havada
+10 km görüş fiziksel bir çelişkidir. 2025'te aynı oran %0–2 ve yalnızca kış
+aylarında, yani fiziksel olarak doğru. Sonuç: **2021–2023 çiy noktası
+bildirimleri güvenilir değildir.**
+
+Bu, `ltfj_sis_olasilik.py`'deki dondurulmuş sis modelini ilgilendirir: o
+model 2011–2023 ile eğitildi ve `spread < 1` kovası bu üç yılın sahte
+kayıtlarıyla seyreltilmiş durumda (5353 kirli / 2996 temiz gözlem). Etkinin
+yönü **ihtiyatlıdır** — gerçek doymuş havaya hak ettiğinden az kredi verilir,
+fazla değil — ve modelin 2024–2026 holdout sonucu (AP 0.184, BSS 0.092)
+zaten bu kusurdan sonraki temiz dönemde ölçüldü. Yine de kovanın temiz
+yıllarla yeniden kestirilmesi açık bir iştir.
+
+## Düşük tavan (bulut tabanı) çalışması
+
+Tavan, TL.007 madde 6.2.a / 6.3.1.a uyarınca RVR'dan **bağımsız** bir LVO
+tetikleyicisi. Ayrı bir tavan modeli kurulup kurulamayacağı ölçüldü:
+
+| eşik | gözlem | bağımsız olay | olay/yıl |
+|---|---|---|---|
+| CAT II `<200 ft` | 267 | **61** | 3.4 |
+| `<500 ft` | 2422 | 352 | 19.6 |
+| `<1000 ft` | 8008 | 688 | 38.2 |
+
+LVO için asıl önemli eşikte (`<200 ft`) 61 bağımsız olay var — lojistik
+regresyon için kabul edilen 150 olay tabanının altında. Bu yüzden model
+değil, `<500 ft` için **koşullu olasılık tablosu** kuruldu
+(`tavan.py`, `tavan_tarama.py`, `tavan_tablo.py`).
+
+**Tablonun okuma birimi "kat"tır, mutlak yüzde değil.** Geliştirmede
+(2017–2023) öğrenilen tablo holdout'ta (2024–2026) sınandığında hücre
+katlarının log korelasyonu **0.986** — sıralama aynen taşınıyor — ama kat
+oranlarının medyanı **2.27**: seviye taşınmıyor. Geliştirmede %9.8 olan bir
+hücre holdout'ta %14.0 gerçekleşiyor. Yüzde yayınlamak, ölçülmüş 2.3 katlık
+hatayı kesin sayı gibi sunmak olurdu.
+
+Holdout skorları (46.850 an, 518 pozitif, 97 ayrı gün):
+
+| yöntem | Brier×10⁴ | BSS | AP |
+|---|---|---|---|
+| tablo (spread × görüş) | 105.55 | 0.035 | 0.093 |
+| ham sis modeli | 105.70 | 0.033 | **0.103** |
+| süreklilik (mevcut tavan) | 338.15 | −2.092 | 0.047 |
+| iklim | 109.36 | 0.000 | 0.010 |
+
+Dikkat çeken sonuç: **dondurulmuş sis modeli, tavan hedefinde yeni tablodan
+daha iyi sıralıyor.** Sis ve düşük tavan birlikte oluyor (CAT II tavanlarının
+%86'sı sisli). Tablonun kattığı şey daha iyi bir sıralayıcı değil, tavan
+kriterine **doğrudan okunabilir** bir göreli risk ölçeği.
+
 ## Sınırlar
 
 Bu bir **iklim + süreklilik** modelidir, fizik modeli değildir: yaklaşan bir
@@ -66,4 +138,13 @@ python -m sis_modeli.veri_cek --baslangic 2003 --bitis 2026
 
 # Türetilmiş veriyi incele (ağ gerekmez)
 python -m sis_modeli.istatistik
+
+# Sis modeli: yürüyen pencere eğitim/değerlendirme
+python -m sis_modeli.egit
+python -m sis_modeli.holdout_degerlendir        # TEK ATIŞ
+
+# Düşük tavan: değişken taraması ve olasılık tablosu
+python -m sis_modeli.tavan_tarama
+python -m sis_modeli.tavan_tablo                # holdout açılmaz
+python -m sis_modeli.tavan_tablo --holdout      # TEK ATIŞ
 ```
