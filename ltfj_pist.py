@@ -219,7 +219,21 @@ def _hiz_worst(k: dict) -> int:
 
 
 def pist_raporu(cozum: dict, metin: str) -> list[str]:
-    """Her pist basi icin okunakli bilesen satiri. HESAPLANAN."""
+    """Her pist basi icin GOZLEMLENEN ham ruzgar (yon/hiz/hamle/degisken
+    aralik) - METAR/RMK'da NE YAZILIYSA (pist_ruzgar_kaynagi() uzerinden)
+    AYNEN o gosterilir, runway eksenine gore bas/kuyruk/yan bilesenine
+    (trigonometrik donusum) CEVRILMEZ.
+
+    ONCEDEN bu fonksiyon HESAPLANAN bilesenleri gosteriyordu (ornegin RMK
+    '24L 03007KT' -> 'KUYRUK 6 kt, yan 4 kt'). Kullanici (2026-09-17) bunun
+    METAR'da yazanla uyusmuyor gibi gorundugunu bildirdi - ham deger 030/7
+    iken satirda 6/4 gibi FARKLI sayilarin cikmasi kafa karistirdi. Netlestirme
+    sorusunda "sadece METAR/SPECI'de yazan ham degeri goster, donusum
+    yapilmasin" secildi. Bilesen hesabi (bilesenler()) SILINMEDI - hala
+    tercih_edilen_pist() ve kuyruk_asanlar() icinde KULLANILIYOR (onlarin
+    ciktisi zaten bir pist kodu/liste, ham sayi degil - o yuzden ayni
+    karisikliga yol acmiyor); PRS arka ruzgar limiti asimi da BURADA artik
+    pist basina degil, footer'da ayri bir liste olarak gosteriliyor."""
     kaynaklar = pist_ruzgar_kaynagi(cozum, metin)
     limit, limit_gerekce = kuyruk_limiti(cozum)
 
@@ -227,60 +241,30 @@ def pist_raporu(cozum: dict, metin: str) -> list[str]:
     kaynak_gruplari: dict[str, list[str]] = {}
     for k in sorted(kaynaklar, key=lambda k: k["pist"]):
         pist = k["pist"]
-        yonu = _pist_yonu(pist)
-        if yonu is None:
+        if _pist_yonu(pist) is None:
             continue
         kaynak_gruplari.setdefault(k["kaynak"], []).append(pist)
 
-        yon = k["yon"]
-        hiz_sabit, hiz_hamle = k["hiz_sabit"], k["hiz_hamle"]
+        yon, hiz, hamle, degisken = k["yon"], k["hiz_sabit"], k["hiz_hamle"], k["degisken"]
 
-        if k["degisken"]:
-            yon1, yon2 = k["degisken"]
-            aralik = bilesenler_araligi(yon1, yon2, _hiz_worst(k) or hiz_sabit, yonu)
-            if aralik is None:
-                satirlar.append(f"{pist}: rüzgâr değişken, bileşen hesaplanamıyor")
-            else:
-                satirlar.append(
-                    f"{pist}: {_aralik_metni(aralik)} — yön {yon1:03d}–{yon2:03d}° "
-                    f"arası değişken, kesin bileşen hesaplanamıyor"
-                )
-            continue
-
-        bas, yan, taraf = bilesenler(yon, hiz_sabit, yonu)
-        if bas is None:
-            satirlar.append(f"{pist}: rüzgâr değişken, bileşen hesaplanamıyor")
-            continue
-
-        hamleli = hiz_hamle is not None and hiz_hamle > (hiz_sabit or 0)
-        bas_g = yan_g = None
-        if hamleli:
-            bas_g, yan_g, _ = bilesenler(yon, hiz_hamle, yonu)
-
-        bas_worst = bas_g if bas_g is not None else bas
-        asildi = bas_worst < 0 and abs(bas_worst) > limit
-
-        if bas >= 0:
-            uzun = f"baş {bas:.0f} kt"
-            if hamleli and bas_g is not None:
-                uzun += (f" (hamleli baş {bas_g:.0f} kt)" if bas_g >= 0
-                          else f" (hamleli KUYRUK {abs(bas_g):.0f} kt)")
+        if yon is None:
+            yon_metni = "değişken yön"
+        elif degisken:
+            yon_metni = f"{yon:03d}° (değişken {degisken[0]:03d}°–{degisken[1]:03d}°)"
         else:
-            uzun = f"KUYRUK {abs(bas):.0f} kt"
-            if hamleli and bas_g is not None:
-                uzun += f" (hamleli {abs(bas_g):.0f} kt)"
-        if asildi:
-            uzun += f" (PRS limiti {limit} kt aşıldı)"
+            yon_metni = f"{yon:03d}°"
 
-        yanlama = f"yan {yan:.0f} kt {taraf}"
-        if hamleli and yan_g is not None and round(yan_g) != round(yan):
-            yanlama += f" (hamleli {yan_g:.0f} kt)"
-        yan_worst = yan_g if (hamleli and yan_g is not None and yan_g > yan) else yan
-        if yan_worst >= YAN_RUZGAR_DIKKAT:
-            yanlama += " (yüksek)"
+        if hiz is None:
+            satirlar.append(f"{pist}: {yon_metni}, rüzgâr hızı bildirilmedi")
+            continue
 
-        satirlar.append(f"{pist}: {uzun}, {yanlama}")
+        hiz_metni = f"{hiz} kt"
+        if hamle is not None and hamle > hiz:
+            hiz_metni += f" (hamle {hamle} kt)"
 
+        satirlar.append(f"{pist}: {yon_metni} {hiz_metni}")
+
+    asanlar = kuyruk_asanlar(cozum, metin)
     if satirlar:
         if len(kaynak_gruplari) == 1:
             etiket = next(iter(kaynak_gruplari))
@@ -289,7 +273,10 @@ def pist_raporu(cozum: dict, metin: str) -> list[str]:
                 f"{', '.join(pistler)}: {kaynak}"
                 for kaynak, pistler in kaynak_gruplari.items()
             )
-        satirlar.append(f"({etiket}; kuyruk limiti {limit} kt — {limit_gerekce})")
+        ek = f"kuyruk limiti {limit} kt — {limit_gerekce}"
+        if asanlar:
+            ek = f"PRS arka rüzgâr limitini aşan pist(ler) (hesaplanan): {', '.join(asanlar)}; {ek}"
+        satirlar.append(f"({etiket}; {ek})")
     return satirlar
 
 
@@ -566,7 +553,7 @@ def _gunes_saatleri(gun: datetime) -> tuple[datetime, datetime] | None:
 
 def sis_riski(cozum: dict, zaman: datetime | None) -> str | None:
     """Sis henuz yokken olusma riskini onden haber verir. CIKARSANAN /
-    heuristik - resmi bir tahmin (forecast) DEGILDIR, sadece dewpoint
+    sezgisel yontem - resmi bir tahmin (forecast) DEGILDIR, sadece dewpoint
     spread + ruzgar + gece/gunduz'e dayali bir METAR-tabanli gosterge.
     Donen metin bunu acikca belirtir."""
     if cozum.get("sicaklik") is None or cozum.get("cig_noktasi") is None:
@@ -595,10 +582,10 @@ def sis_riski(cozum: dict, zaman: datetime | None) -> str | None:
 
     # NOT: cagiran taraflarin bir kismi (ltfj_bot.py, ltfj_sayfa.py) bu
     # metni ilk ':' isaretinden BOLUP sadece sonrasini gosteriyor (etiket
-    # zaten "Sis" diye ayrica basiliyor) - bu yuzden seviye VE heuristik
-    # uyarisi bilerek ':' isaretinden SONRAYA konuyor, yoksa sessizce
+    # zaten "Sis" diye ayrica basiliyor) - bu yuzden seviye VE sezgisel
+    # yontem uyarisi bilerek ':' isaretinden SONRAYA konuyor, yoksa sessizce
     # kaybolurlardi.
-    return (f"Sis oluşum göstergesi: {seviye} (METAR tabanlı heuristik, "
+    return (f"Sis oluşum göstergesi: {seviye} (METAR tabanlı sezgisel yöntem, "
             f"resmi tahmin değil) — sıcaklık–çiğ noktası aralığı {aralik}°C, "
             f"rüzgâr {ruzgar} kt" + (", gece şartları" if gece else ""))
 
