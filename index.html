@@ -92,6 +92,27 @@
   .grafik { width:100%; height:64px; display:block; }
   .grafik-eksen { display:flex; justify-content:space-between;
                     font-size:.72rem; color:var(--soluk); margin-top:2px; }
+  /* Imlec/parmak altindaki noktanin saat+degerini gosteren balon. Dokunmatik
+     cihazda dikey sayfa kaydirma bozulmasin diye touch-action:pan-y - yatay
+     surukleme grafigi tarar, dikey kaydirma normal calisir. */
+  .grafik-sarmal { position:relative; touch-action:pan-y; }
+  .grafik-imlec {
+    position:absolute; top:0; bottom:0; width:1px; background:var(--soluk);
+    opacity:.55; pointer-events:none;
+  }
+  .grafik-nokta {
+    position:absolute; width:9px; height:9px; border-radius:999px;
+    background:var(--metin); border:2px solid var(--kart);
+    transform:translate(-50%,-50%); pointer-events:none;
+  }
+  .grafik-balon {
+    position:absolute; top:0;
+    background:var(--kart); border:1px solid var(--cizgi); border-radius:7px;
+    padding:3px 8px; font-size:.74rem; font-weight:600; white-space:nowrap;
+    color:var(--metin); pointer-events:none; z-index:3;
+    box-shadow:0 2px 10px rgba(0,0,0,.35);
+  }
+  .grafik-imlec[hidden], .grafik-nokta[hidden], .grafik-balon[hidden] { display:none; }
 
   .bolum-baslik { font-weight:650; font-size:1.05rem; margin:28px 0 12px; }
   .notam-uyari {
@@ -314,11 +335,11 @@
 <header>
   <div class="header-metin">
     <h1>LTFJ · İstanbul Sabiha Gökçen</h1>
-    <div class="alt">Kaynak: MGM/METAR · Son güncelleme 17.09.2026 15:21 yerel</div>
+    <div class="alt">Kaynak: MGM/METAR · Son güncelleme 17.09.2026 15:31 yerel</div>
   </div>
   <button type="button" class="yenile" id="sayfa-yenile-btn">⟳ Yenile</button>
 </header>
-<div class="kart"><div class="grafik-ust">Trend</div><div class="grafik-grid"><div><div class="grafik-baslik"><span>Rüzgâr</span><span class="grafik-son">10 kt</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,53.5 L63.2,36.3 L122.4,36.3 L181.6,36.3 L240.8,10.5 L300.0,44.9 L359.2,27.7 L418.4,36.3 L477.6,10.5 L536.8,19.1 L596.0,10.5" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="10.5" r="3" fill="#3b82f6"/></svg><div class="grafik-eksen"><span>09:50</span><span>14:50</span></div></div><div><div class="grafik-baslik"><span>Bulut tavanı</span><span class="grafik-son">8000 ft</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,10.5 L63.2,10.5 L122.4,10.5 L181.6,53.5 L240.8,53.5 L300.0,53.5 L359.2,53.5 L418.4,53.5 L477.6,53.5 L536.8,53.5 L596.0,53.5" fill="none" stroke="#22c55e" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="53.5" r="3" fill="#22c55e"/></svg><div class="grafik-eksen"><span>09:50</span><span>14:50</span></div></div><div><div class="grafik-baslik"><span>QNH</span><span class="grafik-son">1014 hPa</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,10.5 L63.2,10.5 L122.4,10.5 L181.6,10.5 L240.8,10.5 L300.0,10.5 L359.2,32.0 L418.4,32.0 L477.6,32.0 L536.8,32.0 L596.0,53.5" fill="none" stroke="#eab308" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="53.5" r="3" fill="#eab308"/></svg><div class="grafik-eksen"><span>09:50</span><span>14:50</span></div></div><div><div class="grafik-baslik"><span>Sıcaklık</span><span class="grafik-son">24 °C</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,53.5 L63.2,46.4 L122.4,39.2 L181.6,39.2 L240.8,24.8 L300.0,24.8 L359.2,24.8 L418.4,24.8 L477.6,10.5 L536.8,10.5 L596.0,17.6" fill="none" stroke="#ef4444" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="17.6" r="3" fill="#ef4444"/></svg><div class="grafik-eksen"><span>09:50</span><span>14:50</span></div></div></div></div><div class="kart"><div class="basrow"><span class="tip">METAR</span><span class="zaman">17.09 11:50Z · 14:50 yerel</span><span class="rozet" title="LTFJ Bot durum seviyesi — resmî ICAO CAT I/II/III kategorisi değildir" style="background:#3b82f6">🔵 BLU · çok iyi</span></div><div class="ozet">Rüzgâr 060° 10kt · görüş 10+ km · tavan 8000 ft · 24°C · QNH 1014</div><table><tr><td>Pist 06L</td><td>060° 10 kt</td></tr><tr><td>Pist 06R</td><td>030° 11 kt</td></tr><tr><td>Pist 24L</td><td>040° (değişken 360°–090°) 10 kt</td></tr><tr><td>Pist 24R</td><td>050° (değişken 020°–080°) 8 kt</td></tr><tr><td>Meteorolojik tercih</td><td>06L</td></tr></table><div class="pist-kaynak">✈️ 06L: alan rüzgârından; 06R, 24L, 24R: AD 2.15 anemometreleri; kuyruk limiti 10 kt — CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi</div><div><a class="panel-link" href="panel.html">🛫 ATC Panelinde aç →</a></div><pre>METAR LTFJ 171150Z 06010KT 9999 SCT030 BKN080 24/13 Q1014 NOSIG RMK RWY24R 05008KT 020V080 RWY06R 03011KT RWY24L 04010KT 360V090</pre></div><div class="kart"><div class="basrow"><span class="tip">TAF</span><span class="zaman">17.09 10:40Z · 13:40 yerel</span></div><div class="yorum"><div class="yorum-etiket">🤖 Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</div>**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken rüzgâr ve parçalı bulutluluk beklenmektedir.<br>• **1712/1718 UTC:** Kuzey-kuzeybatı 15 knot rüzgâr, görüş 9999 metre, 3000 feet&#x27;te parçalı bulut, 8000 feet&#x27;te kırık bulut; kademeli geçişle rüzgâr 5 knota düşecek.<br>• **1804/1808 UTC:** %30 ihtimalle hafif yağmurlu sağanak, 2500 feet&#x27;te kırık bulut, 8000 feet&#x27;te kırık bulut.<br>• **1807/1810 UTC:** Kademeli geçişle rüzgâr kuzeydoğu 15 knota dönecek.</div><pre>TAF LTFJ 171040Z 1712/1812 04015KT 9999 SCT030 BKN080
+<div class="kart"><div class="grafik-ust">Trend</div><div class="grafik-grid"><div class="grafik-kutu" data-noktalar="[{&quot;x&quot;: 0.0067, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;09:50&quot;, &quot;d&quot;: &quot;5 kt&quot;}, {&quot;x&quot;: 0.0964, &quot;y&quot;: 0.5673, &quot;s&quot;: &quot;10:20&quot;, &quot;d&quot;: &quot;7 kt&quot;}, {&quot;x&quot;: 0.1861, &quot;y&quot;: 0.5673, &quot;s&quot;: &quot;10:50&quot;, &quot;d&quot;: &quot;7 kt&quot;}, {&quot;x&quot;: 0.2758, &quot;y&quot;: 0.5673, &quot;s&quot;: &quot;11:20&quot;, &quot;d&quot;: &quot;7 kt&quot;}, {&quot;x&quot;: 0.3655, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;11:50&quot;, &quot;d&quot;: &quot;10 kt&quot;}, {&quot;x&quot;: 0.4552, &quot;y&quot;: 0.7019, &quot;s&quot;: &quot;12:20&quot;, &quot;d&quot;: &quot;6 kt&quot;}, {&quot;x&quot;: 0.5448, &quot;y&quot;: 0.4327, &quot;s&quot;: &quot;12:50&quot;, &quot;d&quot;: &quot;8 kt&quot;}, {&quot;x&quot;: 0.6345, &quot;y&quot;: 0.5673, &quot;s&quot;: &quot;13:20&quot;, &quot;d&quot;: &quot;7 kt&quot;}, {&quot;x&quot;: 0.7242, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;13:50&quot;, &quot;d&quot;: &quot;10 kt&quot;}, {&quot;x&quot;: 0.8139, &quot;y&quot;: 0.2981, &quot;s&quot;: &quot;14:20&quot;, &quot;d&quot;: &quot;9 kt&quot;}, {&quot;x&quot;: 0.9036, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;14:50&quot;, &quot;d&quot;: &quot;10 kt&quot;}, {&quot;x&quot;: 0.9933, &quot;y&quot;: 0.2981, &quot;s&quot;: &quot;15:20&quot;, &quot;d&quot;: &quot;9 kt&quot;}]"><div class="grafik-baslik"><span>Rüzgâr</span><span class="grafik-son">9 kt</span></div><div class="grafik-sarmal"><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,53.5 L57.8,36.3 L111.6,36.3 L165.5,36.3 L219.3,10.5 L273.1,44.9 L326.9,27.7 L380.7,36.3 L434.5,10.5 L488.4,19.1 L542.2,10.5 L596.0,19.1" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="19.1" r="3" fill="#3b82f6"/></svg><div class="grafik-imlec" hidden></div><div class="grafik-nokta" hidden></div><div class="grafik-balon" hidden></div></div><div class="grafik-eksen"><span>09:50</span><span>15:20</span></div></div><div class="grafik-kutu" data-noktalar="[{&quot;x&quot;: 0.0067, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;09:50&quot;, &quot;d&quot;: &quot;9000 ft&quot;}, {&quot;x&quot;: 0.0964, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;10:20&quot;, &quot;d&quot;: &quot;9000 ft&quot;}, {&quot;x&quot;: 0.1861, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;10:50&quot;, &quot;d&quot;: &quot;9000 ft&quot;}, {&quot;x&quot;: 0.2758, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;11:20&quot;, &quot;d&quot;: &quot;8000 ft&quot;}, {&quot;x&quot;: 0.3655, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;11:50&quot;, &quot;d&quot;: &quot;8000 ft&quot;}, {&quot;x&quot;: 0.4552, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;12:20&quot;, &quot;d&quot;: &quot;8000 ft&quot;}, {&quot;x&quot;: 0.5448, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;12:50&quot;, &quot;d&quot;: &quot;8000 ft&quot;}, {&quot;x&quot;: 0.6345, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;13:20&quot;, &quot;d&quot;: &quot;8000 ft&quot;}, {&quot;x&quot;: 0.7242, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;13:50&quot;, &quot;d&quot;: &quot;8000 ft&quot;}, {&quot;x&quot;: 0.8139, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;14:20&quot;, &quot;d&quot;: &quot;8000 ft&quot;}, {&quot;x&quot;: 0.9036, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;14:50&quot;, &quot;d&quot;: &quot;8000 ft&quot;}, {&quot;x&quot;: 0.9933, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;15:20&quot;, &quot;d&quot;: &quot;8000 ft&quot;}]"><div class="grafik-baslik"><span>Bulut tavanı</span><span class="grafik-son">8000 ft</span></div><div class="grafik-sarmal"><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,10.5 L57.8,10.5 L111.6,10.5 L165.5,53.5 L219.3,53.5 L273.1,53.5 L326.9,53.5 L380.7,53.5 L434.5,53.5 L488.4,53.5 L542.2,53.5 L596.0,53.5" fill="none" stroke="#22c55e" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="53.5" r="3" fill="#22c55e"/></svg><div class="grafik-imlec" hidden></div><div class="grafik-nokta" hidden></div><div class="grafik-balon" hidden></div></div><div class="grafik-eksen"><span>09:50</span><span>15:20</span></div></div><div class="grafik-kutu" data-noktalar="[{&quot;x&quot;: 0.0067, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;09:50&quot;, &quot;d&quot;: &quot;1016 hPa&quot;}, {&quot;x&quot;: 0.0964, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;10:20&quot;, &quot;d&quot;: &quot;1016 hPa&quot;}, {&quot;x&quot;: 0.1861, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;10:50&quot;, &quot;d&quot;: &quot;1016 hPa&quot;}, {&quot;x&quot;: 0.2758, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;11:20&quot;, &quot;d&quot;: &quot;1016 hPa&quot;}, {&quot;x&quot;: 0.3655, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;11:50&quot;, &quot;d&quot;: &quot;1016 hPa&quot;}, {&quot;x&quot;: 0.4552, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;12:20&quot;, &quot;d&quot;: &quot;1016 hPa&quot;}, {&quot;x&quot;: 0.5448, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;12:50&quot;, &quot;d&quot;: &quot;1015 hPa&quot;}, {&quot;x&quot;: 0.6345, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;13:20&quot;, &quot;d&quot;: &quot;1015 hPa&quot;}, {&quot;x&quot;: 0.7242, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;13:50&quot;, &quot;d&quot;: &quot;1015 hPa&quot;}, {&quot;x&quot;: 0.8139, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;14:20&quot;, &quot;d&quot;: &quot;1015 hPa&quot;}, {&quot;x&quot;: 0.9036, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;14:50&quot;, &quot;d&quot;: &quot;1014 hPa&quot;}, {&quot;x&quot;: 0.9933, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;15:20&quot;, &quot;d&quot;: &quot;1014 hPa&quot;}]"><div class="grafik-baslik"><span>QNH</span><span class="grafik-son">1014 hPa</span></div><div class="grafik-sarmal"><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,10.5 L57.8,10.5 L111.6,10.5 L165.5,10.5 L219.3,10.5 L273.1,10.5 L326.9,32.0 L380.7,32.0 L434.5,32.0 L488.4,32.0 L542.2,53.5 L596.0,53.5" fill="none" stroke="#eab308" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="53.5" r="3" fill="#eab308"/></svg><div class="grafik-imlec" hidden></div><div class="grafik-nokta" hidden></div><div class="grafik-balon" hidden></div></div><div class="grafik-eksen"><span>09:50</span><span>15:20</span></div></div><div class="grafik-kutu" data-noktalar="[{&quot;x&quot;: 0.0067, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;09:50&quot;, &quot;d&quot;: &quot;19 °C&quot;}, {&quot;x&quot;: 0.0964, &quot;y&quot;: 0.7244, &quot;s&quot;: &quot;10:20&quot;, &quot;d&quot;: &quot;20 °C&quot;}, {&quot;x&quot;: 0.1861, &quot;y&quot;: 0.6122, &quot;s&quot;: &quot;10:50&quot;, &quot;d&quot;: &quot;21 °C&quot;}, {&quot;x&quot;: 0.2758, &quot;y&quot;: 0.6122, &quot;s&quot;: &quot;11:20&quot;, &quot;d&quot;: &quot;21 °C&quot;}, {&quot;x&quot;: 0.3655, &quot;y&quot;: 0.3878, &quot;s&quot;: &quot;11:50&quot;, &quot;d&quot;: &quot;23 °C&quot;}, {&quot;x&quot;: 0.4552, &quot;y&quot;: 0.3878, &quot;s&quot;: &quot;12:20&quot;, &quot;d&quot;: &quot;23 °C&quot;}, {&quot;x&quot;: 0.5448, &quot;y&quot;: 0.3878, &quot;s&quot;: &quot;12:50&quot;, &quot;d&quot;: &quot;23 °C&quot;}, {&quot;x&quot;: 0.6345, &quot;y&quot;: 0.3878, &quot;s&quot;: &quot;13:20&quot;, &quot;d&quot;: &quot;23 °C&quot;}, {&quot;x&quot;: 0.7242, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;13:50&quot;, &quot;d&quot;: &quot;25 °C&quot;}, {&quot;x&quot;: 0.8139, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;14:20&quot;, &quot;d&quot;: &quot;25 °C&quot;}, {&quot;x&quot;: 0.9036, &quot;y&quot;: 0.2756, &quot;s&quot;: &quot;14:50&quot;, &quot;d&quot;: &quot;24 °C&quot;}, {&quot;x&quot;: 0.9933, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;15:20&quot;, &quot;d&quot;: &quot;25 °C&quot;}]"><div class="grafik-baslik"><span>Sıcaklık</span><span class="grafik-son">25 °C</span></div><div class="grafik-sarmal"><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,53.5 L57.8,46.4 L111.6,39.2 L165.5,39.2 L219.3,24.8 L273.1,24.8 L326.9,24.8 L380.7,24.8 L434.5,10.5 L488.4,10.5 L542.2,17.6 L596.0,10.5" fill="none" stroke="#ef4444" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="10.5" r="3" fill="#ef4444"/></svg><div class="grafik-imlec" hidden></div><div class="grafik-nokta" hidden></div><div class="grafik-balon" hidden></div></div><div class="grafik-eksen"><span>09:50</span><span>15:20</span></div></div></div></div><div class="kart"><div class="basrow"><span class="tip">METAR</span><span class="zaman">17.09 12:20Z · 15:20 yerel</span><span class="rozet" title="LTFJ Bot durum seviyesi — resmî ICAO CAT I/II/III kategorisi değildir" style="background:#3b82f6">🔵 BLU · çok iyi</span></div><div class="yorum"><div class="yorum-etiket">🤖 Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</div>**Rüzgâr:** Kuzeydoğudan 9 knot hızla esen rüzgâr, yönü 030° ile 090° arasında değişiyor; yan rüzgâr bileşeni çok düşük.<br>**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor.<br>**Gökyüzü:** 3000 feet yükseklikte parçalı bulutlar, 8000 feet yükseklikte çok bulutlu katman var; yağış yok.<br>**Uçuşa etkisi:** Rüzgâr, görüş ve yağış açısından kısıtlayıcı unsur bulunmuyor; hava durumu önümüzdeki 2 saatte önemli değişiklik göstermeyecek.</div><div class="ozet">Rüzgâr 060° 9kt (değişken 030°–090°) · görüş 10+ km · tavan 8000 ft · 25°C · QNH 1014</div><table><tr><td>Pist 06L</td><td>060° (değişken 030°–090°) 9 kt</td></tr><tr><td>Pist 06R</td><td>030° (değişken 330°–060°) 10 kt</td></tr><tr><td>Pist 24L</td><td>040° 9 kt</td></tr><tr><td>Pist 24R</td><td>020° (değişken 360°–090°) 8 kt</td></tr><tr><td>Meteorolojik tercih</td><td>06L</td></tr></table><div class="pist-kaynak">✈️ 06L: alan rüzgârından; 06R, 24L, 24R: AD 2.15 anemometreleri; kuyruk limiti 10 kt — CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi</div><div><a class="panel-link" href="panel.html">🛫 ATC Panelinde aç →</a></div><pre>METAR LTFJ 171220Z 06009KT 030V090 9999 SCT030 BKN080 25/13 Q1014 NOSIG RMK RWY24R 02008KT 360V090 RWY06R 03010KT 330V060 RWY24L 04009KT</pre></div><div class="kart"><div class="basrow"><span class="tip">TAF</span><span class="zaman">17.09 10:40Z · 13:40 yerel</span></div><div class="yorum"><div class="yorum-etiket">🤖 Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</div>**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken rüzgâr ve parçalı bulutluluk beklenmektedir.<br>• **1712/1718 UTC:** Kuzey-kuzeybatı 15 knot rüzgâr, görüş 9999 metre, 3000 feet&#x27;te parçalı bulut, 8000 feet&#x27;te kırık bulut; kademeli geçişle rüzgâr 5 knota düşecek.<br>• **1804/1808 UTC:** %30 ihtimalle hafif yağmurlu sağanak, 2500 feet&#x27;te kırık bulut, 8000 feet&#x27;te kırık bulut.<br>• **1807/1810 UTC:** Kademeli geçişle rüzgâr kuzeydoğu 15 knota dönecek.</div><pre>TAF LTFJ 171040Z 1712/1812 04015KT 9999 SCT030 BKN080
     BECMG 1716/1718 04005KT
     PROB30
     TEMPO 1804/1808 -SHRA BKN025 BKN080
@@ -1112,6 +1133,80 @@
   sekme.addEventListener("click", function () { ortu.hidden = false; });
   if (kapat) kapat.addEventListener("click", function () { ortu.hidden = true; });
   ortu.addEventListener("click", function (e) { if (e.target === ortu) ortu.hidden = true; });
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  // Trend grafiklerinde imlecin/parmagin altindaki noktanin saatini ve
+  // degerini gosterir. Fare: uzerine gelince gorunur, ayrilinca kaybolur.
+  // Dokunmatik: basili tutup surukledikce gosterir, parmak kalkinca kaybolur.
+  // Nokta verisi sayfa uretilirken data-noktalar'a gomulu - hicbir fetch()
+  // yapilmaz (bkz. ltfj_sayfa._grafik_blogu).
+  var kutular = document.querySelectorAll(".grafik-kutu");
+  Array.prototype.forEach.call(kutular, function (kutu) {
+    var noktalar;
+    try {
+      noktalar = JSON.parse(kutu.getAttribute("data-noktalar") || "[]");
+    } catch (e) {
+      return;
+    }
+    if (!noktalar.length) return;
+
+    var sarmal = kutu.querySelector(".grafik-sarmal");
+    var imlec = kutu.querySelector(".grafik-imlec");
+    var nokta = kutu.querySelector(".grafik-nokta");
+    var balon = kutu.querySelector(".grafik-balon");
+    if (!sarmal || !imlec || !nokta || !balon) return;
+    var basili = false;
+
+    function gizle() {
+      basili = false;
+      imlec.hidden = true;
+      nokta.hidden = true;
+      balon.hidden = true;
+    }
+
+    function goster(olay) {
+      var alan = sarmal.getBoundingClientRect();
+      if (!alan.width) return;
+      var oran = (olay.clientX - alan.left) / alan.width;
+      var enYakin = noktalar[0], enKisa = Infinity;
+      for (var i = 0; i < noktalar.length; i++) {
+        var uzaklik = Math.abs(noktalar[i].x - oran);
+        if (uzaklik < enKisa) { enKisa = uzaklik; enYakin = noktalar[i]; }
+      }
+      var px = enYakin.x * alan.width;
+      imlec.style.left = px + "px";
+      nokta.style.left = px + "px";
+      nokta.style.top = (enYakin.y * alan.height) + "px";
+      balon.textContent = enYakin.s + " · " + enYakin.d;
+      imlec.hidden = false;
+      nokta.hidden = false;
+      balon.hidden = false;
+      // balon grafik kutusunun ICINDE kalsin: yatayda kenarlarda kirpilmasin,
+      // dikeyde noktanin TERS tarafina gecsin (noktayi ve baslik satirini
+      // kapatmasin).
+      var genislik = balon.offsetWidth;
+      balon.style.left = Math.max(0, Math.min(px - genislik / 2, alan.width - genislik)) + "px";
+      balon.style.top = (enYakin.y < 0.5 ? alan.height - balon.offsetHeight : 0) + "px";
+    }
+
+    sarmal.addEventListener("pointerenter", function (e) {
+      if (e.pointerType === "mouse") goster(e);
+    });
+    sarmal.addEventListener("pointermove", function (e) {
+      if (e.pointerType === "mouse" || basili) goster(e);
+    });
+    sarmal.addEventListener("pointerdown", function (e) {
+      if (e.pointerType !== "mouse") { basili = true; goster(e); }
+    });
+    sarmal.addEventListener("pointerleave", gizle);
+    sarmal.addEventListener("pointerup", function (e) {
+      if (e.pointerType !== "mouse") gizle();
+    });
+    sarmal.addEventListener("pointercancel", gizle);
+  });
 })();
 </script>
 </body>
