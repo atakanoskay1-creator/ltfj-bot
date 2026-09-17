@@ -18,12 +18,29 @@ from pathlib import Path
 from sis_modeli import bolme, degerlendir, hedef, model
 from sis_modeli.istatistik import VARSAYILAN_VERI, veri_oku
 
-# Tarama sonucuna gore secilen degiskenler (bkz. PR #30):
-#   - ruzgar_hiz (IV 0.09) ve qnh_egilim_3 (0.03) ELENDI - bilgi tasimiyor
-#   - tavan (PSI 0.24) ve ruzgar_dogu (PSI 0.23) donemler arasi KAYIYOR,
-#     bu yuzden disarida birakildi; kararlilik onceligi
-#   - gorus tutuldu: IV'si ufukla eriyor (sureklilik) ama yine de bilgi tasiyor
-ALANLAR = ["spread", "spread_egilim_3", "saat", "ruzgar_kuzey", "gorus", "ay"]
+# Degisken seti IKI asamada secildi:
+#
+# 1) Tek degiskenli tarama (WoE/IV, bkz. PR #30):
+#    - ruzgar_hiz (IV 0.09) ve qnh_egilim_3 (0.03) ELENDI - bilgi tasimiyor
+#    - tavan (PSI 0.24) ve ruzgar_dogu (PSI 0.23) donemler arasi KAYIYOR
+#
+# 2) Ablasyon (her degiskeni tek tek cikarip walk-forward AP olcumu):
+#    gorus            -0.169   <-- modeli TASIYAN degisken
+#    saat             -0.026
+#    spread_egilim_3  -0.022
+#    spread           -0.021
+#    ruzgar_kuzey     -0.005
+#    ay               -0.001   <-- ATILDI, katkisi gurultu seviyesinde
+#
+#    5 degiskenli set AP 0.210, 6 degiskenli 0.211 - istatistiksel olarak
+#    ayni, bir parametre daha az. ~305 bagimsiz olayla calisirken her
+#    gereksiz parametre genellemeyi bozar, o yuzden sade olan secildi.
+#
+# NOT (tek degiskenli onem != model ici katki): spread tek basina en guclu
+# degisken (IV 3.18) ama cikarilmasi yalnizca -0.021 kaybettiriyor, cunku
+# isinin cogunu gorus zaten yapiyor. Tersi gecerli degil - gorus'un yerini
+# hicbiri dolduramiyor.
+ALANLAR = ["spread", "spread_egilim_3", "saat", "ruzgar_kuzey", "gorus"]
 
 
 def _fold_calistir(egitim: list, test: list) -> dict:
