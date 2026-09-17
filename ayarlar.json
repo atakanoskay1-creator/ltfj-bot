@@ -41,5 +41,18 @@
  },
 
  "web_sayfasi": true,
- "atc_paneli": true
+ "atc_paneli": true,
+
+ "notam": {
+  "_aciklama": "NOTAC_API_KEY GitHub Secret'i tanimli degilse bu bolum zaten sessizce devre disi kalir - asagidaki aktif:false ayrica kapatmak icindir.",
+  "aktif": true,
+  "senkron_araligi_saat": 6,
+  "location": "LTFJ"
+ },
+
+ "atc_notes": {
+  "_aciklama": "database_url'i Firebase Console > Realtime Database'den alip buraya yaz (ornek: https://PROJE-ADI-default-rtdb.europe-west1.firebasedatabase.app). Bu URL gizli degil - guvenlik firebase-rules.json ile saglanir. Bos birakilirsa web sayfasindaki ATC Notes bolumu 'yapilandirilmamis' gosterir.",
+  "aktif": true,
+  "database_url": ""
+ }
 }
