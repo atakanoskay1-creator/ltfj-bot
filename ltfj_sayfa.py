@@ -1509,9 +1509,14 @@ def _lvo_farkindalik_html(guncel_cozum: dict | None, taf_tavan: int | None) -> s
     ltfj_lvo_farkindalik ile GAYRI RESMI, hedge'li notlara cevirir. AWOS RVR
     tabanli notlar BURADA YOK - o veri sadece Firebase'de (istemci
     tarafinda) var; JS tarafinda (LVO script'i, ayni RVR_ESIKLERI JSON'unu
-    kullanarak) AYRICA uretilip #lvo-fark-rvr-liste'ye eklenir."""
+    kullanarak) AYRICA uretilip #lvo-fark-rvr-liste'ye eklenir.
+
+    Ucuncu not (tavan_istatistik_notu) esik karsilastirmasi DEGIL, arsivden
+    ogrenilmis GORELI bir orandir - kat cinsinden, cunku tablonun seviyesi
+    donemler arasi kayiyor (bkz. ltfj_tavan_tablosu)."""
     notlar = [n for n in (farkindalik.metar_tavan_notu(guncel_cozum),
-                          farkindalik.taf_tavan_notu(taf_tavan)) if n]
+                          farkindalik.taf_tavan_notu(taf_tavan),
+                          farkindalik.tavan_istatistik_notu(guncel_cozum)) if n]
     sabit_html = "".join(f"<li>{html.escape(n)}</li>" for n in notlar)
     return (
         f'<ul class="lvo-not-listesi" id="lvo-fark-metar-taf">{sabit_html}</ul>'

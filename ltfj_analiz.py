@@ -69,9 +69,22 @@ def _hava_turkce(token: str) -> str:
     return (metin + " ".join(parcalar)).strip()
 
 
+def tokenla(metin: str) -> list[str]:
+    """Ham METAR/TAF metnini token'lara ayirir; rapor sonu isareti '='i atar.
+
+    Duz metin.split() YETMEZ: '=' raporun bittigini gosteren standart
+    isarettir ve SON TOKEN'A YAPISIK gelir ('... Q1021=' / '... VV002=').
+    Yapisik halde hicbir desen tutmadigi icin o token SESSIZCE dusuyordu -
+    yani METAR sondaki QNH'siz, TAF ise en dusuk tavanini kaybetmis olarak
+    cozuluyordu. MGM'nin observationText alani '=' tasimadigi icin bu canli
+    akista gorunmuyordu; resmi bultenlerden (ve elle yapistirilan
+    metinlerden) gelen raporlar ise '=' ile biter."""
+    return [t for t in (x.rstrip("=") for x in metin.split()) if t]
+
+
 def metar_coz(metin: str) -> dict:
     """Ham METAR/SPECI metnini sozluge cevirir. Anlasilmayan alan None kalir."""
-    tokenlar = metin.split()
+    tokenlar = tokenla(metin)
     if "RMK" in tokenlar:                       # RMK sonrasi bize lazim degil
         tokenlar = tokenlar[:tokenlar.index("RMK")]
 
