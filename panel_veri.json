@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-17T02:50:52+00:00",
+ "uretildi": "2026-09-17T03:01:26+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-17T02:20:00+00:00",
-  "metin": "METAR LTFJ 170220Z 05005KT 9999 FEW002 SCT080 15/14 Q1015 NOSIG RMK RWY24R 01004KT RWY06R 02006KT RWY24L 01003KT",
+  "zaman": "2026-09-17T02:50:00+00:00",
+  "metin": "METAR LTFJ 170250Z 05005KT 9999 FEW003 BKN070 16/15 Q1015 NOSIG RMK RWY24R 04003KT 360V080 RWY06R 03007KT RWY24L 03005KT",
   "ruzgar": {
    "yon": 50,
    "hiz": 5,
@@ -14,10 +14,10 @@
   },
   "gorus": 9999,
   "cavok": false,
-  "tavan": null,
+  "tavan": 7000,
   "hava": [],
-  "sicaklik": 15,
-  "cig_noktasi": 14,
+  "sicaklik": 16,
+  "cig_noktasi": 15,
   "qnh": 1015,
   "nosig": true,
   "renk": [
@@ -43,8 +43,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 4.3,
-    "yan": 4.2,
+    "bas": 5.8,
+    "yan": 3.9,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -56,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -1.8,
-    "yan": 2.4,
+    "bas": -4.1,
+    "yan": 2.8,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -69,12 +69,12 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -2.3,
-    "yan": 3.2,
+    "bas": -2.7,
+    "yan": 1.2,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": false,
+    "degisken": true,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": false
@@ -82,13 +82,13 @@
   ],
   "kuyruk_limiti": 10,
   "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi",
-  "tercih_pist": "06L",
+  "tercih_pist": "06R",
   "rvr": [],
   "prs": [],
   "gorus_op": [],
   "trend": null,
   "sis_riski": "Sis oluşum göstergesi: yüksek (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 1°C, rüzgâr 5 kt, gece şartları",
-  "ozet": "Rüzgâr 050° 5kt · görüş 10+ km · 15°C · QNH 1015"
+  "ozet": "Rüzgâr 050° 5kt · görüş 10+ km · tavan 7000 ft · 16°C · QNH 1015"
  },
  "taf": {
   "zaman": "2026-09-16T22:40:00+00:00",
@@ -304,6 +304,13 @@
    "tavan": null,
    "qnh": 1015,
    "sicaklik": 15
+  },
+  {
+   "zaman": "2026-09-17T02:50:00+00:00",
+   "ruzgar_hiz": 5,
+   "tavan": 7000,
+   "qnh": 1015,
+   "sicaklik": 16
   }
  ]
 }
