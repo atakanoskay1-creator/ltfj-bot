@@ -38,7 +38,8 @@
   "id:51832101",
   "id:51836500",
   "id:51849041",
-  "id:51853545"
+  "id:51853545",
+  "id:51855270"
  ],
  "ilk_calisma": false,
  "son_metar": "METAR LTFJ 170050Z 08005KT 7000 1400NE R06L/P1500N R24R/P1500N R06R/P1500N R24L/1400U BR FEW002 BKN080 15/15 Q1015 NOSIG RMK RWY24R 07003KT RWY06R 07005KT RWY24L 06004KT",
@@ -238,10 +239,10 @@
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 162220Z 03006KT 9999 FEW040 SCT100 17/15 Q1016 NOSIG RMK RWY24R 35005KT RWY06R 01006KT RWY24L 03004KT 360V060": "**Rüzgâr:** Kuzey-kuzeydoğudan hafif bir rüzgâr esiyor, hızı 6 knot ve yan bileşeni çok az.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuşa engel değil.\n\n**Gökyüzü:** Az bulutlu, 1200 metre civarında az sayıda bulut, 3000 metre üstünde parçalı bulutluluk, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları operasyonel açıdan sınırlayıcı unsur içermiyor.",
   "METAR LTFJ 162250Z 03005KT 9999 FEW040 BKN080 17/14 Q1016 NOSIG RMK RWY24R 36005KT 330V030 RWY06R 03005KT RWY24L 05004KT": "**Rüzgâr:** Kuzey-kuzeydoğudan hafif 5 knot hızla esiyor, yan rüzgâr bileşeni 3 knot.\n\n**Görüş:** 10 kilometre ve daha fazla görüş var, uçuş için rahat.\n\n**Gökyüzü:** Az bulutlu 1200 metre civarında, daha yüksekte 2400 metre civarında çok bulutlu; yağış yok.\n\n**Uçuşa etkisi:** Hafif rüzgâr ve iyi görüş koşulları var, önemli kısıtlayıcı unsur bulunmuyor.",
   "TAF LTFJ 161640Z 1618/1718 04009KT 9999 SCT040 BKN100 BECMG 1620/1624 CAVOK BECMG 1702/1705 SCT030 BKN090 PROB30 TEMPO 1708/1712 04015G25KT -SHRA BECMG 1715/1718 CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken bulutlu hava beklenmektedir.\n\n- **1618/1620 UTC:** Rüzgar 040° 9 knot, görüş 9999 metre, 4000 ft'te saçak bulut, 10000 ft'te kırık bulut.\n- **1620/1624 UTC:** Kademeli geçişle CAVOK (tam görüş ve açık hava).\n- **1702/1705 UTC:** Kademeli geçişle 3000 ft'te saçak bulut, 9000 ft'te kırık bulut.\n- **1708/1712 UTC:** %30 ihtimalle geçici olarak rüzgar 040° 15 knot, rüzgar esintisi 25 knot ve hafif sağanak yağış; 1715/1718 UTC'de kademeli geçişle CAVOK.",
-  "TAF LTFJ 162240Z 1700/1724 03009KT CAVOK BECMG 1702/1705 SCT030 BKN080 PROB30 TEMPO 1708/1712 04015G25KT -SHRA FEW020CB BKN030 BECMG 1715/1718 CAVOK BECMG 1721/1724 SCT035": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken bulutluluk ve geçici yağış beklenmektedir.\n\n- **1700/1705 UTC:** Kuzey-kuzeybatı 9 knot rüzgar, 3000 ft'de dağınık bulutlar, 8000 ft'de kırık bulutlar.\n- **1708/1712 UTC (ihtimal %30):** Kuzey-kuzeybatı 15 knot rüzgar, 25 knot gust, hafif sağanak ve yer yer yağmur, 2000 ft'de az bulut ve gök gürültülü bulutlar, 3000 ft'de kırık bulutlar.\n- **1715/1718 UTC:** Görüş sınırsız, bulut yok.\n- **1721/1724 UTC:** 3500 ft'de dağınık bulutlar."
+  "TAF LTFJ 162240Z 1700/1724 03009KT CAVOK BECMG 1702/1705 SCT030 BKN080 PROB30 TEMPO 1708/1712 04015G25KT -SHRA FEW020CB BKN030 BECMG 1715/1718 CAVOK BECMG 1721/1724 SCT035": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken bulutluluk ve geçici yağış beklenmektedir.\n\n- **1700/1705 UTC:** Kuzey-kuzeybatı 9 knot rüzgar, 3000 ft'de dağınık bulutlar, 8000 ft'de kırık bulutlar.\n- **1708/1712 UTC (ihtimal %30):** Kuzey-kuzeybatı 15 knot rüzgar, 25 knot gust, hafif sağanak ve yer yer yağmur, 2000 ft'de az bulut ve gök gürültülü bulutlar, 3000 ft'de kırık bulutlar.\n- **1715/1718 UTC:** Görüş sınırsız, bulut yok.\n- **1721/1724 UTC:** 3500 ft'de dağınık bulutlar.",
+  "TAF AMD LTFJ 170100Z 1701/1724 03009KT 9999 FEW002 BKN080 TEMPO 1701/1705 1700 PRFG BECMG 1704/1707 BKN030 BKN080 PROB30 TEMPO 1708/1712 04015G25KT -SHRA FEW020CB BKN030 BECMG 1715/1718 CAVOK BECMG 1721/1724 SCT035": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 17 Ocak 01:00 UTC başlangıçlı 23 saatlik tahmin; başlangıçta hafif rüzgar ve az bulutluluk, gün içinde değişken koşullar bekleniyor.\n\n- **01:00–05:00 UTC:** Rüzgar 030° 9 knot, görüş 9999 metre, az bulut 200 ft, kırık bulut 8000 ft; geçici olarak 01:00–05:00 UTC arasında görüş 1700 metre ve yer sisi.\n\n- **04:00–07:00 UTC:** Kademeli geçiş ile kırık bulut 3000 ft, kırık bulut 8000 ft; 08:00–12:00 UTC arasında %30 ihtimalle geçici olarak rüzgar 040° 15 knot, 25 knot rüzgar esintisi, hafif sağanak, az bulut 2000 ft ile gök gürültülü bulut, kırık bulut 3000 ft.\n\n- **15:00–18:00 UTC:** Kademeli geçiş ile CAVOK (görüş ve bulut koşulları iyi); 21:00–24:00 UTC arasında dağınık bulut 3500 ft."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -563,5 +564,5 @@
   }
  },
  "notam_son_senkron": "2026-09-16T23:41:16+00:00",
- "guncelleme": "2026-09-17T01:01:23+00:00"
+ "guncelleme": "2026-09-17T01:11:06+00:00"
 }
