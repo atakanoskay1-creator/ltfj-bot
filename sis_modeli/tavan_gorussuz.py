@@ -58,6 +58,40 @@ ADAYLAR_ATMOSFERIK = list(olusum_alanlar.ADAYLAR)
 # olusum degil. `dogrula_b()` bunu calisma zamaninda denetler.
 YASAKLI_B = tuple(olusum_alanlar.YASAKLI) + ("tavan", "tavan_ozellik")
 
+# Ablasyon (GERCEKTEN OLCULDU - gelistirme (2017-2023) icinde yuruyen
+# pencere, embargo acik, holdout kapali):
+#
+#   MODEL B (olusum, tavan_ozellik YOK)                    AP       BSS
+#   spread+trend3+ruzgar_kuzey+saat (4)  <-- SECILEN      0.0602   0.0248
+#   + sicaklik (5)                                        0.0405   0.0142  (sicaklik ZARARLI)
+#   + ay yerine (5)                                       0.0393   0.0156  (ay ZARARLI)
+#   + sicaklik + ay (6)                                   0.0397   0.0157
+#   + ruzgar_dogu da (6)                                  0.0466   0.0191
+#   + spread_egilim_1 de (5)                              0.0535   0.0205
+#   yalniz spread+saat (2)                                0.0622   0.0190  (AP hafif yuksek, BSS dusuk)
+#
+# DIKKAT - sis hedefinin TERSI: orada sicaklik EKLENMEDEN model iklimden
+# kotuydu, burada sicaklik EKLENINCE BSS %43 dusuyor. Ayni degisken iki
+# farkli hedefte zit yonde davranabiliyor - bu yuzden "sis icin ise yaradi,
+# tavan icin de yarar" varsayimi YAPILMADI, tarama YENIDEN yapildi.
+#
+#   MODEL A (sureklilik, tavan_ozellik DAHIL)              AP       BSS
+#   spread+trend3+ruzgar_kuzey+saat+tavan (5)             0.0591   0.0177
+#   + sicaklik (6)                                        0.0510   0.0125
+#   + ay yerine (6)                                       0.0403   0.0160
+#   + sicaklik + ay (7)                                   0.0493   0.0159
+#   + ruzgar_dogu da (7)                                  0.0532   0.0143
+#   + spread_egilim_1 de (6)  <-- SECILEN                 0.0676   0.0205
+#   yalniz spread+saat+tavan (3)                          0.0565   0.0192
+#
+# Model A'da spread_egilim_1 VE spread_egilim_3'un BIRLIKTE kullanilmasi
+# (kisa+uzun vadeli egilim) hem AP hem BSS'te en iyi sonucu veriyor - mevcut
+# tavan okumasiyla (sureklilik) birlestiginde kisa vadeli degisim hizi ek
+# bilgi tasiyor; Model B'de (sureklilik YOK) ayni ekleme zarar vermisti.
+ALANLAR_B = ["spread", "spread_egilim_3", "ruzgar_kuzey", "saat"]
+ALANLAR_A = ["spread", "spread_egilim_1", "spread_egilim_3", "ruzgar_kuzey",
+            "saat", "tavan_ozellik"]
+
 
 def dogrula_b(alanlar: list) -> None:
     celisen = [a for a in alanlar if a in YASAKLI_B]
@@ -156,6 +190,44 @@ def _skor_yazdir(baslik: str, sonuc: dict) -> None:
           f"AP={sonuc['ap']:>7.3f}")
 
 
+def karsilastir(egitim: list, test: list, alanlar: list) -> tuple:
+    """(gercek, {yontem: tahmin}) - model + iklim + basit kural (spread+
+    ruzgar, gorussuz, model.py'den yeniden kullanilan)."""
+    katsayilar, tablolar, l2 = model.egit_secerek(egitim, alanlar)
+    taban = sum(r["hedef"] for r in egitim) / max(len(egitim), 1)
+    gercek = [bool(r["hedef"]) for r in test]
+    return gercek, {
+        "model": [model.olasilik(katsayilar, r, tablolar) for r in test],
+        "iklim": [taban] * len(test),
+        "basit kural (spread+rüzgâr)": [model.basit_kural_baseline(r) for r in test],
+    }, l2
+
+
+def _karsilastirma_bas(baslik: str, gercek: list, tahminler: dict) -> None:
+    iklim = tahminler["iklim"]
+    print(f"\n{baslik}")
+    print(f"  {'yöntem':<28}{'Brier×10⁴':>11}{'BSS':>8}{'AP':>8}")
+    for ad, p in tahminler.items():
+        print(f"  {ad:<28}{1e4*degerlendir.brier(p, gercek):>11.2f}"
+              f"{degerlendir.brier_skill(p, gercek, iklim):>8.3f}"
+              f"{degerlendir.ortalama_kesinlik(p, gercek):>8.3f}")
+
+
+def _event_level_bas(baslik: str, kayitlar_tum: list, yillar: tuple,
+                     tahmin_map: dict) -> None:
+    olaylar = [o for o in olay_degerlendirme.bagimsiz_olaylar(kayitlar_tum, etiket=ETIKET)
+              if o["baslangic"].year in yillar]
+    temsilciler = olay_degerlendirme.olay_temsilci_satirlari(
+        kayitlar_tum, olaylar, etiket=ETIKET)
+    print(f"\n{baslik} ({len(olaylar)} bağımsız olay)")
+    print(f"  {'eşik':>6}{'olay':>7}{'yakalanan':>11}{'duyarlılık':>12}{'%5–%95':>16}")
+    for e in olay_degerlendirme.olay_bazli_esik_tablosu(temsilciler, tahmin_map):
+        alt, ust = olay_degerlendirme.olay_bazli_guven_araligi(
+            temsilciler, tahmin_map, e["esik"], tekrar=150)
+        print(f"  {100*e['esik']:>5.0f}%{e['toplam_olay']:>7}{e['yakalanan']:>11}"
+              f"{100*e['duyarlilik']:>11.1f}%{f'{100*alt:.1f}–{100*ust:.1f}%':>16}")
+
+
 def main(argv=None) -> int:
     a = argparse.ArgumentParser(description=__doc__)
     a.add_argument("--veri", type=Path, default=VARSAYILAN_VERI)
@@ -165,6 +237,8 @@ def main(argv=None) -> int:
     if not secenek.veri.exists():
         print(f"HATA: {secenek.veri} yok.", file=sys.stderr)
         return 1
+
+    dogrula_b(ALANLAR_B)
 
     ham = veri_oku(secenek.veri)
     kayitlar_tum = hazirla_tum(ham)
@@ -179,6 +253,73 @@ def main(argv=None) -> int:
     print("=== 1) Değişken tarama (atmosferik + tavan_ozellik) ===")
     tarama_bas(gelistirme, ADAYLAR_ATMOSFERIK + ["tavan_ozellik"])
 
+    print(f"\n=== 2) Çoklu doğrusal bağlantı ===")
+    print(f"Model A (süreklilik) — {ALANLAR_A}")
+    vif_bas(gelistirme, ALANLAR_A)
+    print(f"Model B (oluşum) — {ALANLAR_B}")
+    vif_bas(gelistirme, ALANLAR_B)
+
+    yillar = sorted({r["dt"].year for r in gelistirme})
+    embargo = not secenek.embargo_kapat
+
+    for etiket_model, alanlar in (("Model A (süreklilik)", ALANLAR_A),
+                                  ("Model B (oluşum)", ALANLAR_B)):
+        print(f"\n=== 3) Walk-forward — {etiket_model} ===")
+        print(f"Değişkenler: {', '.join(alanlar)}")
+        birikmis_gercek, birikmis_tahmin = [], {}
+        tahmin_map_toplu = {}
+        for eg_yillari, test_yillari in _ic_foldlar(yillar):
+            eg = bolme.ayir(gelistirme, eg_yillari)
+            if embargo:
+                eg = bolme.embargo_penceresi(eg, min(test_yillari))
+            te = bolme.ayir(gelistirme, test_yillari)
+            if not te or not any(r["hedef"] for r in te):
+                continue
+            gercek, tahminler, l2 = karsilastir(eg, te, alanlar)
+            birikmis_gercek.extend(gercek)
+            for ad, p in tahminler.items():
+                birikmis_tahmin.setdefault(ad, []).extend(p)
+            for r, p in zip(te, tahminler["model"]):
+                tahmin_map_toplu[r["dt"]] = p
+        _karsilastirma_bas(
+            f"Birikmiş ({len(birikmis_gercek)} an, {sum(birikmis_gercek)} pozitif):",
+            birikmis_gercek, birikmis_tahmin)
+        _event_level_bas(f"Event-level (gelişt. içi, {etiket_model})",
+                         kayitlar_tum, tuple(y for y in yillar), tahmin_map_toplu)
+
+    if not secenek.holdout:
+        print("\n(Holdout açılmadı. Açmak için: --holdout)")
+        return 0
+
+    print("\n" + "=" * 70)
+    print("=== 4) NİHAİ HOLDOUT (2024-2026) — TEK ATIŞ ===")
+    print("=" * 70)
+    egitim_tum = bolme.embargo_penceresi(gelistirme, min(bolme.HOLDOUT_YILLARI)) \
+        if embargo else gelistirme
+    test_hol = bolme.holdout(aday)
+    if not test_hol:
+        print("HATA: holdout boş.", file=sys.stderr)
+        return 1
+    print(f"Eğitim: {len(egitim_tum)} an, {sum(r['hedef'] for r in egitim_tum)} pozitif")
+    print(f"HOLDOUT: {len(test_hol)} an, {sum(r['hedef'] for r in test_hol)} pozitif "
+          f"(taban oran %{100*sum(r['hedef'] for r in test_hol)/len(test_hol):.2f})")
+
+    for etiket_model, alanlar in (("Model A (süreklilik)", ALANLAR_A),
+                                  ("Model B (oluşum)", ALANLAR_B)):
+        print(f"\n--- {etiket_model} — {', '.join(alanlar)} ---")
+        gercek, tahminler, l2 = karsilastir(egitim_tum, test_hol, alanlar)
+        print(f"Seçilen L2: {l2:.0f}")
+        print(f"  {'yöntem':<28}{'Brier×10⁴':>11}{'BSS':>8}{'AP':>8}{'AP %5–%95':>18}")
+        for ad, p in tahminler.items():
+            alt, ust = degerlendir.blok_guven_araligi(test_hol, p, gercek,
+                                                      degerlendir.ortalama_kesinlik)
+            print(f"  {ad:<28}{1e4*degerlendir.brier(p, gercek):>11.2f}"
+                  f"{degerlendir.brier_skill(p, gercek, tahminler['iklim']):>8.3f}"
+                  f"{degerlendir.ortalama_kesinlik(p, gercek):>8.3f}"
+                  f"{f'{alt:.3f} – {ust:.3f}':>18}")
+        tahmin_map_hol = {r["dt"]: p for r, p in zip(test_hol, tahminler["model"])}
+        _event_level_bas(f"Event-level (holdout, {etiket_model})",
+                         kayitlar_tum, bolme.HOLDOUT_YILLARI, tahmin_map_hol)
     return 0
 
 
