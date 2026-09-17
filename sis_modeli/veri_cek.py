@@ -19,12 +19,14 @@ import gzip
 import io
 import sys
 import time
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
 
-from sis_modeli.ozellik import LVO_GORUS_M, SIS_GORUS_M, SUTUNLAR, ozellik_cikar
+from sis_modeli.ozellik import (LVO_GORUS_M, SIS_GORUS_M, SUTUNLAR,
+                                atlama_nedeni, ozellik_cikar)
 
 IEM_URL = "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py"
 ISTASYON = "LTFJ"
@@ -71,28 +73,30 @@ def _yil_indir(yil: int, oturum: requests.Session) -> str:
     raise VeriCekmeHatasi(f"{yil} icin arsiv alinamadi: {son_hata}")
 
 
-def _satirlari_coz(ham_csv: str) -> tuple[list, int]:
-    """IEM CSV'sini ozellik satirlarina cevirir. (satirlar, atlanan) doner.
+def _satirlari_coz(ham_csv: str) -> tuple[list, Counter]:
+    """IEM CSV'sini ozellik satirlarina cevirir. (satirlar, atlama_sayaci)
+    doner - atlama sayaci NEDEN bazinda kirilimlidir, cunku tek bir toplam
+    sayi veri kalitesi sorununu gizler.
 
     IEM ciktisi 'station,valid,metar' sutunlarini tasir; valid UTC'dir
     (istekte tz=Etc/UTC verildi)."""
     okuyucu = csv.DictReader(io.StringIO(ham_csv))
-    satirlar, atlanan = [], 0
+    satirlar, atlanan = [], Counter()
     for kayit in okuyucu:
         metin = (kayit.get("metar") or "").strip()
         ham_zaman = (kayit.get("valid") or "").strip()
         if not metin or not ham_zaman:
-            atlanan += 1
+            atlanan["metar/zaman bos"] += 1
             continue
         try:
             zaman = datetime.strptime(ham_zaman, "%Y-%m-%d %H:%M").replace(
                 tzinfo=timezone.utc)
         except ValueError:
-            atlanan += 1
+            atlanan["zaman ayristirilamadi"] += 1
             continue
         ozellik = ozellik_cikar(metin, zaman)
         if ozellik is None:
-            atlanan += 1
+            atlanan[atlama_nedeni(metin) or "bilinmeyen"] += 1
             continue
         satirlar.append(ozellik)
     return satirlar, atlanan
@@ -102,7 +106,8 @@ def arsivi_uret(baslangic: int, bitis: int, cikti: Path) -> dict:
     """Yillari sirayla indirir, ayristirir ve tek bir gzip CSV'ye yazar.
     Ozet istatistik sozlugu dondurur."""
     cikti.parent.mkdir(parents=True, exist_ok=True)
-    toplam, toplam_atlanan, sis_sayisi, lvo_sayisi = 0, 0, 0, 0
+    toplam, sis_sayisi, lvo_sayisi = 0, 0, 0
+    atlanan_toplam = Counter()
 
     with gzip.open(cikti, "wt", encoding="utf-8", newline="") as f:
         yazici = csv.DictWriter(f, fieldnames=list(SUTUNLAR))
@@ -114,15 +119,15 @@ def arsivi_uret(baslangic: int, bitis: int, cikti: Path) -> dict:
                 for s in satirlar:
                     yazici.writerow(s)
                 toplam += len(satirlar)
-                toplam_atlanan += atlanan
+                atlanan_toplam.update(atlanan)
                 sis_sayisi += sum(s["sis"] for s in satirlar)
                 lvo_sayisi += sum(s["lvo"] for s in satirlar)
                 print(f"  {yil}: {len(satirlar)} gozlem "
                       f"(sis {sum(s['sis'] for s in satirlar)}, "
                       f"lvo {sum(s['lvo'] for s in satirlar)}, "
-                      f"atlanan {atlanan})")
+                      f"atlanan {sum(atlanan.values())})")
 
-    return {"gozlem": toplam, "atlanan": toplam_atlanan,
+    return {"gozlem": toplam, "atlanan": atlanan_toplam,
             "sis": sis_sayisi, "lvo": lvo_sayisi, "dosya": str(cikti)}
 
 
@@ -145,7 +150,10 @@ def main(argv=None) -> int:
     print(f"\nToplam {ozet['gozlem']} gozlem yazildi ({boyut:.1f} MB)")
     print(f"  sis (gorus<{SIS_GORUS_M} m veya FG): {ozet['sis']}")
     print(f"  LVO seviyesi (gorus<{LVO_GORUS_M} m): {ozet['lvo']}")
-    print(f"  ayristirilamayan/eksik: {ozet['atlanan']}")
+    atlanan = ozet["atlanan"]
+    print(f"  atlanan: {sum(atlanan.values())}")
+    for neden, sayi in atlanan.most_common():
+        print(f"    - {neden}: {sayi}")
     return 0
 
 

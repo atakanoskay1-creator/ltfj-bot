@@ -7,6 +7,7 @@ Iki sey dogrulanir:
     ve alt proje ikinci bir METAR ayristiricisi YAZMIYOR.
 """
 import ast
+import csv
 import gzip
 from datetime import datetime, timezone
 from pathlib import Path
@@ -68,6 +69,38 @@ def test_alcak_sis_mifg_alanda_sis_sayilmaz():
     assert o["sis"] == 0
 
 
+def test_parcali_ve_kismi_sis_alanda_sis_sayilmaz():
+    """BCFG (parca parca) / PRFG (kismi): meydanin bir bolumunde sis var ama
+    istasyon gorusu yuksek kalabilir. Gercek arsivde bunlar dahil edildiginde
+    yaz aylarindaki 'sis' kayitlarinin medyan gorusu 2500 m cikiyordu."""
+    for kod in ("BCFG", "PRFG"):
+        o = ozellik.ozellik_cikar(
+            f"LTFJ 150520Z 00000KT 4000 {kod} SCT020 18/17 Q1015", ZAMAN)
+        assert o["sis_kodu"] == 0, kod
+        assert o["sis"] == 0, kod
+
+
+def test_donan_sis_fzfg_alanda_sis_sayilir():
+    """FZFG = donan sis - alani kaplayan gercek sistir, SAYILMALI."""
+    o = ozellik.ozellik_cikar("LTFJ 150520Z 00000KT 0500 FZFG VV001 M02/M02 Q1030", ZAMAN)
+    assert o["sis_kodu"] == 1
+    assert o["sis"] == 1 and o["lvo"] == 1
+
+
+def test_ham_hava_kodlari_saklaniyor():
+    """Etiket TANIMI ileride degisirse 20 yillik arsiv yeniden indirilmesin."""
+    o = ozellik.ozellik_cikar("LTFJ 150520Z 00000KT 0300 FG VV001 03/03 Q1020", ZAMAN)
+    assert o["hava"] == "FG"
+
+
+def test_atlama_nedeni_ayirt_ediyor():
+    """'53.145 satir atlandi' gibi opak bir sayi veri kalitesi sorununu
+    gizler - neden bazinda kirilim sart."""
+    assert ozellik.atlama_nedeni("LTFJ 150520Z 06008KT CAVOK 12/03 Q1018") is None
+    assert ozellik.atlama_nedeni("LTFJ 150520Z 06008KT 9999 SCT020 Q1018") == "sicaklik/cig yok"
+    assert ozellik.atlama_nedeni("LTFJ 150520Z 06008KT 12/03 Q1018") == "gorus yok"
+
+
 def test_sicaklik_veya_gorus_yoksa_satir_atlanir():
     """Sicaklik/cig noktasi olmadan ne spread ne etiket uretilebilir."""
     assert ozellik.ozellik_cikar("LTFJ 150520Z 06008KT 9999 SCT020 Q1018", ZAMAN) is None
@@ -86,12 +119,27 @@ def test_sutunlar_ozellik_anahtarlariyla_ayni():
 
 
 # ------------------------------------------------------------- istatistik
+def _gz_yaz(yol: Path, *kayitlar: dict):
+    """Fixture satirlarini SOZLUKTEN yazar: ham virgullu string kullanilsaydi
+    SUTUNLAR'a yeni bir alan eklendiginde satirlar sessizce kayar ve testler
+    yanlis alani dogrulamaya devam ederdi (bir kez basimiza geldi)."""
+    with gzip.open(yol, "wt", encoding="utf-8", newline="") as f:
+        yazici = csv.DictWriter(f, fieldnames=list(ozellik.SUTUNLAR))
+        yazici.writeheader()
+        for k in kayitlar:
+            yazici.writerow({alan: k.get(alan, "") for alan in ozellik.SUTUNLAR})
+
+
 def test_istatistik_gzip_veriyi_okuyabiliyor(tmp_path):
     yol = tmp_path / "ornek.csv.gz"
-    with gzip.open(yol, "wt", encoding="utf-8", newline="") as f:
-        f.write(",".join(ozellik.SUTUNLAR) + "\n")
-        f.write("2024-01-15T05:20,1,5,3,3,0.0,0,,400,100,1020,1,1,1\n")
-        f.write("2024-06-15T12:20,6,12,28,10,18.0,8,60,9999,,1015,0,0,0\n")
+    _gz_yaz(yol,
+            {"zaman": "2024-01-15T05:20", "ay": 1, "saat": 5, "sicaklik": 3,
+             "cig_noktasi": 3, "spread": 0.0, "ruzgar_hiz": 0, "gorus": 400,
+             "tavan": 100, "qnh": 1020, "hava": "FG", "sis_kodu": 1,
+             "sis": 1, "lvo": 1},
+            {"zaman": "2024-06-15T12:20", "ay": 6, "saat": 12, "sicaklik": 28,
+             "cig_noktasi": 10, "spread": 18.0, "ruzgar_hiz": 8, "ruzgar_yon": 60,
+             "gorus": 9999, "qnh": 1015, "sis_kodu": 0, "sis": 0, "lvo": 0})
     satirlar = istatistik.veri_oku(yol)
     assert len(satirlar) == 2
     assert satirlar[0]["sis"] == 1 and satirlar[1]["sis"] == 0
@@ -103,9 +151,10 @@ def test_bozuk_sayisal_alan_raporu_cokertmez(tmp_path):
     """375 bin satirlik bir arsivde tek bir beklenmedik deger butun analizi
     dusurmemeli - bozuk alan None'a duser, satir korunur."""
     yol = tmp_path / "bozuk.csv.gz"
-    with gzip.open(yol, "wt", encoding="utf-8", newline="") as f:
-        f.write(",".join(ozellik.SUTUNLAR) + "\n")
-        f.write("2024-01-15T05:20,1,5,3,3,0.0,M,,400,100,1020,1,1,1\n")
+    _gz_yaz(yol, {"zaman": "2024-01-15T05:20", "ay": 1, "saat": 5, "sicaklik": 3,
+                  "cig_noktasi": 3, "spread": 0.0, "ruzgar_hiz": "M", "gorus": 400,
+                  "tavan": 100, "qnh": 1020, "hava": "FG", "sis_kodu": 1,
+                  "sis": 1, "lvo": 1})
     satirlar = istatistik.veri_oku(yol)
     assert len(satirlar) == 1
     assert satirlar[0]["ruzgar_hiz"] is None       # "M" -> None, exception yok
@@ -114,9 +163,10 @@ def test_bozuk_sayisal_alan_raporu_cokertmez(tmp_path):
 
 def test_ondalikli_deger_float_olarak_okunur(tmp_path):
     yol = tmp_path / "ondalik.csv.gz"
-    with gzip.open(yol, "wt", encoding="utf-8", newline="") as f:
-        f.write(",".join(ozellik.SUTUNLAR) + "\n")
-        f.write("2024-01-15T05:20,1,5,10,7.5,2.5,4,60,9999,,1020,0,0,0\n")
+    _gz_yaz(yol, {"zaman": "2024-01-15T05:20", "ay": 1, "saat": 5, "sicaklik": 10,
+                  "cig_noktasi": 7.5, "spread": 2.5, "ruzgar_hiz": 4,
+                  "ruzgar_yon": 60, "gorus": 9999, "qnh": 1020,
+                  "sis_kodu": 0, "sis": 0, "lvo": 0})
     satirlar = istatistik.veri_oku(yol)
     assert satirlar[0]["cig_noktasi"] == 7.5
     assert satirlar[0]["spread"] == 2.5
