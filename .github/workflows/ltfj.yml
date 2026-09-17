@@ -32,6 +32,8 @@ jobs:
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       NOTAC_API_KEY: ${{ secrets.NOTAC_API_KEY }}
+      FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
 
     steps:
       - name: Repoyu al
@@ -43,7 +45,7 @@ jobs:
           python-version: "3.12"
 
       - name: Bagimliliklar
-        run: pip install --quiet requests
+        run: pip install --quiet requests firebase-admin
 
       - name: Botu calistir
         run: python ltfj_bot.py

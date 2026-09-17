@@ -1,0 +1,25 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "atc_notes": {
+      ".read": true,
+      "$not_id": {
+        ".write": "!data.exists() && newData.exists()",
+        ".validate": "newData.hasChildren(['author', 'text', 'created_at'])",
+        "author": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100 && !newData.val().matches(/^\\s*$/)"
+        },
+        "text": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1000 && !newData.val().matches(/^\\s*$/)"
+        },
+        "created_at": {
+          ".validate": "newData.val() === now"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    }
+  }
+}

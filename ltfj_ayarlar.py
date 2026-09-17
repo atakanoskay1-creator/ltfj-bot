@@ -67,6 +67,26 @@ VARSAYILAN = {
         "senkron_araligi_saat": 6,
         "location": "LTFJ",
     },
+    "atc_notes": {
+        # ATC Notes (durumsal farkindalik notlari) - okuma/yazma DOGRUDAN
+        # tarayicidan Firebase Realtime Database'e yapilir (bkz. ltfj_sayfa.
+        # py), Python tarafi SADECE 48 saati dolmus notlari fiilen silen
+        # arka plan temizligini yapar (bkz. ltfj_atc_notes_cleanup.py).
+        # FIREBASE_SERVICE_ACCOUNT/FIREBASE_DATABASE_URL ortam degiskenleri
+        # tanimli degilse temizlik sessizce atlanir - bu METAR/NOTAM akisini
+        # hicbir sekilde etkilemez.
+        "aktif": True,
+        # Firebase Realtime Database REST API'sini DOGRUDAN fetch() ile
+        # kullaniyoruz (bkz. ltfj_sayfa.py) - ayri bir SDK/CDN scripti
+        # gerekmiyor, sayfanin geri kalaniyla ayni sade fetch() deseni.
+        # Bu URL Firebase'in KENDI tasarimi geregi GIZLI DEGIL - istemci
+        # tarafinda (index.html) aynen gorunecek, guvenlik Firebase
+        # Realtime Database Rules ile saglanir (bkz. firebase-rules.json),
+        # URL'nin "gizlenmesiyle" degil. Bos birakilirsa (varsayilan) web
+        # sayfasindaki ATC Notes bolumu "yapilandirilmamis" mesaji gosterir,
+        # METAR/NOTAM bolumlerini etkilemez.
+        "database_url": "",
+    },
 }
 
 

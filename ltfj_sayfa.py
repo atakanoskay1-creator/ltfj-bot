@@ -7,6 +7,7 @@ GitHub Pages yayinlar. Ek altyapi yok. Sayfa tek dosya - harici CSS/JS yok.
 """
 
 import html
+import json
 import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -155,6 +156,38 @@ SABLON = """<!DOCTYPE html>
     color:var(--bg); font-weight:650; font-size:.85rem; cursor:pointer;
   }}
   .notam-arama-not {{ color:var(--soluk); font-size:.78rem; margin:-8px 0 12px; }}
+
+  .atc-not-ekle-btn {{
+    margin-left:auto; padding:6px 12px; border-radius:8px; border:none;
+    background:var(--vurgu); color:var(--bg); font-weight:650; font-size:.82rem;
+    cursor:pointer;
+  }}
+  .atc-not-kalan {{ color:var(--soluk); font-size:.72rem; margin-top:6px; }}
+  .modal-ortu {{
+    position:fixed; inset:0; background:rgba(0,0,0,.55); display:flex;
+    align-items:center; justify-content:center; padding:16px; z-index:50;
+  }}
+  .modal-ortu[hidden] {{ display:none; }}
+  .modal-kutu {{
+    background:var(--kart); border:1px solid var(--cizgi); border-radius:14px;
+    padding:20px; max-width:420px; width:100%;
+  }}
+  .modal-kutu h3 {{ margin:0 0 4px; font-size:1.05rem; }}
+  .modal-kutu label {{ display:block; font-size:.82rem; color:var(--soluk); margin:12px 0 4px; }}
+  .modal-kutu input, .modal-kutu textarea {{
+    width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--cizgi);
+    background:var(--bg); color:var(--metin); font-size:.9rem; font-family:inherit;
+    box-sizing:border-box; resize:vertical;
+  }}
+  .modal-hata {{ color:#ef4444; font-size:.8rem; margin-top:8px; min-height:1.1em; }}
+  .modal-butonlar {{ display:flex; gap:8px; justify-content:flex-end; margin-top:14px; }}
+  .modal-butonlar button {{
+    padding:8px 16px; border-radius:8px; border:none; font-weight:650; font-size:.85rem;
+    cursor:pointer;
+  }}
+  #atc-not-kaydet {{ background:var(--vurgu); color:var(--bg); }}
+  #atc-not-iptal {{ background:var(--kod-bg); color:var(--metin); border:1px solid var(--cizgi); }}
+  #atc-not-kaydet:disabled {{ opacity:.6; cursor:default; }}
 </style>
 </head>
 <body>
@@ -196,12 +229,44 @@ SABLON = """<!DOCTYPE html>
   </div>
   <div id="notam-arama-sonuc"><div class="notam-bos">Yükleniyor…</div></div>
 </div>
+
+<div class="bolum-baslik">ATC Notes — Durumsal Farkındalık</div>
+<div class="notam-uyari">
+  ⚠️ Bu bölüm ATC tarafından paylaşılan geçici durumsal farkındalık notlarıdır.
+  Resmî NOTAM veya operasyonel talimat değildir; NOTAM/METAR/pist analiziyle
+  hiçbir bağlantısı yoktur. Kimlik doğrulaması yapılmaz — isim yazan kişi
+  tarafından girilir. Her not oluşturulduktan tam 48 saat sonra otomatik
+  olarak silinir.
+</div>
+
+<div class="kart">
+  <div class="basrow"><span class="tip">ATC Notes</span>
+    <button type="button" id="atc-not-ekle-btn" class="atc-not-ekle-btn">+ NOT EKLE</button></div>
+  <div id="atc-notes-liste"><div class="notam-bos">Yükleniyor…</div></div>
+</div>
+
+<div id="atc-not-modal" class="modal-ortu" hidden>
+  <div class="modal-kutu">
+    <h3>Yeni ATC Notu</h3>
+    <label for="atc-not-yazan">Adınız</label>
+    <input type="text" id="atc-not-yazan" maxlength="100" placeholder="Örn. Ahmet">
+    <label for="atc-not-metin">Not</label>
+    <textarea id="atc-not-metin" maxlength="1000" rows="4"
+              placeholder="Örn. Apron 2 tarafında araç hareketliliği arttı."></textarea>
+    <div id="atc-not-hata" class="modal-hata"></div>
+    <div class="modal-butonlar">
+      <button type="button" id="atc-not-iptal">İptal</button>
+      <button type="button" id="atc-not-kaydet">Kaydet</button>
+    </div>
+  </div>
+</div>
 <footer>
   Bu sayfa otomatik üretilir. Operasyonel kullanım için resmî kaynaklara başvurun.
   Renk rozetleri (BLU/WHT/GRN/YLO/AMB/RED) resmî bir ICAO CAT I/II/III kategorisi
   değil, bu botun kendi durum seviyesidir. "Meteorolojik tercih" bir ATC pist
   ataması değildir. NOTAM bölümü NOTAC kaynaklıdır, resmî NOTAM/PIB'in yerine
-  geçmez.
+  geçmez. ATC Notes bölümü kimlik doğrulaması olmayan, paylaşımlı ve geçici
+  (48 saat) bir not panosudur; resmî bir bilgi kaynağı değildir.
 </footer>
 </div>
 <script>
@@ -319,6 +384,158 @@ SABLON = """<!DOCTYPE html>
     if (e.key === "Enter") aramaCalistir();
   }});
   veriYukle();
+}})();
+</script>
+<script>
+(function () {{
+  "use strict";
+  // ATC Notes, NOTAM/METAR'dan TAMAMEN ayrı, bağımsız bir modül - bu script
+  // yukarıdaki NOTAM script'iyle hiçbir değişken/durum PAYLAŞMAZ. Okuma/
+  // yazma doğrudan Firebase Realtime Database REST API'sine fetch() ile
+  // yapılır (ayrı bir SDK/CDN gerekmez). Güvenlik (uzunluk limitleri,
+  // "created_at" alanının GERÇEKTEN sunucu saati olması) Firebase Realtime
+  // Database Rules ile sağlanır (bkz. firebase-rules.json) - bu script
+  // sadece kullanıcı deneyimi için AYRICA istemci tarafında da doğrular,
+  // ama gerçek güvenlik sınırı sunucu (Rules) tarafındadır.
+  var DB_URL = {atc_notes_db_url};
+  var YASAM_SURESI_MS = 48 * 3600 * 1000;
+  var POLL_ARALIGI_MS = 45000;
+  var AUTHOR_MAKS = 100;
+  var TEXT_MAKS = 1000;
+
+  var listeEl = document.getElementById("atc-notes-liste");
+  var modalEl = document.getElementById("atc-not-modal");
+  var yazanEl = document.getElementById("atc-not-yazan");
+  var metinEl = document.getElementById("atc-not-metin");
+  var hataEl = document.getElementById("atc-not-hata");
+  var kaydetBtn = document.getElementById("atc-not-kaydet");
+  var sonGonderimZamani = 0;
+
+  function tabanUrl() {{
+    var taban = DB_URL;
+    while (taban.length && taban.charAt(taban.length - 1) === "/") {{
+      taban = taban.slice(0, -1);
+    }}
+    return taban + "/atc_notes.json";
+  }}
+
+  function notKarti(veri) {{
+    var kart = document.createElement("div");
+    kart.className = "notam-kart";
+
+    var ust = document.createElement("div");
+    ust.className = "notam-ust";
+    var yazan = document.createElement("span");
+    yazan.className = "notam-no";
+    yazan.textContent = veri.author || "?";
+    ust.appendChild(yazan);
+    var zamanEl = document.createElement("span");
+    zamanEl.className = "notam-durum";
+    var d = new Date(veri.created_at);
+    zamanEl.textContent = d.toISOString().slice(0, 16).replace("T", " ") + " UTC";
+    ust.appendChild(zamanEl);
+    kart.appendChild(ust);
+
+    var metin = document.createElement("div");
+    metin.className = "notam-ozet";
+    metin.textContent = veri.text || "";
+    kart.appendChild(metin);
+
+    var kalanMs = veri.created_at + YASAM_SURESI_MS - Date.now();
+    var kalanSaat = Math.max(0, Math.round(kalanMs / 3600000));
+    var kalan = document.createElement("div");
+    kalan.className = "atc-not-kalan";
+    kalan.textContent = "⏳ yaklaşık " + kalanSaat + " saat sonra otomatik silinecek";
+    kart.appendChild(kalan);
+
+    return kart;
+  }}
+
+  function listeyiGoster(kayitlar) {{
+    var simdi = Date.now();
+    var gecerliler = [];
+    Object.keys(kayitlar || {{}}).forEach(function (id) {{
+      var n = kayitlar[id];
+      if (!n || typeof n.created_at !== "number") return;
+      if (simdi - n.created_at >= YASAM_SURESI_MS) return;   // suresi dolmus - gosterme
+      gecerliler.push(n);
+    }});
+    gecerliler.sort(function (a, b) {{ return b.created_at - a.created_at; }});
+
+    listeEl.innerHTML = "";
+    if (!gecerliler.length) {{
+      listeEl.textContent = "Aktif not yok.";
+      return;
+    }}
+    gecerliler.forEach(function (n) {{ listeEl.appendChild(notKarti(n)); }});
+  }}
+
+  function veriYukle() {{
+    if (!DB_URL) {{
+      listeEl.textContent = "ATC Notes şu anda yapılandırılmamış.";
+      return;
+    }}
+    fetch(tabanUrl() + "?_=" + Date.now())
+      .then(function (r) {{ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }})
+      .then(listeyiGoster)
+      .catch(function (err) {{
+        listeEl.textContent = "ATC Notes şu anda yüklenemiyor.";
+        console.error("[atc-notes] okuma hatası:", err);
+      }});
+  }}
+
+  function modalAc() {{
+    yazanEl.value = "";
+    metinEl.value = "";
+    hataEl.textContent = "";
+    modalEl.hidden = false;
+    yazanEl.focus();
+  }}
+
+  function modalKapat() {{
+    modalEl.hidden = true;
+  }}
+
+  function notKaydet() {{
+    var yazan = yazanEl.value.trim();
+    var metin = metinEl.value.trim();
+
+    if (!DB_URL) {{ hataEl.textContent = "ATC Notes şu anda yapılandırılmamış."; return; }}
+    if (!yazan) {{ hataEl.textContent = "Adınızı girin."; return; }}
+    if (yazan.length > AUTHOR_MAKS) {{ hataEl.textContent = "Ad en fazla " + AUTHOR_MAKS + " karakter olabilir."; return; }}
+    if (!metin) {{ hataEl.textContent = "Not boş olamaz."; return; }}
+    if (metin.length > TEXT_MAKS) {{ hataEl.textContent = "Not en fazla " + TEXT_MAKS + " karakter olabilir."; return; }}
+    // basit debounce - art arda hizli gonderimi onler (gercek rate limit
+    // sunucu tarafinda yok, bu sadece yanlislikla cift tiklama/spam icin)
+    if (Date.now() - sonGonderimZamani < 3000) {{ return; }}
+
+    hataEl.textContent = "";
+    kaydetBtn.disabled = true;
+    fetch(tabanUrl(), {{
+      method: "POST",
+      headers: {{"Content-Type": "application/json"}},
+      body: JSON.stringify({{author: yazan, text: metin, created_at: {{".sv": "timestamp"}}}}),
+    }})
+      .then(function (r) {{ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }})
+      .then(function () {{
+        sonGonderimZamani = Date.now();
+        modalKapat();
+        veriYukle();
+      }})
+      .catch(function (err) {{
+        hataEl.textContent = "Not kaydedilemedi, tekrar deneyin.";
+        console.error("[atc-notes] yazma hatası:", err);
+      }})
+      .finally(function () {{ kaydetBtn.disabled = false; }});
+  }}
+
+  document.getElementById("atc-not-ekle-btn").addEventListener("click", modalAc);
+  document.getElementById("atc-not-iptal").addEventListener("click", modalKapat);
+  kaydetBtn.addEventListener("click", notKaydet);
+  modalEl.addEventListener("click", function (e) {{ if (e.target === modalEl) modalKapat(); }});
+
+  veriYukle();
+  setInterval(veriYukle, POLL_ARALIGI_MS);
 }})();
 </script>
 </body>
@@ -520,12 +737,18 @@ def _kart(rapor: dict, yorum_onbellegi: dict | None = None) -> str:
     return "".join(p)
 
 
-def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict | None = None):
+def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict | None = None,
+              atc_notes_db_url: str = ""):
     """yorum_onbellegi: state["yorum_onbellegi"] (ham rapor metni -> Claude
     yorumu/cevirisi) - Telegram ile PAYLASILAN onbellek, burada okunur,
     YENIDEN hesaplanmaz. Verilmezse (ornegin eski cagiran kod) kartlar
     sadece deterministik (Claude'suz) bilgiyi gosterir - hicbir sekilde
-    hata vermez."""
+    hata vermez.
+
+    atc_notes_db_url: ayarlar.json::atc_notes.database_url - Firebase'in
+    KENDI tasarimi geregi GIZLI DEGIL (bkz. ltfj_ayarlar.py), sayfa
+    icine oldugu gibi gomulur. Bos ise ATC Notes bolumu "yapilandirilmamis"
+    mesaji gosterir."""
     simdi = datetime.now(timezone.utc).astimezone(YEREL_TZ)
     sira = {"SPECI": 0, "METAR": 1, "TAF": 2}
     sirali = sorted(raporlar, key=lambda r: (sira.get(r["tip"], 9),
@@ -538,6 +761,7 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
 
     hedef.write_text(
         SABLON.format(icao=html.escape(icao), govde=govde,
-                      guncelleme=f"{simdi:%d.%m.%Y %H:%M} yerel"),
+                      guncelleme=f"{simdi:%d.%m.%Y %H:%M} yerel",
+                      atc_notes_db_url=json.dumps(atc_notes_db_url or "")),
         encoding="utf-8")
     print(f"  web sayfası yazıldı: {hedef.name}")
