@@ -1489,7 +1489,8 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
     guncel_rapor = next((r for r in sirali if r["tip"] in ("METAR", "SPECI")), None)
     guncel_cozum = metar_coz(guncel_rapor["metin"]) if guncel_rapor else None
     guncel_taf_rapor = next((r for r in sirali if r["tip"] == "TAF"), None)
-    taf_tavan = metar_coz(guncel_taf_rapor["metin"])["tavan"] if guncel_taf_rapor else None
+    taf_tavan = (farkindalik.taf_en_dusuk_tavan_ft(guncel_taf_rapor["metin"])
+                 if guncel_taf_rapor else None)
 
     hedef.write_text(
         SABLON.format(icao=html.escape(icao), govde=govde,

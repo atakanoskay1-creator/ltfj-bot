@@ -37,6 +37,27 @@ def test_metar_tavan_esik_degerinin_kendisi_not_uretmez():
     assert fark.metar_tavan_notu({"gorus": 9999, "tavan": 200}) is None
 
 
+def test_taf_en_dusuk_tavan_becmg_grubunu_atlamaz():
+    """metar_coz() METAR icin BECMG/TEMPO sonrasini BILEREK atar (bir
+    METAR'a eklenmis egilim grubu, 'simdiki durum' degil) - ama TAF'in
+    KENDISI cok donemli bir belge, bu yuzden taf_en_dusuk_tavan_ft() o
+    kesmeyi YAPMAMALI, BECMG grubundaki dusuk tavani da bulmali (bu, bu
+    modul eklenirken yakalanan gercek bir regresyondu)."""
+    taf = "TAF LTFJ 161100Z 1612/1712 06008KT 9999 SCT020 BECMG 1614/1616 3000 BKN001"
+    assert fark.taf_en_dusuk_tavan_ft(taf) == 100
+
+
+def test_taf_en_dusuk_tavan_birden_fazla_donemde_minimumu_bulur():
+    taf = ("TAF LTFJ 161100Z 1612/1712 06008KT 9999 BKN020 "
+           "FM161800 06010KT 9999 BKN005 "
+           "TEMPO 1620/1624 3000 BKN002")
+    assert fark.taf_en_dusuk_tavan_ft(taf) == 200
+
+
+def test_taf_en_dusuk_tavan_bulut_yoksa_none():
+    assert fark.taf_en_dusuk_tavan_ft("TAF LTFJ 161100Z 1612/1712 06008KT 9999 NSC") is None
+
+
 def test_taf_tavan_dusukse_not_uretilir():
     not_ = fark.taf_tavan_notu(150)
     assert not_ is not None
