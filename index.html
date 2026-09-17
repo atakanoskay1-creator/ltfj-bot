@@ -191,10 +191,6 @@
     padding:8px 14px; border-radius:8px; border:none; background:var(--vurgu);
     color:var(--bg); font-weight:650; font-size:.85rem; cursor:pointer; flex-shrink:0;
   }
-  .lvo-atis-durum {
-    font-size:1.05rem; font-weight:700; padding:8px 12px; border-radius:8px;
-    background:var(--kod-bg); border:1px solid var(--cizgi); display:inline-block;
-  }
   .lvo-hata { color:#ef4444; font-size:.8rem; margin-top:6px; min-height:1.1em; }
   .lvo-esik-kaynak { font-size:.72rem; color:var(--soluk); display:block; margin-top:2px; }
 
@@ -318,7 +314,7 @@
 <header>
   <div class="header-metin">
     <h1>LTFJ · İstanbul Sabiha Gökçen</h1>
-    <div class="alt">Kaynak: MGM/METAR · Son güncelleme 17.09.2026 11:11 yerel</div>
+    <div class="alt">Kaynak: MGM/METAR · Son güncelleme 17.09.2026 11:19 yerel</div>
   </div>
   <button type="button" class="yenile" id="sayfa-yenile-btn">⟳ Yenile</button>
 </header>
@@ -328,60 +324,52 @@
     TEMPO 1712/1715 04018KT -SHRA FEW020CB BKN025
     BECMG 1715/1718 SCT030</pre></div>
 
-<div class="bolum-baslik">LVO REFERENCE</div>
-<div class="notam-uyari">
-  ⚠️ Bilgi amaçlıdır. Operasyonel karar yerine geçmez. Güncel AIP, ATIS, AWOS
-  ve resmî yayınlar kontrol edilmelidir.
-</div>
-
 <div class="kart">
+  <div class="basrow notam-aktif-baslik" id="lvo-baslik" role="button" tabindex="0"
+       aria-expanded="false">
+    <span class="tip">LVO REFERENCE</span>
+    <span class="notam-ok" id="lvo-ok">▶</span>
+  </div>
+  <div id="lvo-govde" hidden>
+    <div class="notam-uyari">
+      ⚠️ Bilgi amaçlıdır. Operasyonel karar yerine geçmez. Güncel AIP, ATIS, AWOS
+      ve resmî yayınlar kontrol edilmelidir.
+    </div>
+
+    <div class="lvo-alt-baslik">Farkındalık Notları
+      <span class="lvo-provenance">METAR/TAF/AWOS</span></div>
+<ul class="lvo-not-listesi" id="lvo-fark-metar-taf"></ul><ul class="lvo-not-listesi" id="lvo-fark-rvr-liste"></ul><div class="notam-bos" id="lvo-fark-bos">Şu an için dikkat çeken bir eşik yok.</div>
+
 <div class="lvo-alt-baslik">A) Document Reference <span class="lvo-provenance">DOCUMENT REFERENCE ONLY</span></div><div style="font-size:.85rem;">Sabiha Gökçen Havalimanı Düşük Görüş Operasyonları Talimatı<br><b>TL.007 REV.1 — 16.08.2024</b></div><table class="lvo-tablo"><thead><tr><th>Pist</th><th>Kategori</th><th>İniş RVR (m)</th><th>Kalkış RVR (m)</th><th>Açıklama</th></tr></thead><tbody><tr><td>06R</td><td>CAT II</td><td>550–300</td><td>400–125</td><td>CAT II iniş ve LVTO kalkış</td></tr><tr><td>24L</td><td>CAT I</td><td>—</td><td>—</td><td></td></tr><tr><td>06L</td><td>CAT I</td><td>—</td><td>—</td><td></td></tr><tr><td>24R</td><td>CAT I</td><td>—</td><td>400–125</td><td>Sadece LVTO kalkış</td></tr></tbody></table><table class="lvo-tablo"><thead><tr><th>Kategori</th><th>RVR</th><th>DH</th></tr></thead><tbody><tr><td>CAT I</td><td>RVR ≥ 550 m</td><td>DH ≥ 60 m (200 ft)</td></tr><tr><td>CAT II</td><td>300 m ≤ RVR &lt; 550 m</td><td>30 m (100 ft) ≤ DH &lt; 60 m (200 ft)</td></tr></tbody></table><div style="font-size:.8rem;font-weight:600;margin-top:.4rem;">RVR eşikleri (madde 6.1.ee)</div><div class="lvo-esik-liste"><div class="lvo-esik-satir"><span>RVR &lt; <span class="lvo-esik-deger">800 m</span> — LVO Hazırlık Safhası<span class="lvo-esik-kaynak">6.1.ee, 6.2.a · 550 ≤ Hazırlık Safhası &lt; 800 (madde 6.2.a)</span></span></div><div class="lvo-esik-satir"><span>RVR &lt; <span class="lvo-esik-deger">550 m</span> — LVO İniş Operasyonları Safhası (CAT II, sadece 06R)<span class="lvo-esik-kaynak">6.1.ee, 6.3.1.a · 300 ≤ Uygulama Safhası &lt; 550 (madde 6.3.1.a)</span></span></div><div class="lvo-esik-satir"><span>RVR &lt; <span class="lvo-esik-deger">400 m</span> — LVO Kalkış Operasyonları Safhası (LVTO, 06R ve 24R)<span class="lvo-esik-kaynak">6.1.ee, 6.3.2.b · 125 ≤ Uygulama Safhası &lt; 400 (madde 6.3.2.b)</span></span></div><div class="lvo-esik-satir"><span>RVR &lt; <span class="lvo-esik-deger">350 m</span> — Tanımlanmış alanlarda zorunlu Follow-me uygulama safhası<span class="lvo-esik-kaynak">6.1.ee</span></span></div></div><div style="font-size:.8rem;font-weight:600;margin-top:.4rem;">Bulut tabanı (ceiling) eşikleri — RVR'dan bağımsız, paralel tetikleyici</div><div class="lvo-esik-liste"><div class="lvo-esik-satir"><span>LVO Hazırlık Safhası — Bulut tabanının CAT II şartlarına (30 m/100 ft – 60 m/200 ft) düşmesinin beklenmesi<span class="lvo-esik-kaynak">6.2.a</span></span></div><div class="lvo-esik-satir"><span>LVO İniş Operasyonları Safhası (CAT II, sadece 06R) — Bulut tabanının CAT II değerlerine (200 ft altına) düşmesi; uygulama 30 m/100 ft – 60 m/200 ft arasında sürer<span class="lvo-esik-kaynak">6.3.1.a</span></span></div></div><div style="font-size:.8rem;margin-top:.4rem;">RVR, LVO/CAT II başlatma limitlerinin üzerinde olsa dahi (RVR ≥ 550 m), ilgili yaklaşma hattında birden fazla hava aracının inişini etkileyip pas geçmelerine neden olan bir bulut oluşumunun pilot raporlarıyla teyit edilmesi durumunda Düşük Görüş Operasyonları başlatılabilir (madde 6.3.1.b). Sonlandırma da bulut oluşumunun kalktığının pilot raporlarıyla teyidiyle yapılır (madde 6.4.b).</div><ul class="lvo-not-listesi"><li>&quot;Hazırlık Safhası&quot;nın başlatıldığı 800 m RVR değeri ile CAT I operasyonları limiti olan 800 m Görüş değeri karıştırılmamalıdır (madde 6.1.ee).</li><li>06R pisti için CAT II operasyonları uygulanmaya/planlanmaya başladığında LVTO sadece 06R pistinden yapılır; 06R iniş için planlanırken 24R&#x27;den LVTO yapılmaz (madde 6.3.2.e).</li><li>06L ve 24L pistleri düşük görüş kalkış operasyonlarında (LVTO) kullanılmaz (madde 6.3.2.d).</li><li>LVO Hazırlık ve CAT II İniş safhaları RVR&#x27;dan BAĞIMSIZ olarak bulut tabanı (ceiling) eşikleriyle de başlatılabilir; ikisi &#x27;ve/veya&#x27; bağlacıyla birbirinden bağımsız tetikleyicilerdir (madde 6.2.a, 6.3.1.a).</li></ul>
 
-  <div class="lvo-alt-baslik">B) AWOS RVR
-    <span class="lvo-provenance">MANUAL AWOS</span></div>
-  <div id="lvo-awos-liste"><div class="notam-bos">Yükleniyor…</div></div>
-  <div class="lvo-form">
-    <div class="lvo-form-alan">
-      <label for="lvo-awos-pist">Runway</label>
-      <select id="lvo-awos-pist"><option value="06R">06R</option><option value="24R">24R</option></select>
+    <div class="lvo-alt-baslik">B) AWOS RVR
+      <span class="lvo-provenance">MANUAL AWOS</span></div>
+    <div id="lvo-awos-liste"><div class="notam-bos">Yükleniyor…</div></div>
+    <div class="lvo-form">
+      <div class="lvo-form-alan">
+        <label for="lvo-awos-pist">Runway</label>
+        <select id="lvo-awos-pist"><option value="06R">06R</option><option value="24R">24R</option></select>
+      </div>
+      <div class="lvo-form-alan">
+        <label for="lvo-awos-tdz">TDZ (m)</label>
+        <input type="number" id="lvo-awos-tdz" min="0" max="9999" inputmode="numeric">
+      </div>
+      <div class="lvo-form-alan">
+        <label for="lvo-awos-mid">MID (m)</label>
+        <input type="number" id="lvo-awos-mid" min="0" max="9999" inputmode="numeric">
+      </div>
+      <div class="lvo-form-alan">
+        <label for="lvo-awos-end">STOP-END (m)</label>
+        <input type="number" id="lvo-awos-end" min="0" max="9999" inputmode="numeric">
+      </div>
+      <button type="button" id="lvo-awos-kaydet">SAVE AWOS RVR</button>
     </div>
-    <div class="lvo-form-alan">
-      <label for="lvo-awos-tdz">TDZ (m)</label>
-      <input type="number" id="lvo-awos-tdz" min="0" max="9999" inputmode="numeric">
-    </div>
-    <div class="lvo-form-alan">
-      <label for="lvo-awos-mid">MID (m)</label>
-      <input type="number" id="lvo-awos-mid" min="0" max="9999" inputmode="numeric">
-    </div>
-    <div class="lvo-form-alan">
-      <label for="lvo-awos-end">STOP-END (m)</label>
-      <input type="number" id="lvo-awos-end" min="0" max="9999" inputmode="numeric">
-    </div>
-    <button type="button" id="lvo-awos-kaydet">SAVE AWOS RVR</button>
-  </div>
-  <div id="lvo-awos-hata" class="lvo-hata"></div>
+    <div id="lvo-awos-hata" class="lvo-hata"></div>
 
-  <div class="lvo-alt-baslik">C) ATIS LVO State
-    <span class="lvo-provenance">MANUAL ATIS</span></div>
-  <div id="lvo-atis-durum"><div class="notam-bos">Yükleniyor…</div></div>
-  <div class="lvo-form">
-    <div class="lvo-form-alan">
-      <label for="lvo-atis-state">State</label>
-      <select id="lvo-atis-state">
-        <option value="NORMAL">NORMAL</option>
-        <option value="LVO PREPARATION">LVO PREPARATION</option>
-        <option value="LVO IN PROGRESS">LVO IN PROGRESS</option>
-        <option value="LVTO IN PROGRESS">LVTO IN PROGRESS</option>
-        <option value="UNKNOWN">UNKNOWN</option>
-      </select>
-    </div>
-    <button type="button" id="lvo-atis-kaydet">SAVE ATIS STATE</button>
+    <div class="lvo-alt-baslik">C) LVO Related NOTAM
+      <span class="lvo-provenance">NOTAM</span></div>
+    <div id="lvo-notam-liste"><div class="notam-bos">Yükleniyor…</div></div>
   </div>
-  <div id="lvo-atis-hata" class="lvo-hata"></div>
-
-  <div class="lvo-alt-baslik">D) LVO Related NOTAM
-    <span class="lvo-provenance">NOTAM</span></div>
-  <div id="lvo-notam-liste"><div class="notam-bos">Yükleniyor…</div></div>
 </div>
 
 <div class="bolum-baslik">NOTAM — Bilgi Amaçlı</div>
@@ -644,14 +632,17 @@
   "use strict";
   // LVO REFERENCE paneli - METAR/NOTAM/ATC Notes'tan TAMAMEN bağımsız bir
   // bilgi katmanı, yukarıdaki hiçbir script'le değişken/durum PAYLAŞMAZ.
-  // Bu script SADECE mevcut bilgileri (AWOS RVR manuel girişi, ATIS LVO
-  // durumu, LVO ile ilişkili NOTAM'lar) provenance ve zaman damgasıyla
+  // Bu script SADECE mevcut bilgileri (AWOS RVR manuel girişi, LVO ile
+  // ilişkili NOTAM'lar, Farkındalık Notları) provenance ve zaman damgasıyla
   // GÖSTERİR - hiçbir operasyonel karar (LVO aktif mi, CAT II kullanılabilir
-  // mi, hangi pist kullanılmalı) ÜRETMEZ. AWOS/ATIS değerleri asla METAR'dan
-  // türetilmez, sadece kullanıcının manuel girdiği değerlerdir. Okuma/yazma
-  // ATC Notes ile AYNI Firebase veritabanına, farklı path'lere (awos_rvr,
-  // atis_state) yapılır - ayrı bir proje/kurulum gerekmez.
+  // mi, hangi pist kullanılmalı) ÜRETMEZ. Farkındalık Notları GAYRİ RESMİ,
+  // hedge'li ("... olabilir. Resmî bir tespit değildir.") metinlerdir - bkz.
+  // ltfj_lvo_farkindalik.py. AWOS değerleri asla METAR'dan türetilmez,
+  // sadece kullanıcının manuel girdiği değerlerdir. Okuma/yazma ATC Notes
+  // ile AYNI Firebase veritabanına, farklı path'e (awos_rvr) yapılır - ayrı
+  // bir proje/kurulum gerekmez.
   var DB_URL = "https://ltfj-39d4b-default-rtdb.europe-west1.firebasedatabase.app/";
+  var RVR_ESIKLERI = [{"esik_altinda_m": 800, "safha": "LVO Hazırlık Safhası", "kaynak_madde": "6.1.ee, 6.2.a", "not": "550 ≤ Hazırlık Safhası < 800 (madde 6.2.a)"}, {"esik_altinda_m": 550, "safha": "LVO İniş Operasyonları Safhası (CAT II, sadece 06R)", "kaynak_madde": "6.1.ee, 6.3.1.a", "not": "300 ≤ Uygulama Safhası < 550 (madde 6.3.1.a)"}, {"esik_altinda_m": 400, "safha": "LVO Kalkış Operasyonları Safhası (LVTO, 06R ve 24R)", "kaynak_madde": "6.1.ee, 6.3.2.b", "not": "125 ≤ Uygulama Safhası < 400 (madde 6.3.2.b)"}, {"esik_altinda_m": 350, "safha": "Tanımlanmış alanlarda zorunlu Follow-me uygulama safhası", "kaynak_madde": "6.1.ee", "not": ""}];   // ltfj_lvo_referans.RVR_ESIKLERI ile AYNI kaynak
   var STALE_ESIK_DK = 30;   // SADECE veri tazeliği göstergesi - operasyonel bir minima DEĞİL
   var AWOS_PISTLER = ["06R", "24R"];
   var AWOS_POZISYONLAR = ["TDZ", "MID", "STOP-END"];
@@ -662,14 +653,29 @@
   ];
 
   var awosListeEl = document.getElementById("lvo-awos-liste");
-  var atisDurumEl = document.getElementById("lvo-atis-durum");
   var notamListeEl = document.getElementById("lvo-notam-liste");
   var awosHataEl = document.getElementById("lvo-awos-hata");
-  var atisHataEl = document.getElementById("lvo-atis-hata");
   var awosKaydetBtn = document.getElementById("lvo-awos-kaydet");
-  var atisKaydetBtn = document.getElementById("lvo-atis-kaydet");
   var sonAwosGonderim = 0;
-  var sonAtisGonderim = 0;
+
+  var lvoBaslikEl = document.getElementById("lvo-baslik");
+  var lvoGovdeEl = document.getElementById("lvo-govde");
+  var lvoOkEl = document.getElementById("lvo-ok");
+  var farkRvrListeEl = document.getElementById("lvo-fark-rvr-liste");
+  var farkBosEl = document.getElementById("lvo-fark-bos");
+  var lvoAcikMi = false;
+
+  function lvoPaneliAcKapat() {
+    lvoAcikMi = !lvoAcikMi;
+    lvoGovdeEl.hidden = !lvoAcikMi;
+    lvoBaslikEl.setAttribute("aria-expanded", String(lvoAcikMi));
+    lvoOkEl.textContent = lvoAcikMi ? "▼" : "▶";
+    lvoOkEl.classList.toggle("acik", lvoAcikMi);
+  }
+  lvoBaslikEl.addEventListener("click", lvoPaneliAcKapat);
+  lvoBaslikEl.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); lvoPaneliAcKapat(); }
+  });
 
   function tabanUrl(yol) {
     var taban = DB_URL;
@@ -689,7 +695,11 @@
 
   // -------------------------------------------------------------- AWOS
   function awosGoster(kayitlar) {
-    if (!DB_URL) { awosListeEl.textContent = "AWOS RVR: NOT AVAILABLE"; return; }
+    if (!DB_URL) {
+      awosListeEl.textContent = "AWOS RVR: NOT AVAILABLE";
+      farkindalikRvrGuncelle({});
+      return;
+    }
     var enSon = {};
     Object.keys(kayitlar || {}).forEach(function (id) {
       var k = kayitlar[id];
@@ -753,6 +763,39 @@
     } else {
       awosListeEl.appendChild(grid);
     }
+
+    farkindalikRvrGuncelle(enSon);
+  }
+
+  // Manuel AWOS RVR degerlerini (gercek olcum) dokumanin kendi esikleriyle
+  // (RVR_ESIKLERI - ltfj_lvo_farkindalik.rvr_notu() ile AYNI mantik) GAYRI
+  // RESMI, hedge'li notlara cevirir; "LVO aktif/CAT II kullanilabilir" gibi
+  // kesin bir ifade URETMEZ.
+  function rvrFarkindalikNotu(pist, pozisyon, degerM) {
+    var enDerin = null;
+    RVR_ESIKLERI.forEach(function (e) {
+      if (degerM < e.esik_altinda_m && (!enDerin || e.esik_altinda_m < enDerin.esik_altinda_m)) {
+        enDerin = e;
+      }
+    });
+    if (!enDerin) return null;
+    return pist + " " + pozisyon + " AWOS RVR " + degerM + " m — dokümanın " +
+      enDerin.esik_altinda_m + " m eşiğinin (" + enDerin.safha + ") altında. " +
+      "LVO şartları oluşabilir. Resmî bir tespit değildir.";
+  }
+
+  function farkindalikRvrGuncelle(enSonAwos) {
+    farkRvrListeEl.innerHTML = "";
+    Object.keys(enSonAwos || {}).sort().forEach(function (anahtar) {
+      var k = enSonAwos[anahtar];
+      var not_ = rvrFarkindalikNotu(k.runway, k.position, k.value);
+      if (!not_) return;
+      var li = document.createElement("li");
+      li.textContent = not_;
+      farkRvrListeEl.appendChild(li);
+    });
+    var toplamNot = document.querySelectorAll("#lvo-fark-metar-taf li, #lvo-fark-rvr-liste li").length;
+    farkBosEl.hidden = toplamNot > 0;
   }
 
   function awosYukle() {
@@ -816,63 +859,6 @@
       .finally(function () { awosKaydetBtn.disabled = false; });
   });
 
-  // -------------------------------------------------------------- ATIS
-  function atisGoster(kayitlar) {
-    atisDurumEl.innerHTML = "";
-    if (!DB_URL) { atisDurumEl.textContent = "ATIS LVO STATE: UNKNOWN"; return; }
-
-    var enSon = null;
-    Object.keys(kayitlar || {}).forEach(function (id) {
-      var k = kayitlar[id];
-      if (!k || typeof k.entered_at !== "number") return;
-      if (!enSon || k.entered_at > enSon.entered_at) enSon = k;
-    });
-
-    var kutu = document.createElement("div");
-    kutu.className = "lvo-atis-durum";
-    kutu.textContent = enSon ? enSon.state : "ATIS LVO STATE: UNKNOWN";
-    atisDurumEl.appendChild(kutu);
-    if (enSon) {
-      var alt = document.createElement("div");
-      alt.className = "lvo-awos-alt";
-      alt.textContent = "MANUAL ATIS · " + yasGoster(enSon.entered_at);
-      atisDurumEl.appendChild(alt);
-    }
-  }
-
-  function atisYukle() {
-    if (!DB_URL) { atisGoster({}); return; }
-    fetch(tabanUrl("atis_state") + "?_=" + Date.now())
-      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then(atisGoster)
-      .catch(function (err) {
-        atisDurumEl.textContent = "";
-        atisDurumEl.textContent = "ATIS LVO STATE: UNKNOWN";
-        console.error("[lvo] atis okuma hatası:", err);
-      });
-  }
-
-  document.getElementById("lvo-atis-kaydet").addEventListener("click", function () {
-    atisHataEl.textContent = "";
-    if (!DB_URL) { atisHataEl.textContent = "LVO paneli şu anda yapılandırılmamış."; return; }
-    if (Date.now() - sonAtisGonderim < 3000) return;
-
-    var durum = document.getElementById("lvo-atis-state").value;
-    atisKaydetBtn.disabled = true;
-    fetch(tabanUrl("atis_state"), {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({state: durum, entered_at: {".sv": "timestamp"}, source: "MANUAL ATIS"}),
-    })
-      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then(function () { sonAtisGonderim = Date.now(); atisYukle(); })
-      .catch(function (err) {
-        atisHataEl.textContent = "ATIS durumu kaydedilemedi, tekrar deneyin.";
-        console.error("[lvo] atis yazma hatası:", err);
-      })
-      .finally(function () { atisKaydetBtn.disabled = false; });
-  });
-
   // ------------------------------------------------------- LVO-ilişkili NOTAM
   function notamKarti(n) {
     var kart = document.createElement("div");
@@ -924,9 +910,8 @@
   }
 
   awosYukle();
-  atisYukle();
   notamYukle();
-  setInterval(function () { awosYukle(); atisYukle(); }, 45000);
+  setInterval(function () { awosYukle(); }, 45000);
 })();
 </script>
 <script>
