@@ -152,6 +152,90 @@ daha iyi sıralıyor.** Sis ve düşük tavan birlikte oluyor (CAT II tavanları
 %86'sı sisli). Tablonun kattığı şey daha iyi bir sıralayıcı değil, tavan
 kriterine **doğrudan okunabilir** bir göreli risk ölçeği.
 
+## Model B — görüşsüz atmosferik sis oluşum potansiyeli
+
+Model A (yukarıdaki lojistik regresyon) soruyor: *"mevcut görüş dahil,
+önümüzdeki 3 saatte sis riski nedir?"* Bu, görüşü hem girdi hem çıktı olarak
+kullanmaz — görüş **T anına ait bir gözlem**, hedef ise **gelecekteki** bir
+durum; süreklilik bilgisi (hava zaten kapalı mı?) meşru bir predictor'dır.
+
+**Model B farklı bir soru soruyor:** *"görüş henüz düşmemişken, salt
+atmosferik değişkenler (spread, sıcaklık, rüzgâr, saat) yaklaşan sisi ne
+kadar önceden haber veriyor?"* Görüş ve türevleri **kesinlikle kullanılmaz**
+(`sis_modeli/olusum_alanlar.py` → `YASAKLI`, çalışma zamanında
+`dogrula()` ile denetlenir). İki model birbirinin **yerine geçmez** — farklı
+sorulara cevap verirler ve sıralanmazlar.
+
+### Değişken tarama ve seçim (`olusum_alanlar.py`, `olusum_egit.py`)
+
+Aday havuzu (`ADAYLAR`): sıcaklık, çiy noktası, spread, spread eğilimi
+(1h/3h), rüzgâr hızı/kuzey/doğu bileşeni/eğilimi, saat, ay, QNH, QNH eğilimi.
+`sis_kodu` **YASAKLI** — test edildi: yalnızca çıplak, alanı kaplayan FG
+kodunda 1 oluyor, yani `sis` etiketinin ikinci OR-koşulunun aynısı (dairesel
+predictor). `tavan` (bulut tabanı) ve `hava` sütunundan türetilen
+`sis_yakinligi` (BR/nitelikli-FG öncül sinyali) **tartışmalı** kategoride —
+aday havuzuna otomatik girmez.
+
+Walk-forward ablasyonla ölçülen (embargo açık, 2011-2023, holdout kapalı):
+
+| küme | AP | BSS |
+|---|---|---|
+| spread+trend3+rüzgâr_kuzey+saat (4) | 0.037 | −0.008 |
+| **+ sıcaklık (5) — SEÇİLEN** | **0.049** | **0.015** |
+| + ay yerine (5) | 0.035 | −0.004 (ay ZARARLI) |
+| geniş küme (8, zayıf IV'liler hariç) | 0.050 | 0.015 (+0.0003 AP, 3 fazla parametre) |
+
+Sıcaklık eklenmeden model iklimden **kötü** (BSS negatif) — spread'in
+"seviyesini" tamamlayan bağımsız bilgi taşıyor. `ay` her kombinasyonda
+zararlı. Seçilen küme: `spread, spread_egilim_3, sicaklik, ruzgar_kuzey, saat`
+— VIF hepsi <2 (çoklu doğrusallık sorunu yok).
+
+### Sınır embargosu (`bolme.embargo_penceresi`)
+
+Araştırma sırasında **kod üzerinden doğrulanan** bir bulgu: `hedef.hazirla()`
+tüm arşivi bölünmeden önce işliyor, bu yüzden bir eğitim satırının ileriye
+bakan penceresi dışarıda kalan bir dönemin (bir sonraki fold'un testi veya
+holdout) ham verisini kullanmış olabilir — feature sızıntısı DEĞİL, sınıra
+yakın birkaç satırın **etiketinin** dışarıdaki veriden etkilenmesi. Model B
+(zayıf sinyalli) bu etkiye göreli olarak daha duyarlı olabileceği için
+embargo varsayılan olarak **açık**.
+
+### Görüşün kattığı bilgi (no-visibility ablation)
+
+Aynı walk-forward üzerinde, aynı 5 değişken + `gorus`:
+
+| model | AP | BSS |
+|---|---|---|
+| Model B (görüşsüz) | 0.049 | 0.015 |
+| Model B + görüş | 0.182 | 0.103 |
+
+Görüş eklenince AP **+0.133** artıyor — sis riskinin büyük kısmı süreklilik
+(mevcut görüş) bilgisinden geliyor, ama görüşsüz haliyle bile iklimden
+anlamlı ölçüde iyi (AP 0.049 vs iklim 0.009) — saf atmosferik sinyal **gerçek
+ama küçük**.
+
+### Event-level değerlendirme (`olay_degerlendirme.py`)
+
+Satır-düzeyinde AP/Brier, bir olayın yaklaştığı ~6 satırın hepsini ayrı ayrı
+pozitif sayar — tek bir olay skoru büyütebilir. `olay_degerlendirme` bağımsız
+olayları (>3h boşlukla ayrılan pozitif gruplar) tanımlayıp **olay başına TEK
+temsilci tahmin** (onset'ten hemen önceki onset-aday satır) üzerinden
+event-level duyarlılık/kesinlik hesaplar — mevcut metrikleri **değiştirmez**,
+ek bir katmandır.
+
+### Lead-time (30dk/1h/2h/3h) — `ufuk_deneyi.py`
+
+Soru: *"Görüşü kullanmadan sis oluşumu ne kadar önceden tahmin edilebiliyor?"*
+Her ufuk kendi walk-forward döngüsünü çalıştırır (`hedef.hazirla(ufuk_saat=...)`),
+holdout hiçbirinde açılmaz. (Sonuçlar için betiği çalıştırın — bu bölüm
+metodolojiyi belgeler, sonucu iddia etmez.)
+
+### İzolasyon ve durum
+
+Model B **tamamen `sis_modeli/` içinde** — çalışma anına (ltfj_*.py) hiçbir
+şekilde bağlanmadı, hiçbir dondurulmuş modül üretilmedi. Bu bir araştırma
+deneyidir; canlı bota entegrasyon **ayrı, sonraki** bir karardır.
+
 ## Sınırlar
 
 Bu bir **iklim + süreklilik** modelidir, fizik modeli değildir: yaklaşan bir
@@ -180,4 +264,10 @@ python -m sis_modeli.veri_kalitesi --ab         # HOLDOUT AÇAR
 python -m sis_modeli.tavan_tarama
 python -m sis_modeli.tavan_tablo                # holdout açılmaz
 python -m sis_modeli.tavan_tablo --holdout      # TEK ATIŞ
+
+# Model B: görüşsüz atmosferik sis oluşum potansiyeli
+python -m sis_modeli.olusum_egit                     # tarama + walk-forward
+python -m sis_modeli.olusum_egit --dahil-gorus        # görüş-ablasyon karşılaştırması
+python -m sis_modeli.ufuk_deneyi                      # 30dk/1h/2h/3h lead-time
+python -m sis_modeli.olusum_holdout_degerlendir       # TEK ATIŞ
 ```

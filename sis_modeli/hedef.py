@@ -27,8 +27,14 @@ ADIM_SAYISI = UFUK_SAAT * 60 // ADIM_DK
 EGILIM_SAAT = (1, 3)
 
 
-def hazirla(satirlar: list, etiket: str = "sis") -> list:
+def hazirla(satirlar: list, etiket: str = "sis", ufuk_saat: float = None) -> list:
     """Zaman siralar, egilim ozelliklerini ve ileriye bakan hedefi ekler.
+
+    ufuk_saat: None ise modul sabiti UFUK_SAAT (3) kullanilir - mevcut
+    cagrilarin DAVRANISI BIREBIR AYNI kalir. Lead-time deneyi (30dk/1h/2h/3h)
+    icin acikca gecilebilir (bkz. ufuk_deneyi.py). 30 dakikalik veri
+    izgarasinin alti kati olmayan bir ufuk (ornegin 45 dk) son adimi kismen
+    kapsar - bu yuzden ADIM_DK'nin (30) tam katlari kullanilmasi onerilir.
 
     Eklenen alanlar:
       dt              - datetime
@@ -39,9 +45,13 @@ def hazirla(satirlar: list, etiket: str = "sis") -> list:
       ruzgar_egilim_1 - son 1 saatteki ruzgar degisimi
       ruzgar_dogu     - rüzgâr yönünün dogu bileseni (advection hipotezi)
       ruzgar_kuzey    - rüzgâr yönünün kuzey bileseni
-      hedef           - UFUK_SAAT icinde etiket gerceklesecek mi (bool)
+      hedef           - ufuk_saat icinde etiket gerceklesecek mi (bool)
+      hedef_ufuk_saat - bu hedefin hesaplandigi ufuk (embargo icin gerekli)
     """
     import math
+
+    ufuk = UFUK_SAAT if ufuk_saat is None else ufuk_saat
+    adim_sayisi = round(ufuk * 60 / ADIM_DK)
 
     kayitlar = [dict(r) for r in satirlar]
     for r in kayitlar:
@@ -78,7 +88,8 @@ def hazirla(satirlar: list, etiket: str = "sis") -> list:
 
         # ileriye bakan hedef
         r["hedef"] = False
-        for k in range(1, ADIM_SAYISI + 1):
+        r["hedef_ufuk_saat"] = ufuk
+        for k in range(1, adim_sayisi + 1):
             j = yer.get(r["dt"] + timedelta(minutes=ADIM_DK * k))
             if j is not None and kayitlar[j][etiket]:
                 r["hedef"] = True
