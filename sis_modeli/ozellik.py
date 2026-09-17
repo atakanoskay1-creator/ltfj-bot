@@ -23,15 +23,25 @@ LVO_GORUS_M = 550
 # CSV sutun sirasi - veri_cek.py ve istatistik.py bu listeyi kullanir.
 SUTUNLAR = (
     "zaman", "ay", "saat", "sicaklik", "cig_noktasi", "spread",
-    "ruzgar_hiz", "ruzgar_yon", "gorus", "tavan", "qnh", "sis_kodu",
+    "ruzgar_hiz", "ruzgar_yon", "gorus", "tavan", "qnh", "hava", "sis_kodu",
     "sis", "lvo",
 )
 
 
+# FG'yi ALANI KAPLAYAN sis olmaktan cikaran tanimlayicilar:
+#   MI (alcak)      - sis tabakasi goz seviyesinin altinda, gorus >= 1000 m
+#   BC (parca parca)- meydanin bazi yerlerinde, istasyon gorusu yuksek kalabilir
+#   PR (kismi)      - meydanin bir bolumunu kapliyor
+# VC (civarda) ise siddet alanindan gelir ve zaten alanda degil demektir.
+#
+# BC/PR'nin disarida birakilmasi gercek arsiv verisiyle DOGRULANDI: bunlar
+# dahilken yaz aylarindaki "FG" kayitlarinin medyan gorusu 2500 m cikiyordu
+# (haziranda %33'u 5000 m ustu) - yani sis olmayan kayitlar etiketleniyordu.
+SIS_DISI_TANIMLAYICILAR = ("MI", "BC", "PR")
+
+
 def _sis_kodu_var(hava: list) -> bool:
-    """Hava kodlarinda ALANDA sis var mi? VCFG (civarda) ve MIFG (alcak sis -
-    goz seviyesinde gorus hala >=1000 m) ALANDAKI sis sayilmaz, bu yuzden
-    disarida birakilir."""
+    """Hava kodlarinda ALANI KAPLAYAN sis var mi?"""
     for token in hava:
         m = RE_HAVA.match(token)
         if not m:
@@ -39,10 +49,26 @@ def _sis_kodu_var(hava: list) -> bool:
         siddet, tanimlayici, olay = m.groups()
         if "FG" not in olay:
             continue
-        if siddet == "VC" or "MI" in (tanimlayici or ""):
+        if siddet == "VC":
+            continue
+        if any(t in (tanimlayici or "") for t in SIS_DISI_TANIMLAYICILAR):
             continue
         return True
     return False
+
+
+def atlama_nedeni(metin: str) -> str | None:
+    """Satir neden kullanilamiyor? Kullanilabiliyorsa None doner.
+
+    Ayri bir fonksiyon, cunku "53.145 satir atlandi" gibi OPAK bir sayi
+    veri kalitesi sorununu gizler - nedeni bilmek arsivin kendisinde mi
+    yoksa ayristiricida mi sorun oldugunu soyler."""
+    d = metar_coz(metin)
+    if d["sicaklik"] is None or d["cig_noktasi"] is None:
+        return "sicaklik/cig yok"
+    if d["gorus"] is None:
+        return "gorus yok"
+    return None
 
 
 def ozellik_cikar(metin: str, zaman: datetime) -> dict | None:
@@ -72,6 +98,10 @@ def ozellik_cikar(metin: str, zaman: datetime) -> dict | None:
         "gorus": gorus,
         "tavan": d["tavan"],
         "qnh": d["qnh"],
+        # Ham hava kodlari da saklanir: etiket TANIMI ileride degisirse
+        # (ornegin BC/PR disarida birakma karari) 20 yillik arsivi yeniden
+        # indirmeden yeni etiket turetilebilsin.
+        "hava": " ".join(d["hava"]),
         "sis_kodu": int(sis_kodu),
         # Etiketler: gorus esigi VEYA alanda sis kodu. Gorus tek basina
         # yetmez cunku CAVOK disi bazi raporlarda sis kodu varken gorus
