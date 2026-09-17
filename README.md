@@ -38,12 +38,26 @@ Güvenliğiniz için API anahtarlarını koda yazmak yerine GitHub reponuzda **S
 * `TELEGRAM_CHAT_ID` : Mesajların gönderileceği kişi veya grup ID'si.
 * `ANTHROPIC_API_KEY` : Yapay zeka analizleri için kullanılacak API anahtarı.
 * `PAT_TOKEN` : `repository_dispatch` tetiklemesi için gerekli (repo ve workflow izinlerine sahip) Personal Access Token.
+* `NOTAC_API_KEY` *(opsiyonel)* : NOTAM bilgi katmanı için [NOTAC](https://notac.aero) API anahtarı. Tanımlı değilse NOTAM bölümü sessizce devre dışı kalır.
+* `FIREBASE_SERVICE_ACCOUNT` *(opsiyonel)* : ATC Notes'un 48 saatlik otomatik temizliği için Firebase servis hesabı JSON'unun **tamamı**. Aşağıdaki "ATC Notes (Firebase)" bölümüne bakın.
+* `FIREBASE_DATABASE_URL` *(opsiyonel)* : Firebase Realtime Database URL'iniz (ör. `https://PROJE-ADI-default-rtdb.europe-west1.firebasedatabase.app`).
 
 ### 3. GitHub Pages'i Aktif Etme (Opsiyonel)
 Botun ürettiği `index.html` dosyasını canlı bir web sitesi olarak görmek için:
 1. Reponuzda **Settings > Pages** sekmesine gidin.
 2. "Source" (Kaynak) kısmından `Deploy from a branch` seçeneğini belirleyin.
 3. Branch olarak `main` dalını seçip kaydedin. Birkaç dakika içinde projeniz `https://[KULLANICI_ADINIZ].github.io/ltfj-bot` adresinde yayına girecektir.
+
+### 4. ATC Notes (Firebase)
+
+ATC Notes (durumsal farkındalık notları), METAR/TAF/NOTAM sisteminden tamamen bağımsız, kimlik doğrulaması olmayan, paylaşımlı ve geçici (48 saat) bir not panosudur. Okuma/yazma doğrudan tarayıcıdan [Firebase Realtime Database](https://firebase.google.com/products/realtime-database)'e yapılır; Python tarafı yalnızca süresi dolmuş notları arka planda gerçekten siler. Bu özellik opsiyoneldir — kurulmazsa web sayfasındaki ATC Notes bölümü "yapılandırılmamış" mesajı gösterir, METAR/NOTAM bölümleri hiç etkilenmez.
+
+Kurulum:
+1. [Firebase Console](https://console.firebase.google.com/)'da yeni bir proje oluşturun (Google Analytics gerekmiyor).
+2. Sol menüden **Build > Realtime Database > Create Database** ile bir veritabanı açın (konum olarak size yakın bir bölge seçebilirsiniz), "Locked mode" ile başlatın.
+3. **Rules** sekmesine bu reponun köküdeki `firebase-rules.json` dosyasının içeriğini yapıştırıp **Publish** edin. Bu kurallar: herkesin okumasına izin verir, sadece yeni not oluşturmaya (güncelleme/silme yok) izin verir, `author`/`text` uzunluk ve boşluk kontrolü yapar, ve `created_at`'in gerçekten Firebase sunucu saatiyle yazıldığını doğrular — istemcinin gönderdiği bir zaman damgasına güvenilmez.
+4. Realtime Database sayfasının üstünde görünen veritabanı URL'inizi (ör. `https://PROJE-ADI-default-rtdb.europe-west1.firebasedatabase.app`) `ayarlar.json`'daki `atc_notes.database_url` alanına yazın. Web sayfası bu URL'e doğrudan `fetch()` ile REST istekleri atar (ayrı bir SDK/CDN gerekmez). **Bu URL gizli değildir** — Firebase'in kendi tasarımı gereği istemci tarafında (web sayfasında) görünür; güvenlik 3. adımdaki Rules ile sağlanır.
+5. **Project settings > Service accounts > Generate new private key** ile bir JSON dosyası indirin. **Bu dosya gizlidir** — reponun **Settings > Secrets and variables > Actions** kısmına `FIREBASE_SERVICE_ACCOUNT` adıyla (JSON içeriğinin tamamını) ve `FIREBASE_DATABASE_URL` adıyla veritabanı URL'inizi Repository Secret olarak ekleyin.
 
 ## ⚠️ Yasal Uyarı
 

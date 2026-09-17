@@ -34,6 +34,7 @@ from pathlib import Path
 
 import requests
 
+import ltfj_atc_notes_cleanup
 import ltfj_notam
 import ltfj_notam_client as notam_client
 from ltfj_analiz import cozum_dokumu, fark_bul, metar_coz, ozet_satiri, uyarilar
@@ -163,6 +164,20 @@ def notam_senkronize(state: dict):
     state["notam_gecmisi"] = ltfj_notam.gecmisi_guncelle(state.get("notam_gecmisi") or {}, aktif, simdi)
     state["notam_son_senkron"] = simdi
     print(f"  NOTAM senkronize edildi: {len(aktif)} aktif NOTAM ({location}).")
+
+
+def atc_notes_temizligini_calistir() -> int | None:
+    """ATC Notes'un 48 saati dolmus kayitlarini Firebase'den fiilen siler.
+    Notlarin kendisi (olusturma/okuma) DOGRUDAN tarayicidan Firebase'e
+    yazilir/okunur - bu fonksiyon METAR/NOTAM'dan TAMAMEN bagimsizdir,
+    ikisinden biri basarisiz olsa da digerini hicbir sekilde etkilemez.
+    FIREBASE_SERVICE_ACCOUNT/FIREBASE_DATABASE_URL tanimli degilse ya da
+    ozellik ayarlar.json'dan kapatilmissa None doner (sessizce atlanir)."""
+    if not ayar("atc_notes", "aktif", varsayilan=True):
+        return None
+    if not ltfj_atc_notes_cleanup.yapilandirilmis_mi():
+        return None
+    return ltfj_atc_notes_cleanup.expired_atc_notes_cleanup()
 
 
 def anahtar(rapor: dict) -> str:
@@ -782,11 +797,22 @@ def main():
         except Exception as e:
             print(f"[uyarı] NOTAM web verisi üretilemedi: {e}", file=sys.stderr)
 
+    # ATC Notes temizligi de METAR/NOTAM'dan bagimsiz bir katman - notlarin
+    # kendisi dogrudan tarayicidan Firebase'e yaziliyor, burada SADECE
+    # suresi dolmus kayitlar siliniyor.
+    try:
+        silinen = atc_notes_temizligini_calistir()
+        if silinen:
+            print(f"  ATC notes temizliği: {silinen} süresi dolmuş not silindi.")
+    except Exception as e:
+        print(f"[uyarı] ATC notes temizliği başarısız: {e}", file=sys.stderr)
+
     if ayar("web_sayfasi", varsayilan=True):
         try:
             from ltfj_sayfa import sayfa_yaz
             sayfa_yaz(raporlar, state.get("olcum_gecmisi", []), KLASOR / "index.html",
-                      state.get("yorum_onbellegi", {}))
+                      state.get("yorum_onbellegi", {}),
+                      ayar("atc_notes", "database_url", varsayilan=""))
         except Exception as e:
             print(f"[uyarı] Web sayfası üretilemedi: {e}", file=sys.stderr)
 
