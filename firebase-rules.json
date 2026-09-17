@@ -48,25 +48,6 @@
           ".validate": false
         }
       }
-    },
-    "atis_state": {
-      ".read": true,
-      "$state_id": {
-        ".write": "!data.exists() && newData.exists()",
-        ".validate": "newData.hasChildren(['state', 'entered_at', 'source'])",
-        "state": {
-          ".validate": "newData.isString() && (newData.val() === 'NORMAL' || newData.val() === 'LVO PREPARATION' || newData.val() === 'LVO IN PROGRESS' || newData.val() === 'LVTO IN PROGRESS' || newData.val() === 'UNKNOWN')"
-        },
-        "entered_at": {
-          ".validate": "newData.val() === now"
-        },
-        "source": {
-          ".validate": "newData.val() === 'MANUAL ATIS'"
-        },
-        "$other": {
-          ".validate": false
-        }
-      }
     }
   }
 }
