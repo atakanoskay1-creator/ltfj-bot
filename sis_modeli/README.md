@@ -78,13 +78,42 @@ zorunlu ve yoruma kapalıdır.
 aylarında, yani fiziksel olarak doğru. Sonuç: **2021–2023 çiy noktası
 bildirimleri güvenilir değildir.**
 
-Bu, `ltfj_sis_olasilik.py`'deki dondurulmuş sis modelini ilgilendirir: o
-model 2011–2023 ile eğitildi ve `spread < 1` kovası bu üç yılın sahte
-kayıtlarıyla seyreltilmiş durumda (5353 kirli / 2996 temiz gözlem). Etkinin
-yönü **ihtiyatlıdır** — gerçek doymuş havaya hak ettiğinden az kredi verilir,
-fazla değil — ve modelin 2024–2026 holdout sonucu (AP 0.184, BSS 0.092)
-zaten bu kusurdan sonraki temiz dönemde ölçüldü. Yine de kovanın temiz
-yıllarla yeniden kestirilmesi açık bir iştir.
+Mekanik ayrıntı önemli: hiçbir dönemde **negatif spread yok**, yani bildirim
+zinciri Td'yi T'de kırpıyor. Yüksek yanlı bir Td sensörü tam da 0'da böyle
+bir sivri üretir. Ve kusur `spread = 0` ile sınırlı değil — ay eşlenmiş
+ortalama spread, temiz dönemlerinkinden **0.74 °C düşük** ve bu fark 12 ayın
+11'inde aynı yönde. Yani o yıllardaki **tüm** spread değerleri kirli.
+
+Bu yüzden "spread=0 satırlarını at" yanlış bir düzeltmedir; üstelik etiketle
+ilişkili bir değişkene göre seçim yapmak (örn. "spread=0 **ve** CAVOK olanları
+at") gerçek sis olaylarını da siler ve modeli tehlikeli yönde saldırganlaştırır.
+Kırpma bilgiyi geri dönülmez şekilde yok ettiği için yanlılık düzeltilemez de.
+
+### Dışlama denendi ve reddedildi
+
+Geriye tek dürüst seçenek kalıyordu: o yılları eğitimden çıkarmak. Bedeli
+255 bağımsız sisli günün 56'sı (%22). Karar kuralı **sonuçlara bakılmadan
+önce** ilan edildi (`veri_kalitesi.py`): B yalnızca eşleştirilmiş blok
+bootstrap'te (AP_B − AP_A) farkının %5'lik dilimi sıfırın üstündeyse
+dondurulur.
+
+| model | Brier×10⁴ | BSS | AP | AP %5–%95 |
+|---|---|---|---|---|
+| A — mevcut (2011–2023) | 40.85 | 0.092 | **0.184** | 0.098 – 0.292 |
+| B — temiz (2021–2023 hariç) | 40.87 | 0.092 | 0.176 | 0.091 – 0.284 |
+
+AP farkı (B − A) **−0.008**, eşleştirilmiş %5–%95 aralığı **−0.014 – −0.002**
+— tamamen sıfırın altında. Kural sağlanmadı: **mevcut model korunur.**
+Dışlamanın getirdiği temizlik, kaybedilen %22 olayı telafi etmiyor.
+
+Kusurun etkisinin yönü zaten **ihtiyatlı**: sahte doymuş kayıtlar `spread<1`
+kovasını seyrelttiği için gerçek doymuş havaya hak ettiğinden *az* kredi
+verilir, fazla değil. Modelin 2024–2026 holdout sonucu da bu kusurdan
+**sonraki** temiz dönemde ölçüldü.
+
+Not: bu, holdout'un ikinci kullanımıdır. Tek bir ikili karşılaştırma için
+açıldı; sonuç "hayır" çıkınca yeni varyant denenmedi — aksi hâli, kuralın
+konmasını anlamsız kılardı.
 
 ## Düşük tavan (bulut tabanı) çalışması
 
@@ -142,6 +171,10 @@ python -m sis_modeli.istatistik
 # Sis modeli: yürüyen pencere eğitim/değerlendirme
 python -m sis_modeli.egit
 python -m sis_modeli.holdout_degerlendir        # TEK ATIŞ
+
+# Arşiv kusurları: teşhis ve A/B
+python -m sis_modeli.veri_kalitesi
+python -m sis_modeli.veri_kalitesi --ab         # HOLDOUT AÇAR
 
 # Düşük tavan: değişken taraması ve olasılık tablosu
 python -m sis_modeli.tavan_tarama
