@@ -75,6 +75,40 @@ KATEGORI_TANIMLARI = [
     {"kategori": "CAT II", "rvr": "300 m ≤ RVR < 550 m", "dh": "30 m (100 ft) ≤ DH < 60 m (200 ft)"},
 ]
 
+# 6.2.a, 6.3.1.a - dokumanda RVR esikleri (6.1.ee/RVR_ESIKLERI) ile PARALEL,
+# RVR'dan BAGIMSIZ bir tetikleyici olarak bulut tabani (ceiling) esikleri de
+# geciyor ("... veya bulut tabanının ... düşmesinin beklenmesi", "ve/veya").
+# Bu yuzden ayri bir liste olarak, dokumanin kendi ifadesiyle aynen tasinir -
+# RVR_ESIKLERI'nin bir alt kumesi/turevi DEGILDIR.
+BULUT_TABANI_ESIKLERI = [
+    {
+        "safha": "LVO Hazırlık Safhası",
+        "esik": "Bulut tabanının CAT II şartlarına (30 m/100 ft – 60 m/200 ft) "
+                "düşmesinin beklenmesi",
+        "kaynak_madde": "6.2.a",
+    },
+    {
+        "safha": "LVO İniş Operasyonları Safhası (CAT II, sadece 06R)",
+        "esik": "Bulut tabanının CAT II değerlerine (200 ft altına) düşmesi; "
+                "uygulama 30 m/100 ft – 60 m/200 ft arasında sürer",
+        "kaynak_madde": "6.3.1.a",
+    },
+]
+
+# 6.3.1.b, 6.4.b - RVR, LVO/CAT II baslatma limitlerinin UZERINDE olsa dahi
+# (RVR >= 550 m), birden fazla hava aracinin inisini etkileyen bir bulut
+# olusumunun PILOT RAPORLARIYLA teyidi TEK BASINA baslatma/sonlandirma
+# gerekcesi olabilir - sayisal bir esik degil, dokumanin kendi ifadesiyle
+# aynen tasinir.
+BULUT_PILOT_RAPORU_ISTISNASI = (
+    "RVR, LVO/CAT II başlatma limitlerinin üzerinde olsa dahi (RVR ≥ 550 m), "
+    "ilgili yaklaşma hattında birden fazla hava aracının inişini etkileyip pas "
+    "geçmelerine neden olan bir bulut oluşumunun pilot raporlarıyla teyit "
+    "edilmesi durumunda Düşük Görüş Operasyonları başlatılabilir (madde 6.3.1.b). "
+    "Sonlandırma da bulut oluşumunun kalktığının pilot raporlarıyla teyidiyle "
+    "yapılır (madde 6.4.b)."
+)
+
 # Dokumanin kendi uyarilari - referans panelinde AYNEN gosterilecek notlar.
 UYARI_NOTLARI = [
     "\"Hazırlık Safhası\"nın başlatıldığı 800 m RVR değeri ile CAT I "
@@ -83,6 +117,9 @@ UYARI_NOTLARI = [
     "LVTO sadece 06R pistinden yapılır; 06R iniş için planlanırken 24R'den "
     "LVTO yapılmaz (madde 6.3.2.e).",
     "06L ve 24L pistleri düşük görüş kalkış operasyonlarında (LVTO) kullanılmaz (madde 6.3.2.d).",
+    "LVO Hazırlık ve CAT II İniş safhaları RVR'dan BAĞIMSIZ olarak bulut "
+    "tabanı (ceiling) eşikleriyle de başlatılabilir; ikisi 've/veya' bağlacıyla "
+    "birbirinden bağımsız tetikleyicilerdir (madde 6.2.a, 6.3.1.a).",
 ]
 
 BILGI_UYARISI = (

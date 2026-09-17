@@ -50,6 +50,17 @@ def test_dokuman_referans_bilgisi_gorunur(tmp_path):
     assert "DOCUMENT REFERENCE ONLY" in html
 
 
+def test_bulut_tabani_esikleri_de_gorunur(tmp_path):
+    """RVR yaninda bulut tabani (ceiling) esikleri de - RVR'a alternatif/
+    paralel bir tetikleyici oldugu icin - dokuman referans bolumunde
+    ayrica gosterilmeli (madde 6.2.a, 6.3.1.a)."""
+    html = _sayfa_yaz(tmp_path)
+    assert "Bulut tabanı" in html
+    assert "6.2.a" in html
+    assert "6.3.1.a" in html
+    assert "pilot raporlarıyla" in html
+
+
 def test_bilgi_amaclidir_uyarisi_lvo_bolumunde_de_var(tmp_path):
     html = _sayfa_yaz(tmp_path)
     assert "Operasyonel karar yerine geçmez" in html
