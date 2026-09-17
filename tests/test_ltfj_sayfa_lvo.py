@@ -69,16 +69,13 @@ def test_bilgi_amaclidir_uyarisi_lvo_bolumunde_de_var(tmp_path):
 def test_provenance_etiketleri_gorunur(tmp_path):
     html = _sayfa_yaz(tmp_path)
     assert "MANUAL AWOS" in html
-    assert "MANUAL ATIS" in html
     assert ">NOTAM<" in html
 
 
 def test_manuel_giris_formlari_var(tmp_path):
     html = _sayfa_yaz(tmp_path)
     assert 'id="lvo-awos-kaydet"' in html
-    assert 'id="lvo-atis-kaydet"' in html
     assert 'id="lvo-awos-pist"' in html
-    assert 'id="lvo-atis-state"' in html
 
 
 def test_06r_24r_pistleri_awos_formunda_var(tmp_path):
@@ -88,13 +85,15 @@ def test_06r_24r_pistleri_awos_formunda_var(tmp_path):
     assert "06R" in m.group(1) and "24R" in m.group(1)
 
 
-def test_atis_state_secenekleri_spec_ile_uyumlu(tmp_path):
+def test_atis_bolumu_kaldirildi(tmp_path):
+    """Kullanicinin acikca istegiyle ATIS LVO State (manuel giris) bolumu
+    kaldirildi - hicbir ATIS ID/metni/Firebase yazma yolu sayfada olmamali."""
     html = _sayfa_yaz(tmp_path)
-    m = re.search(r'<select id="lvo-atis-state">(.*?)</select>', html, re.S)
-    assert m is not None
-    icerik = m.group(1)
-    for durum in ("NORMAL", "LVO PREPARATION", "LVO IN PROGRESS", "LVTO IN PROGRESS", "UNKNOWN"):
-        assert f'value="{durum}"' in icerik
+    assert "lvo-atis-state" not in html
+    assert "lvo-atis-kaydet" not in html
+    assert "MANUAL ATIS" not in html
+    assert "atis_state" not in html
+    assert "ATIS LVO State" not in html
 
 
 def test_hicbir_operasyonel_karar_ifadesi_uretilmiyor(tmp_path):
@@ -125,13 +124,57 @@ def test_notam_lvo_filtresi_mevcut_notam_veri_json_kaynagini_kullanir(tmp_path):
 
 
 def test_lvo_scripti_atc_notes_ve_notam_scriptinden_bagimsiz_degisken_kullanir(tmp_path):
-    """LVO script'i digerleriyle degisken PAYLASMAMALI - kendi DB_URL,
-    kendi fonksiyon isimleri (awosYukle/atisYukle) ayri bir IIFE icinde
-    olmali (bkz. modul ici yorum)."""
+    """LVO script'i digerleriyle degisken PAYLASMAMALI - kendi DB_URL, kendi
+    fonksiyon ismi (awosYukle) ayri bir IIFE icinde olmali (bkz. modul ici
+    aciklama)."""
     html = _sayfa_yaz(tmp_path)
     assert "awosYukle();" in html
-    assert "atisYukle();" in html
     assert html.count("var DB_URL = ") >= 2  # ATC Notes ve LVO script'leri ayri ayri tanimliyor
+
+
+def test_lvo_bolumu_varsayilan_olarak_kapali(tmp_path):
+    """Kullanicinin istegi: sayfa acildiginda LVO REFERENCE uzun metinler
+    GOSTERMEMELI, sadece basliga tiklaninca acilmali (NOTAM aktif liste ile
+    AYNI collapsible desen)."""
+    html = _sayfa_yaz(tmp_path)
+    m = re.search(r'<div id="lvo-govde"([^>]*)>', html)
+    assert m is not None
+    assert "hidden" in m.group(1)
+    assert 'id="lvo-baslik"' in html
+    assert "lvoPaneliAcKapat" in html
+
+
+def test_farkindalik_notlari_bolumu_var(tmp_path):
+    html = _sayfa_yaz(tmp_path)
+    assert "Farkındalık Notları" in html
+    assert 'id="lvo-fark-metar-taf"' in html
+    assert 'id="lvo-fark-rvr-liste"' in html
+    assert 'id="lvo-fark-bos"' in html
+
+
+def test_dusuk_metar_tavaninda_farkindalik_notu_uretilir(tmp_path):
+    hedef = tmp_path / "index.html"
+    rapor = {"tip": "METAR", "metin": "LTFJ 161250Z 06010KT 3000 BKN001 22/15 Q1013 NOSIG",
+             **{"zaman": METAR_ORNEK["zaman"], "icao": "LTFJ"}}
+    s.sayfa_yaz([rapor], [], hedef, {}, "")
+    html = hedef.read_text(encoding="utf-8")
+    assert "METAR tavanı 100 ft" in html
+    assert "LVO şartları oluşabilir. Resmî bir tespit değildir." in html
+
+
+def test_iyi_havada_farkindalik_bos_mesaji_gosterilir(tmp_path):
+    html = _sayfa_yaz(tmp_path)  # METAR_ORNEK: FEW020, düşük tavan yok
+    assert "Şu an için dikkat çeken bir eşik yok." in html
+
+
+def test_rvr_esikleri_json_gomulu(tmp_path):
+    """JS tarafindaki RVR farkindalik hesaplamasi Python'daki AYNI kaynaktan
+    (ltfj_lvo_referans.RVR_ESIKLERI) beslenmeli - JS'te ayrica hardcoded
+    esik degeri OLMAMALI."""
+    html = _sayfa_yaz(tmp_path)
+    assert "var RVR_ESIKLERI = " in html
+    assert '"esik_altinda_m": 800' in html
+    assert '"esik_altinda_m": 350' in html
 
 
 def test_pist_karar_fonksiyonlarina_yeni_bir_cagri_eklenmedi():
