@@ -82,14 +82,15 @@
   "id:52090890",
   "id:52093486",
   "id:52102031",
-  "id:52104562"
+  "id:52104562",
+  "id:52108497"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 172050Z 04007KT 9999 -SHRA BKN025 BKN090 18/16 Q1015 NOSIG RMK RWY24R 04005KT 360V060 RWY06R 05006KT RWY24L 04004KT 340V090",
+ "son_metar": "SPECI LTFJ 172104Z 04008KT 9999 SCT030 BKN090 18/16 Q1015 RESHRA NOSIG RMK RWY24R 02006KT 360V060 RWY06R 05006KT RWY24L 03006KT 360V070",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-17T20:50:00+00:00",
+ "son_veri_zamani": "2026-09-17T21:04:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -567,13 +568,21 @@
    "qnh": 1015,
    "sicaklik": 18,
    "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-17T21:04:00+00:00",
+   "ruzgar_hiz": 8,
+   "tavan": 9000,
+   "qnh": 1015,
+   "sicaklik": 18,
+   "cig_noktasi": 16
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 171920Z 04007KT 9999 SCT030 BKN100 18/16 Q1015 NOSIG RMK RWY24R 02005KT 340V050 RWY06R 03005KT RWY24L 02004KT 350V050": "**Rüzgâr:** Kuzey-kuzeydoğudan 7 knot hızla esen hafif rüzgâr, yan bileşen 3 knot.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi, uçuş için rahat.\n\n**Gökyüzü:** 3000 feet yükseklikte parçalı bulutlar, 10000 feet yükseklikte çok bulutlu; yağış yok.\n\n**Uçuşa etkisi:** Hafif rüzgâr ve yüksek nem dışında kısıtlayıcı unsur yoktur.",
   "TAF LTFJ 171640Z 1718/1818 04015KT 9999 SCT030 BKN100 BECMG 1718/1721 04005KT TEMPO 1802/1806 -SHRA BKN025 BKN090 BECMG 1806/1809 04015KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde kuzey-kuzeybatı rüzgarı ve değişken bulutluluk beklenmektedir.\n\n- **1718/1821 UTC:** Rüzgar 040° 15 knot, görüş 9999 metre, 3000 ft'te parçalı bulut, 10000 ft'te kırık bulut.\n- **1718/1721 UTC:** Rüzgar kademeli olarak 040° 5 knot'a düşecek.\n- **1802/1806 UTC:** Geçici olarak hafif sağanak yağış, 2500 ft'te kırık bulut, 9000 ft'te kırık bulut.\n- **1806/1809 UTC:** Rüzgar kademeli olarak 040° 15 knot'a yükselecek.",
   "METAR LTFJ 171950Z 04005KT 9999 SCT030 BKN100 18/16 Q1015 NOSIG RMK RWY24R 36003KT 340V060 RWY06R 04004KT RWY24L 00000KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/saat) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Yaklaşık 3000 metreden başlayan parçalı bulutluluk, 10000 metreden çok bulutlu tabaka, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve yağış açısından belirgin kısıtlama yok; nem yüksek ancak operasyonel engel değil.",
-  "METAR LTFJ 172050Z 04007KT 9999 -SHRA BKN025 BKN090 18/16 Q1015 NOSIG RMK RWY24R 04005KT 360V060 RWY06R 05006KT RWY24L 04004KT 340V090": "**Rüzgâr:** Kuzey-kuzeydoğu yönünden 7 knot hızla esen rüzgâr, yan bileşen 3 knot seviyesinde.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi, uçuş için rahat koşullar.\n\n**Gökyüzü:** Yaklaşık 2500 metre yükseklikte çok bulutlu, hafif sağanak yağmur; 9000 metrede de bulutlu tabaka var.\n\n**Uçuşa etkisi:** Hafif sağanak ve yüksek nem koşulları mevcuttur; rüzgâr ve görüş kısıtlayıcı değildir."
+  "METAR LTFJ 172050Z 04007KT 9999 -SHRA BKN025 BKN090 18/16 Q1015 NOSIG RMK RWY24R 04005KT 360V060 RWY06R 05006KT RWY24L 04004KT 340V090": "**Rüzgâr:** Kuzey-kuzeydoğu yönünden 7 knot hızla esen rüzgâr, yan bileşen 3 knot seviyesinde.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi, uçuş için rahat koşullar.\n\n**Gökyüzü:** Yaklaşık 2500 metre yükseklikte çok bulutlu, hafif sağanak yağmur; 9000 metrede de bulutlu tabaka var.\n\n**Uçuşa etkisi:** Hafif sağanak ve yüksek nem koşulları mevcuttur; rüzgâr ve görüş kısıtlayıcı değildir.",
+  "SPECI LTFJ 172104Z 04008KT 9999 SCT030 BKN090 18/16 Q1015 RESHRA NOSIG RMK RWY24R 02006KT 360V060 RWY06R 05006KT RWY24L 03006KT 360V070": "**Rüzgâr:** Kuzey-kuzeydoğudan 8 knot (yaklaşık 15 km/s) hızında hafif rüzgâr esiyor, yan bileşen çok az.\n\n**Görüş:** 10 kilometre ve daha fazla mesafeden görüş sağlanıyor, uçuş için rahat.\n\n**Gökyüzü:** 3000 feet (yaklaşık 900 metre) yükseklikte parçalı bulutlar, 9000 feet (yaklaşık 2700 metre) yükseklikte çok bulutlu katman var; yağış yok.\n\n**Uçuşa etkisi:** Gözlenen veriler içinde uçuşu kısıtlayan önemli unsur bulunmuyor; çok yüksek nem dikkat edilebilir."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -926,5 +935,5 @@
   }
  },
  "notam_son_senkron": "2026-09-17T18:10:54+00:00",
- "guncelleme": "2026-09-17T21:01:25+00:00"
+ "guncelleme": "2026-09-17T21:10:55+00:00"
 }
