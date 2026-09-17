@@ -163,9 +163,59 @@ SABLON = """<!DOCTYPE html>
     cursor:pointer;
   }}
   .atc-not-kalan {{ color:var(--soluk); font-size:.72rem; margin-top:6px; }}
+
+  /* ATC Notes artik sayfa akisinda degil - sag altta sabit duran bir
+     dugmeyle (FAB) acilan yuzen bir panel. Telefonda alttan yukari kayan
+     "bottom sheet", genis ekranda dugmenin ustunde sabit bir kart. */
+  .atc-fab {{
+    position:fixed; right:16px;
+    bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+    width:56px; height:56px; border-radius:999px; border:none;
+    background:var(--vurgu); color:var(--bg); font-size:1.4rem;
+    box-shadow:0 4px 16px rgba(0,0,0,.3); cursor:pointer; z-index:60;
+    display:flex; align-items:center; justify-content:center;
+  }}
+  .atc-fab-rozet {{
+    position:absolute; top:-2px; right:-2px; min-width:20px; height:20px;
+    padding:0 5px; border-radius:999px; background:#ef4444; color:#fff;
+    font-size:.68rem; font-weight:700; display:flex; align-items:center;
+    justify-content:center; border:2px solid var(--bg);
+  }}
+  .atc-fab-rozet[hidden] {{ display:none; }}
+  .atc-panel-ortu {{
+    position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:55;
+    display:flex; align-items:flex-end; justify-content:center;
+  }}
+  .atc-panel-ortu[hidden] {{ display:none; }}
+  .atc-panel {{
+    background:var(--kart); border:1px solid var(--cizgi);
+    border-radius:16px 16px 0 0; width:100%; max-width:480px;
+    max-height:min(78vh, 640px); display:flex; flex-direction:column;
+    padding-bottom:env(safe-area-inset-bottom, 0px);
+  }}
+  .atc-panel-ust {{
+    display:flex; align-items:center; gap:10px; padding:16px 16px 10px;
+    border-bottom:1px solid var(--cizgi); flex-shrink:0;
+  }}
+  .atc-panel-ust .tip {{ font-weight:650; font-size:1.05rem; }}
+  .atc-panel-kapat {{
+    width:32px; height:32px; border-radius:999px; border:none; flex-shrink:0;
+    background:var(--kod-bg); color:var(--metin); font-size:1.1rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }}
+  .atc-panel-govde {{ overflow-y:auto; padding:14px 16px 20px; -webkit-overflow-scrolling:touch; }}
+  .atc-panel .notam-uyari {{ margin-top:0; }}
+  @media (min-width:640px) {{
+    .atc-panel-ortu {{ align-items:flex-end; justify-content:flex-end; padding:0 16px; }}
+    .atc-panel {{
+      margin-bottom:calc(84px + env(safe-area-inset-bottom, 0px));
+      border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,.35);
+      max-height:min(70vh, 600px);
+    }}
+  }}
   .modal-ortu {{
     position:fixed; inset:0; background:rgba(0,0,0,.55); display:flex;
-    align-items:center; justify-content:center; padding:16px; z-index:50;
+    align-items:center; justify-content:center; padding:16px; z-index:65;
   }}
   .modal-ortu[hidden] {{ display:none; }}
   .modal-kutu {{
@@ -230,19 +280,30 @@ SABLON = """<!DOCTYPE html>
   <div id="notam-arama-sonuc"><div class="notam-bos">Yükleniyor…</div></div>
 </div>
 
-<div class="bolum-baslik">ATC Notes — Durumsal Farkındalık</div>
-<div class="notam-uyari">
-  ⚠️ Bu bölüm ATC tarafından paylaşılan geçici durumsal farkındalık notlarıdır.
-  Resmî NOTAM veya operasyonel talimat değildir; NOTAM/METAR/pist analiziyle
-  hiçbir bağlantısı yoktur. Kimlik doğrulaması yapılmaz — isim yazan kişi
-  tarafından girilir. Her not oluşturulduktan tam 48 saat sonra otomatik
-  olarak silinir.
-</div>
+<!-- ATC Notes artik sayfa akisinda degil - sag altta sabit FAB'la acilan
+     yuzen bir panel (bkz. asagidaki .atc-fab/.atc-panel-ortu). -->
+<button type="button" id="atc-fab" class="atc-fab" aria-label="ATC Notes'u aç" title="ATC Notes">
+  📋<span id="atc-fab-rozet" class="atc-fab-rozet" hidden>0</span>
+</button>
 
-<div class="kart">
-  <div class="basrow"><span class="tip">ATC Notes</span>
-    <button type="button" id="atc-not-ekle-btn" class="atc-not-ekle-btn">+ NOT EKLE</button></div>
-  <div id="atc-notes-liste"><div class="notam-bos">Yükleniyor…</div></div>
+<div id="atc-panel-ortu" class="atc-panel-ortu" hidden>
+  <div class="atc-panel">
+    <div class="atc-panel-ust">
+      <span class="tip">ATC Notes</span>
+      <button type="button" id="atc-not-ekle-btn" class="atc-not-ekle-btn">+ NOT EKLE</button>
+      <button type="button" id="atc-panel-kapat" class="atc-panel-kapat" aria-label="Kapat">✕</button>
+    </div>
+    <div class="atc-panel-govde">
+      <div class="notam-uyari">
+        ⚠️ Bu bölüm ATC tarafından paylaşılan geçici durumsal farkındalık
+        notlarıdır. Resmî NOTAM veya operasyonel talimat değildir; NOTAM/
+        METAR/pist analiziyle hiçbir bağlantısı yoktur. Kimlik doğrulaması
+        yapılmaz — isim yazan kişi tarafından girilir. Her not
+        oluşturulduktan tam 48 saat sonra otomatik olarak silinir.
+      </div>
+      <div id="atc-notes-liste"><div class="notam-bos">Yükleniyor…</div></div>
+    </div>
+  </div>
 </div>
 
 <div id="atc-not-modal" class="modal-ortu" hidden>
@@ -409,6 +470,9 @@ SABLON = """<!DOCTYPE html>
   var metinEl = document.getElementById("atc-not-metin");
   var hataEl = document.getElementById("atc-not-hata");
   var kaydetBtn = document.getElementById("atc-not-kaydet");
+  var fabEl = document.getElementById("atc-fab");
+  var fabRozetEl = document.getElementById("atc-fab-rozet");
+  var panelOrtuEl = document.getElementById("atc-panel-ortu");
   var sonGonderimZamani = 0;
 
   function tabanUrl() {{
@@ -462,6 +526,9 @@ SABLON = """<!DOCTYPE html>
     }});
     gecerliler.sort(function (a, b) {{ return b.created_at - a.created_at; }});
 
+    fabRozetEl.textContent = gecerliler.length > 99 ? "99+" : String(gecerliler.length);
+    fabRozetEl.hidden = gecerliler.length === 0;
+
     listeEl.innerHTML = "";
     if (!gecerliler.length) {{
       listeEl.textContent = "Aktif not yok.";
@@ -482,6 +549,15 @@ SABLON = """<!DOCTYPE html>
         listeEl.textContent = "ATC Notes şu anda yüklenemiyor.";
         console.error("[atc-notes] okuma hatası:", err);
       }});
+  }}
+
+  function panelAc() {{
+    panelOrtuEl.hidden = false;
+    veriYukle();
+  }}
+
+  function panelKapat() {{
+    panelOrtuEl.hidden = true;
   }}
 
   function modalAc() {{
@@ -529,11 +605,17 @@ SABLON = """<!DOCTYPE html>
       .finally(function () {{ kaydetBtn.disabled = false; }});
   }}
 
+  fabEl.addEventListener("click", panelAc);
+  document.getElementById("atc-panel-kapat").addEventListener("click", panelKapat);
+  panelOrtuEl.addEventListener("click", function (e) {{ if (e.target === panelOrtuEl) panelKapat(); }});
+
   document.getElementById("atc-not-ekle-btn").addEventListener("click", modalAc);
   document.getElementById("atc-not-iptal").addEventListener("click", modalKapat);
   kaydetBtn.addEventListener("click", notKaydet);
   modalEl.addEventListener("click", function (e) {{ if (e.target === modalEl) modalKapat(); }});
 
+  // Rozet (badge) sayisi icin arka planda da veri cekilir - panel kapaliyken
+  // bile FAB uzerindeki aktif-not sayisi guncel kalsin diye.
   veriYukle();
   setInterval(veriYukle, POLL_ARALIGI_MS);
 }})();
