@@ -65,6 +65,10 @@ Kurulum:
 
 LVO Reference paneli, "SABİHA GÖKÇEN HAVALİMANI DÜŞÜK GÖRÜŞ OPERASYONLARI TALİMATI" (TL.007 Rev.1, 16.08.2024) dokümanındaki referans RVR eşiklerini gösterir, ve ATC'nin manuel olarak gireceği AWOS RVR (06R/24R × TDZ/MID/STOP-END) ile ATIS LVO durumunu paylaşımlı olarak tutar. **Bu panel hiçbir operasyonel karar üretmez** — METAR'dan RVR türetmez, NOTAM/AWOS/ATIS'i birleştirerek "LVO aktif" gibi bir sonuç çıkarmaz; sadece mevcut bilgileri kaynağıyla birlikte gösterir. Yukarıdaki ATC Notes kurulumuyla **aynı Firebase veritabanını** kullanır — ayrıca bir kurulum gerekmez, sadece `firebase-rules.json`'ın güncel halinin Rules sekmesine yapıştırılmış olması yeterlidir.
 
+### 6. VFR Sekmesi
+
+Sayfanın sağ kenarında küçük bir "VFR" sekmesi bulunur. Bu sekme, en son METAR/SPECI'nin görüş ve bulut tabanı (tavan) değerlerini ICAO Annex 2 (Rules of the Air) Table 3-1'in FL100 altı satırıyla (görüş ≥ 5 km, tavan ≥ 1.500 ft — Sabiha Gökçen CTR'si sürekli kontrollü hava sahası olduğu için tüm irtifalarda aynı eşik) karşılaştırır ve şartlar sağlanıyorsa yeşil, sağlanmıyorsa kırmızı yanar. Kırmızıyken/tıklandığında açılan panelde hangi eşiğin (görüş ve/veya tavan) sağlanmadığı yazar. Bu, projedeki diğer METAR-tabanlı göstergelerle (ör. sis riski) aynı mantıkla çalışan, tamamen statik/deterministik bir hesaplamadır — ek kurulum, Firebase veya harici veri kaynağı gerektirmez; hiçbir zaman "LVO/CAT II" gibi operasyonel bir karar iddiasında bulunmaz, sadece görüş/tavan-VFR eşiği karşılaştırmasıdır.
+
 ## ⚠️ Yasal Uyarı
 
 Bu yazılım tamamen **eğitim, simülasyon ve hobi amaçlı** olarak geliştirilmiştir. Havacılıkta hava durumu verileri hayati önem taşır. Bu botun sağladığı veriler gecikmeli, eksik veya hatalı olabilir. **Gerçek uçuş planlamaları veya gerçek havacılık operasyonları için kesinlikle KULLANILAMAZ.** Gerçek uçuş operasyonları için sadece yetkili ve resmi meteoroloji servis sağlayıcılarını kullanınız.

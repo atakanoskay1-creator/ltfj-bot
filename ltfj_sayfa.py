@@ -13,6 +13,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import ltfj_lvo_referans as lvo
+import ltfj_vfr as vfr
 from ltfj_analiz import metar_coz, ozet_satiri, uyarilar
 from ltfj_ayarlar import YEREL_TZ
 from ltfj_pist import RENK_SIMGE, havacilik_notlari
@@ -320,6 +321,38 @@ SABLON = """<!DOCTYPE html>
   #atc-not-kaydet {{ background:var(--vurgu); color:var(--bg); }}
   #atc-not-iptal {{ background:var(--kod-bg); color:var(--metin); border:1px solid var(--cizgi); }}
   #atc-not-kaydet:disabled {{ opacity:.6; cursor:default; }}
+
+  /* Sayfa kenarinda kucuk VFR gosterge sekmesi - EN SON METAR/SPECI'nin
+     gorus/tavaninin VFR esikleriyle karsilastirilmis sonucunu yesil/kirmizi
+     gosterir, tiklaninca sebepleri acan kucuk bir panel acilir. */
+  .vfr-sekme {{
+    position:fixed; top:96px; right:0; z-index:58; border:none;
+    padding:10px 7px; border-radius:10px 0 0 10px; color:#fff;
+    font-weight:700; font-size:.8rem; letter-spacing:.05em; cursor:pointer;
+    writing-mode:vertical-rl; text-orientation:mixed;
+    box-shadow:0 2px 10px rgba(0,0,0,.3);
+  }}
+  .vfr-sekme.vfr-yesil {{ background:#22c55e; }}
+  .vfr-sekme.vfr-kirmizi {{ background:#ef4444; }}
+  .vfr-sekme.vfr-bilinmiyor {{ background:#64748b; }}
+  .vfr-panel-ortu {{
+    position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:62;
+    display:flex; align-items:flex-start; justify-content:flex-end; padding:16px;
+  }}
+  .vfr-panel-ortu[hidden] {{ display:none; }}
+  .vfr-panel {{
+    background:var(--kart); border:1px solid var(--cizgi); border-radius:14px;
+    max-width:340px; width:100%; padding:16px; margin-top:80px;
+    box-shadow:0 8px 32px rgba(0,0,0,.35);
+  }}
+  .vfr-panel-ust {{ display:flex; align-items:center; gap:10px; }}
+  .vfr-panel-ust h3 {{ margin:0; font-size:1rem; display:flex; align-items:center; gap:8px; flex:1; }}
+  .vfr-nokta {{ width:10px; height:10px; border-radius:999px; display:inline-block; flex-shrink:0; }}
+  .vfr-nokta.yesil {{ background:#22c55e; }}
+  .vfr-nokta.kirmizi {{ background:#ef4444; }}
+  .vfr-nokta.bilinmiyor {{ background:#64748b; }}
+  .vfr-panel ul {{ margin:10px 0 0; padding-left:18px; font-size:.85rem; }}
+  .vfr-panel .vfr-esik {{ color:var(--soluk); font-size:.72rem; margin-top:10px; }}
 </style>
 </head>
 <body>
@@ -467,13 +500,17 @@ SABLON = """<!DOCTYPE html>
     </div>
   </div>
 </div>
+
+{vfr_html}
 <footer>
   Bu sayfa otomatik üretilir. Operasyonel kullanım için resmî kaynaklara başvurun.
   Renk rozetleri (BLU/WHT/GRN/YLO/AMB/RED) resmî bir ICAO CAT I/II/III kategorisi
   değil, bu botun kendi durum seviyesidir. "Meteorolojik tercih" bir ATC pist
   ataması değildir. NOTAM bölümü NOTAC kaynaklıdır, resmî NOTAM/PIB'in yerine
   geçmez. ATC Notes bölümü kimlik doğrulaması olmayan, paylaşımlı ve geçici
-  (48 saat) bir not panosudur; resmî bir bilgi kaynağı değildir.
+  (48 saat) bir not panosudur; resmî bir bilgi kaynağı değildir. VFR sekmesi
+  son METAR/SPECI'nin görüş/tavan değerlerini ICAO Annex 2 eşikleriyle
+  karşılaştıran bilgilendirici bir göstergedir; resmî VFR/IFR tespiti değildir.
 </footer>
 </div>
 <script>
@@ -1116,6 +1153,20 @@ SABLON = """<!DOCTYPE html>
   }});
 }})();
 </script>
+<script>
+(function () {{
+  "use strict";
+  // VFR sekmesi/paneli TAMAMEN statik render edilir (bkz. ltfj_vfr.py) -
+  // burada sadece acma/kapama var, hicbir fetch() yapilmaz.
+  var sekme = document.getElementById("vfr-sekme");
+  var ortu = document.getElementById("vfr-panel-ortu");
+  var kapat = document.getElementById("vfr-panel-kapat");
+  if (!sekme || !ortu) return;
+  sekme.addEventListener("click", function () {{ ortu.hidden = false; }});
+  if (kapat) kapat.addEventListener("click", function () {{ ortu.hidden = true; }});
+  ortu.addEventListener("click", function (e) {{ if (e.target === ortu) ortu.hidden = true; }});
+}})();
+</script>
 </body>
 </html>
 """
@@ -1269,6 +1320,44 @@ def _lvo_dokuman_referans_html() -> str:
     )
 
 
+def _vfr_sekmesi_html(guncel_cozum: dict | None) -> str:
+    """Sayfa kenarindaki kucuk VFR gosterge sekmesi - EN SON METAR/SPECI'nin
+    zaten cozulmus (metar_coz) gorus/tavan degerlerini ltfj_vfr.vfr_degerlendir()
+    ile karsilastirip yesil/kirmizi/bilinmiyor olarak gosterir; tiklaninca
+    sebepleri listeleyen kucuk bir panel acilir (bkz. ltfj_vfr.py basindaki
+    not - bu, kullanicinin acikca istedigi TEK otomatik karsilastirmadir)."""
+    if guncel_cozum is None:
+        sonuc = {"vfr": None, "sebepler": ["Son METAR/SPECI bulunamadı — değerlendirme yapılamıyor."]}
+    else:
+        sonuc = vfr.vfr_degerlendir(guncel_cozum)
+
+    if sonuc["vfr"] is True:
+        sinif, nokta, baslik = "vfr-yesil", "yesil", "VFR şartları sağlanıyor"
+    elif sonuc["vfr"] is False:
+        sinif, nokta, baslik = "vfr-kirmizi", "kirmizi", "VFR şartları sağlanmıyor"
+    else:
+        sinif, nokta, baslik = "vfr-bilinmiyor", "bilinmiyor", "VFR değerlendirilemiyor"
+
+    sebep_html = "".join(f"<li>{html.escape(s)}</li>" for s in sonuc["sebepler"]) or (
+        "<li>Görüş ve tavan eşiklerin üzerinde.</li>")
+
+    return (
+        f'<button type="button" id="vfr-sekme" class="vfr-sekme {sinif}" '
+        f'aria-label="VFR durumu" title="{html.escape(baslik)}">VFR</button>'
+        '<div id="vfr-panel-ortu" class="vfr-panel-ortu" hidden>'
+        '<div class="vfr-panel">'
+        '<div class="vfr-panel-ust">'
+        f'<h3><span class="vfr-nokta {nokta}"></span>{html.escape(baslik)}</h3>'
+        '<button type="button" id="vfr-panel-kapat" class="atc-panel-kapat" aria-label="Kapat">✕</button>'
+        '</div>'
+        f'<ul>{sebep_html}</ul>'
+        f'<div class="vfr-esik">Eşik: görüş ≥ {vfr.VFR_GORUS_ESIGI_M} m, '
+        f'tavan ≥ {vfr.VFR_TAVAN_ESIGI_FT} ft (ICAO Annex 2, Tablo 3-1 — FL100 altı, '
+        'CTR/TMA). Bilgi amaçlıdır, resmî VFR/IFR tespiti yerine geçmez.</div>'
+        '</div></div>'
+    )
+
+
 def _yorum_html(yorum: str) -> str:
     """Claude'un state.yorum_onbellegi'nde (Telegram ile PAYLAŞILAN onbellek)
     zaten hesaplanmış metnini web icin bicimlendirir - burada YENI bir
@@ -1394,10 +1483,14 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
                 or "<div class='kart'>Rapor yok.</div>"))
     icao = raporlar[0].get("icao", "LTFJ") if raporlar else "LTFJ"
 
+    guncel_rapor = next((r for r in sirali if r["tip"] in ("METAR", "SPECI")), None)
+    guncel_cozum = metar_coz(guncel_rapor["metin"]) if guncel_rapor else None
+
     hedef.write_text(
         SABLON.format(icao=html.escape(icao), govde=govde,
                       guncelleme=f"{simdi:%d.%m.%Y %H:%M} yerel",
                       atc_notes_db_url=json.dumps(atc_notes_db_url or ""),
-                      lvo_referans_html=_lvo_dokuman_referans_html()),
+                      lvo_referans_html=_lvo_dokuman_referans_html(),
+                      vfr_html=_vfr_sekmesi_html(guncel_cozum)),
         encoding="utf-8")
     print(f"  web sayfası yazıldı: {hedef.name}")
