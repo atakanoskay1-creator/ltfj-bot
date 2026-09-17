@@ -15,7 +15,12 @@ METAR = {"tip": "METAR", "icao": "LTFJ", "zaman": SIMDI,
 
 
 def _gecmis(degerler):
-    return [{"zaman": (SIMDI - timedelta(minutes=(len(degerler) - 1 - i) * 60)).isoformat(),
+    """Zaman damgalari GERCEK 'simdi'ye gore uretilir: _grafik_verisi() son
+    GRAFIK_PENCERE_SAAT'lik pencereyi datetime.now()'a gore suzdugu icin sabit
+    tarihli fixture saat ilerledikce pencereden duser (testi zamana bagimli
+    kilardi)."""
+    simdi = datetime.now(timezone.utc)
+    return [{"zaman": (simdi - timedelta(minutes=(len(degerler) - 1 - i) * 30)).isoformat(),
              "ruzgar_hiz": v, "tavan": 3000, "qnh": 1016, "sicaklik": 20}
             for i, v in enumerate(degerler)]
 
