@@ -47,7 +47,8 @@
   "id:51883269",
   "id:51887753",
   "id:51895998",
-  "id:51898632"
+  "id:51898632",
+  "id:51900656"
  ],
  "ilk_calisma": false,
  "son_metar": "METAR LTFJ 170450Z 04006KT 9999 SCT030 BKN070 17/15 Q1015 NOSIG RMK RWY24R 36006KT RWY06R 03007KT RWY24L 02005KT 010V080",
@@ -303,10 +304,10 @@
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 170350Z 06006KT 9999 SCT030 BKN070 16/15 Q1015 NOSIG RMK RWY24R 04004KT 340V070 RWY06R 05005KT RWY24L 02005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 6 knot (yaklaşık 11 km/saat) hafif rüzgâr esiyor, yan bileşen önemli değil.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat.\n\n**Gökyüzü:** Yaklaşık 3000 metreden başlayan parçalı bulutlar, 7000 metreden çok bulutlu tabaka var; yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve yağış kısıtlaması yoktur; hava koşulları operasyonel açıdan sınırlayıcı unsur içermemektedir.",
   "METAR LTFJ 170420Z 03006KT 9999 SCT030 BKN070 16/15 Q1015 NOSIG RMK RWY24R 35006KT 330V030 RWY06R 02006KT RWY24L 36003KT": "**Rüzgâr:** Kuzey-kuzeydoğudan hafif şekilde 6 knot (yaklaşık 11 km/saat) esiyordu.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş vardı, uçuş için rahat koşullar.\n\n**Gökyüzü:** Yaklaşık 900 metrede parçalı bulutlar, 2100 metrede ise çok bulutlu bir tabaka vardı; yağış yoktu.\n\n**Uçuşa etkisi:** Raporlanan koşullarda kısıtlayıcı unsur bulunmamaktaydı; rüzgâr hafif, görüş iyi ve hava olayı yoktu.",
   "METAR LTFJ 170450Z 04006KT 9999 SCT030 BKN070 17/15 Q1015 NOSIG RMK RWY24R 36006KT RWY06R 03007KT RWY24L 02005KT 010V080": "**Rüzgâr:** Kuzey-kuzeydoğudan 6 knot (yaklaşık 11 km/saat) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için rahat.\n\n**Gökyüzü:** 3000 feet (yaklaşık 900 metre) yükseklikte parçalı bulutlar, 7000 feet (yaklaşık 2100 metre) yükseklikte çok bulutlu katman var; yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor, rüzgâr ve görüş uçuş için uygun.",
-  "TAF AMD LTFJ 170100Z 1701/1724 03009KT 9999 FEW002 BKN080 TEMPO 1701/1705 1700 PRFG BECMG 1704/1707 BKN030 BKN080 PROB30 TEMPO 1708/1712 04015G25KT -SHRA FEW020CB BKN030 BECMG 1715/1718 CAVOK BECMG 1721/1724 SCT035": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 17 Ocak 01:00 UTC başlangıçlı tahmin; başlangıçta hafif rüzgar ve az bulutluluk, gün içinde geçici görüş azalması ve yağış olasılığı, akşam saatlerinde iyileşme bekleniyor.\n\n- **1701/1705 UTC:** Geçici olarak 1700 metre görüş ve mist.\n- **1708/1712 UTC:** %30 ihtimal ile geçici olarak 15-25 düğün rüzgar, hafif sağanak ve gök gürültülü bulutlar.\n- **1715/1718 UTC:** Kademeli geçiş ile CAVOK (görüş ve bulut koşulları iyi)."
+  "TAF AMD LTFJ 170100Z 1701/1724 03009KT 9999 FEW002 BKN080 TEMPO 1701/1705 1700 PRFG BECMG 1704/1707 BKN030 BKN080 PROB30 TEMPO 1708/1712 04015G25KT -SHRA FEW020CB BKN030 BECMG 1715/1718 CAVOK BECMG 1721/1724 SCT035": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 17 Ocak 01:00 UTC başlangıçlı tahmin; başlangıçta hafif rüzgar ve az bulutluluk, gün içinde geçici görüş azalması ve yağış olasılığı, akşam saatlerinde iyileşme bekleniyor.\n\n- **1701/1705 UTC:** Geçici olarak 1700 metre görüş ve mist.\n- **1708/1712 UTC:** %30 ihtimal ile geçici olarak 15-25 düğün rüzgar, hafif sağanak ve gök gürültülü bulutlar.\n- **1715/1718 UTC:** Kademeli geçiş ile CAVOK (görüş ve bulut koşulları iyi).",
+  "TAF LTFJ 170440Z 1706/1806 04007KT 9999 BKN030 BKN080 TEMPO 1708/1712 04017KT -SHRA FEW018CB BKN025 PROB30 TEMPO 1712/1715 04018KT -SHRA FEW020CB BKN025 BECMG 1715/1718 SCT030": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde kuzey-kuzeybatı rüzgarı ve kırılgan bulutluluk beklenmektedir.\n\n- **1706/1712 UTC:** Rüzgar 04007KT, görüş 9999 m, orta bulutluluk 3000 ft ve 8000 ft seviyelerinde. 1708/1712 UTC arasında geçici olarak rüzgar 04017KT'ye artacak, hafif sağanak ve gök gürültülü bulutlar 1800 ft'de, bulutluluk 2500 ft'de beklenmektedir.\n\n- **1712/1715 UTC:** %30 ihtimalle geçici olarak rüzgar 04018KT, hafif sağanak ve gök gürültülü bulutlar 2000 ft'de, bulutluluk 2500 ft'de.\n\n- **1715/1718 UTC:** Kademeli geçişle bulutluluk 3000 ft'ye yükselmektedir."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -628,5 +629,5 @@
   }
  },
  "notam_son_senkron": "2026-09-16T23:41:16+00:00",
- "guncelleme": "2026-09-17T05:01:13+00:00"
+ "guncelleme": "2026-09-17T05:10:57+00:00"
 }
