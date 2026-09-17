@@ -148,17 +148,17 @@ def test_pist_ruzgarlari_rmk_varsa_parse_edilir():
 
 # --------------------------------------------------------------- pist_raporu
 def test_pist_raporu_golden_alan_ruzgari():
-    """_pist_ruzgar_kaynagi() yardimcisina refactor edilmeden ONCEKI
-    pist_raporu() ciktisiyla birebir karsilastirilarak dogrulandi (git
-    stash ile once/sonra diff alindi, fark yoktu). Bu test o davranisi
-    kalici olarak sabitliyor (kuyruk_limiti() gerekcesi CIKARSANAN etiketi
-    aldiktan sonraki guncel metinle)."""
+    """2026-09-17 degisikligi: pist_raporu() artik HESAPLANAN bas/kuyruk/yan
+    bilesenini degil, METAR/RMK'da NE YAZILIYSA onu (ham yon/hiz) gosterir -
+    kullanici raporlanan RMK degeriyle ekrandaki sayinin FARKLI gorunmesinin
+    (trigonometrik donusum sonucu) kafa karistirdigini bildirdi. RMK yoksa
+    (bu ornek) her 4 pist de alan METAR ruzgarina (060°/10kt) duser."""
     d = metar_coz(o.NORMAL)  # 060/10, RMK yok -> alan ruzgarina dusuluyor
     assert pist_raporu(d, o.NORMAL) == [
-        "06L: baş 10 kt, yan 1 kt soldan",
-        "06R: baş 10 kt, yan 1 kt soldan",
-        "24L: KUYRUK 10 kt, yan 1 kt sağdan",
-        "24R: KUYRUK 10 kt, yan 1 kt sağdan",
+        "06L: 060° 10 kt",
+        "06R: 060° 10 kt",
+        "24L: 060° 10 kt",
+        "24R: 060° 10 kt",
         "(alan rüzgârından; kuyruk limiti 10 kt — CIKARSANAN varsayım — "
         "RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi)",
     ]
@@ -171,18 +171,15 @@ def test_pist_raporu_golden_rmk_anemometreleri():
     ruzgarina (04007KT) duser ve ciktida kalir; kaynak karisikligi
     footer'da pist bazinda ayristirilarak belirtilir.
 
-    24R icin RMK'da "RWY24R 36007KT 340V080" biciminde bir DEGISKEN yon
-    grubu var - onceden bu deger pist_ruzgarlari() tarafindan ayiklaniyor
-    ama HICBIR YERDE kullanilmiyordu (sessizce yok sayiliyordu). Artik
-    pist_raporu() bunu tek bir "kesin" sayi gibi sunmuyor, olasi bas/kuyruk
-    araligini gosteriyor."""
+    2026-09-17: satirlar artik HAM RMK degerini (yon/hiz, degisken ise
+    340V080 gibi aralik) gosteriyor - bilesene CEVRILMIYOR (bkz.
+    test_pist_raporu_golden_alan_ruzgari notu)."""
     d = metar_coz(o.PIST_RUZGARI_RMK)
     assert pist_raporu(d, o.PIST_RUZGARI_RMK) == [
-        "06L: baş 6 kt, yan 3 kt soldan",
-        "06R: baş 4 kt, yan 6 kt soldan",
-        "24L: KUYRUK 5 kt, yan 3 kt sağdan",
-        "24R: KUYRUK 1–7 kt, yan azami 7 kt — yön 340–080° arası değişken, "
-        "kesin bileşen hesaplanamıyor",
+        "06L: 040° 7 kt",
+        "06R: 010° 7 kt",
+        "24L: 030° 6 kt",
+        "24R: 360° (değişken 340°–080°) 7 kt",
         "(06L: alan rüzgârından; 06R, 24L, 24R: AD 2.15 anemometreleri; "
         "kuyruk limiti 5 kt — CIKARSANAN varsayım — RWYCC bildirilmedi, "
         "yağış nedeniyle ıslak/kirli pist kabul edildi)",
@@ -190,33 +187,37 @@ def test_pist_raporu_golden_rmk_anemometreleri():
 
 
 def test_pist_raporu_golden_kuyruk_limit_asimi_isaretlenir():
+    """PRS arka ruzgar limiti asimi artik pist basina degil (satir HAM
+    deger tasidigi icin), footer'da ayri, acikca 'hesaplanan' etiketli bir
+    liste olarak gosteriliyor - kuyruk_asanlar() hala trig kullaniyor, ama
+    ciktisi sadece pist kodu (06L, 06R), ham bir sayi degil."""
     d = metar_coz(o.FIRTINA)
     satirlar = pist_raporu(d, o.FIRTINA)
-    assert any("PRS limiti" in s and "aşıldı" in s for s in satirlar)
+    footer = satirlar[-1]
+    assert "PRS arka rüzgâr limitini aşan pist(ler) (hesaplanan): 06L, 06R" in footer
 
 
 def test_pist_raporu_hamleli_ruzgarda_steady_ve_gust_ayri_gosterilir():
-    """FIRTINA: 25022G35KT - steady 22 kt, hamle 35 kt. Onceden tek bir
-    max(steady,hamle)=35 sayisi 'baş'/'KUYRUK' olarak gosteriliyordu ve
-    okuyan bunun sabit mi hamleli mi oldugunu ayirt edemiyordu. Artik ana
-    deger steady (22), hamleli deger ayrica parantezde."""
+    """FIRTINA: 25022G35KT - steady 22 kt, hamle 35 kt. Ham deger olarak
+    ikisi ayri ayri gosterilir (asil hiz + parantezde hamle)."""
     d = metar_coz(o.FIRTINA)
     satirlar = pist_raporu(d, o.FIRTINA)
     satir_06L = next(s for s in satirlar if s.startswith("06L"))
-    assert "KUYRUK 22 kt" in satir_06L
-    assert "hamleli 35 kt" in satir_06L
+    assert satir_06L == "06L: 250° 22 kt (hamle 35 kt)"
 
 
 def test_pist_raporu_hamlesiz_ruzgarda_parantez_yok():
     d = metar_coz(o.NORMAL)  # 06010KT, hamlesiz
     satirlar = pist_raporu(d, o.NORMAL)
-    assert not any("hamleli" in s for s in satirlar)
+    assert not any("hamle" in s for s in satirlar[:-1])
 
 
-def test_pist_raporu_degisken_ruzgarda_bilesen_hesaplanamaz_mesaji():
+def test_pist_raporu_degisken_yonde_yon_bilgisi_acikca_belirsiz():
+    """VRB (tamamen degisken yon, ozel bir aralik grubu degil) icin pist
+    basina 'degisken yon' yaziliyor - olmayan bir kesin deger UYDURULMUYOR."""
     d = metar_coz(o.DEGISKEN_RUZGAR)
     satirlar = pist_raporu(d, o.DEGISKEN_RUZGAR)
-    assert all("bileşen hesaplanamıyor" in s for s in satirlar[:4])
+    assert all("değişken yön" in s for s in satirlar[:4])
 
 
 # ------------------------------------------------------- degisken yon ark
@@ -245,16 +246,13 @@ def test_bilesenler_araligi_hiz_yoksa_none():
 
 def test_pist_raporu_degisken_yon_grubu_araligi_gosterir():
     """DEGISKEN_YON_GRUBU: ortalama yon 050 (mean wind, hiz 8), ama METAR
-    ayrica '020V090' degisken yon grubu tasiyor. Onceden bu grup
-    metar_coz() tarafindan ayiklanip (cozum['degisken']) HICBIR YERDE
-    kullanilmiyordu - pist_raporu() sadece ortalama 050 yonunu 'kesin'
-    kabul edip tek bir bas/yan sayisi uretiyordu. Artik ark taranarak
-    araligi gosteriliyor, tek bir kesin sayi UYDURULMUYOR."""
+    ayrica '020V090' degisken yon grubu tasiyor. Bu HAM aralik METAR'da
+    nasil yaziliysa oyle (ortalama yon + degisken araligi ayri ayri)
+    gosterilir - tek bir 'kesin' bilesen sayisi UYDURULMAZ."""
     d = metar_coz(o.DEGISKEN_YON_GRUBU)
     satirlar = pist_raporu(d, o.DEGISKEN_YON_GRUBU)
     for s in satirlar[:4]:
-        assert "yön 020–090° arası değişken" in s
-        assert "kesin bileşen hesaplanamıyor" in s
+        assert "050° (değişken 020°–090°) 8 kt" in s
 
 
 # ------------------------------------------------------------------- RVR
