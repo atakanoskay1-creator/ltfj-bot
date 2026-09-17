@@ -97,6 +97,19 @@
     background:var(--kod-bg); border:1px solid var(--cizgi); color:var(--soluk);
   }
   .notam-durum { font-size:.75rem; color:var(--soluk); margin-left:auto; }
+  .notam-aktif-nokta {
+    display:inline-block; width:8px; height:8px; border-radius:999px;
+    background:#22c55e; box-shadow:0 0 0 2px rgba(34,197,94,.25); flex-shrink:0;
+  }
+  .notam-aktif-baslik { cursor:pointer; user-select:none; }
+  .notam-aktif-sayi {
+    color:var(--soluk); font-size:.82rem; margin-left:auto; margin-right:4px;
+  }
+  .notam-ok {
+    font-size:.7rem; color:var(--soluk); transition:transform .15s ease;
+    display:inline-block;
+  }
+  .notam-ok.acik { transform:rotate(90deg); }
   .notam-ozet { font-size:.88rem; margin:4px 0; }
   .notam-metin {
     background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:8px;
@@ -204,7 +217,7 @@
 <div class="sar">
 <header>
   <h1>LTFJ · İstanbul Sabiha Gökçen</h1>
-  <div class="alt">Kaynak: MGM/METAR · Son güncelleme 17.09.2026 09:41 yerel</div>
+  <div class="alt">Kaynak: MGM/METAR · Son güncelleme 17.09.2026 09:44 yerel</div>
 </header>
 <div class="kart"><div class="grafik-ust">Trend</div><div class="grafik-grid"><div><div class="grafik-baslik"><span>Rüzgâr</span><span class="grafik-son">8 kt</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,42.8 L57.8,42.8 L111.6,53.5 L165.5,42.8 L219.3,42.8 L273.1,42.8 L326.9,32.0 L380.7,32.0 L434.5,32.0 L488.4,32.0 L542.2,32.0 L596.0,10.5" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="10.5" r="3" fill="#3b82f6"/></svg><div class="grafik-eksen"><span>03:50</span><span>09:20</span></div></div><div><div class="grafik-baslik"><span>Bulut tavanı</span><span class="grafik-son">9000 ft</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,32.0 L57.8,32.0 L219.3,53.5 L273.1,53.5 L326.9,53.5 L380.7,53.5 L434.5,53.5 L488.4,10.5 L542.2,10.5 L596.0,10.5" fill="none" stroke="#22c55e" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="10.5" r="3" fill="#22c55e"/></svg><div class="grafik-eksen"><span>03:50</span><span>09:20</span></div></div><div><div class="grafik-baslik"><span>QNH</span><span class="grafik-son">1015 hPa</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,32.0 L57.8,32.0 L111.6,32.0 L165.5,32.0 L219.3,32.0 L273.1,32.0 L326.9,32.0 L380.7,32.0 L434.5,32.0 L488.4,32.0 L542.2,32.0 L596.0,32.0" fill="none" stroke="#eab308" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="32.0" r="3" fill="#eab308"/></svg><div class="grafik-eksen"><span>03:50</span><span>09:20</span></div></div><div><div class="grafik-baslik"><span>Sıcaklık</span><span class="grafik-son">19 °C</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,53.5 L57.8,53.5 L111.6,53.5 L165.5,53.5 L219.3,42.8 L273.1,42.8 L326.9,42.8 L380.7,42.8 L434.5,32.0 L488.4,32.0 L542.2,21.2 L596.0,10.5" fill="none" stroke="#ef4444" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="10.5" r="3" fill="#ef4444"/></svg><div class="grafik-eksen"><span>03:50</span><span>09:20</span></div></div></div></div><div class="kart"><div class="basrow"><span class="tip">METAR</span><span class="zaman">17.09 06:20Z · 09:20 yerel</span><span class="rozet" title="LTFJ Bot durum seviyesi — resmî ICAO CAT I/II/III kategorisi değildir" style="background:#3b82f6">🔵 BLU · çok iyi</span></div><div class="yorum"><div class="yorum-etiket">🤖 Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</div>**Rüzgâr:** Kuzey-kuzeydoğudan 8 knot hızla esen hafif rüzgâr, pistle neredeyse hizalı akıyor.<br>**Görüş:** 10 kilometre ve daha fazla görüş mesafesi, uçuş için rahat koşullar.<br>**Gökyüzü:** 3300 metre yükseklikte parçalı bulutlar, 9000 metre yükseklikte çok bulutlu katman, yağış yok.<br>**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor; rüzgâr, görüş ve bulut durumu operasyonel sınırlar içindedir.</div><div class="ozet">Rüzgâr 040° 8kt · görüş 10+ km · tavan 9000 ft · 19°C · QNH 1015</div><table><tr><td>Pist 06L</td><td>040° 8 kt</td></tr><tr><td>Pist 06R</td><td>030° (değişken 350°–050°) 6 kt</td></tr><tr><td>Pist 24L</td><td>030° 7 kt</td></tr><tr><td>Pist 24R</td><td>040° (değişken 360°–060°) 4 kt</td></tr><tr><td>Meteorolojik tercih</td><td>06L</td></tr></table><div class="pist-kaynak">✈️ 06L: alan rüzgârından; 06R, 24L, 24R: AD 2.15 anemometreleri; kuyruk limiti 10 kt — CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi</div><div><a class="panel-link" href="panel.html">🛫 ATC Panelinde aç →</a></div><pre>METAR LTFJ 170620Z 04008KT 9999 SCT033 BKN090 19/16 Q1015 NOSIG RMK RWY24R 04004KT 360V060 RWY06R 03006KT 350V050 RWY24L 03007KT</pre></div><div class="kart"><div class="basrow"><span class="tip">TAF</span><span class="zaman">17.09 04:40Z · 07:40 yerel</span></div><div class="yorum"><div class="yorum-etiket">🤖 Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</div>**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde kuzey-kuzeybatı rüzgarı ve kırılgan bulutluluk beklenmektedir.<br>• **1706/1712 UTC:** Rüzgar 04007KT, görüş 9999 m, orta bulutluluk 3000 ft ve 8000 ft seviyelerinde. 1708/1712 UTC arasında geçici olarak rüzgar 04017KT&#x27;ye artacak, hafif sağanak ve gök gürültülü bulutlar 1800 ft&#x27;de, bulutluluk 2500 ft&#x27;de beklenmektedir.<br>• **1712/1715 UTC:** %30 ihtimalle geçici olarak rüzgar 04018KT, hafif sağanak ve gök gürültülü bulutlar 2000 ft&#x27;de, bulutluluk 2500 ft&#x27;de.<br>• **1715/1718 UTC:** Kademeli geçişle bulutluluk 3000 ft&#x27;ye yükselmektedir.</div><pre>TAF LTFJ 170440Z 1706/1806 04007KT 9999 BKN030 BKN080
     TEMPO 1708/1712 04017KT -SHRA FEW018CB BKN025
@@ -221,9 +234,14 @@
 </div>
 
 <div class="kart">
-  <div class="basrow"><span class="tip">Aktif NOTAM'lar</span>
-    <span class="zaman" id="notam-senkron-zamani"></span></div>
-  <div id="notam-aktif-liste"><div class="notam-bos">Yükleniyor…</div></div>
+  <div class="basrow notam-aktif-baslik" id="notam-aktif-baslik" role="button" tabindex="0"
+       aria-expanded="false">
+    <span class="tip">Aktif NOTAM'lar</span>
+    <span class="notam-aktif-sayi" id="notam-aktif-sayi"></span>
+    <span class="zaman" id="notam-senkron-zamani"></span>
+    <span class="notam-ok" id="notam-aktif-ok">▶</span>
+  </div>
+  <div id="notam-aktif-liste" hidden><div class="notam-bos">Yükleniyor…</div></div>
 </div>
 
 <div class="kart">
@@ -304,7 +322,12 @@
   }
 
   var veri = null;
+  var aktifAcikMi = false;
+  var aramaYapildiMi = false;
   var aktifEl = document.getElementById("notam-aktif-liste");
+  var aktifBaslikEl = document.getElementById("notam-aktif-baslik");
+  var aktifSayiEl = document.getElementById("notam-aktif-sayi");
+  var aktifOkEl = document.getElementById("notam-aktif-ok");
   var senkronEl = document.getElementById("notam-senkron-zamani");
   var sonucEl = document.getElementById("notam-arama-sonuc");
   var durumSelectEl = document.getElementById("notam-durum");
@@ -322,9 +345,16 @@
       ? '<div class="notam-ozet">' + esc(n.reading_short) +
         ' <span style="color:var(--soluk); font-size:.75rem;">(NOTAC otomatik özeti — hata içerebilir)</span></div>'
       : "";
+    // Aktif NOTAM'lari (status === "active") yesil bir noktayla isaretle -
+    // hem "Aktif NOTAM'lar" listesinde hem arama sonuclarinda ayni kart
+    // uretici kullanildigindan, arama sonucundaki aktif kayitlar da
+    // otomatik olarak isaretlenmis olur.
+    var aktifNoktasi = n.status === "active"
+      ? '<span class="notam-aktif-nokta" title="Aktif NOTAM"></span>' : "";
     return (
       '<div class="notam-kart">' +
-      '<div class="notam-ust"><span class="notam-no">' + esc(n.number || "—") + "</span>" +
+      '<div class="notam-ust">' + aktifNoktasi +
+      '<span class="notam-no">' + esc(n.number || "—") + "</span>" +
       kategori + etiketler + pistler +
       '<span class="notam-durum">' + esc(n.status || "") + "</span></div>" +
       ozet +
@@ -336,17 +366,37 @@
     );
   }
 
+  function aktifPaneliAcKapat(zorlaAc) {
+    aktifAcikMi = zorlaAc != null ? zorlaAc : !aktifAcikMi;
+    aktifEl.hidden = !aktifAcikMi;
+    aktifBaslikEl.setAttribute("aria-expanded", String(aktifAcikMi));
+    aktifOkEl.textContent = aktifAcikMi ? "▼" : "▶";
+    aktifOkEl.classList.toggle("acik", aktifAcikMi);
+  }
+
   function aktifGoster() {
     if (!veri) return;
     senkronEl.textContent = veri.son_senkron
       ? "son senkron " + veri.son_senkron.replace("T", " ").slice(0, 16)
       : "henüz senkronize edilmedi";
+
     if (!veri.son_senkron) {
+      aktifSayiEl.textContent = "";
       aktifEl.innerHTML = '<div class="notam-bos">NOTAM verisi şu anda alınamıyor.</div>';
-    } else if (!veri.aktif.length) {
+      return;
+    }
+
+    var aktifler = (veri.aktif || []).slice().sort(function (a, b) {
+      return (a.number || "").localeCompare(b.number || "");
+    });
+    aktifSayiEl.textContent = aktifler.length
+      ? aktifler.length + " aktif"
+      : "aktif yok";
+
+    if (!aktifler.length) {
       aktifEl.innerHTML = '<div class="notam-bos">Aktif NOTAM bulunmuyor.</div>';
     } else {
-      aktifEl.innerHTML = veri.aktif.map(notamKarti).join("");
+      aktifEl.innerHTML = aktifler.map(notamKarti).join("");
     }
   }
 
@@ -362,6 +412,7 @@
 
   function aramaCalistir() {
     if (!veri) return;
+    aramaYapildiMi = true;
     var q = document.getElementById("notam-q").value.trim().toLowerCase();
     var ts = document.getElementById("notam-tarih-baslangic").value;
     var te = document.getElementById("notam-tarih-bitis").value;
@@ -393,7 +444,16 @@
         veri = v;
         aktifGoster();
         durumSecenekleriDoldur();
-        aramaCalistir();
+        // Arama SADECE kullanici gercekten arama yaptiginda calisir - sayfa
+        // ilk acildiginda (ya da veri yeniden yuklendiginde, kullanici henuz
+        // hicbir kriter girmediyse) sonuc alani BOS kalir, "tum gecmis"
+        // otomatik dokulmez.
+        if (aramaYapildiMi) {
+          aramaCalistir();
+        } else {
+          sonucEl.innerHTML = '<div class="notam-bos">Arama yapmak için yukarıdaki '
+            + "alanları doldurup “Ara”ya basın.</div>";
+        }
       })
       .catch(function (err) {
         var mesaj = '<div class="notam-bos">NOTAM verisi şu anda alınamıyor.</div>';
@@ -403,6 +463,11 @@
         console.error("[notam] veri yüklenemedi:", err);
       });
   }
+
+  aktifBaslikEl.addEventListener("click", function () { aktifPaneliAcKapat(); });
+  aktifBaslikEl.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); aktifPaneliAcKapat(); }
+  });
 
   document.getElementById("notam-ara-btn").addEventListener("click", aramaCalistir);
   document.getElementById("notam-q").addEventListener("keydown", function (e) {
