@@ -290,6 +290,90 @@ Model B **tamamen `sis_modeli/` içinde** — çalışma anına (ltfj_*.py) hiç
 şekilde bağlanmadı, hiçbir dondurulmuş modül üretilmedi. Bu bir araştırma
 deneyidir; canlı bota entegrasyon **ayrı, sonraki** bir karardır.
 
+## Tavan için görüşsüz iki model (A: süreklilik, B: oluşum)
+
+TL.007 madde 6.2.a/6.3.1.a: bulut tabanı görüşten **bağımsız** bir LVO
+tetikleyicisi. Ama şu ana kadar kurulan hiçbir tavan çalışması gerçekten
+görüşsüz değildi — `tavan_tablo.py`'nin kazanan çifti `spread × görüş`
+idi. `tavan_gorussuz.py` iki ayrı, sıralanmayan soru sorar:
+
+- **Model A (süreklilik):** mevcut tavan okuması + atmosferik değişkenlerle,
+  3 saat içinde tavan<500ft olur mu?
+- **Model B (oluşum):** ne görüş ne mevcut tavan — yalnızca atmosferik
+  sinyalle (spread, rüzgâr, saat) tavan çökmesi önceden haber verilebiliyor mu?
+
+**Bağımsız olay sayısı, görüşsüz sis modelinden (2017+ rejim) fazla:**
+
+| hedef | gelişt. olay | holdout olay |
+|---|---|---|
+| sis (Model B) | 128 | 33 |
+| **tavan<500ft** | **182** | **81** |
+
+### Değişken seçimi — sis'ten farklı, YENİDEN ölçüldü
+
+Walk-forward ablasyonla (gelişt. içi, embargo açık):
+
+| Model B (oluşum, tavan_ozellik YOK) | AP | BSS |
+|---|---|---|
+| spread+trend3+rüzgâr_kuzey+saat — **SEÇİLEN** | 0.060 | **0.025** |
+| + sıcaklık | 0.041 | 0.014 |
+
+**Dikkat — sis hedefinin tam tersi:** sis modelinde sıcaklık eklenmeden model
+iklimden kötüydü; burada sıcaklık eklenince BSS %43 düşüyor. Aynı değişken
+iki farklı hedefte zıt yönde davranabiliyor — bu yüzden sis taramasının
+sonucu tavan'a otomatik taşınmadı, sıfırdan ölçüldü.
+
+| Model A (süreklilik, tavan_ozellik DAHİL) | AP | BSS |
+|---|---|---|
+| yukarıdaki + spread_egilim_1 + tavan_ozellik — **SEÇİLEN** (6 değ.) | **0.068** | **0.021** |
+
+VIF: her iki kümede de tüm değişkenler <2.
+
+### Geliştirme-içi event-level (182 bağımsız olay)
+
+| model | ≥%5 | ≥%10 | ≥%20 |
+|---|---|---|---|
+| Model A (süreklilik) | %34.6 | %11.0 | %0.0 |
+| Model B (oluşum) | %33.5 | %4.4 | %0.0 |
+
+Sis modelinin holdout'undaki (%15.2 @ ≥%5) sonuçtan belirgin daha iyi —
+daha fazla bağımsız olayın beklenen faydası.
+
+### Nihai holdout (2024-2026, TEK ATIŞ) — beklenmedik ve açıklanmış bir sonuç
+
+| model | holdout AP | holdout BSS | AP %5–%95 |
+|---|---|---|---|
+| Model A (süreklilik) | 0.076 | 0.015 | 0.059 – 0.101 |
+| Model B (oluşum) | 0.081 | 0.015 | 0.062 – 0.105 |
+| iklim | 0.010 | 0.000 | 0.009 – 0.018 |
+| basit kural (sezgisel) | 0.048 | −0.126 | 0.032 – 0.053 |
+
+Satır düzeyinde iklimden anlamlı ölçüde iyi — ama **event-level tespit her
+iki modelde de holdout'ta %0.0'a düştü** (81 olayın hiçbiri hiçbir eşikte
+yakalanmadı), geliştirme-içi %34.6'dan keskin bir düşüş.
+
+**Kök neden bulundu ve holdout'a TEKRAR DOKUNMADAN doğrulandı:** her iki
+model de holdout eğitiminde `L2=10000` seçti — `model.L2_ADAYLARI`
+ızgarasının **en uç (en muhafazakâr) değeri**. Bu L2 ile eğitim kümesindeki
+**en yüksek** tahmin bile %2.6 — yani hiçbir satır, en düşük event-level
+eşiği olan %5'i bile geçemiyor; sonucun %0.0 çıkması matematiksel bir
+zorunluluk, ayrı bir "model başarısız oldu" bulgusu değil.
+
+Bunun nedeni araştırıldı: `egit_secerek()` L2'yi eğitim döneminin **tek bir
+son yılına** karşı iç doğrulamayla seçiyor (bkz. `model.py` — iki yıl
+denenmiş, tek yıl daha iyi çıkmıştı, ama bu tekliğin bir bedeli var). Aynı
+eğitim kümesine en yakın walk-forward fold'u (eğitim 2017-2022, test 2023)
+da **aynı L2=10000'i** seçti — yani 2022/2023'e özgü bir ayrışma zorluğu,
+tek-yıllık iç doğrulamayı uç bir değere kilitliyor. Diğer fold'lar çok daha
+düşük L2 (10-1000) seçip %8-18 aralığında tahminler üretebiliyordu.
+
+**Bu holdout sonucu TEK ATIŞ kuralı gereği değiştirilmedi** — yalnızca
+kök nedeni geliştirme verisiyle (holdout'a dokunmadan) doğrulandı ve
+raporlanıyor. Gelecekte AYRI, önceden ilan edilen bir deney olarak
+`egit_secerek()`'in iç doğrulama prosedürü (örn. çoklu yıl ortalaması)
+gözden geçirilebilir — ama bu, mevcut sonuç raporlandıktan SONRA, yeni bir
+TEK ATIŞ kuralıyla yapılmalı.
+
 ## Sınırlar
 
 Bu bir **iklim + süreklilik** modelidir, fizik modeli değildir: yaklaşan bir
@@ -324,4 +408,8 @@ python -m sis_modeli.olusum_egit                     # tarama + walk-forward
 python -m sis_modeli.olusum_egit --dahil-gorus        # görüş-ablasyon karşılaştırması
 python -m sis_modeli.ufuk_deneyi                      # 30dk/1h/2h/3h lead-time
 python -m sis_modeli.olusum_holdout_degerlendir       # TEK ATIŞ
+
+# Tavan: görüşsüz süreklilik (A) + oluşum (B) modelleri
+python -m sis_modeli.tavan_gorussuz                   # tarama + walk-forward
+python -m sis_modeli.tavan_gorussuz --holdout          # TEK ATIŞ
 ```
