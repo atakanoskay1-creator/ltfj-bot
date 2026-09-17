@@ -123,9 +123,59 @@
     cursor:pointer;
   }
   .atc-not-kalan { color:var(--soluk); font-size:.72rem; margin-top:6px; }
+
+  /* ATC Notes artik sayfa akisinda degil - sag altta sabit duran bir
+     dugmeyle (FAB) acilan yuzen bir panel. Telefonda alttan yukari kayan
+     "bottom sheet", genis ekranda dugmenin ustunde sabit bir kart. */
+  .atc-fab {
+    position:fixed; right:16px;
+    bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+    width:56px; height:56px; border-radius:999px; border:none;
+    background:var(--vurgu); color:var(--bg); font-size:1.4rem;
+    box-shadow:0 4px 16px rgba(0,0,0,.3); cursor:pointer; z-index:60;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .atc-fab-rozet {
+    position:absolute; top:-2px; right:-2px; min-width:20px; height:20px;
+    padding:0 5px; border-radius:999px; background:#ef4444; color:#fff;
+    font-size:.68rem; font-weight:700; display:flex; align-items:center;
+    justify-content:center; border:2px solid var(--bg);
+  }
+  .atc-fab-rozet[hidden] { display:none; }
+  .atc-panel-ortu {
+    position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:55;
+    display:flex; align-items:flex-end; justify-content:center;
+  }
+  .atc-panel-ortu[hidden] { display:none; }
+  .atc-panel {
+    background:var(--kart); border:1px solid var(--cizgi);
+    border-radius:16px 16px 0 0; width:100%; max-width:480px;
+    max-height:min(78vh, 640px); display:flex; flex-direction:column;
+    padding-bottom:env(safe-area-inset-bottom, 0px);
+  }
+  .atc-panel-ust {
+    display:flex; align-items:center; gap:10px; padding:16px 16px 10px;
+    border-bottom:1px solid var(--cizgi); flex-shrink:0;
+  }
+  .atc-panel-ust .tip { font-weight:650; font-size:1.05rem; }
+  .atc-panel-kapat {
+    width:32px; height:32px; border-radius:999px; border:none; flex-shrink:0;
+    background:var(--kod-bg); color:var(--metin); font-size:1.1rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .atc-panel-govde { overflow-y:auto; padding:14px 16px 20px; -webkit-overflow-scrolling:touch; }
+  .atc-panel .notam-uyari { margin-top:0; }
+  @media (min-width:640px) {
+    .atc-panel-ortu { align-items:flex-end; justify-content:flex-end; padding:0 16px; }
+    .atc-panel {
+      margin-bottom:calc(84px + env(safe-area-inset-bottom, 0px));
+      border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,.35);
+      max-height:min(70vh, 600px);
+    }
+  }
   .modal-ortu {
     position:fixed; inset:0; background:rgba(0,0,0,.55); display:flex;
-    align-items:center; justify-content:center; padding:16px; z-index:50;
+    align-items:center; justify-content:center; padding:16px; z-index:65;
   }
   .modal-ortu[hidden] { display:none; }
   .modal-kutu {
@@ -154,7 +204,7 @@
 <div class="sar">
 <header>
   <h1>LTFJ · İstanbul Sabiha Gökçen</h1>
-  <div class="alt">Kaynak: MGM/METAR · Son güncelleme 17.09.2026 09:31 yerel</div>
+  <div class="alt">Kaynak: MGM/METAR · Son güncelleme 17.09.2026 09:41 yerel</div>
 </header>
 <div class="kart"><div class="grafik-ust">Trend</div><div class="grafik-grid"><div><div class="grafik-baslik"><span>Rüzgâr</span><span class="grafik-son">8 kt</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,42.8 L57.8,42.8 L111.6,53.5 L165.5,42.8 L219.3,42.8 L273.1,42.8 L326.9,32.0 L380.7,32.0 L434.5,32.0 L488.4,32.0 L542.2,32.0 L596.0,10.5" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="10.5" r="3" fill="#3b82f6"/></svg><div class="grafik-eksen"><span>03:50</span><span>09:20</span></div></div><div><div class="grafik-baslik"><span>Bulut tavanı</span><span class="grafik-son">9000 ft</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,32.0 L57.8,32.0 L219.3,53.5 L273.1,53.5 L326.9,53.5 L380.7,53.5 L434.5,53.5 L488.4,10.5 L542.2,10.5 L596.0,10.5" fill="none" stroke="#22c55e" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="10.5" r="3" fill="#22c55e"/></svg><div class="grafik-eksen"><span>03:50</span><span>09:20</span></div></div><div><div class="grafik-baslik"><span>QNH</span><span class="grafik-son">1015 hPa</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,32.0 L57.8,32.0 L111.6,32.0 L165.5,32.0 L219.3,32.0 L273.1,32.0 L326.9,32.0 L380.7,32.0 L434.5,32.0 L488.4,32.0 L542.2,32.0 L596.0,32.0" fill="none" stroke="#eab308" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="32.0" r="3" fill="#eab308"/></svg><div class="grafik-eksen"><span>03:50</span><span>09:20</span></div></div><div><div class="grafik-baslik"><span>Sıcaklık</span><span class="grafik-son">19 °C</span></div><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,53.5 L57.8,53.5 L111.6,53.5 L165.5,53.5 L219.3,42.8 L273.1,42.8 L326.9,42.8 L380.7,42.8 L434.5,32.0 L488.4,32.0 L542.2,21.2 L596.0,10.5" fill="none" stroke="#ef4444" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="10.5" r="3" fill="#ef4444"/></svg><div class="grafik-eksen"><span>03:50</span><span>09:20</span></div></div></div></div><div class="kart"><div class="basrow"><span class="tip">METAR</span><span class="zaman">17.09 06:20Z · 09:20 yerel</span><span class="rozet" title="LTFJ Bot durum seviyesi — resmî ICAO CAT I/II/III kategorisi değildir" style="background:#3b82f6">🔵 BLU · çok iyi</span></div><div class="yorum"><div class="yorum-etiket">🤖 Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</div>**Rüzgâr:** Kuzey-kuzeydoğudan 8 knot hızla esen hafif rüzgâr, pistle neredeyse hizalı akıyor.<br>**Görüş:** 10 kilometre ve daha fazla görüş mesafesi, uçuş için rahat koşullar.<br>**Gökyüzü:** 3300 metre yükseklikte parçalı bulutlar, 9000 metre yükseklikte çok bulutlu katman, yağış yok.<br>**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor; rüzgâr, görüş ve bulut durumu operasyonel sınırlar içindedir.</div><div class="ozet">Rüzgâr 040° 8kt · görüş 10+ km · tavan 9000 ft · 19°C · QNH 1015</div><table><tr><td>Pist 06L</td><td>040° 8 kt</td></tr><tr><td>Pist 06R</td><td>030° (değişken 350°–050°) 6 kt</td></tr><tr><td>Pist 24L</td><td>030° 7 kt</td></tr><tr><td>Pist 24R</td><td>040° (değişken 360°–060°) 4 kt</td></tr><tr><td>Meteorolojik tercih</td><td>06L</td></tr></table><div class="pist-kaynak">✈️ 06L: alan rüzgârından; 06R, 24L, 24R: AD 2.15 anemometreleri; kuyruk limiti 10 kt — CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi</div><div><a class="panel-link" href="panel.html">🛫 ATC Panelinde aç →</a></div><pre>METAR LTFJ 170620Z 04008KT 9999 SCT033 BKN090 19/16 Q1015 NOSIG RMK RWY24R 04004KT 360V060 RWY06R 03006KT 350V050 RWY24L 03007KT</pre></div><div class="kart"><div class="basrow"><span class="tip">TAF</span><span class="zaman">17.09 04:40Z · 07:40 yerel</span></div><div class="yorum"><div class="yorum-etiket">🤖 Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</div>**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde kuzey-kuzeybatı rüzgarı ve kırılgan bulutluluk beklenmektedir.<br>• **1706/1712 UTC:** Rüzgar 04007KT, görüş 9999 m, orta bulutluluk 3000 ft ve 8000 ft seviyelerinde. 1708/1712 UTC arasında geçici olarak rüzgar 04017KT&#x27;ye artacak, hafif sağanak ve gök gürültülü bulutlar 1800 ft&#x27;de, bulutluluk 2500 ft&#x27;de beklenmektedir.<br>• **1712/1715 UTC:** %30 ihtimalle geçici olarak rüzgar 04018KT, hafif sağanak ve gök gürültülü bulutlar 2000 ft&#x27;de, bulutluluk 2500 ft&#x27;de.<br>• **1715/1718 UTC:** Kademeli geçişle bulutluluk 3000 ft&#x27;ye yükselmektedir.</div><pre>TAF LTFJ 170440Z 1706/1806 04007KT 9999 BKN030 BKN080
     TEMPO 1708/1712 04017KT -SHRA FEW018CB BKN025
@@ -194,19 +244,30 @@
   <div id="notam-arama-sonuc"><div class="notam-bos">Yükleniyor…</div></div>
 </div>
 
-<div class="bolum-baslik">ATC Notes — Durumsal Farkındalık</div>
-<div class="notam-uyari">
-  ⚠️ Bu bölüm ATC tarafından paylaşılan geçici durumsal farkındalık notlarıdır.
-  Resmî NOTAM veya operasyonel talimat değildir; NOTAM/METAR/pist analiziyle
-  hiçbir bağlantısı yoktur. Kimlik doğrulaması yapılmaz — isim yazan kişi
-  tarafından girilir. Her not oluşturulduktan tam 48 saat sonra otomatik
-  olarak silinir.
-</div>
+<!-- ATC Notes artik sayfa akisinda degil - sag altta sabit FAB'la acilan
+     yuzen bir panel (bkz. asagidaki .atc-fab/.atc-panel-ortu). -->
+<button type="button" id="atc-fab" class="atc-fab" aria-label="ATC Notes'u aç" title="ATC Notes">
+  📋<span id="atc-fab-rozet" class="atc-fab-rozet" hidden>0</span>
+</button>
 
-<div class="kart">
-  <div class="basrow"><span class="tip">ATC Notes</span>
-    <button type="button" id="atc-not-ekle-btn" class="atc-not-ekle-btn">+ NOT EKLE</button></div>
-  <div id="atc-notes-liste"><div class="notam-bos">Yükleniyor…</div></div>
+<div id="atc-panel-ortu" class="atc-panel-ortu" hidden>
+  <div class="atc-panel">
+    <div class="atc-panel-ust">
+      <span class="tip">ATC Notes</span>
+      <button type="button" id="atc-not-ekle-btn" class="atc-not-ekle-btn">+ NOT EKLE</button>
+      <button type="button" id="atc-panel-kapat" class="atc-panel-kapat" aria-label="Kapat">✕</button>
+    </div>
+    <div class="atc-panel-govde">
+      <div class="notam-uyari">
+        ⚠️ Bu bölüm ATC tarafından paylaşılan geçici durumsal farkındalık
+        notlarıdır. Resmî NOTAM veya operasyonel talimat değildir; NOTAM/
+        METAR/pist analiziyle hiçbir bağlantısı yoktur. Kimlik doğrulaması
+        yapılmaz — isim yazan kişi tarafından girilir. Her not
+        oluşturulduktan tam 48 saat sonra otomatik olarak silinir.
+      </div>
+      <div id="atc-notes-liste"><div class="notam-bos">Yükleniyor…</div></div>
+    </div>
+  </div>
 </div>
 
 <div id="atc-not-modal" class="modal-ortu" hidden>
@@ -373,6 +434,9 @@
   var metinEl = document.getElementById("atc-not-metin");
   var hataEl = document.getElementById("atc-not-hata");
   var kaydetBtn = document.getElementById("atc-not-kaydet");
+  var fabEl = document.getElementById("atc-fab");
+  var fabRozetEl = document.getElementById("atc-fab-rozet");
+  var panelOrtuEl = document.getElementById("atc-panel-ortu");
   var sonGonderimZamani = 0;
 
   function tabanUrl() {
@@ -426,6 +490,9 @@
     });
     gecerliler.sort(function (a, b) { return b.created_at - a.created_at; });
 
+    fabRozetEl.textContent = gecerliler.length > 99 ? "99+" : String(gecerliler.length);
+    fabRozetEl.hidden = gecerliler.length === 0;
+
     listeEl.innerHTML = "";
     if (!gecerliler.length) {
       listeEl.textContent = "Aktif not yok.";
@@ -446,6 +513,15 @@
         listeEl.textContent = "ATC Notes şu anda yüklenemiyor.";
         console.error("[atc-notes] okuma hatası:", err);
       });
+  }
+
+  function panelAc() {
+    panelOrtuEl.hidden = false;
+    veriYukle();
+  }
+
+  function panelKapat() {
+    panelOrtuEl.hidden = true;
   }
 
   function modalAc() {
@@ -493,11 +569,17 @@
       .finally(function () { kaydetBtn.disabled = false; });
   }
 
+  fabEl.addEventListener("click", panelAc);
+  document.getElementById("atc-panel-kapat").addEventListener("click", panelKapat);
+  panelOrtuEl.addEventListener("click", function (e) { if (e.target === panelOrtuEl) panelKapat(); });
+
   document.getElementById("atc-not-ekle-btn").addEventListener("click", modalAc);
   document.getElementById("atc-not-iptal").addEventListener("click", modalKapat);
   kaydetBtn.addEventListener("click", notKaydet);
   modalEl.addEventListener("click", function (e) { if (e.target === modalEl) modalKapat(); });
 
+  // Rozet (badge) sayisi icin arka planda da veri cekilir - panel kapaliyken
+  // bile FAB uzerindeki aktif-not sayisi guncel kalsin diye.
   veriYukle();
   setInterval(veriYukle, POLL_ARALIGI_MS);
 })();
