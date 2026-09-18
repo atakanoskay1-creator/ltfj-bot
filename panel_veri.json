@@ -1,19 +1,16 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-18T21:21:10+00:00",
+ "uretildi": "2026-09-18T21:31:11+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-18T20:50:00+00:00",
-  "metin": "METAR LTFJ 182050Z 02004KT 350V050 CAVOK 18/16 Q1018 NOSIG RMK RWY24R 36006KT RWY06R 08004KT 020V130 RWY24L 06003KT 010V090",
+  "zaman": "2026-09-18T21:20:00+00:00",
+  "metin": "METAR LTFJ 182120Z 04004KT CAVOK 18/16 Q1018 NOSIG RMK RWY24R 01003KT 330V030 RWY06R 02004KT RWY24L 04004KT",
   "ruzgar": {
-   "yon": 20,
+   "yon": 40,
    "hiz": 4,
    "hamle": null,
-   "degisken": [
-    350,
-    50
-   ]
+   "degisken": null
   },
   "gorus": 10000,
   "cavok": true,
@@ -33,12 +30,12 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 2.9,
-    "yan": 2.8,
+    "bas": 3.7,
+    "yan": 1.6,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "alan rüzgârından",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -46,12 +43,12 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 3.8,
-    "yan": 1.1,
-    "yan_taraf": "sağdan",
+    "bas": 2.9,
+    "yan": 2.8,
+    "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -59,21 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -3.0,
-    "yan": 0.2,
-    "yan_taraf": "sağdan",
-    "bas_hamle": null,
-    "yan_hamle": null,
-    "degisken": true,
-    "kaynak": "AD 2.15 anemometreleri",
-    "kuyruk": true,
-    "kuyruk_asildi": false
-   },
-   {
-    "pist": "24R",
-    "yon_gercek": 244.12,
-    "bas": -2.6,
-    "yan": 5.4,
+    "bas": -3.7,
+    "yan": 1.6,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -81,17 +65,30 @@
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": false
+   },
+   {
+    "pist": "24R",
+    "yon_gercek": 244.12,
+    "bas": -1.8,
+    "yan": 2.4,
+    "yan_taraf": "sağdan",
+    "bas_hamle": null,
+    "yan_hamle": null,
+    "degisken": true,
+    "kaynak": "AD 2.15 anemometreleri",
+    "kuyruk": true,
+    "kuyruk_asildi": false
    }
   ],
   "kuyruk_limiti": 10,
   "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi",
-  "tercih_pist": "06R",
+  "tercih_pist": "06L",
   "rvr": [],
   "prs": [],
   "gorus_op": [],
   "trend": null,
   "sis_riski": "Sis oluşum göstergesi: yüksek (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 2°C, rüzgâr 4 kt, gece şartları",
-  "ozet": "Rüzgâr 020° 4kt (değişken 350°–050°) · görüş CAVOK · 18°C · QNH 1018"
+  "ozet": "Rüzgâr 040° 4kt · görüş CAVOK · 18°C · QNH 1018"
  },
  "taf": {
   "zaman": "2026-09-18T16:40:00+00:00",
@@ -977,6 +974,14 @@
   },
   {
    "zaman": "2026-09-18T20:50:00+00:00",
+   "ruzgar_hiz": 4,
+   "tavan": null,
+   "qnh": 1018,
+   "sicaklik": 18,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-18T21:20:00+00:00",
    "ruzgar_hiz": 4,
    "tavan": null,
    "qnh": 1018,
