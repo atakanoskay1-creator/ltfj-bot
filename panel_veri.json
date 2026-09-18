@@ -1,30 +1,31 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-18T09:31:11+00:00",
+ "uretildi": "2026-09-18T09:40:57+00:00",
  "metar": {
-  "tip": "METAR",
+  "tip": "SPECI",
   "duzeltme": null,
-  "zaman": "2026-09-18T09:20:00+00:00",
-  "metin": "METAR LTFJ 180920Z 04014KT 8000 -SHRA FEW012 BKN022 BKN080 21/18 Q1015 NOSIG RMK RWY24R 03014KT RWY06R 03016KT RWY24L 03016KT",
+  "zaman": "2026-09-18T09:37:00+00:00",
+  "metin": "SPECI LTFJ 180937Z 04018KT 4000 -SHRA BR FEW012 BKN022 BKN080 19/18 Q1016 BECMG TL1020 9999 NSW RMK RWY24R 02016KT RWY06R 02018KT RWY24L 03016KT",
   "ruzgar": {
    "yon": 40,
-   "hiz": 14,
+   "hiz": 18,
    "hamle": null,
    "degisken": null
   },
-  "gorus": 8000,
+  "gorus": 4000,
   "cavok": false,
   "tavan": 2200,
   "hava": [
-   "-SHRA"
+   "-SHRA",
+   "BR"
   ],
-  "sicaklik": 21,
+  "sicaklik": 19,
   "cig_noktasi": 18,
-  "qnh": 1015,
-  "nosig": true,
+  "qnh": 1016,
+  "nosig": false,
   "renk": [
-   "WHT",
-   "iyi"
+   "GRN",
+   "kabul edilebilir"
   ],
   "renk_etiketi": "LTFJ Bot durum seviyesi",
   "dikkat": [],
@@ -32,8 +33,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 12.8,
-    "yan": 5.7,
+    "bas": 16.4,
+    "yan": 7.3,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -45,8 +46,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 13.2,
-    "yan": 9.0,
+    "bas": 12.9,
+    "yan": 12.5,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -71,8 +72,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -11.6,
-    "yan": 7.9,
+    "bas": -11.5,
+    "yan": 11.1,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -84,15 +85,15 @@
   ],
   "kuyruk_limiti": 5,
   "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış nedeniyle ıslak/kirli pist kabul edildi",
-  "tercih_pist": "06R",
+  "tercih_pist": "06L",
   "rvr": [],
   "prs": [
    "24L, 24R için arka rüzgâr 5 kt üstü"
   ],
   "gorus_op": [],
-  "trend": null,
+  "trend": "Kademeli geçiş: TL1020 9999 NSW",
   "sis_riski": null,
-  "ozet": "Rüzgâr 040° 14kt · görüş 8000 m · tavan 2200 ft · hafif sağanak yağmur · 21°C · QNH 1015"
+  "ozet": "Rüzgâr 040° 18kt · görüş 4000 m · tavan 2200 ft · hafif sağanak yağmur, puslu · 19°C · QNH 1016"
  },
  "taf": {
   "zaman": "2026-09-18T04:40:00+00:00",
@@ -790,6 +791,14 @@
    "tavan": 2200,
    "qnh": 1015,
    "sicaklik": 21,
+   "cig_noktasi": 18
+  },
+  {
+   "zaman": "2026-09-18T09:37:00+00:00",
+   "ruzgar_hiz": 18,
+   "tavan": 2200,
+   "qnh": 1016,
+   "sicaklik": 19,
    "cig_noktasi": 18
   }
  ]
