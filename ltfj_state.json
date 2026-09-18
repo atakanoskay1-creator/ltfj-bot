@@ -142,14 +142,15 @@
   "id:52420814",
   "id:52429137",
   "id:52431224",
-  "id:52433169"
+  "id:52433169",
+  "id:52439834"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 182250Z 03005KT CAVOK 18/16 Q1018 NOSIG RMK RWY24R 01005KT RWY06R 02006KT RWY24L 03007KT",
+ "son_metar": "METAR LTFJ 182320Z 06004KT CAVOK 16/15 Q1018 NOSIG RMK RWY24R VRB02KT RWY06R 02006KT RWY24L 03005KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-18T22:50:00+00:00",
+ "son_veri_zamani": "2026-09-18T23:20:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -1067,13 +1068,21 @@
    "qnh": 1018,
    "sicaklik": 18,
    "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-18T23:20:00+00:00",
+   "ruzgar_hiz": 4,
+   "tavan": null,
+   "qnh": 1018,
+   "sicaklik": 16,
+   "cig_noktasi": 15
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 182150Z 04005KT CAVOK 18/16 Q1018 NOSIG RMK RWY24R 02003KT RWY06R 03006KT RWY24L 01002KT": "**Rüzgâr:** Kuzey-kuzeydoğudan hafif 5 knot (yaklaşık 9 km/s) rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş mükemmel, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş açısından kısıtlayıcı unsur yoktur.",
   "METAR LTFJ 182220Z 03006KT CAVOK 18/16 Q1018 NOSIG RMK RWY24R 02004KT 350V050 RWY06R 02006KT RWY24L 06005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 6 knot (yaklaşık 11 km/s) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş mükemmel, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, açık gökyüzü, yağış yok.\n\n**Uçuşa etkisi:** Hava koşulları kısıtlayıcı unsur içermiyor, rüzgâr ve görüş uçuş için uygun.",
   "METAR LTFJ 182250Z 03005KT CAVOK 18/16 Q1018 NOSIG RMK RWY24R 01005KT RWY06R 02006KT RWY24L 03007KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/s) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş mükemmel, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil; hava koşulları uçuş için elverişli.",
-  "TAF LTFJ 182240Z 1900/1924 04004KT CAVOK PROB30 TEMPO 1903/1905 3200 BR SCT004 BECMG 1905/1908 SCT035 BECMG 1909/1912 03014KT BECMG 1916/1919 04004KT CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 19:00–19:24 UTC döneminde rüzgâr 040°/4 knot, görüş sınırsız beklenmektedir.\n\n- **1903/1905 UTC:** %30 ihtimalle geçici olarak görüş 3200 metre, hafif sis, bulutlar 400 feet'te dağınık.\n- **1905/1908 UTC:** Kademeli geçişle bulutlar 3500 feet'te dağınık.\n- **1909/1912 UTC:** Kademeli geçişle rüzgâr 030°/14 knot.\n- **1916/1919 UTC:** Kademeli geçişle rüzgâr 040°/4 knot, görüş sınırsız."
+  "TAF LTFJ 182240Z 1900/1924 04004KT CAVOK PROB30 TEMPO 1903/1905 3200 BR SCT004 BECMG 1905/1908 SCT035 BECMG 1909/1912 03014KT BECMG 1916/1919 04004KT CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 19:00–19:24 UTC döneminde rüzgâr 040°/4 knot, görüş sınırsız beklenmektedir.\n\n- **1903/1905 UTC:** %30 ihtimalle geçici olarak görüş 3200 metre, hafif sis, bulutlar 400 feet'te dağınık.\n- **1905/1908 UTC:** Kademeli geçişle bulutlar 3500 feet'te dağınık.\n- **1909/1912 UTC:** Kademeli geçişle rüzgâr 030°/14 knot.\n- **1916/1919 UTC:** Kademeli geçişle rüzgâr 040°/4 knot, görüş sınırsız.",
+  "METAR LTFJ 182320Z 06004KT CAVOK 16/15 Q1018 NOSIG RMK RWY24R VRB02KT RWY06R 02006KT RWY24L 03005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 4 knot (yaklaşık 7 km/s) hafif rüzgâr esiyor, yan rüzgâr bileşeni önemsiz.\n\n**Görüş:** Mükemmel görüş koşulları, 10 kilometre ve daha fazla mesafede her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, açık gökyüzü, yağış yok.\n\n**Uçuşa etkisi:** Hava koşulları kısıtlayıcı unsur içermiyor, nem yüksek olsa da operasyonel engel yoktur."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -1426,5 +1435,5 @@
   }
  },
  "notam_son_senkron": "2026-09-18T18:23:20+00:00",
- "guncelleme": "2026-09-18T23:21:02+00:00"
+ "guncelleme": "2026-09-18T23:31:15+00:00"
 }
