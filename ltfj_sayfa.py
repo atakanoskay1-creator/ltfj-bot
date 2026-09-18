@@ -1679,10 +1679,18 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
     icine oldugu gibi gomulur. Bos ise ATC Notes bolumu "yapilandirilmamis"
     mesaji gosterir."""
     simdi = datetime.now(timezone.utc).astimezone(YEREL_TZ)
-    sira = {"SPECI": 0, "METAR": 1, "TAF": 2}
-    sirali = sorted(raporlar, key=lambda r: (sira.get(r["tip"], 9),
-                                             -(r["zaman"].timestamp()
-                                               if r.get("zaman") else 0)))
+    # METAR/SPECI SADECE zamana gore siralanir - tipi ne olursa olsun en
+    # yeni rapor en basta olur. Eskiden SPECI her zaman METAR'dan once
+    # geliyordu (sabit tip sirasi); bu, saatler once yayinlanmis eski bir
+    # SPECI'nin cok daha yeni bir METAR'in ONUNE gecip "guncel_rapor"
+    # olarak secilmesine yol aciyordu - LVO farkindalik notlari, VFR
+    # sekmesi ve istatistiksel sis olasiligi karti o zaman eski SPECI'nin
+    # gorus/tavan degerleriyle hesaplaniyordu. TAF bir gozlem degil,
+    # gelecek donem tahmini oldugu icin obs raporlariyla zaman bazinda
+    # kiyaslanmiyor - listede hep en sonda durur.
+    sirali = sorted(raporlar, key=lambda r: (
+        r["tip"] == "TAF",
+        -(r["zaman"].timestamp() if r.get("zaman") else 0)))
     govde = (_trend_bolumu(gecmis)
              + ("".join(_kart(r, yorum_onbellegi) for r in sirali)
                 or "<div class='kart'>Rapor yok.</div>"))
