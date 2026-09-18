@@ -108,14 +108,15 @@
   "id:52227196",
   "id:52232899",
   "id:52241483",
-  "id:52243969"
+  "id:52243969",
+  "id:52252046"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 180750Z 03012KT 9999 BKN022 BKN080 20/18 Q1015 NOSIG RMK RWY24R 02010KT RWY06R 02010KT RWY24L 02011KT",
+ "son_metar": "METAR LTFJ 180820Z 02011KT 9999 BKN022 BKN080 21/18 Q1015 NOSIG RMK RWY24R 01011KT RWY06R 01012KT RWY24L 02010KT",
  "son_uyari": null,
  "son_renk": "WHT",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-18T07:50:00+00:00",
+ "son_veri_zamani": "2026-09-18T08:20:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -785,6 +786,14 @@
    "qnh": 1015,
    "sicaklik": 20,
    "cig_noktasi": 18
+  },
+  {
+   "zaman": "2026-09-18T08:20:00+00:00",
+   "ruzgar_hiz": 11,
+   "tavan": 2200,
+   "qnh": 1015,
+   "sicaklik": 21,
+   "cig_noktasi": 18
   }
  ],
  "yorum_onbellegi": {
@@ -1144,5 +1153,5 @@
   }
  },
  "notam_son_senkron": "2026-09-18T06:11:12+00:00",
- "guncelleme": "2026-09-18T08:21:24+00:00"
+ "guncelleme": "2026-09-18T08:31:16+00:00"
 }
