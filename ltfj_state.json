@@ -141,7 +141,8 @@
   "id:52417770",
   "id:52420814",
   "id:52429137",
-  "id:52431224"
+  "id:52431224",
+  "id:52433169"
  ],
  "ilk_calisma": false,
  "son_metar": "METAR LTFJ 182250Z 03005KT CAVOK 18/16 Q1018 NOSIG RMK RWY24R 01005KT RWY06R 02006KT RWY24L 03007KT",
@@ -1069,10 +1070,10 @@
   }
  ],
  "yorum_onbellegi": {
-  "TAF LTFJ 181640Z 1818/1918 04006KT 9999 SCT035 BKN070 BECMG 1818/1821 CAVOK PROB30 TEMPO 1900/1904 4000 BR SCT004 BECMG 1903/1906 SCT035 BECMG 1909/1912 03016KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 18-19 Aralık döneminde değişken bulutlu hava beklenmektedir.\n\n- **1818/1821 UTC:** Kademeli olarak görüş açık (CAVOK) koşullarına geçiş.\n- **1900/1904 UTC:** %30 ihtimalle geçici olarak 4000 metre görüş ve hafif sis, çok alçak bulutlar.\n- **1903/1906 UTC:** Kademeli olarak orta bulutluluk (SCT035) koşullarına dönüş.\n- **1909/1912 UTC:** Kademeli olarak rüzgar 030 derece 16 knot'a geçiş.",
   "METAR LTFJ 182150Z 04005KT CAVOK 18/16 Q1018 NOSIG RMK RWY24R 02003KT RWY06R 03006KT RWY24L 01002KT": "**Rüzgâr:** Kuzey-kuzeydoğudan hafif 5 knot (yaklaşık 9 km/s) rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş mükemmel, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş açısından kısıtlayıcı unsur yoktur.",
   "METAR LTFJ 182220Z 03006KT CAVOK 18/16 Q1018 NOSIG RMK RWY24R 02004KT 350V050 RWY06R 02006KT RWY24L 06005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 6 knot (yaklaşık 11 km/s) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş mükemmel, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, açık gökyüzü, yağış yok.\n\n**Uçuşa etkisi:** Hava koşulları kısıtlayıcı unsur içermiyor, rüzgâr ve görüş uçuş için uygun.",
-  "METAR LTFJ 182250Z 03005KT CAVOK 18/16 Q1018 NOSIG RMK RWY24R 01005KT RWY06R 02006KT RWY24L 03007KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/s) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş mükemmel, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil; hava koşulları uçuş için elverişli."
+  "METAR LTFJ 182250Z 03005KT CAVOK 18/16 Q1018 NOSIG RMK RWY24R 01005KT RWY06R 02006KT RWY24L 03007KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/s) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş mükemmel, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil; hava koşulları uçuş için elverişli.",
+  "TAF LTFJ 182240Z 1900/1924 04004KT CAVOK PROB30 TEMPO 1903/1905 3200 BR SCT004 BECMG 1905/1908 SCT035 BECMG 1909/1912 03014KT BECMG 1916/1919 04004KT CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 19:00–19:24 UTC döneminde rüzgâr 040°/4 knot, görüş sınırsız beklenmektedir.\n\n- **1903/1905 UTC:** %30 ihtimalle geçici olarak görüş 3200 metre, hafif sis, bulutlar 400 feet'te dağınık.\n- **1905/1908 UTC:** Kademeli geçişle bulutlar 3500 feet'te dağınık.\n- **1909/1912 UTC:** Kademeli geçişle rüzgâr 030°/14 knot.\n- **1916/1919 UTC:** Kademeli geçişle rüzgâr 040°/4 knot, görüş sınırsız."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -1425,5 +1426,5 @@
   }
  },
  "notam_son_senkron": "2026-09-18T18:23:20+00:00",
- "guncelleme": "2026-09-18T23:01:18+00:00"
+ "guncelleme": "2026-09-18T23:10:59+00:00"
 }
