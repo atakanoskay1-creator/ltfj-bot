@@ -125,13 +125,17 @@ def tavan_istatistik_notu(cozum: dict | None) -> str | None:
         return None
 
     metin = (
-        f"Spread {hucre['spread_araligi']} / görüş {hucre['gorus_araligi']} "
-        f"bandında, önümüzdeki {tavan_tablosu.HEDEF_UFUK_SAAT} saat içinde bulut "
-        f"tabanının {tavan_tablosu.HEDEF_TAVAN_FT} ft altına düşmesi uzun dönem "
-        f"ortalamasının ~{hucre['kat']:.0f} katı "
-        f"(%5–95: {hucre['alt']:.0f}–{hucre['ust']:.0f}×)."
+        f"Şu anki spread ({hucre['spread_araligi']}) ve görüş ({hucre['gorus_araligi']}) "
+        f"şartlarında, bulut tabanının önümüzdeki {tavan_tablosu.HEDEF_UFUK_SAAT} saat "
+        f"içinde {tavan_tablosu.HEDEF_TAVAN_FT} ft altına inmesi LTFJ arşivinde "
+        f"normalden çok daha sık görülmüş: ortalama şartlara göre yaklaşık "
+        f"{hucre['kat']:.0f} kat daha sık (olası aralık "
+        f"{hucre['alt']:.0f}–{hucre['ust']:.0f} kat)."
     )
     if hucre["ince"]:
         metin += f" Bu bantta yalnızca {hucre['n']} gözlem var; aralık geniş."
-    return (f"{metin} LTFJ {tavan_tablosu.KAYNAK_DONEM} arşivinden öğrenilmiş "
-            f"GÖRELİ bir orandır, mutlak olasılık değildir. {_HEDGE}")
+    return (
+        f"{metin} Bu bir olasılık yüzdesi değil, GÖRELİ bir kıyaslamadır — mutlak "
+        f"olasılık değildir, kesin bir yüzde olarak okunmamalıdır. LTFJ "
+        f"{tavan_tablosu.KAYNAK_DONEM} arşivinden öğrenilmiştir. {_HEDGE}"
+    )

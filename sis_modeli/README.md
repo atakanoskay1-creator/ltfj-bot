@@ -152,6 +152,228 @@ daha iyi sıralıyor.** Sis ve düşük tavan birlikte oluyor (CAT II tavanları
 %86'sı sisli). Tablonun kattığı şey daha iyi bir sıralayıcı değil, tavan
 kriterine **doğrudan okunabilir** bir göreli risk ölçeği.
 
+## Model B — görüşsüz atmosferik sis oluşum potansiyeli
+
+Model A (yukarıdaki lojistik regresyon) soruyor: *"mevcut görüş dahil,
+önümüzdeki 3 saatte sis riski nedir?"* Bu, görüşü hem girdi hem çıktı olarak
+kullanmaz — görüş **T anına ait bir gözlem**, hedef ise **gelecekteki** bir
+durum; süreklilik bilgisi (hava zaten kapalı mı?) meşru bir predictor'dır.
+
+**Model B farklı bir soru soruyor:** *"görüş henüz düşmemişken, salt
+atmosferik değişkenler (spread, sıcaklık, rüzgâr, saat) yaklaşan sisi ne
+kadar önceden haber veriyor?"* Görüş ve türevleri **kesinlikle kullanılmaz**
+(`sis_modeli/olusum_alanlar.py` → `YASAKLI`, çalışma zamanında
+`dogrula()` ile denetlenir). İki model birbirinin **yerine geçmez** — farklı
+sorulara cevap verirler ve sıralanmazlar.
+
+### Değişken tarama ve seçim (`olusum_alanlar.py`, `olusum_egit.py`)
+
+Aday havuzu (`ADAYLAR`): sıcaklık, çiy noktası, spread, spread eğilimi
+(1h/3h), rüzgâr hızı/kuzey/doğu bileşeni/eğilimi, saat, ay, QNH, QNH eğilimi.
+`sis_kodu` **YASAKLI** — test edildi: yalnızca çıplak, alanı kaplayan FG
+kodunda 1 oluyor, yani `sis` etiketinin ikinci OR-koşulunun aynısı (dairesel
+predictor). `tavan` (bulut tabanı) ve `hava` sütunundan türetilen
+`sis_yakinligi` (BR/nitelikli-FG öncül sinyali) **tartışmalı** kategoride —
+aday havuzuna otomatik girmez.
+
+Walk-forward ablasyonla ölçülen (embargo açık, 2011-2023, holdout kapalı):
+
+| küme | AP | BSS |
+|---|---|---|
+| spread+trend3+rüzgâr_kuzey+saat (4) | 0.037 | −0.008 |
+| **+ sıcaklık (5) — SEÇİLEN** | **0.049** | **0.015** |
+| + ay yerine (5) | 0.035 | −0.004 (ay ZARARLI) |
+| geniş küme (8, zayıf IV'liler hariç) | 0.050 | 0.015 (+0.0003 AP, 3 fazla parametre) |
+
+Sıcaklık eklenmeden model iklimden **kötü** (BSS negatif) — spread'in
+"seviyesini" tamamlayan bağımsız bilgi taşıyor. `ay` her kombinasyonda
+zararlı. Seçilen küme: `spread, spread_egilim_3, sicaklik, ruzgar_kuzey, saat`
+— VIF hepsi <2 (çoklu doğrusallık sorunu yok).
+
+### Sınır embargosu (`bolme.embargo_penceresi`)
+
+Araştırma sırasında **kod üzerinden doğrulanan** bir bulgu: `hedef.hazirla()`
+tüm arşivi bölünmeden önce işliyor, bu yüzden bir eğitim satırının ileriye
+bakan penceresi dışarıda kalan bir dönemin (bir sonraki fold'un testi veya
+holdout) ham verisini kullanmış olabilir — feature sızıntısı DEĞİL, sınıra
+yakın birkaç satırın **etiketinin** dışarıdaki veriden etkilenmesi. Model B
+(zayıf sinyalli) bu etkiye göreli olarak daha duyarlı olabileceği için
+embargo varsayılan olarak **açık**.
+
+### Görüşün kattığı bilgi (no-visibility ablation)
+
+Walk-forward (2011-2023) ve nihai holdout (2024-2026, TEK ATIŞ) üzerinde,
+aynı 5 değişken + `gorus`:
+
+| model | walk-forward AP | walk-forward BSS | **holdout AP** | **holdout BSS** | holdout AP %5–%95 |
+|---|---|---|---|---|---|
+| Model B (görüşsüz) | 0.049 | 0.015 | **0.075** | **0.028** | 0.043 – 0.122 |
+| Model B + görüş | 0.182 | 0.103 | **0.184** | **0.095** | 0.101 – 0.295 |
+| iklim | 0.009 | 0.000 | 0.005 | 0.000 | 0.003 – 0.010 |
+| basit kural (mevcut sezgisel) | 0.038 | −0.431 | 0.048 | −0.538 | 0.015 – 0.035 |
+
+Görüş eklenince holdout AP **+0.110** artıyor (walk-forward'da +0.133 idi -
+tutarlı büyüklükte). Güven aralıkları **çoğunlukla ayrışıyor** (görüşsüz üst
+sınırı 0.122, görüşlü alt sınırı 0.101 - dar bir örtüşme var ama nokta
+tahminleri belirgin farklı) - sis modelinin süreklilik baseline'ına karşı
+tam örtüşen aralığından (bkz. Bölüm 9, ana metodoloji) daha net bir ayrışma.
+
+**Model B (görüşsüz) holdout'ta iklimden anlamlı ölçüde iyi** (BSS 0.028,
+pozitif) - saf atmosferik sinyal küçük ama gerçek ve holdout'ta da
+DOĞRULANDI (walk-forward'a göre biraz daha güçlü çıktı - küçük holdout
+örnekleminde (214 pozitif) beklenen varyans dahilinde). "Basit kural"
+(mevcut sezgisel yöntemin özü) burada da iklimden KÖTÜ (BSS negatif) -
+sis modelinde de gözlenen aynı örüntü.
+
+**Kalibrasyon (holdout):** tüm tahminler %10'un altında kaldı (ort. tahmin
+%0.58, gerçekleşen %0.45) - hafif aşırı güvenli ama yakın.
+
+### Event-level değerlendirme (`olay_degerlendirme.py`)
+
+Satır-düzeyinde AP/Brier, bir olayın yaklaştığı ~6 satırın hepsini ayrı ayrı
+pozitif sayar — tek bir olay skoru büyütebilir. `olay_degerlendirme` bağımsız
+olayları (>3h boşlukla ayrılan pozitif gruplar) tanımlayıp **olay başına TEK
+temsilci tahmin** (onset'ten hemen önceki onset-aday satır) üzerinden
+event-level duyarlılık/kesinlik hesaplar — mevcut metrikleri **değiştirmez**,
+ek bir katmandır.
+
+### Lead-time (30dk/1h/2h/3h) — `ufuk_deneyi.py`
+
+Soru: *"Görüşü kullanmadan sis oluşumu ne kadar önceden tahmin edilebiliyor?"*
+Her ufuk kendi walk-forward döngüsünü çalıştırır (`hedef.hazirla(ufuk_saat=...)`),
+holdout hiçbirinde açılmaz.
+
+**Ölçülen sonuç — beklenenin TERSİ yönde:**
+
+| ufuk | n | olay | AP | BSS | ROC-AUC |
+|---|---|---|---|---|---|
+| 30dk | 155.634 | 252 | 0.011 | 0.005 | 0.898 |
+| 1h | 155.634 | 256 | 0.021 | 0.010 | 0.901 |
+| 2h | 155.634 | 256 | 0.038 | 0.004 | 0.903 |
+| **3h** | 155.634 | 256 | **0.049** | 0.015 | 0.891 |
+
+Performans ufuk **uzadıkça artıyor**, kısaldıkça değil. Fiziksel olarak
+tutarlı: bu modelin yakaladığı sinyal ("koşullar sise elverişli hale
+geliyor") **yavaş** bir eğilim — spread'in saatler içindeki düşüşü. 30
+dakikalık bir pencerede bu eğilimin olaya dönüşmesi için yeterli zaman
+genelde yok; 3 saat bu yavaş sinyale "gerçekleşme şansı" tanıyor.
+
+**Event-level tespit oranı (olay başına TEK temsilci tahmin, eşiği geçen
+olay yüzdesi) daha da açık konuşuyor:**
+
+| ufuk | ≥%5 | ≥%10 | ≥%20 | ≥%40 |
+|---|---|---|---|---|
+| 30dk | %0.0 | %0.0 | %0.0 | %0.0 |
+| 1h | %2.0 | %0.0 | %0.0 | %0.0 |
+| 2h | %23.0 | %8.6 | %0.0 | %0.0 |
+| 3h | %35.9 | %11.3 | %0.0 | %0.0 |
+
+**Hiçbir ufukta, hiçbir olay için model %20'nin üzerinde bir olasılık
+üretmedi.** Satır-düzeyinde AP/BSS mütevazı ama pozitif bir sinyal
+gösterirken, "yaklaşan BU olayı tek bir anda yüksek güvenle işaretle"
+sorusuna model — hiçbir ufukta — güçlü bir cevap vermiyor. Bu bir
+BAŞARISIZLIK değil (satır-düzeyinde iklimden anlamlı ölçüde iyi kalıyor),
+ama görüşsüz atmosferik sinyalin doğası hakkında dürüst bir sınır: **erken
+uyarı sistemi olarak güçlü değil, arka plan riskini kademeli olarak
+yükselten zayıf ama gerçek bir gösterge.**
+
+**Holdout'ta (2024-2026, TEK ATIŞ) 3 saatlik ufukta event-level sonuç, aynı
+örüntüyü doğruluyor:** 33 bağımsız olaydan yalnızca **5'i (%15.2)** %5 eşiğini
+geçti (%5–95 aralığı 6.9–27.8%); %10, %20, %40 eşiklerinin HİÇBİRİNİ hiçbir
+olay geçmedi (%0.0). Model B, arka plan riskini gerçekten yükseltiyor
+(walk-forward'daki gibi holdout'ta da) ama **tek bir olayı önceden yüksek
+güvenle işaretleyen bir erken uyarı sistemi değil**.
+
+### İzolasyon ve durum
+
+Model B **tamamen `sis_modeli/` içinde** — çalışma anına (ltfj_*.py) hiçbir
+şekilde bağlanmadı, hiçbir dondurulmuş modül üretilmedi. Bu bir araştırma
+deneyidir; canlı bota entegrasyon **ayrı, sonraki** bir karardır.
+
+## Tavan için görüşsüz iki model (A: süreklilik, B: oluşum)
+
+TL.007 madde 6.2.a/6.3.1.a: bulut tabanı görüşten **bağımsız** bir LVO
+tetikleyicisi. Ama şu ana kadar kurulan hiçbir tavan çalışması gerçekten
+görüşsüz değildi — `tavan_tablo.py`'nin kazanan çifti `spread × görüş`
+idi. `tavan_gorussuz.py` iki ayrı, sıralanmayan soru sorar:
+
+- **Model A (süreklilik):** mevcut tavan okuması + atmosferik değişkenlerle,
+  3 saat içinde tavan<500ft olur mu?
+- **Model B (oluşum):** ne görüş ne mevcut tavan — yalnızca atmosferik
+  sinyalle (spread, rüzgâr, saat) tavan çökmesi önceden haber verilebiliyor mu?
+
+**Bağımsız olay sayısı, görüşsüz sis modelinden (2017+ rejim) fazla:**
+
+| hedef | gelişt. olay | holdout olay |
+|---|---|---|
+| sis (Model B) | 128 | 33 |
+| **tavan<500ft** | **182** | **81** |
+
+### Değişken seçimi — sis'ten farklı, YENİDEN ölçüldü
+
+Walk-forward ablasyonla (gelişt. içi, embargo açık):
+
+| Model B (oluşum, tavan_ozellik YOK) | AP | BSS |
+|---|---|---|
+| spread+trend3+rüzgâr_kuzey+saat — **SEÇİLEN** | 0.060 | **0.025** |
+| + sıcaklık | 0.041 | 0.014 |
+
+**Dikkat — sis hedefinin tam tersi:** sis modelinde sıcaklık eklenmeden model
+iklimden kötüydü; burada sıcaklık eklenince BSS %43 düşüyor. Aynı değişken
+iki farklı hedefte zıt yönde davranabiliyor — bu yüzden sis taramasının
+sonucu tavan'a otomatik taşınmadı, sıfırdan ölçüldü.
+
+| Model A (süreklilik, tavan_ozellik DAHİL) | AP | BSS |
+|---|---|---|
+| yukarıdaki + spread_egilim_1 + tavan_ozellik — **SEÇİLEN** (6 değ.) | **0.068** | **0.021** |
+
+VIF: her iki kümede de tüm değişkenler <2.
+
+### Geliştirme-içi event-level (182 bağımsız olay)
+
+| model | ≥%5 | ≥%10 | ≥%20 |
+|---|---|---|---|
+| Model A (süreklilik) | %34.6 | %11.0 | %0.0 |
+| Model B (oluşum) | %33.5 | %4.4 | %0.0 |
+
+Sis modelinin holdout'undaki (%15.2 @ ≥%5) sonuçtan belirgin daha iyi —
+daha fazla bağımsız olayın beklenen faydası.
+
+### Nihai holdout (2024-2026, TEK ATIŞ) — beklenmedik ve açıklanmış bir sonuç
+
+| model | holdout AP | holdout BSS | AP %5–%95 |
+|---|---|---|---|
+| Model A (süreklilik) | 0.076 | 0.015 | 0.059 – 0.101 |
+| Model B (oluşum) | 0.081 | 0.015 | 0.062 – 0.105 |
+| iklim | 0.010 | 0.000 | 0.009 – 0.018 |
+| basit kural (sezgisel) | 0.048 | −0.126 | 0.032 – 0.053 |
+
+Satır düzeyinde iklimden anlamlı ölçüde iyi — ama **event-level tespit her
+iki modelde de holdout'ta %0.0'a düştü** (81 olayın hiçbiri hiçbir eşikte
+yakalanmadı), geliştirme-içi %34.6'dan keskin bir düşüş.
+
+**Kök neden bulundu ve holdout'a TEKRAR DOKUNMADAN doğrulandı:** her iki
+model de holdout eğitiminde `L2=10000` seçti — `model.L2_ADAYLARI`
+ızgarasının **en uç (en muhafazakâr) değeri**. Bu L2 ile eğitim kümesindeki
+**en yüksek** tahmin bile %2.6 — yani hiçbir satır, en düşük event-level
+eşiği olan %5'i bile geçemiyor; sonucun %0.0 çıkması matematiksel bir
+zorunluluk, ayrı bir "model başarısız oldu" bulgusu değil.
+
+Bunun nedeni araştırıldı: `egit_secerek()` L2'yi eğitim döneminin **tek bir
+son yılına** karşı iç doğrulamayla seçiyor (bkz. `model.py` — iki yıl
+denenmiş, tek yıl daha iyi çıkmıştı, ama bu tekliğin bir bedeli var). Aynı
+eğitim kümesine en yakın walk-forward fold'u (eğitim 2017-2022, test 2023)
+da **aynı L2=10000'i** seçti — yani 2022/2023'e özgü bir ayrışma zorluğu,
+tek-yıllık iç doğrulamayı uç bir değere kilitliyor. Diğer fold'lar çok daha
+düşük L2 (10-1000) seçip %8-18 aralığında tahminler üretebiliyordu.
+
+**Bu holdout sonucu TEK ATIŞ kuralı gereği değiştirilmedi** — yalnızca
+kök nedeni geliştirme verisiyle (holdout'a dokunmadan) doğrulandı ve
+raporlanıyor. Gelecekte AYRI, önceden ilan edilen bir deney olarak
+`egit_secerek()`'in iç doğrulama prosedürü (örn. çoklu yıl ortalaması)
+gözden geçirilebilir — ama bu, mevcut sonuç raporlandıktan SONRA, yeni bir
+TEK ATIŞ kuralıyla yapılmalı.
+
 ## Sınırlar
 
 Bu bir **iklim + süreklilik** modelidir, fizik modeli değildir: yaklaşan bir
@@ -180,4 +402,14 @@ python -m sis_modeli.veri_kalitesi --ab         # HOLDOUT AÇAR
 python -m sis_modeli.tavan_tarama
 python -m sis_modeli.tavan_tablo                # holdout açılmaz
 python -m sis_modeli.tavan_tablo --holdout      # TEK ATIŞ
+
+# Model B: görüşsüz atmosferik sis oluşum potansiyeli
+python -m sis_modeli.olusum_egit                     # tarama + walk-forward
+python -m sis_modeli.olusum_egit --dahil-gorus        # görüş-ablasyon karşılaştırması
+python -m sis_modeli.ufuk_deneyi                      # 30dk/1h/2h/3h lead-time
+python -m sis_modeli.olusum_holdout_degerlendir       # TEK ATIŞ
+
+# Tavan: görüşsüz süreklilik (A) + oluşum (B) modelleri
+python -m sis_modeli.tavan_gorussuz                   # tarama + walk-forward
+python -m sis_modeli.tavan_gorussuz --holdout          # TEK ATIŞ
 ```

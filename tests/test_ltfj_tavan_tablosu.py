@@ -98,12 +98,11 @@ def test_not_sicaklik_veya_cig_yoksa_cikmiyor():
 
 
 def test_not_mutlak_yuzde_vermiyor():
-    """Seviye donemler arasi ~2.3 kat kaydigi icin yuzde YAYINLANMAZ.
-    Metinde yalnizca guven araligi etiketi olarak '%5-95' gecebilir."""
+    """Seviye donemler arasi ~2.3 kat kaydigi icin yuzde YAYINLANMAZ - metin
+    hic '%' karakteri icermemeli, sadece 'kat' cinsinden konusmali."""
     n = f.tavan_istatistik_notu(_cozum())
     assert "GÖRELİ" in n and "mutlak olasılık değildir" in n
-    for yuzde in re.findall(r"%\s*[\d.]+", n):
-        assert yuzde.replace(" ", "") == "%5", n
+    assert "%" not in n
 
 
 def test_not_500_ft_ve_ufku_yaziyor():
@@ -145,10 +144,10 @@ def _sayfa(metin):
 
 def test_not_sayfada_lvo_panelinde_gorunuyor():
     html = _sayfa("LTFJ 172120Z 01003KT 3000 BR SCT015 08/08 Q1020")
-    assert "uzun dönem ortalamasının" in html
+    assert "kat daha sık" in html
     assert "lvo-fark-metar-taf" in html
 
 
 def test_not_acik_havada_sayfada_yok():
     html = _sayfa("LTFJ 172120Z 18005KT CAVOK 22/05 Q1015")
-    assert "uzun dönem ortalamasının" not in html
+    assert "kat daha sık" not in html

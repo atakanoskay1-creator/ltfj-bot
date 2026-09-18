@@ -163,3 +163,41 @@ def test_l2_izgarasi_notr_ve_a_priori():
     # her ardisik aday tam bir ondalik basamak uzakta (elle secilmemis)
     for a, b in zip(model.L2_ADAYLARI, model.L2_ADAYLARI[1:]):
         assert abs(b / a - 10.0) < 1e-9
+
+
+# --------------------------------------------------------- log_loss/roc_auc
+def test_log_loss_mukemmel_tahminde_sifira_yakin():
+    assert degerlendir.log_loss([0.999999999, 0.000000001], [True, False]) < 1e-6
+
+
+def test_log_loss_rastgele_yarimda_ln2():
+    import math
+    assert abs(degerlendir.log_loss([0.5] * 4, [True, False, True, False])
+              - math.log(2)) < 1e-9
+
+
+def test_log_loss_yanlis_emin_tahmini_agir_cezalandiriyor():
+    """Brier'den fark: kareli hata sinirlidir (<=1), log-kayip sinirsizdir."""
+    kotu_logloss = degerlendir.log_loss([0.001], [True])
+    kotu_brier = degerlendir.brier([0.001], [True])
+    assert kotu_logloss > 5 * kotu_brier
+
+
+def test_roc_auc_mukemmel_siralamada_bir():
+    assert degerlendir.roc_auc([0.9, 0.8, 0.2, 0.1],
+                               [True, True, False, False]) == 1.0
+
+
+def test_roc_auc_ters_siralamada_sifir():
+    assert degerlendir.roc_auc([0.1, 0.2, 0.8, 0.9],
+                               [True, True, False, False]) == 0.0
+
+
+def test_roc_auc_esit_skorlarda_yarim():
+    assert degerlendir.roc_auc([0.5] * 4, [True, False, True, False]) == 0.5
+
+
+def test_roc_auc_tek_sinifli_veride_notr_donuyor():
+    """Yalniz pozitif veya yalniz negatif varsa AUC tanimsizdir; coksmemeli."""
+    assert degerlendir.roc_auc([0.1, 0.9], [True, True]) == 0.5
+    assert degerlendir.roc_auc([0.1, 0.9], [False, False]) == 0.5

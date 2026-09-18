@@ -13,8 +13,9 @@ Kullanilan metrikler:
   - Belirli esiklerde precision/recall: "kac kere bosuna alarm, kac kacirma"
 """
 
-from collections import defaultdict
+import math
 import random
+from collections import defaultdict
 
 
 def brier(tahminler: list, gercekler: list) -> float:
@@ -74,6 +75,53 @@ def esik_tablosu(tahminler: list, gercekler: list, esikler=(0.05, 0.10, 0.20, 0.
             "duyarlilik": tp / toplam_poz if toplam_poz else 0.0,
         })
     return cikti
+
+
+def log_loss(tahminler: list, gercekler: list, eps: float = 1e-9) -> float:
+    """Ortalama log-kayip (negatif log-olabilirlik). Brier'den FARKI: yanlis
+    emin tahminleri (ornegin gercek pozitifken %0.1 demek) Brier'den cok daha
+    agir cezalandirir - kareli hata sinirli (<=1) ama log-kayip sinirsizdir.
+
+    eps: p tam 0/1'e yapisirsa log(0) olmasin diye kirpma payi."""
+    n = len(tahminler) or 1
+    toplam = 0.0
+    for p, y in zip(tahminler, gercekler):
+        p = min(max(p, eps), 1 - eps)
+        toplam += -math.log(p) if y else -math.log(1 - p)
+    return toplam / n
+
+
+def roc_auc(tahminler: list, gercekler: list) -> float:
+    """ROC egrisi alti alan - rastgele bir pozitif/negatif ciftinde pozitife
+    daha yuksek skor verme olasiligi (Mann-Whitney U esdegeri).
+
+    DIKKAT (bkz. modul basligi): nadir olayda ROC-AUC modeli oldugundan iyi
+    gosterebilir - cok sayida kolay negatif, esik ne olursa olsun yuksek
+    "true negative rate" saglar. Bu yuzden BIRINCIL metrik degil; AP'nin
+    (ortalama_kesinlik) YANINDA, istenen ek bir gorunum olarak sunulur."""
+    ciftler = sorted(zip(tahminler, gercekler), key=lambda c: c[0])
+    n = len(ciftler)
+    pozitif = sum(1 for _, y in ciftler if y)
+    negatif = n - pozitif
+    if pozitif == 0 or negatif == 0:
+        return 0.5
+
+    # Ortalanmis siralar (bagli/esit skorlarda ortalama sira paylasilir).
+    siralar = [0.0] * n
+    i = 0
+    while i < n:
+        j = i
+        while j + 1 < n and ciftler[j + 1][0] == ciftler[i][0]:
+            j += 1
+        ortalama_sira = (i + j) / 2.0 + 1.0          # 1-tabanli sira
+        for k in range(i, j + 1):
+            siralar[k] = ortalama_sira
+        i = j + 1
+
+    pozitif_sira_toplami = sum(s for s, (_, y) in zip(siralar, ciftler) if y)
+    # U istatistigi -> AUC. Bkz. Mann-Whitney U / Wilcoxon rank-sum esdegerligi.
+    u = pozitif_sira_toplami - pozitif * (pozitif + 1) / 2.0
+    return u / (pozitif * negatif)
 
 
 def blok_guven_araligi(kayitlar: list, tahminler: list, gercekler: list,
