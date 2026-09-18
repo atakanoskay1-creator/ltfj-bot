@@ -59,6 +59,46 @@ def test_yorum_onbellegi_verilmezse_sayfa_hata_vermez(tmp_path):
     assert 'class="yorum"' not in html
 
 
+# ------------------------------------------------------ guncel rapor secimi
+# Bug raporu: eski SABIT TIP sirasiyla (SPECI hep METAR'dan once) saatler
+# once yayinlanmis eski bir SPECI, cok daha yeni bir METAR'in ONUNE gecip
+# "guncel_rapor" olarak seciliyordu - LVO farkindalik notlari, VFR sekmesi
+# ve istatistiksel sis olasiligi karti o zaman eski SPECI'nin gorus/tavan
+# degerleriyle hesaplaniyordu. Siralama artik SADECE zamana gore.
+ESKI_SPECI_KOTU_HAVA = {
+    "tip": "SPECI",
+    "metin": ("SPECI LTFJ 180937Z 04008KT 0800 FG VV002 15/15 Q1016 NOSIG"),
+    "zaman": datetime(2026, 9, 18, 9, 37, tzinfo=timezone.utc),
+    "icao": "LTFJ",
+}
+
+YENI_METAR_ACIK_HAVA = {
+    "tip": "METAR",
+    "metin": "METAR LTFJ 182020Z 18005KT CAVOK 22/05 Q1015",
+    "zaman": datetime(2026, 9, 18, 20, 20, tzinfo=timezone.utc),
+    "icao": "LTFJ",
+}
+
+
+def test_eski_speci_yeni_metarin_onune_gecmiyor(tmp_path):
+    """Kart sirasi zamana gore olmali: METAR (20:20Z) SPECI'den (09:37Z)
+    daha yeni oldugu icin listede ONCE gelmeli."""
+    hedef = tmp_path / "index.html"
+    s.sayfa_yaz([ESKI_SPECI_KOTU_HAVA, YENI_METAR_ACIK_HAVA], [], hedef)
+    html = hedef.read_text(encoding="utf-8")
+    assert html.index("18.09 20:20Z") < html.index("18.09 09:37Z")
+
+
+def test_eski_speci_panelleri_kirletmiyor(tmp_path):
+    """VFR sekmesi ve LVO farkindalik notlari, saatler once yayinlanmis
+    kotu-hava SPECI'sini DEGIL, cok daha yeni CAVOK METAR'i kullanmali."""
+    hedef = tmp_path / "index.html"
+    s.sayfa_yaz([ESKI_SPECI_KOTU_HAVA, YENI_METAR_ACIK_HAVA], [], hedef)
+    html = hedef.read_text(encoding="utf-8")
+    assert 'class="vfr-sekme vfr-yesil"' in html
+    assert "Şu an için dikkat çeken bir eşik yok" in html
+
+
 def test_metar_speci_yorumu_web_sayfasinda_gosterilir(tmp_path):
     yorum = "Rüzgâr: 040 derece yönden 8 knot, hafif.\nGörüş: 10 km üzeri, rahat."
     onbellek = {SPECI_KISMI_RMK["metin"]: yorum}
