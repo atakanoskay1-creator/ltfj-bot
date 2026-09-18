@@ -124,14 +124,15 @@
   "id:52318766",
   "id:52321600",
   "id:52329860",
-  "id:52332686"
+  "id:52332686",
+  "id:52341107"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 181450Z 03013KT 9999 SCT025 BKN080 21/18 Q1016 NOSIG RMK RWY24R 02011KT RWY06R 03011KT RWY24L 03010KT",
+ "son_metar": "METAR LTFJ 181520Z 05011KT 9999 SCT025 BKN080 21/17 Q1017 NOSIG RMK RWY24R 02010KT RWY06R 03010KT RWY24L 04011KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-18T14:50:00+00:00",
+ "son_veri_zamani": "2026-09-18T15:20:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -921,13 +922,21 @@
    "qnh": 1016,
    "sicaklik": 21,
    "cig_noktasi": 18
+  },
+  {
+   "zaman": "2026-09-18T15:20:00+00:00",
+   "ruzgar_hiz": 11,
+   "tavan": 8000,
+   "qnh": 1017,
+   "sicaklik": 21,
+   "cig_noktasi": 17
   }
  ],
  "yorum_onbellegi": {
-  "TAF LTFJ 180440Z 1806/1906 03005KT 9999 SCT030 BKN090 BECMG 1807/1811 04015KT TEMPO 1807/1811 -SHRA BKN025 BKN080 BECMG 1816/1820 05005KT CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken rüzgar ve bulutlu koşullar beklenmektedir.\n\n- **1806/1811 UTC:** Rüzgar 030° 5 knot, görüş 9999 metre, 3000 feet'te parçalı bulut, 9000 feet'te kırık bulut. Kademeli geçişle rüzgar 040° 15 knot'a dönüşecek; bu dönemde geçici olarak hafif sağanak yağış, 2500 feet'te kırık bulut, 8000 feet'te kırık bulut bekleniyor.\n\n- **1816/1820 UTC:** Kademeli geçişle rüzgar 050° 5 knot'a düşecek, görüş sınırsız, bulut yok (CAVOK).",
   "METAR LTFJ 180450Z 34003KT 290V090 9999 SCT025 BKN090 19/17 Q1014 NOSIG RMK RWY24R 31003KT 260V340 RWY06R VRB02KT RWY24L 31003KT 260V020": "**Rüzgâr:** Kuzey-kuzeybatı yönünden 3 knot (yaklaşık 5 km/s) hafif rüzgâr esiyorsa da yönü sık sık değişiyor, yan rüzgâr bileşeni çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için görüş açısından rahat koşullar.\n\n**Gökyüzü:** Yaklaşık 2500 metre yükseklikte parçalı bulutluluk, 9000 metre yükseklikte çok bulutlu katman var; yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, nem yüksek ama hava olayı beklenmiyorsa operasyonel engel yoktur.",
   "METAR LTFJ 180520Z 04004KT 330V090 9999 -SHRA BKN023 BKN090 19/17 Q1015 NOSIG RMK RWY24R 03003KT 320V100 RWY06R VRB01KT RWY24L VRB02KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 4 knot hızla esiyor, yönü 330 ile 90 derece arasında değişiyor ve pistlere göre yan rüzgâr bileşeni 2 knot civarında.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor.\n\n**Gökyüzü:** Yaklaşık 700 metre yükseklikte çok bulutlu, 2700 metre yükseklikte de çok bulutlu katmanlar var; hafif sağanak yağmuru gözleniyor.\n\n**Uçuşa etkisi:** Hafif sağanak ve yüksek nem oranı dikkat gerektiriyor, ancak görüş ve rüzgâr şiddeti sınırlayıcı değil.",
-  "TAF LTFJ 181040Z 1812/1912 04017KT 9999 BKN030 BKN080 TEMPO 1812/1815 4000 -SHRA BR SCT012 BKN020 BECMG 1815/1817 SCT035 BKN100 BECMG 1818/1821 04007KT CAVOK PROB30 TEMPO 1900/1904 4000 BR SCT004 BECMG 1903/1906 SCT035 BECMG 1909/1912 04017KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde kuzey-kuzeybatı rüzgarı ve değişken bulutluluk beklenmektedir.\n\n- **1812/1815 UTC:** Görüş 4000 metre, hafif yağmur ve sis, az bulutlu 1200 metre ve parçalı bulutlu 2000 metre.\n- **1815/1821 UTC:** Kademeli olarak bulutluluk azalacak, rüzgar hafifleyecek, görüş iyi olacak.\n- **1900/1904 UTC:** %30 ihtimalle geçici olarak görüş 4000 metre, sis, az bulutlu 400 metre.\n- **1903/1912 UTC:** Kademeli olarak bulutluluk artacak ve rüzgar tekrar kuvvetlenecek."
+  "TAF LTFJ 181040Z 1812/1912 04017KT 9999 BKN030 BKN080 TEMPO 1812/1815 4000 -SHRA BR SCT012 BKN020 BECMG 1815/1817 SCT035 BKN100 BECMG 1818/1821 04007KT CAVOK PROB30 TEMPO 1900/1904 4000 BR SCT004 BECMG 1903/1906 SCT035 BECMG 1909/1912 04017KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde kuzey-kuzeybatı rüzgarı ve değişken bulutluluk beklenmektedir.\n\n- **1812/1815 UTC:** Görüş 4000 metre, hafif yağmur ve sis, az bulutlu 1200 metre ve parçalı bulutlu 2000 metre.\n- **1815/1821 UTC:** Kademeli olarak bulutluluk azalacak, rüzgar hafifleyecek, görüş iyi olacak.\n- **1900/1904 UTC:** %30 ihtimalle geçici olarak görüş 4000 metre, sis, az bulutlu 400 metre.\n- **1903/1912 UTC:** Kademeli olarak bulutluluk artacak ve rüzgar tekrar kuvvetlenecek.",
+  "METAR LTFJ 181520Z 05011KT 9999 SCT025 BKN080 21/17 Q1017 NOSIG RMK RWY24R 02010KT RWY06R 03010KT RWY24L 04011KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 11 knot (yaklaşık 20 km/saat) hızında rüzgâr esiyor, yan bileşen çok az.\n\n**Görüş:** 10 kilometre ve daha fazla mesafeden net görünüyor, görüş açısından rahat koşullar var.\n\n**Gökyüzü:** 2500 feet (yaklaşık 760 metre) yükseklikte parçalı bulutlar, 8000 feet (yaklaşık 2400 metre) yükseklikte daha yoğun bulutlar var; yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor, rüzgâr ve görüş uçuş için uygun seviyelerde."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -1280,5 +1289,5 @@
   }
  },
  "notam_son_senkron": "2026-09-18T12:11:16+00:00",
- "guncelleme": "2026-09-18T15:21:53+00:00"
+ "guncelleme": "2026-09-18T15:31:20+00:00"
 }
