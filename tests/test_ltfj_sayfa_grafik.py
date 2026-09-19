@@ -105,3 +105,60 @@ def test_gecmis_yoksa_grafik_bolumu_hic_cikmaz(tmp_path):
     s.sayfa_yaz([METAR], [], hedef, {}, "")
     html = hedef.read_text(encoding="utf-8")
     assert 'class="grafik-kutu"' not in html
+
+
+# --------------------------------------------------- "raporlanmiyor" durumu
+# Bug raporu: gokyuzu acildiginda (BKN/OVC katmani yok) tavan grafigi son
+# GERCEK olcumde (ornegin saatler once) donmus gorunuyordu ve kullanici bunu
+# "guncel deger" saniyordu. Grafik artik bu durumu hem basliktaki etiketle
+# hem de son segmenti kesikli/ici bos cizerek ayirt ediyor.
+def _en_son_yok_gecmisi():
+    """Son kayitta tavan None, ondan onceki iki kayitta gercek deger var -
+    _svg_cizgi'nin cizgi cizebilmesi icin en az 2 non-null nokta gerekir."""
+    simdi = datetime.now(timezone.utc)
+    return [
+        {"zaman": (simdi - timedelta(hours=3)).isoformat(),
+         "ruzgar_hiz": 5, "tavan": 3500, "qnh": 1016, "sicaklik": 20},
+        {"zaman": (simdi - timedelta(hours=2)).isoformat(),
+         "ruzgar_hiz": 5, "tavan": 3000, "qnh": 1016, "sicaklik": 20},
+        {"zaman": simdi.isoformat(),
+         "ruzgar_hiz": 9, "tavan": None, "qnh": 1020, "sicaklik": 22},
+    ]
+
+
+def test_son_kayitta_deger_yoksa_raporlanmiyor_etiketi_cikar(tmp_path):
+    hedef = tmp_path / "index.html"
+    s.sayfa_yaz([METAR], _en_son_yok_gecmisi(), hedef, {}, "")
+    html = hedef.read_text(encoding="utf-8")
+    i = html.index("Bulut tavanı")
+    blok = html[i:i + 700]
+    assert 'class="grafik-son grafik-son-yok">raporlanmıyor<' in blok
+    assert "3000 ft" not in blok.split("grafik-durum-notu")[0]  # baslikta DEGIL
+
+
+def test_son_kayitta_deger_yoksa_durum_notu_son_bilinen_degeri_gosterir(tmp_path):
+    hedef = tmp_path / "index.html"
+    s.sayfa_yaz([METAR], _en_son_yok_gecmisi(), hedef, {}, "")
+    html = hedef.read_text(encoding="utf-8")
+    assert "Son ölçüm: 3000 ft" in html
+    assert "raporlanmıyor" in html.split("Son ölçüm: 3000 ft")[1][:60]
+
+
+def test_son_kayitta_deger_yoksa_son_nokta_ici_bos_cizilir(tmp_path):
+    hedef = tmp_path / "index.html"
+    s.sayfa_yaz([METAR], _en_son_yok_gecmisi(), hedef, {}, "")
+    html = hedef.read_text(encoding="utf-8")
+    i = html.index("Bulut tavanı")
+    svg = html[i:html.index("</svg>", i)]
+    assert 'fill="none" stroke="#22c55e" stroke-width="2"/>' in svg  # ici bos daire
+    assert "stroke-dasharray" in svg
+
+
+def test_son_kayitta_deger_varsa_raporlanmiyor_etiketi_cikmaz(tmp_path):
+    """Regresyon: normal (guncel) durumda eski davranis aynen korunmali.
+    (CSS kurali her zaman <style> icinde tanimli olabilir - burada sinifin
+    bir elemente UYGULANIP uygulanmadigina bakiyoruz.)"""
+    html = _sayfa(tmp_path)
+    assert 'class="grafik-son grafik-son-yok"' not in html
+    assert "raporlanmıyor" not in html
+    assert 'class="grafik-durum-notu"' not in html
