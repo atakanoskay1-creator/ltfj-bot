@@ -192,14 +192,15 @@
   "id:52713828",
   "id:52722142",
   "id:52726170",
-  "id:52734032"
+  "id:52734032",
+  "id:52736463"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 192220Z 03005KT CAVOK 18/15 Q1022 NOSIG RMK RWY24R 36004KT RWY06R 01006KT RWY24L 04004KT",
+ "son_metar": "METAR LTFJ 192250Z 05005KT CAVOK 17/15 Q1022 NOSIG RMK RWY24R VRB02KT RWY06R 03006KT RWY24L 05006KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-19T22:20:00+00:00",
+ "son_veri_zamani": "2026-09-19T22:50:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -1493,13 +1494,21 @@
    "qnh": 1022,
    "sicaklik": 18,
    "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-19T22:50:00+00:00",
+   "ruzgar_hiz": 5,
+   "tavan": null,
+   "qnh": 1022,
+   "sicaklik": 17,
+   "cig_noktasi": 15
   }
  ],
  "yorum_onbellegi": {
-  "TAF LTFJ 191640Z 1918/2018 04007KT CAVOK BECMG 1923/2002 SCT035 BECMG 2005/2008 04018KT PROB30 TEMPO 2007/2011 -SHRA FEW018CB BKN022": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde başlangıçta açık hava, sonra bulutlanma ve rüzgar artışı beklenmektedir.\n\n- **1918/2002 UTC:** Başlangıçta 04 yönünden 7 knot rüzgar, görüş sınırsız; 1923 UTC'den itibaren 3500 ft'de dağınık bulut.\n- **2005/2008 UTC:** Rüzgar 04 yönünden 18 knota çıkacak.\n- **2007/2011 UTC:** %30 ihtimalle geçici olarak hafif sağanak, 1800 ft'de az bulut ve gök gürültülü bulut, 2200 ft'de kırık bulut.",
-  "METAR LTFJ 192120Z 05004KT CAVOK 18/15 Q1022 NOSIG RMK RWY24R 04004KT 340V080 RWY06R 03005KT RWY24L 05003KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 4 knot (çok hafif) rüzgâr esiyor, yan rüzgâr bileşeni ihmal edilebilir düzeyde.\n\n**Görüş:** Görüş sınırsız, uçuş için görüş açısından hiçbir kısıtlama yok.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, hava açık.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve hava koşullarında kısıtlayıcı unsur bulunmuyor.",
   "METAR LTFJ 192150Z 06003KT CAVOK 18/15 Q1022 NOSIG RMK RWY24R VRB02KT RWY06R 03004KT RWY24L 05003KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 3 knot (yaklaşık 5,5 km/s) hafif rüzgâr esiyor, yan rüzgâr bileşeni yok.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzeri, uçuş için rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Raporlanan veriler içinde uçuşu kısıtlayan bir unsur bulunmuyor; hava koşulları uygun.",
-  "METAR LTFJ 192220Z 03005KT CAVOK 18/15 Q1022 NOSIG RMK RWY24R 36004KT RWY06R 01006KT RWY24L 04004KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/s) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Tüm yönlerde 10 kilometre ve daha fazla görüş var, uçuş için görüş açısından rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve hava olayları açısından kısıtlayıcı unsur yoktur; önümüzdeki 2 saatte önemli değişiklik beklenmemektedir."
+  "METAR LTFJ 192220Z 03005KT CAVOK 18/15 Q1022 NOSIG RMK RWY24R 36004KT RWY06R 01006KT RWY24L 04004KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/s) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Tüm yönlerde 10 kilometre ve daha fazla görüş var, uçuş için görüş açısından rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve hava olayları açısından kısıtlayıcı unsur yoktur; önümüzdeki 2 saatte önemli değişiklik beklenmemektedir.",
+  "METAR LTFJ 192250Z 05005KT CAVOK 17/15 Q1022 NOSIG RMK RWY24R VRB02KT RWY06R 03006KT RWY24L 05006KT": "**Rüzgâr:** Kuzeydoğudan 5 knot (yaklaşık 9 km/saat) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzeri mesafede her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava koşulları.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş açısından kısıtlayıcı unsur yok, hava koşulları uçuş için elverişli.",
+  "TAF LTFJ 191640Z 1918/2018 04007KT CAVOK BECMG 1923/2002 SCT035 BECMG 2005/2008 04018KT PROB30 TEMPO 2007/2011 -SHRA FEW018CB BKN022": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde başlangıçta açık hava, sonra bulutlanma ve rüzgar artışı beklenmektedir.\n\n- **1918/2002 UTC:** Başlangıçta 04 yönünden 7 knot rüzgar, görüş sınırsız; 1923 UTC'den itibaren 3500 ft'de dağınık bulut.\n- **2005/2008 UTC:** Rüzgar 04 yönünden 18 knota artacak.\n- **2007/2011 UTC:** %30 ihtimalle geçici olarak hafif sağanak, 1800 ft'de az bulut ve gök gürültülü bulut, 2200 ft'de kırık bulut."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -1915,5 +1924,5 @@
   }
  },
  "notam_son_senkron": "2026-09-19T19:01:48+00:00",
- "guncelleme": "2026-09-19T22:51:17+00:00"
+ "guncelleme": "2026-09-19T23:01:24+00:00"
 }
