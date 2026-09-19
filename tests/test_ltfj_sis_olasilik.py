@@ -167,3 +167,32 @@ def test_spread_egilimi_gecmisten_hesaplaniyor():
 
 def test_spread_egilimi_cig_noktasi_yoksa_none():
     assert s._spread_egilimi(_gecmis(cig_var=False), SIMDI) is None
+
+
+# --------------------------------------------------- taban orana gore bant
+# Bug/istek: ciplak bir yuzde ("%3" gibi) tek basina "bu yuksek mi dusuk mu"
+# sorusuna cevap vermiyor. Kart artik taban orana (egitim verisindeki uzun
+# donem ortalama, ~%0.76) gore "kac kat" oldugunu ve bir dusuk/orta/yuksek
+# bandini da gosteriyor.
+def test_taban_oran_egitim_sayilarindan_hesaplaniyor():
+    assert abs(m.TABAN_ORAN - m.EGITIM_POZITIF / m.EGITIM_AN_SAYISI) < 1e-12
+
+
+def test_kart_yuksek_riskte_yuksek_bandini_ve_kati_gosterir():
+    html = _sayfa("LTFJ 172120Z 01003KT 1500 BR 06/06 Q1020")
+    assert 'class="sis-olasilik-bant yuksek">yüksek<' in html
+    assert "kat yüksek" in html
+
+
+def test_kart_dusuk_riskte_dusuk_bandini_ve_ters_orani_gosterir():
+    """Kat 1'in cok altindayken duz 'X kat dusuk' yerine (X kucuk/anlamsiz
+    olabilir - '0 kat dusuk' gibi) TERS oran gosterilmeli."""
+    html = _sayfa("LTFJ 172120Z 18005KT CAVOK 22/05 Q1015")
+    assert 'class="sis-olasilik-bant dusuk">düşük<' in html
+    assert "kat düşük" in html
+    assert "yaklaşık 0 kat düşük" not in html
+
+
+def test_kiyas_metni_taban_orani_yuzde_olarak_soyluyor():
+    html = _sayfa("LTFJ 172120Z 01003KT 1500 BR 06/06 Q1020")
+    assert "ortalama %0.8 civarındadır" in html

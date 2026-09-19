@@ -161,10 +161,19 @@ SABLON = """<!DOCTYPE html>
   }}
   .grafik-imlec[hidden], .grafik-nokta[hidden], .grafik-balon[hidden] {{ display:none; }}
 
+  .sis-olasilik-ust {{ display:flex; align-items:baseline; gap:10px; margin:6px 0 2px; }}
   .sis-olasilik-deger {{
-    font-size:2.2rem; font-weight:700; line-height:1.1; margin:6px 0 2px;
+    font-size:2.2rem; font-weight:700; line-height:1.1;
   }}
+  .sis-olasilik-bant {{
+    font-size:.74rem; font-weight:650; padding:2px 9px; border-radius:999px;
+    text-transform:uppercase; letter-spacing:.03em;
+  }}
+  .sis-olasilik-bant.dusuk {{ background:#22c55e26; color:#16a34a; }}
+  .sis-olasilik-bant.orta {{ background:#f9731626; color:#ea580c; }}
+  .sis-olasilik-bant.yuksek {{ background:#ef444426; color:#dc2626; }}
   .sis-olasilik-alt {{ font-size:.85rem; color:var(--soluk); }}
+  .sis-olasilik-kiyas {{ font-size:.8rem; color:var(--soluk); margin-top:6px; }}
   .sis-olasilik-not {{
     font-size:.74rem; color:var(--soluk); margin-top:10px; line-height:1.5;
     border-top:1px solid var(--cizgi); padding-top:8px;
@@ -1563,13 +1572,42 @@ def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
         return ""
 
     yuzde = f"{100 * p:.0f}" if p >= 0.01 else f"{100 * p:.1f}"
+    # Ciplak bir yuzde ("%3" gibi) tek basina "bu yuksek mi dusuk mu"
+    # sorusuna cevap vermiyor - taban orana (egitim verisindeki uzun donem
+    # ortalama) gore kac kat oldugunu da gosteriyoruz. Bant sinirlari (2x,
+    # 5x) olcume bakilarak SONRADAN degil, ONCEDEN (a priori) secildi -
+    # ltfj_lvo_farkindalik.TAVAN_KAT_ESIGI'deki ayni disiplin.
+    kat = p / sis_olasilik.TABAN_ORAN
+    if kat < 2:
+        bant_sinif, bant_metin = "dusuk", "düşük"
+    elif kat < 5:
+        bant_sinif, bant_metin = "orta", "orta"
+    else:
+        bant_sinif, bant_metin = "yuksek", "yüksek"
+    taban_yuzde = f"{100 * sis_olasilik.TABAN_ORAN:.1f}"
+    # "kat" 1'e yakinken ("X kat yuksek/dusuk" 1 veya 0 gibi anlamsiz bir
+    # sayiya yuvarlanabilir) duz "kac kat" yerine "bu seviyeye yakin"
+    # denir; belirgin sekilde altindaysa TERS oran ("kac kat dusuk")
+    # gosterilir - "0 kat dusuk" gibi anlamsiz bir ifade cikmasin diye.
+    if kat >= 1.5:
+        kiyas_ifade = f"şu an bundan yaklaşık {kat:.0f} kat yüksek"
+    elif kat <= 0.67:
+        kiyas_ifade = f"şu an bundan yaklaşık {1 / kat:.0f} kat düşük"
+    else:
+        kiyas_ifade = "şu an bu seviyeye yakın"
+
     return (
         '<div class="kart sis-olasilik">'
         '<div class="basrow"><span class="tip">İstatistiksel sis olasılığı</span>'
         '<span class="lvo-provenance">İSTATİSTİKSEL</span></div>'
-        f'<div class="sis-olasilik-deger">%{yuzde}</div>'
+        '<div class="sis-olasilik-ust">'
+        f'<span class="sis-olasilik-deger">%{yuzde}</span>'
+        f'<span class="sis-olasilik-bant {bant_sinif}">{bant_metin}</span>'
+        '</div>'
         f'<div class="sis-olasilik-alt">Önümüzdeki {sis_olasilik.HEDEF_UFUK_SAAT} saat '
         f'içinde görüşün {sis_olasilik.HEDEF_GORUS_M} m altına düşme olasılığı</div>'
+        f'<div class="sis-olasilik-kiyas">Normalde bu oran ortalama %{taban_yuzde} '
+        f'civarındadır — {kiyas_ifade}.</div>'
         '<div class="sis-olasilik-not">LTFJ\'nin 2011–2023 METAR arşivinden '
         'öğrenilmiş istatistiksel bir tahmindir; resmî tahmin değildir, TAF\'ın '
         'yerine geçmez ve yukarıdaki "Sis riski" göstergesinden bağımsız olarak '

@@ -99,6 +99,12 @@ EGITIM_L2 = 1000.0
 EGITIM_AN_SAYISI = 224825
 EGITIM_POZITIF = 1702
 
+# Egitim verisindeki uzun donem taban oran (~%0.76) - ciplak bir yuzdenin
+# "yuksek mi dusuk mu" oldugunu anlamak icin baglam saglar (bkz. ltfj_sayfa
+# _sis_olasiligi_html - "normalden kac kat" karsilastirmasi bunun uzerinden
+# hesaplanir, aynen ltfj_tavan_tablosu'ndaki "kat" mantigi gibi).
+TABAN_ORAN = EGITIM_POZITIF / EGITIM_AN_SAYISI
+
 # Model bu esigin altina dusme olasiligini tahmin eder (ICAO sis tanimi).
 HEDEF_GORUS_M = 1000
 HEDEF_UFUK_SAAT = 3
