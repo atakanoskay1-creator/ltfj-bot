@@ -1,17 +1,17 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-19T09:40:56+00:00",
+ "uretildi": "2026-09-19T10:10:52+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-19T09:20:00+00:00",
-  "metin": "METAR LTFJ 190920Z 03010KT 350V060 9999 FEW040 26/14 Q1021 NOSIG RMK RWY24R 02011KT 350V050 RWY06R 04009KT 010V100 RWY24L 06008KT 020V100",
+  "zaman": "2026-09-19T09:50:00+00:00",
+  "metin": "METAR LTFJ 190950Z 03010KT 360V060 9999 FEW040 25/12 Q1020 NOSIG RMK RWY24R 02010KT 350V060 RWY06R 02010KT 340V060 RWY24L 02010KT",
   "ruzgar": {
    "yon": 30,
    "hiz": 10,
    "hamle": null,
    "degisken": [
-    350,
+    360,
     60
    ]
   },
@@ -19,9 +19,9 @@
   "cavok": false,
   "tavan": null,
   "hava": [],
-  "sicaklik": 26,
-  "cig_noktasi": 14,
-  "qnh": 1021,
+  "sicaklik": 25,
+  "cig_noktasi": 12,
+  "qnh": 1020,
   "nosig": true,
   "renk": [
    "BLU",
@@ -46,8 +46,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 8.2,
-    "yan": 3.7,
+    "bas": 7.2,
+    "yan": 7.0,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -59,12 +59,12 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -8.0,
-    "yan": 0.6,
+    "bas": -7.2,
+    "yan": 7.0,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": false
@@ -72,8 +72,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -7.9,
-    "yan": 7.7,
+    "bas": -7.2,
+    "yan": 7.0,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -91,7 +91,7 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 030° 10kt (değişken 350°–060°) · görüş 10+ km · 26°C · QNH 1021"
+  "ozet": "Rüzgâr 030° 10kt (değişken 360°–060°) · görüş 10+ km · 25°C · QNH 1020"
  },
  "taf": {
   "zaman": "2026-09-19T04:40:00+00:00",
@@ -1182,6 +1182,14 @@
    "qnh": 1021,
    "sicaklik": 26,
    "cig_noktasi": 14
+  },
+  {
+   "zaman": "2026-09-19T09:50:00+00:00",
+   "ruzgar_hiz": 10,
+   "tavan": null,
+   "qnh": 1020,
+   "sicaklik": 25,
+   "cig_noktasi": 12
   }
  ]
 }
