@@ -1297,17 +1297,20 @@ def _grafik_verisi(gecmis: list, alan: str, simdi: datetime) -> list:
 
 
 def _svg_cizgi(noktalar: list, renk: str, raporlanmiyor: bool = False,
+               guncel_zaman: datetime | None = None,
                genislik=600, yukseklik=64) -> tuple | None:
     """(svg, oranlar) dondurur. oranlar: her nokta icin (x, y) - SVG kutusuna
     gore 0-1 arasi ORAN. SVG preserveAspectRatio="none" ile esnedigi icin bu
     oranlar istemcide dogrudan piksele cevrilebilir (bkz. grafik balonu
     script'i) - viewBox birimlerini JS'e tasimaya gerek kalmaz.
 
-    raporlanmiyor: SON kayitta bu alan artik raporlanmiyorsa (ornegin tavan -
-    gokyuzu acildigi icin BKN/OVC katmani yok) son nokta DOLU degil, ICI BOS
-    kesikli bir daire ile cizilir - cizginin "su an"i degil "en son ne zaman
-    olculdu"yu gosterdigini gorsel olarak da belli etmek icin (bkz. _kart
-    ustundeki .grafik-son etiketi, ayni ayrimi metinle yapar)."""
+    raporlanmiyor + guncel_zaman: SON kayitta bu alan artik raporlanmiyorsa
+    (ornegin tavan - gokyuzu acildigi icin BKN/OVC katmani yok), zaman ekseni
+    son GERCEK olcume degil guncel_zaman'a (en son METAR/SPECI'nin zamanina)
+    kadar uzatilir; son gercek noktadan bu kenara kadar KESIKLI, ICI BOS bir
+    "veri yok" cizgisi cizilir. Boylece eksenin sag ucu da (bkz. _grafik_blogu
+    'bitis' etiketi) hala eski olcum saatinde ('04:50' gibi) takili
+    KALMAZ - "su an"a kadar geldigini ama deger tasimadigini gosterir."""
     if len(noktalar) < 2:
         return None
     degerler = [v for _, v in noktalar]
@@ -1317,7 +1320,11 @@ def _svg_cizgi(noktalar: list, renk: str, raporlanmiyor: bool = False,
     pad = (v_max - v_min) * 0.15
     v_min, v_max = v_min - pad, v_max + pad
 
-    t0, t1 = noktalar[0][0], noktalar[-1][0]
+    t0 = noktalar[0][0]
+    t1 = noktalar[-1][0]
+    uzatildi = bool(raporlanmiyor and guncel_zaman and guncel_zaman > t1)
+    if uzatildi:
+        t1 = guncel_zaman
     t_araligi = (t1 - t0).total_seconds() or 1
 
     def x(z):
@@ -1326,26 +1333,19 @@ def _svg_cizgi(noktalar: list, renk: str, raporlanmiyor: bool = False,
     def y(v):
         return yukseklik - 4 - (yukseklik - 8) * ((v - v_min) / (v_max - v_min))
 
-    # raporlanmiyor iken SADECE son segment (son iki nokta arasi) kesikli
-    # cizilir - gecmisin tamami suphe altindaymis gibi TUM cizgiyi kesikli
-    # yapmak yanlis bir izlenim verirdi, sadece "bu son nokta artik guncel
-    # degil" denmek isteniyor. Ana govde bir nokta once biter, kesikli ek
-    # segment ayrica ustune eklenir.
-    govde_son = len(noktalar) - 1 if not (raporlanmiyor and len(noktalar) >= 2) else len(noktalar) - 2
     yol = " ".join(f'{"M" if i == 0 else "L"}{x(z):.1f},{y(v):.1f}'
-                    for i, (z, v) in enumerate(noktalar[:govde_son + 1]))
+                    for i, (z, v) in enumerate(noktalar))
     son_x, son_y = x(noktalar[-1][0]), y(noktalar[-1][1])
 
     oranlar = [(x(z) / genislik, y(v) / yukseklik) for z, v in noktalar]
 
-    if raporlanmiyor and len(noktalar) >= 2:
-        onceki_x, onceki_y = x(noktalar[-2][0]), y(noktalar[-2][1])
-        ek_yol = (f'<path d="M{onceki_x:.1f},{onceki_y:.1f} '
-                  f'L{son_x:.1f},{son_y:.1f}" fill="none" stroke="{renk}" '
-                  f'stroke-width="2" stroke-linecap="round" '
-                  f'stroke-dasharray="5,4"/>')
-        nokta_svg = (ek_yol + f'<circle cx="{son_x:.1f}" cy="{son_y:.1f}" r="4" '
-                     f'fill="none" stroke="{renk}" stroke-width="2"/>')
+    if uzatildi:
+        kenar_x = x(t1)
+        ek_yol = (f'<path d="M{son_x:.1f},{son_y:.1f} L{kenar_x:.1f},{son_y:.1f}" '
+                  f'fill="none" stroke="{renk}" stroke-width="2" '
+                  f'stroke-linecap="round" stroke-dasharray="5,4"/>')
+        nokta_svg = (f'<circle cx="{son_x:.1f}" cy="{son_y:.1f}" r="4" '
+                     f'fill="none" stroke="{renk}" stroke-width="2"/>' + ek_yol)
     else:
         nokta_svg = f'<circle cx="{son_x:.1f}" cy="{son_y:.1f}" r="3" fill="{renk}"/>'
 
@@ -1383,14 +1383,27 @@ def _grafik_blogu(alan: str, baslik: str, birim: str, renk: str,
     # gibi okur (bkz. bug raporu: tavan grafigi eski BKN olcumunde donmus
     # gorunuyordu, oysa gokyuzu o zamandan beri acikti).
     raporlanmiyor = guncel is not None and guncel.get(alan) is None
-    cizim = _svg_cizgi(noktalar, renk, raporlanmiyor=raporlanmiyor)
+    guncel_zaman = None
+    if guncel is not None:
+        try:
+            guncel_zaman = datetime.fromisoformat(guncel["zaman"])
+        except (KeyError, ValueError, TypeError):
+            guncel_zaman = None
+    cizim = _svg_cizgi(noktalar, renk, raporlanmiyor=raporlanmiyor,
+                       guncel_zaman=guncel_zaman)
     if not cizim:
         return ""
     svg, oranlar = cizim
     son_deger = noktalar[-1][1]
     son_zaman_yerel = noktalar[-1][0].astimezone(YEREL_TZ)
     baslangic = noktalar[0][0].astimezone(YEREL_TZ)
-    bitis = noktalar[-1][0].astimezone(YEREL_TZ)
+    # raporlanmiyor iken eksenin sag ucu SON GERCEK olcume degil, en son
+    # METAR/SPECI'nin zamanina (guncel_zaman) kadar uzatilir - aksi halde
+    # "bitis" etiketi eski olcum saatinde ('04:50' gibi) takili kalirdi.
+    bitis_zaman = (guncel_zaman if (raporlanmiyor and guncel_zaman
+                                    and guncel_zaman > noktalar[-1][0])
+                   else noktalar[-1][0])
+    bitis = bitis_zaman.astimezone(YEREL_TZ)
 
     # Imlecin/parmagin altindaki noktayi bulabilmek icin nokta koordinatlari
     # ve okunabilir metinleri data- niteligine gomulur (istemcide ayrica bir

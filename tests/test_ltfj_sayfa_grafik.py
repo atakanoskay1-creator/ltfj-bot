@@ -162,3 +162,37 @@ def test_son_kayitta_deger_varsa_raporlanmiyor_etiketi_cikmaz(tmp_path):
     assert 'class="grafik-son grafik-son-yok"' not in html
     assert "raporlanmıyor" not in html
     assert 'class="grafik-durum-notu"' not in html
+
+
+def test_son_kayitta_deger_yoksa_eksen_ucu_eski_olcumde_takili_kalmiyor(tmp_path):
+    """Bug raporu: eksenin SAG UCU (bitis etiketi) eski son-gercek-olcum
+    saatinde ('04:50' gibi) donup kalıyordu. Artik en son METAR/SPECI'nin
+    (guncel kayit) zamanina kadar uzatilmali - bu ikisi arasinda 2 saat
+    fark var, bu yuzden gosterilen saatler AYNI OLMAMALI."""
+    hedef = tmp_path / "index.html"
+    s.sayfa_yaz([METAR], _en_son_yok_gecmisi(), hedef, {}, "")
+    html = hedef.read_text(encoding="utf-8")
+
+    i = html.index("Bulut tavanı")
+    blok = html[i:html.index("grafik-durum-notu", i)]
+    eksen_son = blok.rsplit('<span>', 1)[-1].split("</span>")[0]
+
+    notu = html[html.index("Son ölçüm: 3000 ft", i):]
+    son_olcum_saati = notu.split("· ")[1].split(" yerel")[0]
+
+    assert eksen_son != son_olcum_saati
+
+
+def test_son_kayitta_deger_yoksa_kesikli_cizgi_sag_kenara_kadar_uzaniyor(tmp_path):
+    """Kesikli 'raporlanmiyor' cizgisi son gercek noktadan grafigin SAG
+    KENARINA (guncel zamana) kadar uzanmali, ortada bir yerde kesilmemeli."""
+    hedef = tmp_path / "index.html"
+    s.sayfa_yaz([METAR], _en_son_yok_gecmisi(), hedef, {}, "")
+    html = hedef.read_text(encoding="utf-8")
+    i = html.index("Bulut tavanı")
+    svg = html[i:html.index("</svg>", i)]
+
+    j = svg.index("stroke-dasharray")
+    kesikli_path = svg[svg.rindex("<path", 0, j):svg.index("/>", j)]
+    kenar_x = float(kesikli_path.split("L")[-1].split(",")[0])
+    assert kenar_x > 590   # genislik=600, kenar payi 4px -> sag kenar ~596
