@@ -150,14 +150,15 @@
   "id:52469791",
   "id:52472768",
   "id:52480856",
-  "id:52483602"
+  "id:52483602",
+  "id:52491641"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 190250Z 06005KT 9999 SCT030 16/15 Q1019 NOSIG RMK RWY24R VRB02KT RWY06R 04007KT RWY24L 05005KT",
+ "son_metar": "METAR LTFJ 190320Z 05006KT 9999 SCT030 16/15 Q1019 NOSIG RMK RWY24R 03003KT 360V080 RWY06R 02008KT RWY24L 03004KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-19T02:50:00+00:00",
+ "son_veri_zamani": "2026-09-19T03:20:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -1139,13 +1140,21 @@
    "qnh": 1019,
    "sicaklik": 16,
    "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-19T03:20:00+00:00",
+   "ruzgar_hiz": 6,
+   "tavan": null,
+   "qnh": 1019,
+   "sicaklik": 16,
+   "cig_noktasi": 15
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 190150Z 04005KT 9999 BKN030 16/14 Q1018 NOSIG RMK RWY24R 01004KT RWY06R 03007KT RWY24L 02005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan hafif 5 knot (yaklaşık 9 km/saat) rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat.\n\n**Gökyüzü:** Gökyüzü çoğunlukla bulutlu, bulutlar 900 metre (3000 fit) yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Hafif rüzgâr ve yüksek nem dışında kısıtlayıcı unsur yoktur; önümüzdeki 2 saatte hava koşullarında önemli değişiklik beklenmemektedir.",
   "METAR LTFJ 190220Z 06004KT 9999 SCT030 15/14 Q1019 NOSIG RMK RWY24R 35005KT RWY06R 02006KT RWY24L 04007KT": "**Rüzgâr:** Kuzey-kuzeydoğudan çok hafif 4 knot hızında esiyor, yan rüzgâr endişesi yok.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görünüyor, görüş açısından rahat.\n\n**Gökyüzü:** Gökyüzünün yarısından fazlası bulutlu, bulutlar yaklaşık 900 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve yağış açısından kısıtlayıcı bir unsur yoktur; önümüzdeki 2 saatte hava koşullarında önemli değişiklik beklenmemektedir.",
   "METAR LTFJ 190250Z 06005KT 9999 SCT030 16/15 Q1019 NOSIG RMK RWY24R VRB02KT RWY06R 04007KT RWY24L 05005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/s) hafif rüzgâr esiyor, yan bileşen yok.\n\n**Görüş:** 10 kilometre ve daha fazla mesafeye kadar net görünüyor, uçuş için rahat.\n\n**Gökyüzü:** Gökyüzünün yarısından fazlası bulutlu, bulutlar yaklaşık 900 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlenen veriler uçuş için kısıtlayıcı unsur içermiyor; nem yüksek olup bulutlar alçakta ancak görüş iyi seviyelerde.",
-  "TAF LTFJ 182240Z 1900/1924 04004KT CAVOK PROB30 TEMPO 1903/1905 3200 BR SCT004 BECMG 1905/1908 SCT035 BECMG 1909/1912 03014KT BECMG 1916/1919 04004KT CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 19:00–19:24 UTC döneminde rüzgâr 040°/4 knot, görüş sınırsız, bulut yok beklenmektedir.\n\n- **1903/1905 UTC:** %30 ihtimalle geçici olarak görüş 3200 metre, hafif sis, dağınık bulut 400 feet.\n- **1905/1908 UTC:** Kademeli geçişle dağınık bulut 3500 feet.\n- **1909/1912 UTC:** Kademeli geçişle rüzgâr 030°/14 knot.\n- **1916/1919 UTC:** Kademeli geçişle rüzgâr 040°/4 knot, görüş sınırsız, bulut yok."
+  "TAF LTFJ 182240Z 1900/1924 04004KT CAVOK PROB30 TEMPO 1903/1905 3200 BR SCT004 BECMG 1905/1908 SCT035 BECMG 1909/1912 03014KT BECMG 1916/1919 04004KT CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 19:00–19:24 UTC döneminde rüzgâr 040°/4 knot, görüş sınırsız, bulut yok beklenmektedir.\n\n- **1903/1905 UTC:** %30 ihtimalle geçici olarak görüş 3200 metre, hafif sis, dağınık bulut 400 feet.\n- **1905/1908 UTC:** Kademeli geçişle dağınık bulut 3500 feet.\n- **1909/1912 UTC:** Kademeli geçişle rüzgâr 030°/14 knot.\n- **1916/1919 UTC:** Kademeli geçişle rüzgâr 040°/4 knot, görüş sınırsız, bulut yok.",
+  "METAR LTFJ 190320Z 05006KT 9999 SCT030 16/15 Q1019 NOSIG RMK RWY24R 03003KT 360V080 RWY06R 02008KT RWY24L 03004KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 6 knot (yaklaşık 11 km/saat) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Gökyüzünün 3/8'i 3000 feet (yaklaşık 900 metre) yükseklikte parçalı bulutlu, yağış yok.\n\n**Uçuşa etkisi:** Raporlanan veriler içinde uçuşu kısıtlayan rüzgâr, görüş veya hava olayı bulunmuyor; önümüzdeki 2 saatte önemli değişiklik beklenmiyorsa da operasyonel kararlar ATC ve pilot takdirine aittir."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -1561,5 +1570,5 @@
   }
  },
  "notam_son_senkron": "2026-09-19T00:31:30+00:00",
- "guncelleme": "2026-09-19T03:20:55+00:00"
+ "guncelleme": "2026-09-19T03:31:07+00:00"
 }
