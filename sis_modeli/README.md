@@ -374,6 +374,72 @@ raporlanıyor. Gelecekte AYRI, önceden ilan edilen bir deney olarak
 gözden geçirilebilir — ama bu, mevcut sonuç raporlandıktan SONRA, yeni bir
 TEK ATIŞ kuralıyla yapılmalı.
 
+## Model A (görüşlü) vs Model B (görüşsüz) — çapraz karşılaştırma
+
+Model B'nin (görüşsüz sis oluşumu) canlı sisteme entegre edilmeye değer
+olup olmadığını sınamak için üç soru soruldu: (1) B, A'dan önce mi sinyal
+veriyor (lead-time gain)? (2) A aynı bandındayken B'nin düşük/orta/yüksek
+olması gerçek sis oranını değiştiriyor mu (conditional value)? (3) B'nin
+yüksek dediği bağımsız olaylardan kaçı gerçekleşiyor (event detection)?
+Kod: `sis_modeli/ab_karsilastirma.py` (`python -m sis_modeli.ab_karsilastirma`).
+
+**Dürüstlük notu:** holdout (2024-2026) hem Model A hem Model B için daha
+önce AYRI AYRI açılmış ve TEK ATIŞ olarak raporlanmıştı. Bu karşılaştırma
+o sonuçları DEĞİŞTİRMEZ veya yeniden ayarlamaz — iki zaten dondurulmuş
+modelin tahminlerini aynı holdout satırları üzerinde eşleştirip yeni,
+tanımlayıcı bir çapraz analiz yapar; hiçbir model burada yeniden
+eğitilmez/ayarlanmaz. Yine de holdout'un bu programda kaçıncı kez
+"açıldığını" saymanın bir anlamı var (bkz. yukarıdaki Bölüm 14 notu) —
+bu, o sayımın bir eklentisidir.
+
+**1) Event detection (holdout, 33 bağımsız olay):**
+
+| Model | Eşik | Yakalanan | Duyarlılık |
+|---|---|---|---|
+| A | ≥%5 | 21/33 | %63.6 |
+| A | ≥%10 | 18/33 | %54.5 |
+| B | ≥%5 | 5/33 | %15.2 |
+| B | ≥%10 | 0/33 | %0.0 |
+
+B tek başına holdout'ta çok zayıf — A'nın çok gerisinde.
+
+**2) Lead-time gain:** B, A'dan ÖNCE sinyal vermiyor. Modelin kendi 3
+saatlik tasarım ufkunda (n=8 karşılaştırılabilir olay): ortalama fark
+**−11.2 dakika**, medyan **0.0 dakika** (B ne erken ne geç — pratikte fark
+yok). Daha geniş 6 saatlik keşif penceresinde (n=10): ortalama **−51.0**,
+medyan **−15.0 dakika** — yani B ortalamada A'dan DAHA GEÇ sinyal veriyor.
+A tek başına 16 olayda sinyal üretirken B hiç üretmiyor; tam tersi
+(yalnızca B) sadece 1 olayda (3s ufku) / 3 olayda (6s ufku).
+
+**3) Conditional value:** A'nın kendi bandı içinde B'yi tertile (düşük/
+orta/yüksek) ayırınca:
+
+| A bandı | n/tertil | B düşük | B orta | B yüksek | Monoton mu |
+|---|---|---|---|---|---|
+| %0–1 | 14.278 | %0.0 | %0.1 | %0.3 | ✅ evet |
+| %1–2 | 764 | %0.5 | %1.4 | %2.1 | ✅ evet |
+| %2–5 | 518 | %1.2 | %1.2 | %6.0 | ⚠️ kısmi |
+| %5–10 | 158 | %5.1 | %5.1 | %6.3 | ✅ ama fark küçük |
+| %10–20 | 56 | %12.5 | %14.3 | %3.6 | ❌ ters yön |
+| %20–101 | 30 | %43.3 | %25.8 | %50.0 | ❌ U-şekilli |
+
+(Not: global bir B eşiğiyle bölünürse A ve B ilişkili olduğu için üst
+bantlarda "B düşük" hücresi tamamen BOŞ çıkıyor — bu yüzden her A bandı
+KENDİ İÇİNDE tertile ayrıldı; kod hâlâ global bölünmeyi de destekler,
+bkz. `kosullu_deger_tertil()`'in üstündeki not.)
+
+**Sonuç:** B'nin katkısı gerçek ama **A'nın zaten düşük olduğu bölgeyle
+(yaklaşık %0-2, verinin büyük çoğunluğu) sınırlı** — orada büyük örnekle
+(n binlerle) tutarlı, monoton bir ayrım var (örn. %0.5→%2.1, 4 kat). A
+yükseldikçe (%5 üzeri) örnek küçülüyor (158→56→30) ve desen bozuluyor;
+%10-20 bandındaki ters yön ile %20+ bandındaki U-şekli büyük olasılıkla
+küçük-örnek gürültüsü, gerçek bir etki değil. **B'yi bağımsız bir erken
+uyarı/olay-tespit aracı olarak kullanmak bu veriyle savunulamaz; ama A
+zaten "sakin" derken ikincil bir "ne kadar rahat olalım" göstergesi olarak
+istatistiksel temeli var** — canlıya ayrı, küçük bir gösterge olarak
+eklenmesi düşünülüyorsa bu çerçevede (yalnızca A düşükken gösterilerek)
+değerlendirilmeli.
+
 ## Sınırlar
 
 Bu bir **iklim + süreklilik** modelidir, fizik modeli değildir: yaklaşan bir
@@ -412,4 +478,7 @@ python -m sis_modeli.olusum_holdout_degerlendir       # TEK ATIŞ
 # Tavan: görüşsüz süreklilik (A) + oluşum (B) modelleri
 python -m sis_modeli.tavan_gorussuz                   # tarama + walk-forward
 python -m sis_modeli.tavan_gorussuz --holdout          # TEK ATIŞ
+
+# Sis: Model A (görüşlü) vs Model B (görüşsüz) çapraz karşılaştırma
+python -m sis_modeli.ab_karsilastirma                 # holdout'u YENİDEN AÇMAZ - zaten dondurulmuş iki modeli eşleştirir
 ```
