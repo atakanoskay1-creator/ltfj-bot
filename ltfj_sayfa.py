@@ -133,9 +133,12 @@ SABLON = """<!DOCTYPE html>
   .grafik-baslik {{ display:flex; justify-content:space-between; align-items:baseline;
                      font-size:.85rem; color:var(--soluk); margin-bottom:4px; }}
   .grafik-son {{ color:var(--metin); font-weight:650; }}
+  .grafik-son-yok {{ color:var(--soluk); font-weight:600; font-style:italic; }}
   .grafik {{ width:100%; height:64px; display:block; }}
   .grafik-eksen {{ display:flex; justify-content:space-between;
                     font-size:.72rem; color:var(--soluk); margin-top:2px; }}
+  .grafik-durum-notu {{ font-size:.72rem; color:var(--soluk); margin-top:4px;
+                          font-style:italic; }}
   /* Imlec/parmak altindaki noktanin saat+degerini gosteren balon. Dokunmatik
      cihazda dikey sayfa kaydirma bozulmasin diye touch-action:pan-y - yatay
      surukleme grafigi tarar, dikey kaydirma normal calisir. */
@@ -1293,11 +1296,18 @@ def _grafik_verisi(gecmis: list, alan: str, simdi: datetime) -> list:
     return _gecmis_noktalari(gecmis, alan, None)[-GRAFIK_YEDEK_NOKTA:]
 
 
-def _svg_cizgi(noktalar: list, renk: str, genislik=600, yukseklik=64) -> tuple | None:
+def _svg_cizgi(noktalar: list, renk: str, raporlanmiyor: bool = False,
+               genislik=600, yukseklik=64) -> tuple | None:
     """(svg, oranlar) dondurur. oranlar: her nokta icin (x, y) - SVG kutusuna
     gore 0-1 arasi ORAN. SVG preserveAspectRatio="none" ile esnedigi icin bu
     oranlar istemcide dogrudan piksele cevrilebilir (bkz. grafik balonu
-    script'i) - viewBox birimlerini JS'e tasimaya gerek kalmaz."""
+    script'i) - viewBox birimlerini JS'e tasimaya gerek kalmaz.
+
+    raporlanmiyor: SON kayitta bu alan artik raporlanmiyorsa (ornegin tavan -
+    gokyuzu acildigi icin BKN/OVC katmani yok) son nokta DOLU degil, ICI BOS
+    kesikli bir daire ile cizilir - cizginin "su an"i degil "en son ne zaman
+    olculdu"yu gosterdigini gorsel olarak da belli etmek icin (bkz. _kart
+    ustundeki .grafik-son etiketi, ayni ayrimi metinle yapar)."""
     if len(noktalar) < 2:
         return None
     degerler = [v for _, v in noktalar]
@@ -1316,29 +1326,69 @@ def _svg_cizgi(noktalar: list, renk: str, genislik=600, yukseklik=64) -> tuple |
     def y(v):
         return yukseklik - 4 - (yukseklik - 8) * ((v - v_min) / (v_max - v_min))
 
+    # raporlanmiyor iken SADECE son segment (son iki nokta arasi) kesikli
+    # cizilir - gecmisin tamami suphe altindaymis gibi TUM cizgiyi kesikli
+    # yapmak yanlis bir izlenim verirdi, sadece "bu son nokta artik guncel
+    # degil" denmek isteniyor. Ana govde bir nokta once biter, kesikli ek
+    # segment ayrica ustune eklenir.
+    govde_son = len(noktalar) - 1 if not (raporlanmiyor and len(noktalar) >= 2) else len(noktalar) - 2
     yol = " ".join(f'{"M" if i == 0 else "L"}{x(z):.1f},{y(v):.1f}'
-                    for i, (z, v) in enumerate(noktalar))
+                    for i, (z, v) in enumerate(noktalar[:govde_son + 1]))
     son_x, son_y = x(noktalar[-1][0]), y(noktalar[-1][1])
 
     oranlar = [(x(z) / genislik, y(v) / yukseklik) for z, v in noktalar]
+
+    if raporlanmiyor and len(noktalar) >= 2:
+        onceki_x, onceki_y = x(noktalar[-2][0]), y(noktalar[-2][1])
+        ek_yol = (f'<path d="M{onceki_x:.1f},{onceki_y:.1f} '
+                  f'L{son_x:.1f},{son_y:.1f}" fill="none" stroke="{renk}" '
+                  f'stroke-width="2" stroke-linecap="round" '
+                  f'stroke-dasharray="5,4"/>')
+        nokta_svg = (ek_yol + f'<circle cx="{son_x:.1f}" cy="{son_y:.1f}" r="4" '
+                     f'fill="none" stroke="{renk}" stroke-width="2"/>')
+    else:
+        nokta_svg = f'<circle cx="{son_x:.1f}" cy="{son_y:.1f}" r="3" fill="{renk}"/>'
 
     svg = (f'<svg viewBox="0 0 {genislik} {yukseklik}" class="grafik" '
            f'preserveAspectRatio="none">'
            f'<path d="{yol}" fill="none" stroke="{renk}" stroke-width="2" '
            f'stroke-linejoin="round" stroke-linecap="round"/>'
-           f'<circle cx="{son_x:.1f}" cy="{son_y:.1f}" r="3" fill="{renk}"/>'
-           f'</svg>')
+           f'{nokta_svg}</svg>')
     return svg, oranlar
 
 
+def _en_son_kayit(gecmis: list) -> dict | None:
+    """gecmis icindeki ZAMANA gore en yeni kaydi dondurur (liste zaten
+    genelde kronolojik ama garanti degil - ayristirma sirasinda bozuk
+    'zaman' alani olan kayitlar atlanir)."""
+    en_son, en_son_zaman = None, None
+    for g in gecmis:
+        try:
+            z = datetime.fromisoformat(g["zaman"])
+        except (KeyError, ValueError, TypeError):
+            continue
+        if en_son_zaman is None or z > en_son_zaman:
+            en_son, en_son_zaman = g, z
+    return en_son
+
+
 def _grafik_blogu(alan: str, baslik: str, birim: str, renk: str,
-                   gecmis: list, simdi: datetime) -> str:
+                   gecmis: list, simdi: datetime, guncel: dict | None) -> str:
     noktalar = _grafik_verisi(gecmis, alan, simdi)
-    cizim = _svg_cizgi(noktalar, renk)
+    # guncel: gecmis'teki EN YENI kayit (zamana gore, tipi ne olursa olsun).
+    # Bu kayitta alan yoksa/None ise ("tavan" icin tipik ornek: gokyuzu
+    # acik, BKN/OVC katmani yok) grafik en son ne zaman GERCEKTEN olculdugu
+    # ile "su an raporlanmiyor" durumunu AYRI gostermeli - aksi halde
+    # kullanici eski son_deger'i (ornegin "3000 ft") sanki hala guncelmis
+    # gibi okur (bkz. bug raporu: tavan grafigi eski BKN olcumunde donmus
+    # gorunuyordu, oysa gokyuzu o zamandan beri acikti).
+    raporlanmiyor = guncel is not None and guncel.get(alan) is None
+    cizim = _svg_cizgi(noktalar, renk, raporlanmiyor=raporlanmiyor)
     if not cizim:
         return ""
     svg, oranlar = cizim
     son_deger = noktalar[-1][1]
+    son_zaman_yerel = noktalar[-1][0].astimezone(YEREL_TZ)
     baslangic = noktalar[0][0].astimezone(YEREL_TZ)
     bitis = noktalar[-1][0].astimezone(YEREL_TZ)
 
@@ -1351,17 +1401,28 @@ def _grafik_blogu(alan: str, baslik: str, birim: str, renk: str,
         for (xo, yo), (z, v) in zip(oranlar, noktalar)
     ]
 
+    if raporlanmiyor:
+        son_etiket = '<span class="grafik-son grafik-son-yok">raporlanmıyor</span>'
+        durum_notu = (
+            f'<div class="grafik-durum-notu">Son ölçüm: {son_deger:.0f} '
+            f'{html.escape(birim)} · {son_zaman_yerel:%H:%M} yerel — o zamandan '
+            f'beri raporlanmıyor.</div>'
+        )
+    else:
+        son_etiket = f'<span class="grafik-son">{son_deger:.0f} {html.escape(birim)}</span>'
+        durum_notu = ""
+
     return (
         f'<div class="grafik-kutu" '
         f'data-noktalar="{html.escape(json.dumps(nokta_verisi, ensure_ascii=False))}">'
         f'<div class="grafik-baslik"><span>{html.escape(baslik)}</span>'
-        f'<span class="grafik-son">{son_deger:.0f} {html.escape(birim)}</span></div>'
+        f'{son_etiket}</div>'
         f'<div class="grafik-sarmal">{svg}'
         f'<div class="grafik-imlec" hidden></div>'
         f'<div class="grafik-nokta" hidden></div>'
         f'<div class="grafik-balon" hidden></div></div>'
         f'<div class="grafik-eksen"><span>{baslangic:%H:%M}</span>'
-        f'<span>{bitis:%H:%M}</span></div></div>'
+        f'<span>{bitis:%H:%M}</span></div>{durum_notu}</div>'
     )
 
 
@@ -1369,7 +1430,8 @@ def _trend_bolumu(gecmis: list) -> str:
     if not gecmis:
         return ""
     simdi = datetime.now(timezone.utc)
-    bloklar = [_grafik_blogu(alan, baslik, birim, renk, gecmis, simdi)
+    guncel = _en_son_kayit(gecmis)
+    bloklar = [_grafik_blogu(alan, baslik, birim, renk, gecmis, simdi, guncel)
                for alan, baslik, birim, renk in GRAFIKLER]
     bloklar = [b for b in bloklar if b]
     if not bloklar:
