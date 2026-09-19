@@ -187,14 +187,15 @@
   "id:52685858",
   "id:52691905",
   "id:52700316",
-  "id:52702915"
+  "id:52702915",
+  "id:52711089"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 191950Z 03006KT CAVOK 19/15 Q1022 NOSIG RMK RWY24R 01007KT RWY06R 02008KT RWY24L 02006KT",
+ "son_metar": "METAR LTFJ 192020Z 05005KT CAVOK 18/15 Q1022 NOSIG RMK RWY24R 04005KT 360V060 RWY06R 06006KT 020V090 RWY24L 05005KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-19T19:50:00+00:00",
+ "son_veri_zamani": "2026-09-19T20:20:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -1448,13 +1449,21 @@
    "qnh": 1022,
    "sicaklik": 19,
    "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-19T20:20:00+00:00",
+   "ruzgar_hiz": 5,
+   "tavan": null,
+   "qnh": 1022,
+   "sicaklik": 18,
+   "cig_noktasi": 15
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 191850Z 03007KT CAVOK 19/15 Q1022 NOSIG RMK RWY24R 01008KT RWY06R 02009KT RWY24L 03005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 7 knot (yaklaşık 13 km/s) hızında hafif rüzgâr esiyor.\n\n**Görüş:** Görüş mükemmel, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut yok, gökyüzü açık ve yağış beklenmemiyor.\n\n**Uçuşa etkisi:** Raporlanan koşullar uçuş için kısıtlayıcı bir unsur içermiyor.",
   "TAF LTFJ 191640Z 1918/2018 04007KT CAVOK BECMG 1923/2002 SCT035 BECMG 2005/2008 04018KT PROB30 TEMPO 2007/2011 -SHRA FEW018CB BKN022": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde başlangıçta açık hava, sonra bulutlanma ve rüzgar artışı beklenmektedir.\n\n- **1918/2002 UTC:** Başlangıçta 04 yönünden 7 knot rüzgar, görüş sınırsız; 1923 UTC'den itibaren 3500 ft'de dağınık bulut.\n- **2005/2008 UTC:** Rüzgar 04 yönünden 18 knota çıkacak.\n- **2007/2011 UTC:** %30 ihtimalle geçici olarak hafif sağanak, 1800 ft'de az bulut ve gök gürültülü bulut, 2200 ft'de kırık bulut.",
   "METAR LTFJ 191920Z 05007KT CAVOK 19/15 Q1022 NOSIG RMK RWY24R 04005KT RWY06R 03008KT RWY24L 04006KT": "**Rüzgâr:** Kuzeydoğudan 7 knot (yaklaşık 13 km/saat) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş mükemmel, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı unsur oluşturmuyor, hava koşulları uçuş için elverişli.",
-  "METAR LTFJ 191950Z 03006KT CAVOK 19/15 Q1022 NOSIG RMK RWY24R 01007KT RWY06R 02008KT RWY24L 02006KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 6 knot (yaklaşık 11 km/saat) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş mükemmel, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş açısından kısıtlayıcı unsur yoktur."
+  "METAR LTFJ 191950Z 03006KT CAVOK 19/15 Q1022 NOSIG RMK RWY24R 01007KT RWY06R 02008KT RWY24L 02006KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 6 knot (yaklaşık 11 km/saat) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş mükemmel, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş açısından kısıtlayıcı unsur yoktur.",
+  "METAR LTFJ 192020Z 05005KT CAVOK 18/15 Q1022 NOSIG RMK RWY24R 04005KT 360V060 RWY06R 06006KT 020V090 RWY24L 05005KT": "**Rüzgâr:** Kuzeydoğudan 5 knot (yaklaşık 9 km/s) hafif rüzgâr esiyor, yan bileşen çok az.\n\n**Görüş:** Tüm yönlerde 10 kilometre ve daha fazla görüş var, uçuş için görüş açısından rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Gözlemlenen veriye göre kısıtlayıcı unsur (düşük görüş, kuvvetli rüzgâr, fırtına) bulunmuyor; önümüzdeki 2 saatte önemli değişiklik beklenmiyyor."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -1870,5 +1879,5 @@
   }
  },
  "notam_son_senkron": "2026-09-19T19:01:48+00:00",
- "guncelleme": "2026-09-19T20:21:13+00:00"
+ "guncelleme": "2026-09-19T20:31:08+00:00"
 }
