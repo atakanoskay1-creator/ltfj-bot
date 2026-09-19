@@ -1,14 +1,14 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-19T15:51:06+00:00",
+ "uretildi": "2026-09-19T16:01:23+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-19T15:20:00+00:00",
-  "metin": "METAR LTFJ 191520Z 03015KT CAVOK 23/15 Q1021 NOSIG RMK RWY24R 02015KT RWY06R 02017KT RWY24L 04016KT",
+  "zaman": "2026-09-19T15:50:00+00:00",
+  "metin": "METAR LTFJ 191550Z 04014KT CAVOK 22/15 Q1021 NOSIG RMK RWY24R 03012KT RWY06R 02014KT RWY24L 04015KT",
   "ruzgar": {
-   "yon": 30,
-   "hiz": 15,
+   "yon": 40,
+   "hiz": 14,
    "hamle": null,
    "degisken": null
   },
@@ -16,7 +16,7 @@
   "cavok": true,
   "tavan": null,
   "hava": [],
-  "sicaklik": 23,
+  "sicaklik": 22,
   "cig_noktasi": 15,
   "qnh": 1021,
   "nosig": true,
@@ -30,8 +30,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 12.4,
-    "yan": 8.4,
+    "bas": 12.8,
+    "yan": 5.7,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -43,8 +43,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 12.2,
-    "yan": 11.8,
+    "bas": 10.1,
+    "yan": 9.7,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -56,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -14.6,
-    "yan": 6.5,
+    "bas": -13.7,
+    "yan": 6.1,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -69,15 +69,15 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -10.8,
-    "yan": 10.4,
+    "bas": -9.9,
+    "yan": 6.7,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
     "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
-    "kuyruk_asildi": true
+    "kuyruk_asildi": false
    }
   ],
   "kuyruk_limiti": 10,
@@ -85,12 +85,12 @@
   "tercih_pist": "06L",
   "rvr": [],
   "prs": [
-   "24L, 24R için arka rüzgâr 10 kt üstü"
+   "24L için arka rüzgâr 10 kt üstü"
   ],
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 030° 15kt · görüş CAVOK · 23°C · QNH 1021"
+  "ozet": "Rüzgâr 040° 14kt · görüş CAVOK · 22°C · QNH 1021"
  },
  "taf": {
   "zaman": "2026-09-19T10:40:00+00:00",
@@ -1276,6 +1276,14 @@
    "tavan": null,
    "qnh": 1021,
    "sicaklik": 23,
+   "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-19T15:50:00+00:00",
+   "ruzgar_hiz": 14,
+   "tavan": null,
+   "qnh": 1021,
+   "sicaklik": 22,
    "cig_noktasi": 15
   }
  ]
