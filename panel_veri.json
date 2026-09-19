@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-19T14:21:13+00:00",
+ "uretildi": "2026-09-19T14:31:14+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-19T13:50:00+00:00",
-  "metin": "METAR LTFJ 191350Z 03016KT 9999 FEW045 25/14 Q1020 NOSIG RMK RWY24R 02015KT 350V060 RWY06R 02016KT RWY24L 03016KT",
+  "zaman": "2026-09-19T14:20:00+00:00",
+  "metin": "METAR LTFJ 191420Z 03016KT 9999 FEW045 24/15 Q1020 NOSIG RMK RWY24R 02016KT RWY06R 02017KT RWY24L 04017KT",
   "ruzgar": {
    "yon": 30,
    "hiz": 16,
@@ -16,8 +16,8 @@
   "cavok": false,
   "tavan": null,
   "hava": [],
-  "sicaklik": 25,
-  "cig_noktasi": 14,
+  "sicaklik": 24,
+  "cig_noktasi": 15,
   "qnh": 1020,
   "nosig": true,
   "renk": [
@@ -43,8 +43,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 11.5,
-    "yan": 11.1,
+    "bas": 12.2,
+    "yan": 11.8,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -56,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -13.2,
-    "yan": 9.0,
+    "bas": -15.5,
+    "yan": 6.9,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -69,12 +69,12 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -10.8,
-    "yan": 10.4,
+    "bas": -11.5,
+    "yan": 11.1,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": true
@@ -90,7 +90,7 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 030° 16kt · görüş 10+ km · 25°C · QNH 1020"
+  "ozet": "Rüzgâr 030° 16kt · görüş 10+ km · 24°C · QNH 1020"
  },
  "taf": {
   "zaman": "2026-09-19T10:40:00+00:00",
@@ -1253,6 +1253,14 @@
    "qnh": 1020,
    "sicaklik": 25,
    "cig_noktasi": 14
+  },
+  {
+   "zaman": "2026-09-19T14:20:00+00:00",
+   "ruzgar_hiz": 16,
+   "tavan": null,
+   "qnh": 1020,
+   "sicaklik": 24,
+   "cig_noktasi": 15
   }
  ]
 }
