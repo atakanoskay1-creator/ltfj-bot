@@ -165,14 +165,15 @@
   "id:52556860",
   "id:52559624",
   "id:52568091",
-  "id:52572723"
+  "id:52572723",
+  "id:52581115"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 190950Z 03010KT 360V060 9999 FEW040 25/12 Q1020 NOSIG RMK RWY24R 02010KT 350V060 RWY06R 02010KT 340V060 RWY24L 02010KT",
+ "son_metar": "METAR LTFJ 191020Z 03011KT 350V060 9999 SCT043 25/13 Q1020 NOSIG RMK RWY24R 04009KT 360V100 RWY06R 04009KT 340V090 RWY24L 05008KT 360V080",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-19T09:50:00+00:00",
+ "son_veri_zamani": "2026-09-19T10:20:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -1266,13 +1267,21 @@
    "qnh": 1020,
    "sicaklik": 25,
    "cig_noktasi": 12
+  },
+  {
+   "zaman": "2026-09-19T10:20:00+00:00",
+   "ruzgar_hiz": 11,
+   "tavan": null,
+   "qnh": 1020,
+   "sicaklik": 25,
+   "cig_noktasi": 13
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 190850Z 06009KT 9999 FEW040 25/14 Q1021 NOSIG RMK RWY24R 04010KT 010V080 RWY06R 02010KT 350V050 RWY24L 05009KT 360V120": "**Rüzgâr:** Kuzeydoğudan 9 knot (yaklaşık 17 km/saat) hızında hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 1200 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve bulut durumu kısıtlayıcı değil; hava koşulları operasyonel açıdan uygun.",
   "TAF LTFJ 190440Z 1906/2006 04012KT 9999 SCT035 BECMG 1912/1915 CAVOK BECMG 1918/1922 VRB02KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde başlangıçta orta bulutluluk, sonrasında görüş ve bulut koşullarında iyileşme beklenmektedir.\n\n- **1906/1912 UTC:** Rüzgar 040° 12 knot, görüş 9999 metre, 3500 feet'te saçak bulutlar\n- **1912/1915 UTC:** Kademeli geçiş ile tam görüş ve bulut yok koşullarına (CAVOK)\n- **1918/1922 UTC:** Kademeli geçiş ile rüzgar değişken 2 knot",
   "METAR LTFJ 190920Z 03010KT 350V060 9999 FEW040 26/14 Q1021 NOSIG RMK RWY24R 02011KT 350V050 RWY06R 04009KT 010V100 RWY24L 06008KT 020V100": "**Rüzgâr:** Kuzey-kuzeydoğu yönünden 10 knot hızla esiyor, yönü 350 ile 60 derece arasında değişiyor ve bazı pistlerde hafif yan rüzgâr bileşeni var.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için görüş açısından rahat koşullar var.\n\n**Gökyüzü:** Az bulutlu hava, bulutlar yaklaşık 1200 metre yükseklikte, yağış yok ve hava durumu sabit kalacak.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı unsur oluşturmuyor, rapor tarihinden sonraki 2 saatte önemli bir değişiklik beklenmiyorsa operasyonlar normal şartlarda devam edebilir.",
-  "METAR LTFJ 190950Z 03010KT 360V060 9999 FEW040 25/12 Q1020 NOSIG RMK RWY24R 02010KT 350V060 RWY06R 02010KT 340V060 RWY24L 02010KT": "**Rüzgâr:** Kuzey-kuzeydoğu yönünden 10 knot hızla esiyor, yönü 360 ile 60 derece arasında değişiyor ve pistte yaklaşık 6 knot yan rüzgâr bileşeni var.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için görüş açısından rahat koşullar var.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 1200 metre yükseklikte, yağış yok ve hava olayı beklenmiyorum.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava basıncı normal, önümüzdeki 2 saatte önemli değişiklik öngörülmüyor."
+  "METAR LTFJ 190950Z 03010KT 360V060 9999 FEW040 25/12 Q1020 NOSIG RMK RWY24R 02010KT 350V060 RWY06R 02010KT 340V060 RWY24L 02010KT": "**Rüzgâr:** Kuzey-kuzeydoğu yönünden 10 knot hızla esiyor, yönü 360 ile 60 derece arasında değişiyor ve pistte yaklaşık 6 knot yan rüzgâr bileşeni var.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için görüş açısından rahat koşullar var.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 1200 metre yükseklikte, yağış yok ve hava olayı beklenmiyorum.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava basıncı normal, önümüzdeki 2 saatte önemli değişiklik öngörülmüyor.",
+  "METAR LTFJ 191020Z 03011KT 350V060 9999 SCT043 25/13 Q1020 NOSIG RMK RWY24R 04009KT 360V100 RWY06R 04009KT 340V090 RWY24L 05008KT 360V080": "**Rüzgâr:** Kuzey-kuzeydoğudan 11 knot hızla esen rüzgâr, yönü 350 ile 60 derece arasında değişiyor ve bazı pistlerde 6-9 knot yan bileşen oluşturuyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede görüş sağlanıyor, uçuş için görüş açısından rahat koşullar var.\n\n**Gökyüzü:** Gökyüzünün 3-4 bölümü bulutlu, bulutlar yaklaşık 1300 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları stabil kalacak şekilde tahmin ediliyor."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -1688,5 +1697,5 @@
   }
  },
  "notam_son_senkron": "2026-09-19T06:41:12+00:00",
- "guncelleme": "2026-09-19T10:21:55+00:00"
+ "guncelleme": "2026-09-19T10:31:18+00:00"
 }
