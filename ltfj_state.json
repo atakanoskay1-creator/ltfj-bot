@@ -194,14 +194,15 @@
   "id:52726170",
   "id:52734032",
   "id:52736463",
-  "id:52738419"
+  "id:52738419",
+  "id:52744917"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 192250Z 05005KT CAVOK 17/15 Q1022 NOSIG RMK RWY24R VRB02KT RWY06R 03006KT RWY24L 05006KT",
+ "son_metar": "METAR LTFJ 192320Z 06004KT CAVOK 17/15 Q1022 NOSIG RMK RWY24R VRB01KT RWY06R 07004KT RWY24L 04007KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-19T22:50:00+00:00",
+ "son_veri_zamani": "2026-09-19T23:20:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -1503,13 +1504,21 @@
    "qnh": 1022,
    "sicaklik": 17,
    "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-19T23:20:00+00:00",
+   "ruzgar_hiz": 4,
+   "tavan": null,
+   "qnh": 1022,
+   "sicaklik": 17,
+   "cig_noktasi": 15
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 192220Z 03005KT CAVOK 18/15 Q1022 NOSIG RMK RWY24R 36004KT RWY06R 01006KT RWY24L 04004KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/s) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Tüm yönlerde 10 kilometre ve daha fazla görüş var, uçuş için görüş açısından rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve hava olayları açısından kısıtlayıcı unsur yoktur; önümüzdeki 2 saatte önemli değişiklik beklenmemektedir.",
   "METAR LTFJ 192250Z 05005KT CAVOK 17/15 Q1022 NOSIG RMK RWY24R VRB02KT RWY06R 03006KT RWY24L 05006KT": "**Rüzgâr:** Kuzeydoğudan 5 knot (yaklaşık 9 km/saat) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzeri mesafede her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava koşulları.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş açısından kısıtlayıcı unsur yok, hava koşulları uçuş için elverişli.",
   "TAF LTFJ 191640Z 1918/2018 04007KT CAVOK BECMG 1923/2002 SCT035 BECMG 2005/2008 04018KT PROB30 TEMPO 2007/2011 -SHRA FEW018CB BKN022": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde başlangıçta açık hava, sonra bulutlanma ve rüzgar artışı beklenmektedir.\n\n- **1918/2002 UTC:** Başlangıçta 04 yönünden 7 knot rüzgar, görüş sınırsız; 1923 UTC'den itibaren 3500 ft'de dağınık bulut.\n- **2005/2008 UTC:** Rüzgar 04 yönünden 18 knota artacak.\n- **2007/2011 UTC:** %30 ihtimalle geçici olarak hafif sağanak, 1800 ft'de az bulut ve gök gürültülü bulut, 2200 ft'de kırık bulut.",
-  "TAF LTFJ 192240Z 2000/2024 05005KT CAVOK BECMG 2003/2006 SCT035 PROB30 TEMPO 2006/2010 -SHRA BKN030 BECMG 2007/2011 03015KT BECMG 2016/2019 04005KT CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde başlıca göz açıklığı beklenmektedir; gün içinde bulutlanma ve hafif yağış olasılığı vardır.\n\n- **2000/2006 UTC:** Rüzgar 050° 5 knot, göz açıklığı.\n- **2006/2010 UTC:** Geçici olarak hafif sağanak yağış, bulutlar 3000 ft'de; rüzgar 030° 15 knot'a geçiş.\n- **2016/2019 UTC:** Rüzgar 040° 5 knot'a kademeli geçiş, göz açıklığı."
+  "TAF LTFJ 192240Z 2000/2024 05005KT CAVOK BECMG 2003/2006 SCT035 PROB30 TEMPO 2006/2010 -SHRA BKN030 BECMG 2007/2011 03015KT BECMG 2016/2019 04005KT CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde başlıca göz açıklığı beklenmektedir; gün içinde bulutlanma ve hafif yağış olasılığı vardır.\n\n- **2000/2006 UTC:** Rüzgar 050° 5 knot, göz açıklığı.\n- **2006/2010 UTC:** Geçici olarak hafif sağanak yağış, bulutlar 3000 ft'de; rüzgar 030° 15 knot'a geçiş.\n- **2016/2019 UTC:** Rüzgar 040° 5 knot'a kademeli geçiş, göz açıklığı.",
+  "METAR LTFJ 192320Z 06004KT CAVOK 17/15 Q1022 NOSIG RMK RWY24R VRB01KT RWY06R 07004KT RWY24L 04007KT": "**Rüzgâr:** Kuzey-kuzeydoğudan çok hafif 4 knot rüzgâr esiyor, yan bileşen yok.\n\n**Görüş:** Mükemmel görüş koşulları, 10 kilometre ve daha fazla mesafede her şey net görünüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, açık gökyüz, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları uçuş için elverişli."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -1925,5 +1934,5 @@
   }
  },
  "notam_son_senkron": "2026-09-19T19:01:48+00:00",
- "guncelleme": "2026-09-19T23:21:01+00:00"
+ "guncelleme": "2026-09-19T23:31:09+00:00"
 }
