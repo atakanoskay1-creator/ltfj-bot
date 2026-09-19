@@ -158,14 +158,15 @@
   "id:52508878",
   "id:52515928",
   "id:52520910",
-  "id:52531358"
+  "id:52531358",
+  "id:52537603"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 190620Z 04008KT 9999 FEW039 21/16 Q1020 NOSIG RMK RWY24R 04007KT RWY06R 03007KT RWY24L 03006KT",
+ "son_metar": "METAR LTFJ 190650Z 05009KT 020V080 9999 FEW040 22/16 Q1020 NOSIG RMK RWY24R 04009KT RWY06R 04010KT RWY24L 04009KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-19T06:20:00+00:00",
+ "son_veri_zamani": "2026-09-19T06:50:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -1203,13 +1204,21 @@
    "qnh": 1020,
    "sicaklik": 21,
    "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-19T06:50:00+00:00",
+   "ruzgar_hiz": 9,
+   "tavan": null,
+   "qnh": 1020,
+   "sicaklik": 22,
+   "cig_noktasi": 16
   }
  ],
  "yorum_onbellegi": {
-  "TAF LTFJ 190440Z 1906/2006 04012KT 9999 SCT035 BECMG 1912/1915 CAVOK BECMG 1918/1922 VRB02KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde başlangıçta orta bulutluluk, sonrasında görüş ve bulut koşullarında iyileşme beklenmektedir.\n\n- **1906/1912 UTC:** Rüzgar 040° 12 knot, görüş 9999 metre, 3500 feet'te saçak bulutlar\n- **1912/1915 UTC:** Kademeli geçiş ile CAVOK koşulları (tam görüş, bulut yok)\n- **1918/1922 UTC:** Kademeli geçiş ile rüzgar değişken 2 knot",
-  "METAR LTFJ 190520Z 05007KT 9999 FEW030 18/15 Q1020 NOSIG RMK RWY24R 01003KT 290V100 RWY06R 06006KT 020V080 RWY24L 03008KT": "**Rüzgâr:** Kuzeydoğudan 7 knot (yaklaşık 13 km/saat) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla mesafeye kadar net görünüyor, görüş açısından rahat.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 900 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve hava koşullarında kısıtlayıcı unsur yoktur; önümüzdeki 2 saatte önemli değişiklik beklenmemektedir.",
   "METAR LTFJ 190550Z 05008KT 9999 FEW030 20/16 Q1020 NOSIG RMK RWY24R 05006KT RWY06R 05006KT RWY24L 05006KT": "**Rüzgâr:** Kuzeydoğudan 8 knot (yaklaşık 15 km/s) hızında hafif rüzgâr esiyor, yan bileşen çok az.\n\n**Görüş:** 10 kilometre ve daha fazla mesafeye kadar net görünüyor, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 900 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor, rüzgâr ve görüş uçuş için uygun.",
-  "METAR LTFJ 190620Z 04008KT 9999 FEW039 21/16 Q1020 NOSIG RMK RWY24R 04007KT RWY06R 03007KT RWY24L 03006KT": "**Rüzgâr:** Kuzeydoğudan 8 knot (yaklaşık 15 km/s) hızında hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 3900 feet (1200 metre) yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor, rüzgâr ve görüş operasyonel açıdan uygun."
+  "METAR LTFJ 190620Z 04008KT 9999 FEW039 21/16 Q1020 NOSIG RMK RWY24R 04007KT RWY06R 03007KT RWY24L 03006KT": "**Rüzgâr:** Kuzeydoğudan 8 knot (yaklaşık 15 km/s) hızında hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 3900 feet (1200 metre) yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor, rüzgâr ve görüş operasyonel açıdan uygun.",
+  "METAR LTFJ 190650Z 05009KT 020V080 9999 FEW040 22/16 Q1020 NOSIG RMK RWY24R 04009KT RWY06R 04010KT RWY24L 04009KT": "**Rüzgâr:** Kuzeydoğudan 9 knot hızla esen rüzgâr, yönü 020° ile 080° arasında değişiyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 1200 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları olumlu.",
+  "TAF LTFJ 190440Z 1906/2006 04012KT 9999 SCT035 BECMG 1912/1915 CAVOK BECMG 1918/1922 VRB02KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde başlangıçta orta bulutluluk, sonrasında görüş açık hava beklenmektedir.\n\n- **1906/1912 UTC:** Rüzgar 040° 12 knot, görüş 9999 metre, orta seviye bulutlar (3500 feet).\n- **1912/1915 UTC:** Kademeli geçiş ile görüş açık hava (CAVOK).\n- **1918/1922 UTC:** Kademeli geçiş ile rüzgar değişken 02 knot."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -1625,5 +1634,5 @@
   }
  },
  "notam_son_senkron": "2026-09-19T06:41:12+00:00",
- "guncelleme": "2026-09-19T06:50:57+00:00"
+ "guncelleme": "2026-09-19T07:01:22+00:00"
 }
