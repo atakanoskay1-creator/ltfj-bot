@@ -197,14 +197,15 @@
   "id:52738419",
   "id:52744917",
   "id:52750075",
-  "id:52760344"
+  "id:52760344",
+  "id:52766682"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 200020Z 06006KT CAVOK 16/14 Q1021 NOSIG RMK RWY24R VRB01KT RWY06R 09005KT RWY24L 04008KT",
+ "son_metar": "METAR LTFJ 200050Z 05006KT CAVOK 15/14 Q1021 NOSIG RMK RWY24R 34005KT RWY06R 01007KT RWY24L 02007KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-20T00:20:00+00:00",
+ "son_veri_zamani": "2026-09-20T00:50:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -1530,13 +1531,21 @@
    "qnh": 1021,
    "sicaklik": 16,
    "cig_noktasi": 14
+  },
+  {
+   "zaman": "2026-09-20T00:50:00+00:00",
+   "ruzgar_hiz": 6,
+   "tavan": null,
+   "qnh": 1021,
+   "sicaklik": 15,
+   "cig_noktasi": 14
   }
  ],
  "yorum_onbellegi": {
-  "TAF LTFJ 192240Z 2000/2024 05005KT CAVOK BECMG 2003/2006 SCT035 PROB30 TEMPO 2006/2010 -SHRA BKN030 BECMG 2007/2011 03015KT BECMG 2016/2019 04005KT CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde başlıca göz açıklığı beklenmektedir; gün içinde bulutlanma ve hafif yağış olasılığı vardır.\n\n- **2000/2006 UTC:** Rüzgar 050° 5 knot, göz açıklığı.\n- **2006/2010 UTC:** Geçici olarak hafif sağanak yağış, bulutlar 3000 ft'de; rüzgar 030° 15 knot'a geçiş.\n- **2016/2019 UTC:** Rüzgar 040° 5 knot'a kademeli geçiş, göz açıklığı.",
-  "METAR LTFJ 192320Z 06004KT CAVOK 17/15 Q1022 NOSIG RMK RWY24R VRB01KT RWY06R 07004KT RWY24L 04007KT": "**Rüzgâr:** Kuzey-kuzeydoğudan çok hafif 4 knot rüzgâr esiyor, yan bileşen yok.\n\n**Görüş:** Mükemmel görüş koşulları, 10 kilometre ve daha fazla mesafede her şey net görünüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, açık gökyüz, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları uçuş için elverişli.",
   "METAR LTFJ 192350Z 06005KT CAVOK 16/14 Q1021 NOSIG RMK RWY24R VRB01KT RWY06R 08004KT RWY24L 04008KT": "**Rüzgâr:** Kuzeydoğudan 5 knot (yaklaşık 9 km/s) hafif rüzgâr esiyor, yan bileşen önemsiz.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzeri, uçuş için rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Gözlemlenen veriye göre kısıtlayıcı unsur bulunmuyor, rüzgâr ve görüş uçuş için uygun.",
-  "METAR LTFJ 200020Z 06006KT CAVOK 16/14 Q1021 NOSIG RMK RWY24R VRB01KT RWY06R 09005KT RWY24L 04008KT": "**Rüzgâr:** Kuzeydoğudan 6 knot (yaklaşık 11 km/s) hafif rüzgâr esiyor, yan bileşen önemli değil.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzeri, uçuş için rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve hava olaylarında kısıtlayıcı unsur yoktur; önümüzdeki 2 saatte önemli değişiklik beklenmemektedir."
+  "METAR LTFJ 200020Z 06006KT CAVOK 16/14 Q1021 NOSIG RMK RWY24R VRB01KT RWY06R 09005KT RWY24L 04008KT": "**Rüzgâr:** Kuzeydoğudan 6 knot (yaklaşık 11 km/s) hafif rüzgâr esiyor, yan bileşen önemli değil.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzeri, uçuş için rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve hava olaylarında kısıtlayıcı unsur yoktur; önümüzdeki 2 saatte önemli değişiklik beklenmemektedir.",
+  "METAR LTFJ 200050Z 05006KT CAVOK 15/14 Q1021 NOSIG RMK RWY24R 34005KT RWY06R 01007KT RWY24L 02007KT": "**Rüzgâr:** Kuzeydoğudan 6 knot (yaklaşık 11 km/s) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş mükemmel, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş açısından kısıtlayıcı unsur yoktur; hava koşulları uçuş için elverişlidir.",
+  "TAF LTFJ 192240Z 2000/2024 05005KT CAVOK BECMG 2003/2006 SCT035 PROB30 TEMPO 2006/2010 -SHRA BKN030 BECMG 2007/2011 03015KT BECMG 2016/2019 04005KT CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 20:00–20:24 UTC döneminde başlıca hava durumu tahmini.\n\n- **20:00–20:24 UTC:** Rüzgar 050° 5 knot, görüş sınırsız, bulut yok.\n- **20:03–20:06 UTC:** Kademeli geçişle 3500 ft'de parçalı bulut; 20:06–20:10 UTC arasında %30 ihtimalle geçici hafif sağanak ve 3000 ft'de kırık bulut.\n- **20:07–20:11 UTC:** Kademeli geçişle rüzgar 030° 15 knot.\n- **20:16–20:19 UTC:** Kademeli geçişle rüzgar 040° 5 knot, görüş sınırsız, bulut yok."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -1952,5 +1961,5 @@
   }
  },
  "notam_son_senkron": "2026-09-19T19:01:48+00:00",
- "guncelleme": "2026-09-20T00:51:24+00:00"
+ "guncelleme": "2026-09-20T01:01:36+00:00"
 }
