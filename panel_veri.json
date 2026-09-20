@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-20T18:51:01+00:00",
+ "uretildi": "2026-09-20T19:01:25+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-20T18:20:00+00:00",
-  "metin": "METAR LTFJ 201820Z 03009KT CAVOK 20/18 Q1021 NOSIG RMK RWY24R 02007KT RWY06R 03010KT RWY24L 36005KT",
+  "zaman": "2026-09-20T18:50:00+00:00",
+  "metin": "METAR LTFJ 201850Z 03009KT CAVOK 20/18 Q1021 NOSIG RMK RWY24R 02007KT RWY06R 02009KT RWY24L 02006KT",
   "ruzgar": {
    "yon": 30,
    "hiz": 9,
@@ -43,8 +43,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 8.3,
-    "yan": 5.6,
+    "bas": 6.5,
+    "yan": 6.3,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -56,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -2.2,
-    "yan": 4.5,
+    "bas": -4.3,
+    "yan": 4.2,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -82,7 +82,7 @@
   ],
   "kuyruk_limiti": 10,
   "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi",
-  "tercih_pist": "06R",
+  "tercih_pist": "06L",
   "rvr": [],
   "prs": [],
   "gorus_op": [],
@@ -1702,6 +1702,14 @@
   },
   {
    "zaman": "2026-09-20T18:20:00+00:00",
+   "ruzgar_hiz": 9,
+   "tavan": null,
+   "qnh": 1021,
+   "sicaklik": 20,
+   "cig_noktasi": 18
+  },
+  {
+   "zaman": "2026-09-20T18:50:00+00:00",
    "ruzgar_hiz": 9,
    "tavan": null,
    "qnh": 1021,
