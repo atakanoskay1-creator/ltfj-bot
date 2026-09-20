@@ -440,6 +440,62 @@ istatistiksel temeli var** — canlıya ayrı, küçük bir gösterge olarak
 eklenmesi düşünülüyorsa bu çerçevede (yalnızca A düşükken gösterilerek)
 değerlendirilmeli.
 
+### A ≥%5 derinlemesine — asıl operasyonel soru
+
+Yukarıdaki %0-2 bulgusu istatistiksel olarak temiz ama asıl kullanım
+amacı **A zaten yüksek derken B'nin ek bir şey söyleyip söylemediği**
+("A %12 diyor, B'ye bakmalı mıyım?"). Önceki tablodaki %5-10/%10-20/%20+
+satırları yalnızca "monoton mu" diye bakıyordu; bu yetersiz - naif
+satır-bazlı bir farkın **anlamlı olup olmadığını** GÜN bazlı blok
+bootstrap CI ile (`degerlendir.blok_guven_araligi` - aynı sis olayının
+ardışık satırlarını bağımsız saymayan yöntem) test etmek gerekiyordu.
+Kod: `derinlemesine_a_yuksek()` ve `yillik_kararlilik()`.
+
+| A bandı | n | B düşük (CI) | B orta (CI) | B yüksek (CI) | CI örtüşüyor mu | B'nin bant-içi AP'si vs taban |
+|---|---|---|---|---|---|---|
+| %5–10 | 474 | %5.1 (1.3–9.3) | %5.1 (1.4–9.1) | %6.3 (2.2–11.0) | ✅ örtüşüyor | 0.084 vs 0.055 |
+| %10–20 | 168 | %12.5 (3.7–23.2) | %14.3 (6.8–24.6) | %3.6 (0.0–7.7) | ✅ örtüşüyor | 0.080 vs **0.101** |
+| %20–101 | 91 | %43.3 (25.9–61.3) | %25.8 (11.8–43.8) | %50.0 (28.6–67.6) | ✅ örtüşüyor | 0.509 vs 0.396 |
+
+Sorulara doğrudan cevap:
+
+1. **B yükseldikçe oran gerçekten yükseliyor mu?** Hayır tutarlı biçimde —
+   %5-10'da neredeyse düz, %10-20'de TERSİNE dönüyor (yüksek en düşük
+   oranı taşıyor), %20+'da U-şekilli.
+2. **Fark anlamlı mı?** Hayır — **üç bandın hepsinde düşük/yüksek %5-95
+   güven aralıkları geniş ölçüde örtüşüyor.** Görünen farklar gürültü
+   düzeyinde.
+3. **B ek bilgi sağlıyor mu (bant içinde)?** %10-20 bandında B'nin AP'si
+   taban orandan (sabit tahmin) DAHA DÜŞÜK — yani bu bantta B rastgeleden
+   daha kötü sıralıyor. Diğer iki bantta hafif iyileşme var ama n çok
+   küçük (91-474) ve CI'lar zaten örtüştüğü için güvenilir sayılamaz.
+4. **A≥%5 + B yüksek → gerçek oran ne?** %6.3 (5-10 bandı), %3.6 (10-20
+   bandı — düşükten bile az), %50.0 (20+ bandı). Sabit bir "B yüksekse
+   daha riskli" kuralı YOK.
+5. **B düşükken A yüksek olduğunda risk gerçekten aşağı geliyor mu?**
+   Hayır — %10-20 bandında B düşükken oran (%12.5) B yüksekken olandan
+   (%3.6) daha YÜKSEK; %20+ bandında ise düşük/yüksek neredeyse eşit
+   (%43.3 vs %50.0). Hipotezin tersi kadar destek var.
+6. **Yıllık kararlılık (2024/2025/2026 ayrı ayrı aynı yönde mi?):** Hayır.
+   Örnek, %5-10 bandında düşük→orta→yüksek deseni: 2024'te **%8→%12→%11**
+   (düz/karışık), 2025'te **%6→%2→%1** (AZALAN), 2026'da **%2→%2→%13**
+   (sadece yükseklerde sıçrama). Üç yıl üç farklı yön gösteriyor — bu,
+   önceki tablodaki "monoton" görünümün gerçek bir etki değil, örneklem
+   gürültüsü olduğunun doğrudan kanıtı. (Yıl başına hücre örnekleri
+   13-80 satır / 5-37 ayrı gün arası - resmi bir anlamlılık testi için
+   zaten çok ince; bu yüzden "veri yetersiz" dürüst sonuç, "her yıl aynı
+   yönde" değil.)
+
+**Nihai sonuç: A ≥%5 bölgesinde B'nin ek bilgi taşıdığına dair bu holdout'ta
+güvenilir bir kanıt YOK.** Görünen "trendler" gün-bazlı CI ile test
+edildiğinde hepsi örtüşüyor, yön iki bantta tersine dönüyor, yıllar arası
+tutarsız. A+B ortak bir model kurmadan önce sorulması gereken "B yeni
+bilgi mi taşıyor yoksa A'nın gürültülü bir kopyası mı" sorusunun cevabı,
+en azından A'nın yüksek olduğu (operasyonel olarak en kritik) bölge için:
+**şimdilik A'nın gürültülü bir kopyası gibi davranıyor.** Tek istisna
+%0-2 bandındaki (yukarıdaki) büyük-örnekli, monoton bulgu — o hâlâ geçerli
+ve ayrı bir sonuç.
+
 ## Sınırlar
 
 Bu bir **iklim + süreklilik** modelidir, fizik modeli değildir: yaklaşan bir

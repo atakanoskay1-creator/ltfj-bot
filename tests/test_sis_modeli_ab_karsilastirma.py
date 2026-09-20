@@ -94,3 +94,69 @@ def test_kosullu_deger_tertil_bos_bant_atlaniyor():
 def test_model_a_tahmin_eksik_veride_none():
     assert ab.model_a_tahmin({"sicaklik": None, "cig_noktasi": 5}) is None
     assert ab.model_a_tahmin({"sicaklik": 10, "cig_noktasi": None}) is None
+
+
+# --------------------------------------------- soru 4/5/6: derinlemesine A>=%5
+def _cok_gunluk_sentetik(n_gun=40, baslangic_yil=2024):
+    """Her GUN ayri bir 'gun' etiketi tasiyan, A hep ayni bantta (%5-10),
+    B artan, gercek deger sadece ust yaride pozitif olan sentetik veri -
+    gun-blok bootstrap'in CALISTIGINI (n_gun >= GUN_INCE_SINIR) dogrulamak
+    icin yeterli gun cesitliligi saglar."""
+    tahmin_a, tahmin_b, yer = {}, {}, {}
+    taban = datetime(baslangic_yil, 3, 1, tzinfo=timezone.utc)
+    for i in range(n_gun):
+        dt = taban + timedelta(days=i, hours=6)
+        tahmin_a[dt] = 0.07                    # hep %5-10 bandinda
+        tahmin_b[dt] = i / n_gun
+        yer[dt] = {"hedef": i >= n_gun // 2, "gun": dt.strftime("%Y-%m-%d"), "dt": dt}
+    return tahmin_a, tahmin_b, yer
+
+
+def test_oran_ci_bos_grupta_none_doner():
+    bilgi = ab._oran_ci([], {})
+    assert bilgi["n"] == 0 and bilgi["oran"] is None
+
+
+def test_oran_ci_gun_sayisini_doguru_sayiyor():
+    _, _, yer = _cok_gunluk_sentetik(n_gun=10)
+    dtler = list(yer)
+    bilgi = ab._oran_ci(dtler, yer, tekrar=20)
+    assert bilgi["gun_sayisi"] == 10          # her satir ayri bir gunde
+    assert bilgi["n"] == 10
+    assert bilgi["ci"][0] <= bilgi["oran"] <= bilgi["ci"][1] or bilgi["ci"] == (0.0, 0.0)
+
+
+def test_derinlemesine_a_yuksek_tek_bantta_ci_hesapliyor():
+    tahmin_a, tahmin_b, yer = _cok_gunluk_sentetik(n_gun=60)
+    ortak_dt = list(tahmin_a)
+    sonuc = ab.derinlemesine_a_yuksek(ortak_dt, tahmin_a, tahmin_b, yer,
+                                      bantlar=[(0.05, 0.10)])
+    assert len(sonuc) == 1
+    satir = sonuc[0]
+    assert satir["n_tum"] == 60
+    # B ile gercek deger burada TASARIM GEREGI iliskili (ust yari pozitif) -
+    # yuksek tertilin orani dusukten acikca buyuk olmali.
+    assert (satir["kesimler"]["yüksek"]["oran"]
+            > satir["kesimler"]["düşük"]["oran"])
+    for etiket in ("düşük", "orta", "yüksek"):
+        assert satir["kesimler"][etiket]["ci"][0] is not None
+
+
+def test_yillik_kararlilik_ayni_kesim_noktalarini_yillara_bolerek_kullaniyor():
+    tahmin_a, tahmin_b, yer = _cok_gunluk_sentetik(n_gun=30, baslangic_yil=2024)
+    # bir kismini 2025'e tasi
+    for i, dt in enumerate(list(yer)):
+        if i % 2 == 0:
+            yeni_dt = dt.replace(year=2025)
+            yer[yeni_dt] = {**yer[dt], "dt": yeni_dt}
+            tahmin_a[yeni_dt] = tahmin_a.pop(dt)
+            tahmin_b[yeni_dt] = tahmin_b.pop(dt)
+            del yer[dt]
+    ortak_dt = list(tahmin_a)
+    sonuc = ab.yillik_kararlilik(ortak_dt, tahmin_a, tahmin_b, yer,
+                                 bantlar=[(0.05, 0.10)], yillar=(2024, 2025))
+    assert len(sonuc) == 1
+    yillar = sonuc[0]["yillar"]
+    assert set(yillar) == {2024, 2025}
+    toplam_n = sum(yillar[y][e]["n"] for y in yillar for e in ("düşük", "orta", "yüksek"))
+    assert toplam_n == 30

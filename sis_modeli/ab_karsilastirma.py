@@ -25,7 +25,7 @@ import sys
 from datetime import timedelta
 from pathlib import Path
 
-from sis_modeli import bolme, hedef, model, olay_degerlendirme
+from sis_modeli import bolme, degerlendir, hedef, model, olay_degerlendirme
 from sis_modeli.istatistik import VARSAYILAN_VERI, veri_oku
 from sis_modeli.olusum_egit import ALANLAR, hava_sutunu_ekle
 
@@ -42,7 +42,12 @@ BAKIS_PENCERELERI = (3.0, 6.0)
 ADIM_DK = 30
 A_BANTLARI = [(0, 0.01), (0.01, 0.02), (0.02, 0.05), (0.05, 0.10),
              (0.10, 0.20), (0.20, 1.01)]
+# A'nın kendisi zaten yuksek dedigi bolge - asil operasyonel soru burada:
+# "A %12 derken B'ye bakmanin bir anlami var mi?" (bkz. README, kullanicinin
+# takip talebi).
+A_YUKSEK_BANTLARI = [(0.05, 0.10), (0.10, 0.20), (0.20, 1.01)]
 INCE_SINIR = 30
+GUN_INCE_SINIR = 5   # bu kadardan az AYRI GUN varsa oran/CI guvenilmez sayilir
 
 
 def model_a_tahmin(r: dict) -> float | None:
@@ -134,6 +139,91 @@ def kosullu_deger_tertil(ortak_dt: list, tahmin_a: dict, tahmin_b: dict,
     return cikti
 
 
+def _oran_ci(dtler: list, yer: dict, tekrar: int = 400) -> dict:
+    """Bir grubun gerceklesme orani + GUN bazinda blok bootstrap %5-95
+    araligi (degerlendir.blok_guven_araligi). 'tahminler' argumani metrik
+    tarafindan kullanilmiyor (olcu sadece gercekleri kullaniyor) - imza
+    uyumu icin sifir listesi veriliyor."""
+    n = len(dtler)
+    if n == 0:
+        return {"n": 0, "poz": 0, "oran": None, "ci": (None, None), "gun_sayisi": 0}
+    kayitlar_alt = [yer[dt] for dt in dtler]
+    gercekler = [bool(yer[dt]["hedef"]) for dt in dtler]
+    poz = sum(gercekler)
+    ci = degerlendir.blok_guven_araligi(
+        kayitlar_alt, [0.0] * n, gercekler,
+        lambda p, y: sum(y) / len(y) if y else 0.0, tekrar=tekrar)
+    return {"n": n, "poz": poz, "oran": poz / n, "ci": ci,
+           "gun_sayisi": len({r["gun"] for r in kayitlar_alt})}
+
+
+def derinlemesine_a_yuksek(ortak_dt: list, tahmin_a: dict, tahmin_b: dict,
+                           yer: dict, bantlar=A_YUKSEK_BANTLARI) -> list:
+    """A >= %5 bolgesinde, her bandi KENDI ICINDE B'ye gore tertile ayirir
+    ve HER tertil icin gun-bazli blok bootstrap CI hesaplar (naif satir-
+    bazli bir anlamlilik testi ayni sis olayinin ardisik satirlarini
+    bagimsiz sayardi - bu yuzden CI mutlaka GUN bazinda).
+
+    Ayrica B'nin bant ICINDE tek basina ayristirma gucunu (AP) ve o
+    bandin taban oranini (sabit tahmin) karsilastirir - "B, A'nin bu
+    bandinda yeni bilgi mi tasiyor yoksa A'yi mi tekrarliyor" sorusunun
+    dogrudan cevabi."""
+    cikti = []
+    for alt, ust in bantlar:
+        grup_tum = [dt for dt in ortak_dt if alt <= tahmin_a[dt] < ust]
+        satir = {"bant": (alt, ust), "n_tum": len(grup_tum)}
+        if not grup_tum:
+            cikti.append(satir)
+            continue
+
+        taban_oran = sum(1 for dt in grup_tum if yer[dt]["hedef"]) / len(grup_tum)
+        tahmin_b_listesi = [tahmin_b[dt] for dt in grup_tum]
+        gercek_listesi = [bool(yer[dt]["hedef"]) for dt in grup_tum]
+        satir["taban_oran"] = taban_oran
+        satir["b_ap"] = degerlendir.ortalama_kesinlik(tahmin_b_listesi, gercek_listesi)
+        satir["b_ap_taban"] = taban_oran   # sabit-tahmin AP'si = taban oran (nadir olayda)
+
+        siral = sorted(grup_tum, key=lambda dt: tahmin_b[dt])
+        n_tum = len(siral)
+        s1, s2 = round(n_tum / 3), round(2 * n_tum / 3)
+        kesimler = {"düşük": siral[:s1], "orta": siral[s1:s2], "yüksek": siral[s2:]}
+        satir["kesimler"] = {}
+        for etiket, grup in kesimler.items():
+            bilgi = _oran_ci(grup, yer)
+            bilgi["b_min"] = tahmin_b[grup[0]] if grup else None
+            bilgi["b_max"] = tahmin_b[grup[-1]] if grup else None
+            satir["kesimler"][etiket] = bilgi
+        cikti.append(satir)
+    return cikti
+
+
+def yillik_kararlilik(ortak_dt: list, tahmin_a: dict, tahmin_b: dict, yer: dict,
+                      bantlar=A_YUKSEK_BANTLARI, yillar=(2024, 2025, 2026)) -> list:
+    """AYNI (tum-donem) tertil kesim noktalarini kullanarak, her bandi
+    YIL bazinda kirar - 'iliski her yil ayni yonde mi' sorusu icin. Kesim
+    noktalari yil basina YENIDEN hesaplanmiyor (o kadar az veriyle kesim
+    noktasinin kendisi anlamsizlasirdi); sadece HANGI yila dustugu
+    raporlaniyor."""
+    cikti = []
+    for alt, ust in bantlar:
+        grup_tum = [dt for dt in ortak_dt if alt <= tahmin_a[dt] < ust]
+        if not grup_tum:
+            cikti.append({"bant": (alt, ust), "yillar": {}})
+            continue
+        siral = sorted(grup_tum, key=lambda dt: tahmin_b[dt])
+        n_tum = len(siral)
+        s1, s2 = round(n_tum / 3), round(2 * n_tum / 3)
+        kesimler = {"düşük": siral[:s1], "orta": siral[s1:s2], "yüksek": siral[s2:]}
+        yil_satiri = {}
+        for yil in yillar:
+            yil_satiri[yil] = {}
+            for etiket, grup in kesimler.items():
+                grup_yil = [dt for dt in grup if yer[dt]["dt"].year == yil]
+                yil_satiri[yil][etiket] = _oran_ci(grup_yil, yer, tekrar=100)
+        cikti.append({"bant": (alt, ust), "yillar": yil_satiri})
+    return cikti
+
+
 def main() -> int:
     if not VARSAYILAN_VERI.exists():
         print(f"HATA: {VARSAYILAN_VERI} yok.", file=sys.stderr)
@@ -213,6 +303,65 @@ def main() -> int:
         print(f"{'':<14}{'-> monoton artan mı?':<30}"
               f"{'evet' if satir['monoton'] else 'HAYIR':>12}")
         print()
+
+    # ------------------------------------------------------ soru 4 (derin)
+    print("=== 4) A ≥%5 DERİNLEMESİNE (gün-bazlı blok bootstrap CI ile) ===\n")
+    derin = derinlemesine_a_yuksek(ortak_dt, tahmin_a, tahmin_b, yer)
+    for satir in derin:
+        alt, ust = satir["bant"]
+        bant_etiket = f"%{100*alt:g}-{100*ust:g}"
+        if satir["n_tum"] == 0:
+            print(f"{bant_etiket}: veri yok\n")
+            continue
+        print(f"-- A bandı {bant_etiket}  (n={satir['n_tum']}, taban oran="
+              f"%{100*satir['taban_oran']:.1f}, B'nin bant-içi AP'si="
+              f"{satir['b_ap']:.3f} vs sabit-tahmin AP'si {satir['b_ap_taban']:.3f}) --")
+        print(f"{'B tertili':<10}{'B aralığı':<18}{'n':>6}{'gün':>5}{'poz':>6}"
+              f"{'oran':>9}{'  %5–95 CI':<16}")
+        for etiket in ("düşük", "orta", "yüksek"):
+            k = satir["kesimler"][etiket]
+            if k["n"] == 0:
+                print(f"{etiket:<10}{'–':<18}{0:>6}")
+                continue
+            aralik = f"%{100*k['b_min']:.2f}–{100*k['b_max']:.2f}"
+            alt_ci, ust_ci = k["ci"]
+            ci_str = f"{100*alt_ci:.1f}–{100*ust_ci:.1f}%"
+            ince = k["gun_sayisi"] < GUN_INCE_SINIR
+            print(f"{etiket:<10}{aralik:<18}{k['n']:>6}{k['gun_sayisi']:>5}"
+                  f"{k['poz']:>6}{100*k['oran']:>8.1f}%  {ci_str:<16}"
+                  + ("  ⚠ az gün" if ince else ""))
+        dusuk_ci = satir["kesimler"]["düşük"]["ci"]
+        yuksek_ci = satir["kesimler"]["yüksek"]["ci"]
+        if None not in dusuk_ci and None not in yuksek_ci:
+            ortusuyor = not (yuksek_ci[0] > dusuk_ci[1] or dusuk_ci[0] > yuksek_ci[1])
+            print(f"  düşük vs yüksek CI: {'ÖRTÜŞÜYOR (anlamlı fark YOK)' if ortusuyor else 'AYRIŞIYOR (fark muhtemelen gerçek)'}")
+        print()
+
+    # ------------------------------------------------------ soru 6 (yıllık)
+    print("=== 5) YILLIK KARARLILIK (aynı kesim noktaları, yıl bazında kırılım) ===\n")
+    yillik = yillik_kararlilik(ortak_dt, tahmin_a, tahmin_b, yer)
+    for satir in yillik:
+        alt, ust = satir["bant"]
+        bant_etiket = f"%{100*alt:g}-{100*ust:g}"
+        if not satir["yillar"]:
+            print(f"{bant_etiket}: veri yok\n")
+            continue
+        print(f"-- A bandı {bant_etiket} --")
+        print(f"{'yıl':<6}{'düşük':>16}{'orta':>16}{'yüksek':>16}")
+        for yil, gruplar in satir["yillar"].items():
+            hucreler = []
+            for etiket in ("düşük", "orta", "yüksek"):
+                k = gruplar[etiket]
+                if k["n"] == 0:
+                    hucreler.append("n=0")
+                else:
+                    hucreler.append(f"%{100*k['oran']:.0f} (n={k['n']},gün={k['gun_sayisi']})")
+            print(f"{yil:<6}{hucreler[0]:>16}{hucreler[1]:>16}{hucreler[2]:>16}")
+        print()
+    print("NOT: yıl başına ayrı gün sayıları çok küçükse (⚠ az gün eşiği: "
+         f"{GUN_INCE_SINIR}) bu kırılım yön hakkında GÜVENİLİR bir sonuç "
+         "vermez - bu durumda dürüstçe 'veri yetersiz' denmeli, sahte bir "
+         "'her yıl aynı yönde' iddiası kurulmamalı.\n")
     return 0
 
 
