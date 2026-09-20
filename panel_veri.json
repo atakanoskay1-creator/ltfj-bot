@@ -1,26 +1,26 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-20T09:20:54+00:00",
+ "uretildi": "2026-09-20T09:31:13+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-20T08:50:00+00:00",
-  "metin": "METAR LTFJ 200850Z 05012KT 020V080 9999 SCT030 25/15 Q1022 NOSIG RMK RWY24R 04011KT 010V080 RWY06R 05012KT 020V080 RWY24L 06011KT",
+  "zaman": "2026-09-20T09:20:00+00:00",
+  "metin": "METAR LTFJ 200920Z 05012KT 010V070 9999 SCT030 26/16 Q1022 NOSIG RMK RWY24R 04012KT 340V080 RWY06R 04012KT 010V070 RWY24L 04014KT",
   "ruzgar": {
    "yon": 50,
    "hiz": 12,
    "hamle": null,
    "degisken": [
-    20,
-    80
+    10,
+    70
    ]
   },
   "gorus": 9999,
   "cavok": false,
   "tavan": null,
   "hava": [],
-  "sicaklik": 25,
-  "cig_noktasi": 15,
+  "sicaklik": 26,
+  "cig_noktasi": 16,
   "qnh": 1022,
   "nosig": true,
   "renk": [
@@ -46,8 +46,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 11.6,
-    "yan": 2.9,
+    "bas": 11.0,
+    "yan": 4.9,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -59,8 +59,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -11.0,
-    "yan": 0.8,
+    "bas": -12.8,
+    "yan": 5.7,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -72,8 +72,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -10.0,
-    "yan": 4.5,
+    "bas": -11.0,
+    "yan": 4.9,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -93,7 +93,7 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 050° 12kt (değişken 020°–080°) · görüş 10+ km · 25°C · QNH 1022"
+  "ozet": "Rüzgâr 050° 12kt (değişken 010°–070°) · görüş 10+ km · 26°C · QNH 1022"
  },
  "taf": {
   "zaman": "2026-09-20T04:40:00+00:00",
@@ -1560,6 +1560,14 @@
    "qnh": 1022,
    "sicaklik": 25,
    "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-20T09:20:00+00:00",
+   "ruzgar_hiz": 12,
+   "tavan": null,
+   "qnh": 1022,
+   "sicaklik": 26,
+   "cig_noktasi": 16
   }
  ]
 }
