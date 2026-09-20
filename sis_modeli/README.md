@@ -581,10 +581,13 @@ sırasını döner; **A >= %2 iken hiçbir şey döndürmez** — çünkü o bö
 güvenilir kanıt yoktu.
 
 Web sayfasında (`ltfj_sayfa.py::_sis_olasiligi_html`) A<%2 iken kartın
-altına küçük, kesikli çizgiyle ayrılmış bir "Ek atmosferik gösterge
-(görüşsüz): düşük/orta/yüksek" satırı ekleniyor — sayısal yüzde
-GÖSTERİLMİYOR (bu bandın mutlak oranları çok küçük ve gürültülü
-görünebilirdi), sadece kategorik etiket + "yerine geçmez" hedge'i.
+altına küçük, kesikli çizgiyle ayrılmış bir "Sis eğilimi: düşük/orta/yüksek"
+satırı ekleniyor — sayısal yüzde GÖSTERİLMİYOR (bu bandın mutlak oranları çok
+küçük ve gürültülü görünebilirdi), sadece kategorik etiket + görüşe
+dayanmadığını ve resmî olmadığını açıklayan sade bir cümle. İsim ve cümle
+bilinçli olarak "atmosferik gösterge", "ince ayrım" gibi model/istatistik
+terminolojisinden arındırıldı - kontrolörler istatistik terimi değil, neyi
+gösterdiğini bilmek istiyor.
 
 ### 4) Holdout tazeleme (2024-2026'yı eğitime katmak) — denendi, YARIDA KALDI
 

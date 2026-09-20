@@ -124,19 +124,19 @@ def test_calisma_aninda_agir_bagimlilik_yok():
 def test_kart_a_cok_dusukken_ek_gostergeyi_gosterir():
     """Acik havada (CAVOK) A cok dusuk cikar - ek gosterge gorunmeli."""
     html = _sayfa("LTFJ 172120Z 18005KT CAVOK 22/05 Q1015")
-    assert "Ek atmosferik gösterge" in html
+    assert "Sis eğilimi" in html
 
 
 def test_kart_a_yuksekken_ek_gosterge_gorunmuyor():
     """Sisli/dusuk gorusle A >= %2'ye cikar - ek gosterge KAYBOLMALI."""
     html = _sayfa("LTFJ 172120Z 01003KT 1500 BR 06/06 Q1020")
     assert "İstatistiksel sis olasılığı" in html    # kart hala var
-    assert "Ek atmosferik gösterge" not in html
+    assert "Sis eğilimi" not in html
 
 
 def test_kart_ek_gosterge_bant_siniflarindan_birini_tasir():
     html = _sayfa("LTFJ 172120Z 18005KT CAVOK 22/05 Q1015")
-    i = html.index("Ek atmosferik gösterge")
+    i = html.index("Sis eğilimi")
     blok = html[i:i + 200]
     assert any(f'class="sis-olasilik-bant {sinif}"' in blok
               for sinif in ("dusuk", "orta", "yuksek"))

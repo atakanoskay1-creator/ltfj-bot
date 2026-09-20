@@ -1619,12 +1619,12 @@ def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
     if b_tertil is not None:
         b_sinif = {"düşük": "dusuk", "orta": "orta", "yüksek": "yuksek"}[b_tertil]
         ek_gosterge_html = (
-            '<div class="sis-olasilik-ek">Ek atmosferik gösterge (görüşsüz): '
+            '<div class="sis-olasilik-ek">Sis eğilimi: '
             f'<span class="sis-olasilik-bant {b_sinif}">{b_tertil}</span>'
-            '<div class="sis-olasilik-ek-not">Yukarıdaki oran zaten çok '
-            'düşükken (%2 altı), görüş kullanılmadan salt atmosferik '
-            'koşullara göre yapılan ince bir ayrım; oranın yerine geçmez, '
-            'resmî bir tespit değildir.</div></div>'
+            '<div class="sis-olasilik-ek-not">Görüş henüz düşmemiş olsa da, '
+            'mevcut nem, rüzgâr ve sıcaklık koşullarının sis oluşumuna ne '
+            'kadar uygun olduğunu gösterir. Resmî bir tahmin değildir, '
+            'sadece ek bir ipucudur.</div></div>'
         )
 
     return (
