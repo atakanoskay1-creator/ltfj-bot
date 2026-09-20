@@ -550,11 +550,41 @@ ve testleri repoda kalıyor — ileride farklı bir kalibrasyon yaklaşımı
 (örn. daha büyük/daha yakın tarihli bir dönemle yeniden uydurma) için
 temel oluşturabilir, ama şu an dürüst sonuç "bu haliyle işe yaramıyor".
 
-**Genel ders:** Model A'nın davranışını "küçük, yerel" düzeltmelerle
-iyileştirmeye çalışmak iki denemede de (rejim + kalibrasyon) ya zaten
-yapılmış ya da holdout'a taşınmıyor çıktı. Asıl kanıtlanmış kazanım hâlâ
-yukarıdaki A<%2 bandındaki B sinyali (madde 3, henüz uygulanmadı) ve
-holdout'u tazeleme fikri (madde 4).
+### 3) A<%2 bandındaki B sinyali — canlıya bağlandı
+
+Önce B'nin ham olasılığını A'ya 6. özellik olarak eklemek (stacking)
+denendi — sonuçsuz (global AP 0.210→0.209, A<%2 alt kümesinde AP
+0.0125→0.0124, fark yok). Ama bu, sinyalin gerçek olmadığı anlamına
+gelmiyordu: A'nın kendi düşük bandı içinde B'yi tertile (düşük/orta/
+yüksek) ayırmak, ölçüm metriği olarak AP yerine doğrudan gerçekleşme
+oranına (gün-bazlı CI ile) bakıldığında **İKİ BAĞIMSIZ dönemde** (holdout
+VE gelişme dönemi walk-forward dışı-katlanmış) net bir ayrım gösterdi:
+
+| A bandı | n/tertil (dev walk-forward) | B düşük | B orta | B yüksek |
+|---|---|---|---|---|
+| %0–1 | 43.442 | %0.03 [0.00–0.05] | %0.05 [0.03–0.08] | %0.37 [0.28–0.47] |
+| %1–2 | ~3.947 | %1.09 [0.76–1.44] | %1.60 [1.11–2.14] | %1.72 [1.15–2.34] |
+
+`%0-1` bandında CI'lar hiç örtüşmüyor — AP'nin yakalayamadığı ama
+gerçek olan bir ayrım. **Sonuç:** B'yi A'nın SKORUNA karıştırmak yanlış
+yaklaşımmış (AP'ye görünmüyor, WoE kovalama da ince ayrımı sıkıştırıyor);
+doğru yaklaşım B'yi **ayrı, küçük bir gösterge** olarak tutmak.
+
+**Uygulama:** `ltfj_sis_olasilik_b.py` — Model B'nin (görüşsüz sis oluşumu,
+`ALANLAR = spread, spread_egilim_3, sicaklik, ruzgar_kuzey, saat`) NİHAİ
+(tüm gelişme dönemiyle eğitilmiş) katsayı/WoE tabloları, `ltfj_sis_olasilik.py`
+ile AYNI dondurulmuş-modül disiplininde (`math` dışında bağımlılık yok,
+sis_modeli/ import edilmiyor). `tertil(a_olasiligi, b_olasiligi)` fonksiyonu
+A **< %2** iken B'nin o bant içindeki (33/67. yüzdelik, dondurulmuş sınır)
+sırasını döner; **A >= %2 iken hiçbir şey döndürmez** — çünkü o bölgede
+(`ab_karsilastirma.py`, "A ≥%5 derinlemesine") B'nin katkısına dair
+güvenilir kanıt yoktu.
+
+Web sayfasında (`ltfj_sayfa.py::_sis_olasiligi_html`) A<%2 iken kartın
+altına küçük, kesikli çizgiyle ayrılmış bir "Ek atmosferik gösterge
+(görüşsüz): düşük/orta/yüksek" satırı ekleniyor — sayısal yüzde
+GÖSTERİLMİYOR (bu bandın mutlak oranları çok küçük ve gürültülü
+görünebilirdi), sadece kategorik etiket + "yerine geçmez" hedge'i.
 
 ## Sınırlar
 
