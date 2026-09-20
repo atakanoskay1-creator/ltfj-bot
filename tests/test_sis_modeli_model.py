@@ -1,10 +1,12 @@
 """Walk-forward bolme, lojistik regresyon ve degerlendirme testleri.
 
-En kritik iki test:
+En kritik uc test:
 (1) Fold'lar GELECEGE sizmiyor ve nihai holdout hic acilmiyor,
 (2) Tekil sistem SESSIZCE sifir dondurmuyor - onceki surumde donduruyordu ve
     model sabit tahmin uretip AP'si taban orana esitleniyordu; bu 'modelleme
-    sonucu' sanilip yanlis yoruma yol acti (bkz. model.TekilSistem)."""
+    sonucu' sanilip yanlis yoruma yol acti (bkz. model.TekilSistem),
+(3) IRLS yakinsamazsa (quasi-complete separation) SESSIZCE anlamsiz
+    buyuklukte katsayi dondurmuyor (bkz. model.Yakinsamadi)."""
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -74,6 +76,26 @@ def test_egit_ayrik_sinyali_ogreniyor():
 
 def test_egit_bos_veride_cokmez():
     assert model.egit([], [], []) == [0.0]
+
+
+def test_egit_ayrismada_sessizce_cop_dondurmuyor():
+    """Regresyon: sis_modeli/tazeleme.py'de 2011-2026 havuzunun tamamiyla
+    egitiminde yakalandi - onceki surum yakinsama durumunu HIC kontrol
+    etmiyordu, MAKS_ITER sonunda anlamsiz buyuklukte (milyonlarca) katsayi
+    sessizce donuyordu. Burada kucuk, kasitli quasi-complete separation
+    (buyuk n'li hicbir-zaman-olmayan bir taban deseni + minik ama tamamen
+    pozitif bir desen) ayni imzayi (yetersiz L2'de sabit terim MAKS_ITER
+    sonunda hala kucumeye devam ediyor) yeniden uretiyor."""
+    desenler = [(0.0, 0.0), (1.0, 1.0), (5.0, 5.0)]
+    toplam = [200000, 1000, 5]
+    pozitif = [0, 50, 5]
+    with pytest.raises(model.Yakinsamadi):
+        model.egit(desenler, toplam, pozitif, l2=1.0)
+    # yeterince guclu L2 ile ayni veri normal, kucuk katsayilarla yakinsiyor
+    # (sabit terim degil - o cezalandirilmiyor - ama regularize edilen
+    # egim katsayilari kucuk kalmali)
+    beta = model.egit(desenler, toplam, pozitif, l2=1000.0)
+    assert all(abs(b) < 1.0 for b in beta[1:])
 
 
 def test_l2_secimi_yalnizca_egitim_verisini_kullaniyor():

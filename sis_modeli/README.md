@@ -586,6 +586,47 @@ altına küçük, kesikli çizgiyle ayrılmış bir "Ek atmosferik gösterge
 GÖSTERİLMİYOR (bu bandın mutlak oranları çok küçük ve gürültülü
 görünebilirdi), sadece kategorik etiket + "yerine geçmez" hedge'i.
 
+### 4) Holdout tazeleme (2024-2026'yı eğitime katmak) — denendi, YARIDA KALDI
+
+`sis_modeli/tazeleme.py` (AYRI TUTULUYOR, canlıya bağlanmadı): 2024/2025/2026'yı
+sırayla walk-forward test yılı olarak ekleyip "bu yılları eğitime katmak modeli
+bozar mı" sorusuna bakan bir deneme. Fold bazlı sonuçlar (2024, 2026) önceki
+dev fold'larıyla tutarlı (AP 0.193 / 0.226) — ama süreç, tazelemeden bağımsız,
+genel bir sağlamlık açığı ortaya çıkardı:
+
+**Bulgu:** `model.py::egit()` IRLS'i, veri havuzu 2024-2026'yı da içerecek
+şekilde büyüyünce, hem 2025 fold'unun kendi eğitim setinde (2011-2024) hem de
+2011-2026'nın tamamının nihai birleşik eğitiminde **yakınsamıyordu** — sabit
+terim her iterasyonda sabit bir miktar (~7 milyon) küçülerek sınırsız
+gidiyor, diğer katsayılar Model A'nın normal ölçeğinin (~0.2-0.7) ~100 katı
+büyüklükte "sabitleniyordu". Klasik **quasi-complete separation**: havuz
+büyüyünce birkaç WoE hücresi aşırı nadir ve tam ayrıştırıcı hale geliyor
+(örn. n=1574/poz=0, ya da n=3-6/poz=n). Önceki sürüm bunu HİÇ kontrol
+etmiyordu — MAKS_ITER (30) tükenince, yakınsamamış olsa bile son iterasyondaki
+anlamsız katsayıları sessizce döndürüyordu. Bu, `tazeleme.py`'nin ilk
+çalıştırmasında 2025 fold'unun "zayıf" (BSS −0.008, AP 0.015) görünmesinin
+gerçek nedeniydi — zayıf bir yıl değil, yakınsamamış/çöp bir modeldi.
+
+**Düzeltme (genel, tazelemeden bağımsız):** `model.Yakinsamadi` eklendi —
+`TekilSistem` ile aynı ilke: IRLS `MAKS_ITER` içinde yakınsamazsa artık
+sessizce döndürmüyor, açıkça hata fırlatıyor. `egit_secerek()`'in iç L2
+taramasında bu durum diğer L2 adaylarına geçilerek atlanıyor (`TekilSistem`
+ile aynı davranış); ama fold'un NİHAİ (tüm eğitim verisiyle) yeniden
+eğitimi yakınsamazsa hata `tazeleme.py`'ye kadar yükseliyor — orada o
+fold/adım açıkça "YAKINSAMADI" olarak işaretlenip atlanıyor, birikmiş
+istatistiklere KATILMIYOR. Mevcut üretim eğitimi (2011-2023, Model A/B)
+bu sorunu hiç tetiklemiyor — regresyon testleriyle doğrulandı.
+
+**Sonuç:** 2011-2026'nın tamamıyla eğitilmiş "nihai taslak" model bu haliyle
+üretilemiyor (a priori seçilen L2 o havuzda yakınsamıyor). Bunu post-hoc
+daha büyük bir L2 seçerek "düzeltmek", L2 ızgarasının sonuca bakılmadan a
+priori seçilmesi ilkesini bozar. Yani **holdout tazeleme YAPILMADI** — ne
+bu haliyle yakınsamayan bir modelle, ne de sonradan seçilmiş bir L2'yle.
+Bunu ileride denemek isteyen biri için gereken: L2 seçim prosedürünü (ya
+da aşırı nadir WoE hücrelerini elemeyi) SONUÇLARA bakmadan, a priori olarak
+büyütülmüş havuza uyarlayıp yeniden dondurmak — tek seferlik bir sayı
+seçimi değil, prosedürün kendisinin gözden geçirilmesi gerekir.
+
 ## Sınırlar
 
 Bu bir **iklim + süreklilik** modelidir, fizik modeli değildir: yaklaşan bir
