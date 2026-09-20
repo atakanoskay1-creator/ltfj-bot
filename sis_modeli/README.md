@@ -496,6 +496,66 @@ en azından A'nın yüksek olduğu (operasyonel olarak en kritik) bölge için:
 %0-2 bandındaki (yukarıdaki) büyük-örnekli, monoton bulgu — o hâlâ geçerli
 ve ayrı bir sonuç.
 
+## Model A'yı geliştirme girişimleri
+
+İki somut iyileştirme fikri sınandı — ikisi de kod DEĞİŞTİRMEDEN önce
+uygun (dev-only veya zaten var olan) verilerle test edildi.
+
+### 1) Rejim penceresi denetimi — zaten yapılmış, ek işlem yok
+
+Model A'nın 5 özelliğinden ikisi (`spread`, `spread_egilim_3`) doğrudan çiy
+noktasından türüyor — yani yukarıdaki **2021-2023 çiy noktası kusuru**
+A'yı doğrudan ilgilendiriyor. Ama bu zaten `veri_kalitesi.py --ab` ile
+test edilip (bkz. yukarıki "Dışlama denendi ve reddedildi" bölümü)
+**reddedilmiş**: o yılları dışlamak holdout AP'sini 0.184'ten 0.176'ya
+düşürüyor, fark tamamen eşleştirilmiş CI'nın altında. Diğer bilinen rejim
+sorunu (tavan az-bildirimi, 2011-2016) A'nın özellik setinde hiç yok
+(A "tavan" kullanmıyor). Sonuç: **yapılacak bir şey yok, mevcut karar
+doğru.**
+
+### 2) Yüksek uç kalibrasyonu — denendi ve REDDEDİLDİ
+
+**Teşhis (gerçek, gürültü değil):** holdout güvenilirlik tablosunda
+`%30-40` kovası tahmin %34.65 derken gerçekleşme %63.16 (n=19) —İlk
+bakışta küçük örneklem şüphesi uyandırıyor (bkz. yukarıdaki A≥%5
+bulgusu), ama gün-bazlı blok bootstrap CI **[%42.1 – %82.4]** tahmin
+edilen %36.5'in tamamen üstünde. Daha da önemlisi, AYNI desen çok daha
+büyük örneklemle **gelişme döneminin kendi walk-forward dışı-katlanmış
+(out-of-fold) tahminlerinde** de çıkıyor: `%30-40` kovası n=209 (tahmin
+%34.04, gerçekleşen %41.15), `%40-50` kovası n=86 (tahmin %45.20,
+gerçekleşen %56.98). Yani model yüksek uçta **sistematik olarak temkinli**
+— bu gerçek bir bulgu.
+
+**Düzeltme denemesi** (`sis_modeli/kalibrasyon.py`): PAVA (pool adjacent
+violators) izotonik regresyonu, SADECE gelişme dönemi walk-forward
+dışı-katlanmış tahminleriyle (155.634 tahmin, holdout hiç kullanılmadan)
+uyduruldu, sonra nihai (tüm-gelişme-eğitimli) modelin çıktısına uygulanıp
+holdout'ta önce/sonra karşılaştırıldı:
+
+| | AP (ham) | AP (kalibre) | Brier×10⁴ (ham) | Brier×10⁴ (kalibre) |
+|---|---|---|---|---|
+| Dev (dışı-katlanmış, uydurma verisi) | 0.210 | 0.221 | 69.30 | 68.52 |
+| **Holdout** | **0.184** | **0.173** | 40.85 | 40.73 |
+
+Dev verisinde (beklendiği gibi, çünkü kalibrasyon o veriye uyduruldu)
+her şey mükemmel kalibre görünüyor. Ama **holdout'ta AP kötüleşiyor**
+(0.184→0.173) ve güvenilirlik deseni bile TERSİNE dönüyor (örn. `%10-20`
+kovasında ham gerçekleşme %10.12 iken kalibre versiyon %4.92'ye düşüyor,
+`%30-40` kovasında ham %63.16 iken kalibre %16.67'ye düşüyor ve n 19'dan
+6'ya iniyor). **Sonuç: dev döneminde öğrenilen kalibrasyon deseni holdout'a
+TAŞINMIYOR — tıpkı tavan tablosundaki "kat" seviyesinin dönemler arası
+2.3 kat kaymasına benzer bir kararsızlık.** Bu düzeltme **prodüksiyona
+alınmadı** (`ltfj_sis_olasilik.py` değiştirilmedi). Kod (`kalibrasyon.py`)
+ve testleri repoda kalıyor — ileride farklı bir kalibrasyon yaklaşımı
+(örn. daha büyük/daha yakın tarihli bir dönemle yeniden uydurma) için
+temel oluşturabilir, ama şu an dürüst sonuç "bu haliyle işe yaramıyor".
+
+**Genel ders:** Model A'nın davranışını "küçük, yerel" düzeltmelerle
+iyileştirmeye çalışmak iki denemede de (rejim + kalibrasyon) ya zaten
+yapılmış ya da holdout'a taşınmıyor çıktı. Asıl kanıtlanmış kazanım hâlâ
+yukarıdaki A<%2 bandındaki B sinyali (madde 3, henüz uygulanmadı) ve
+holdout'u tazeleme fikri (madde 4).
+
 ## Sınırlar
 
 Bu bir **iklim + süreklilik** modelidir, fizik modeli değildir: yaklaşan bir
@@ -537,4 +597,7 @@ python -m sis_modeli.tavan_gorussuz --holdout          # TEK ATIŞ
 
 # Sis: Model A (görüşlü) vs Model B (görüşsüz) çapraz karşılaştırma
 python -m sis_modeli.ab_karsilastirma                 # holdout'u YENİDEN AÇMAZ - zaten dondurulmuş iki modeli eşleştirir
+
+# Model A: yüksek uç kalibrasyon denemesi (SONUÇ: reddedildi, prodüksiyona alınmadı)
+python -m sis_modeli.kalibrasyon                      # dev'de uydurur, holdout'ta önce/sonra gösterir
 ```
