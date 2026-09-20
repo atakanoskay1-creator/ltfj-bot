@@ -15,6 +15,7 @@ from pathlib import Path
 import ltfj_lvo_farkindalik as farkindalik
 import ltfj_lvo_referans as lvo
 import ltfj_sis_olasilik as sis_olasilik
+import ltfj_sis_olasilik_b as sis_olasilik_b
 import ltfj_vfr as vfr
 from ltfj_analiz import metar_coz, ozet_satiri, uyarilar
 from ltfj_ayarlar import YEREL_TZ
@@ -174,6 +175,12 @@ SABLON = """<!DOCTYPE html>
   .sis-olasilik-bant.yuksek {{ background:#ef444426; color:#dc2626; }}
   .sis-olasilik-alt {{ font-size:.85rem; color:var(--soluk); }}
   .sis-olasilik-kiyas {{ font-size:.8rem; color:var(--soluk); margin-top:6px; }}
+  .sis-olasilik-ek {{
+    font-size:.8rem; color:var(--soluk); margin-top:10px; padding-top:8px;
+    border-top:1px dashed var(--cizgi);
+  }}
+  .sis-olasilik-ek .sis-olasilik-bant {{ margin-left:4px; }}
+  .sis-olasilik-ek-not {{ font-size:.72rem; color:var(--soluk); margin-top:4px; }}
   .sis-olasilik-not {{
     font-size:.74rem; color:var(--soluk); margin-top:10px; line-height:1.5;
     border-top:1px solid var(--cizgi); padding-top:8px;
@@ -1596,6 +1603,30 @@ def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
     else:
         kiyas_ifade = "şu an bu seviyeye yakın"
 
+    # A cok dusukken (< A_UST_SINIR) gorussuz Model B'nin o bant icindeki
+    # KENDI sirasi (dusuk/orta/yuksek) ayrica gosterilir - ab_karsilastirma.py
+    # ile olculdu: bu aralikta B'nin ayrimi gercek (buyuk orneklem, gun-bazli
+    # CI'lar ortusmuyor), ama A>=%2 iken kanit yok, o yuzden orada HICBIR
+    # SEY gosterilmez (bkz. ltfj_sis_olasilik_b.A_UST_SINIR).
+    p_b = sis_olasilik_b.olasilik(
+        spread=None if sicaklik is None or cig is None else sicaklik - cig,
+        sicaklik=sicaklik,
+        saat=simdi.astimezone(timezone.utc).hour,
+        ruzgar_kuzey=ruzgar_k,
+        spread_egilim_3=_spread_egilimi(gecmis, simdi))
+    b_tertil = sis_olasilik_b.tertil(p, p_b)
+    ek_gosterge_html = ""
+    if b_tertil is not None:
+        b_sinif = {"düşük": "dusuk", "orta": "orta", "yüksek": "yuksek"}[b_tertil]
+        ek_gosterge_html = (
+            '<div class="sis-olasilik-ek">Ek atmosferik gösterge (görüşsüz): '
+            f'<span class="sis-olasilik-bant {b_sinif}">{b_tertil}</span>'
+            '<div class="sis-olasilik-ek-not">Yukarıdaki oran zaten çok '
+            'düşükken (%2 altı), görüş kullanılmadan salt atmosferik '
+            'koşullara göre yapılan ince bir ayrım; oranın yerine geçmez, '
+            'resmî bir tespit değildir.</div></div>'
+        )
+
     return (
         '<div class="kart sis-olasilik">'
         '<div class="basrow"><span class="tip">İstatistiksel sis olasılığı</span>'
@@ -1608,6 +1639,7 @@ def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
         f'içinde görüşün {sis_olasilik.HEDEF_GORUS_M} m altına düşme olasılığı</div>'
         f'<div class="sis-olasilik-kiyas">Normalde bu oran ortalama %{taban_yuzde} '
         f'civarındadır — {kiyas_ifade}.</div>'
+        f'{ek_gosterge_html}'
         '<div class="sis-olasilik-not">LTFJ\'nin 2011–2023 METAR arşivinden '
         'öğrenilmiş istatistiksel bir tahmindir; resmî tahmin değildir, TAF\'ın '
         'yerine geçmez ve yukarıdaki "Sis riski" göstergesinden bağımsız olarak '
