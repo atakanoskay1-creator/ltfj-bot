@@ -185,6 +185,12 @@ SABLON = """<!DOCTYPE html>
     font-size:.74rem; color:var(--soluk); margin-top:10px; line-height:1.5;
     border-top:1px solid var(--cizgi); padding-top:8px;
   }}
+  .sis-olasilik-diyagram-btn {{
+    margin-top:10px; background:none; border:1px solid var(--cizgi);
+    color:var(--vurgu); font-size:.78rem; font-weight:650; padding:6px 12px;
+    border-radius:8px; cursor:pointer;
+  }}
+  .sis-olasilik-diyagram-btn:hover {{ background:var(--kod-bg); }}
 
   .bolum-baslik {{ font-weight:650; font-size:1.05rem; margin:28px 0 12px; }}
   .notam-uyari {{
@@ -352,6 +358,8 @@ SABLON = """<!DOCTYPE html>
     background:var(--kart); border:1px solid var(--cizgi); border-radius:14px;
     padding:20px; max-width:420px; width:100%;
   }}
+  .modal-kutu-genis {{ max-width:820px; max-height:90vh; overflow:auto; }}
+  .modal-kutu-genis img {{ width:100%; height:auto; border-radius:8px; display:block; }}
   .modal-kutu h3 {{ margin:0 0 4px; font-size:1.05rem; }}
   .modal-kutu label {{ display:block; font-size:.82rem; color:var(--soluk); margin:12px 0 4px; }}
   .modal-kutu input, .modal-kutu textarea {{
@@ -1207,6 +1215,21 @@ SABLON = """<!DOCTYPE html>
 <script>
 (function () {{
   "use strict";
+  // Istatistiksel sis olasiligi kartindaki "Iki modelin baglantisini gor"
+  // butonu - statik bir PNG'yi (sis_model_baglantisi.png) modalda gosterir,
+  // hicbir fetch() yapilmaz.
+  var btn = document.getElementById("sis-model-diyagram-btn");
+  var ortu = document.getElementById("sis-model-modal");
+  var kapat = document.getElementById("sis-model-modal-kapat");
+  if (!btn || !ortu) return;
+  btn.addEventListener("click", function () {{ ortu.hidden = false; }});
+  if (kapat) kapat.addEventListener("click", function () {{ ortu.hidden = true; }});
+  ortu.addEventListener("click", function (e) {{ if (e.target === ortu) ortu.hidden = true; }});
+}})();
+</script>
+<script>
+(function () {{
+  "use strict";
   // Trend grafiklerinde imlecin/parmagin altindaki noktanin saatini ve
   // degerini gosterir. Fare: uzerine gelince gorunur, ayrilinca kaybolur.
   // Dokunmatik: basili tutup surukledikce gosterir, parmak kalkinca kaybolur.
@@ -1619,12 +1642,12 @@ def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
     if b_tertil is not None:
         b_sinif = {"düşük": "dusuk", "orta": "orta", "yüksek": "yuksek"}[b_tertil]
         ek_gosterge_html = (
-            '<div class="sis-olasilik-ek">Ek atmosferik gösterge (görüşsüz): '
+            '<div class="sis-olasilik-ek">Sis eğilimi: '
             f'<span class="sis-olasilik-bant {b_sinif}">{b_tertil}</span>'
-            '<div class="sis-olasilik-ek-not">Yukarıdaki oran zaten çok '
-            'düşükken (%2 altı), görüş kullanılmadan salt atmosferik '
-            'koşullara göre yapılan ince bir ayrım; oranın yerine geçmez, '
-            'resmî bir tespit değildir.</div></div>'
+            '<div class="sis-olasilik-ek-not">Görüş henüz düşmemiş olsa da, '
+            'mevcut nem, rüzgâr ve sıcaklık koşullarının sis oluşumuna ne '
+            'kadar uygun olduğunu gösterir. Resmî bir tahmin değildir, '
+            'sadece ek bir ipucudur.</div></div>'
         )
 
     return (
@@ -1644,7 +1667,18 @@ def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
         'öğrenilmiş istatistiksel bir tahmindir; resmî tahmin değildir, TAF\'ın '
         'yerine geçmez ve yukarıdaki "Sis riski" göstergesinden bağımsız olarak '
         'hesaplanır.</div>'
+        '<button type="button" id="sis-model-diyagram-btn" '
+        'class="sis-olasilik-diyagram-btn">İki modelin bağlantısını gör</button>'
         '</div>'
+        '<div id="sis-model-modal" class="modal-ortu" hidden>'
+        '<div class="modal-kutu modal-kutu-genis">'
+        '<h3>Model A ve Model B nasıl bağlantılı?</h3>'
+        '<img src="sis_model_baglantisi.png" loading="lazy" '
+        'alt="Model A ve Model B\'nin girdi, çıktı ve birbirine bağlandığı yeri '
+        'gösteren diyagram">'
+        '<div class="modal-butonlar">'
+        '<button type="button" id="sis-model-modal-kapat">Kapat</button>'
+        '</div></div></div>'
     )
 
 
