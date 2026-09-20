@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-20T20:20:54+00:00",
+ "uretildi": "2026-09-20T20:31:08+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-20T19:50:00+00:00",
-  "metin": "METAR LTFJ 201950Z 03008KT CAVOK 20/18 Q1020 NOSIG RMK RWY24R 01008KT RWY06R 02008KT RWY24L 01006KT",
+  "zaman": "2026-09-20T20:20:00+00:00",
+  "metin": "METAR LTFJ 202020Z 03008KT CAVOK 20/17 Q1020 NOSIG RMK RWY24R 01008KT RWY06R 02008KT RWY24L 04004KT",
   "ruzgar": {
    "yon": 30,
    "hiz": 8,
@@ -17,7 +17,7 @@
   "tavan": null,
   "hava": [],
   "sicaklik": 20,
-  "cig_noktasi": 18,
+  "cig_noktasi": 17,
   "qnh": 1020,
   "nosig": true,
   "renk": [
@@ -56,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -3.5,
-    "yan": 4.9,
+    "bas": -3.7,
+    "yan": 1.6,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -87,7 +87,7 @@
   "prs": [],
   "gorus_op": [],
   "trend": null,
-  "sis_riski": "Sis oluşum göstergesi: orta (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 2°C, rüzgâr 8 kt, gece şartları",
+  "sis_riski": "Sis oluşum göstergesi: orta (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 3°C, rüzgâr 8 kt, gece şartları",
   "ozet": "Rüzgâr 030° 8kt · görüş CAVOK · 20°C · QNH 1020"
  },
  "taf": {
@@ -1731,6 +1731,14 @@
    "qnh": 1020,
    "sicaklik": 20,
    "cig_noktasi": 18
+  },
+  {
+   "zaman": "2026-09-20T20:20:00+00:00",
+   "ruzgar_hiz": 8,
+   "tavan": null,
+   "qnh": 1020,
+   "sicaklik": 20,
+   "cig_noktasi": 17
   }
  ]
 }
