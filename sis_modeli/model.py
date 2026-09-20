@@ -77,6 +77,21 @@ class TekilSistem(Exception):
     acti - artik acikca hata firlatilir."""
 
 
+class Yakinsamadi(Exception):
+    """IRLS MAKS_ITER icinde yakinsamadi - katsayilar guvenilir degil.
+
+    Onceki surum yakinsama durumunu HIC kontrol etmiyordu: dongu erken
+    kirilmazsa son iterasyondaki - anlamsiz buyuklukte olabilecek - beta
+    sessizce donduruluyordu. sis_modeli/tazeleme.py'de 2011-2026 havuzunun
+    TAMAMI L2=100 ile egitilmeye calisilirken yakalandi: sabit terim her
+    iterasyonda ~7 milyon azalarak sinira gidiyor, diger katsayilar Model
+    A'nin normal olceginin (0.2-0.7) ~100 kati buyuklukte "sabitleniyor" -
+    klasik quasi-complete separation imzasi (birkac WoE hucresinde n kucuk
+    ve poz==0 ya da poz==n, ornegin n=1574/poz=0 veya n=6/poz=6). TekilSistem
+    ile ayni ilke: yanlis-ama-sessiz sonuc yerine acikca hata - dogru
+    duzeltme (daha guclu L2, o hucrelerin elenmesi, vb.) cagirana kalir."""
+
+
 def _coz(A: list, b: list) -> list:
     """Kucuk simetrik sistemi Gauss elemesiyle cozer (8x8 civari)."""
     n = len(b)
@@ -147,7 +162,7 @@ def egit_secerek(egitim: list, alanlar: list, adaylar=L2_ADAYLARI,
     for l2 in adaylar:
         try:
             beta = egit(d, t, p, l2=l2)
-        except TekilSistem:
+        except (TekilSistem, Yakinsamadi):
             continue
         tahmin = [olasilik(beta, r, ic_tablolar) for r in ic_test]
         skor = _ortalama_kesinlik(tahmin, ic_gercek)
@@ -188,6 +203,8 @@ def egit(desenler: list, toplam: list, pozitif: list, l2: float = L2) -> list:
         beta[0] = math.log(toplam_k / (toplam_n - toplam_k))
 
     X = [(1.0,) + d for d in desenler]
+    yakinsadi = False
+    fark = float("inf")
     for _ in range(MAKS_ITER):
         XtWX = [[0.0] * p_sayi for _ in range(p_sayi)]
         XtWz = [0.0] * p_sayi
@@ -212,7 +229,14 @@ def egit(desenler: list, toplam: list, pozitif: list, l2: float = L2) -> list:
         fark = max(abs(a - b) for a, b in zip(yeni, beta))
         beta = yeni
         if fark < YAKINSAMA:
+            yakinsadi = True
             break
+    if not yakinsadi:
+        raise Yakinsamadi(
+            f"MAKS_ITER={MAKS_ITER} iterasyonda yakinsamadi (l2={l2}, "
+            f"son degisim={fark:.3g}) - katsayilar guvenilir degil, "
+            f"muhtemel quasi-complete separation. Daha guclu L2 dene ya da "
+            f"cok az gozlemli WoE hucrelerini denetle.")
     return beta
 
 
