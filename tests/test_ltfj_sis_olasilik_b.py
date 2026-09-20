@@ -140,3 +140,13 @@ def test_kart_ek_gosterge_bant_siniflarindan_birini_tasir():
     blok = html[i:i + 200]
     assert any(f'class="sis-olasilik-bant {sinif}"' in blok
               for sinif in ("dusuk", "orta", "yuksek"))
+
+
+def test_kart_model_baglantisi_butonu_ve_modali_var():
+    """Kart varsa 'Iki modelin baglantisini gor' butonu ve ona bagli modal
+    da her zaman var - A dusuk/yuksek olmasindan bagimsiz (Ek gosterge'nin
+    aksine, bu buton A/B iliskisini her durumda aciklar)."""
+    html = _sayfa("LTFJ 172120Z 01003KT 1500 BR 06/06 Q1020")
+    assert 'id="sis-model-diyagram-btn"' in html
+    assert 'id="sis-model-modal"' in html
+    assert 'sis_model_baglantisi.png' in html
