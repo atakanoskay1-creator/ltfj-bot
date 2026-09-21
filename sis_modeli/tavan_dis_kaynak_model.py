@@ -110,11 +110,39 @@ def wf_karsilastir(gelistirme: list, spesifikasyonlar: list,
     return sonuc
 
 
+def _dondur_yazdir(ad: str, alanlar: list, egitim: list) -> None:
+    """tazeleme.py'nin dondurma cikti bicimiyle AYNI - ltfj_tavan_dis_kaynak.py'ye
+    dogrudan yapistirilabilir KATSAYILAR/WOE_TABLOLARI literalleri basar.
+
+    AYNI egitim kumesi (embargo_penceresi ile holdout sinirina kadar
+    genisletilmis gelistirme) main()'in --holdout dalinda KULLANILMIS olan
+    kumeyle BIREBIR AYNIDIR - yani burada basilan katsayilar, holdout'ta
+    dogrulanan sayilarin ta kendisidir, yeni bir egitim degildir."""
+    katsayilar, tablolar, l2 = model.egit_secerek(egitim, alanlar)
+    print(f"\n--- {ad} (L2={l2:.0f}, n={len(egitim)}, "
+          f"poz={sum(r['hedef'] for r in egitim)}) ---")
+    print(f"SABIT_TERIM = {katsayilar[0]!r}")
+    print("KATSAYILAR = {")
+    for alan, k in zip(sorted(tablolar.keys()), katsayilar[1:]):
+        print(f"    {alan!r}: {k!r},")
+    print("}")
+    print("WOE_TABLOLARI = {")
+    for alan in sorted(tablolar.keys()):
+        print(f"    {alan!r}: (")
+        for k in tablolar[alan]:
+            print(f"        ({k['ust']!r}, {k['woe']!r}),")
+        print("    ),")
+    print("}")
+
+
 def main(argv=None) -> int:
     a = argparse.ArgumentParser(description=__doc__)
     a.add_argument("--veri", type=Path, default=VARSAYILAN_VERI)
     a.add_argument("--esik", type=int, default=tavan.TABLO_ESIGI_FT)
     a.add_argument("--holdout", action="store_true", help="TEK ATIŞ")
+    a.add_argument("--dondur", action="store_true",
+                   help="TEMEL ve TEMEL+ikisi icin donuk modul literallerini bas "
+                        "(holdout'ta zaten dogrulanmis egitim kumesiyle)")
     secenek = a.parse_args(argv)
     if not secenek.veri.exists():
         print(f"HATA: {secenek.veri} yok.", file=sys.stderr)
@@ -211,6 +239,19 @@ def main(argv=None) -> int:
     else:
         print("KARAR: holdout'ta doğrulanmadı - geliştirme içi kazanç "
               "tesadüfi olabilir. Canlıya ALINMAMALI.")
+        return 0
+
+    if secenek.dondur:
+        print("\n" + "=" * 70)
+        print("=== 5) DONDURMA — ltfj_tavan_dis_kaynak.py için literaller ===")
+        print("=" * 70)
+        print("AŞAĞIDAKİ İKİ BLOK, egitim_tum (embargo'lu geliştirme, holdout "
+              "SINIRINA KADAR) üzerinde eğitildi - yukarıdaki holdout "
+              "sonuçlarıyla AYNI eğitim kümesi. TEMEL bloğu, dış kaynak "
+              "bayat/eksik olduğunda GERİ DÜŞME (fallback) modeli olarak "
+              "kullanılacak.")
+        _dondur_yazdir("TEMEL (fallback)", TEMEL, egitim_tum)
+        _dondur_yazdir(kazanan, kazanan_alanlar, egitim_tum)
     return 0
 
 

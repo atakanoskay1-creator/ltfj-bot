@@ -3,6 +3,8 @@ kendi esikleriyle karsilastirilip GAYRI RESMI, hedge'li notlara cevrilmesi.
 Hicbir zaman "LVO aktif/CAT II kullanilabilir/LVTO yapilabilir" gibi kesin
 bir ifade uretilmemeli - her not "... olabilir. Resmi bir tespit degildir."
 ile bitmeli."""
+from unittest.mock import patch
+
 import ltfj_lvo_farkindalik as fark
 
 
@@ -90,3 +92,83 @@ def test_rvr_dusukse_en_derin_esikle_not_uretilir():
 def test_rvr_cok_dusukse_en_derin_350_esigi_kullanilir():
     not_ = fark.rvr_notu("24R", "STOP-END", 100)
     assert "350 m eşiğinin" in not_
+
+
+# ------------------------------------------------------ tavan_dis_kaynak_notu
+# Not: tavan_dis_kaynak.olasilik/TABAN_ORAN burada MOCK'LANIR - bu testler
+# fonksiyonun KARAR MANTIGINI (esik, fallback, hedge) dogrular, dondurulmus
+# katsayilarin GERCEK degerlerine bagli DEGILDIR (o degerler ayri, dondurma
+# sonrasi test_ltfj_tavan_dis_kaynak.py'de dogrulanir).
+_COZUM = {"sicaklik": 8, "cig_noktasi": 6, "gorus": 3000, "tavan": 800,
+         "ruzgar_yon": 180, "ruzgar_hiz": 5}
+
+
+def test_dis_kaynak_notu_cozum_yoksa_none():
+    assert fark.tavan_dis_kaynak_notu(None, 0.05, 3) is None
+
+
+def test_dis_kaynak_notu_sis_olasiligi_veya_saat_yoksa_none():
+    assert fark.tavan_dis_kaynak_notu(_COZUM, None, 3) is None
+    assert fark.tavan_dis_kaynak_notu(_COZUM, 0.05, None) is None
+
+
+def test_dis_kaynak_notu_sicaklik_veya_cig_yoksa_none():
+    assert fark.tavan_dis_kaynak_notu({"gorus": 3000}, 0.05, 3) is None
+
+
+def test_dis_kaynak_notu_model_none_donerse_not_uretilmez():
+    with patch.object(fark.dis_kaynak_onbellek, "oku", return_value={}), \
+            patch.object(fark.tavan_dis_kaynak, "olasilik", return_value=None):
+        assert fark.tavan_dis_kaynak_notu(_COZUM, 0.05, 3) is None
+
+
+def test_dis_kaynak_notu_kat_esik_altindaysa_uretilmez():
+    with patch.object(fark.dis_kaynak_onbellek, "oku", return_value={}), \
+            patch.object(fark.tavan_dis_kaynak, "olasilik", return_value=0.01), \
+            patch.object(fark.tavan_dis_kaynak, "TABAN_ORAN", 0.01):
+        # kat = 0.01/0.01 = 1.0 < esik (3.0)
+        assert fark.tavan_dis_kaynak_notu(_COZUM, 0.05, 3) is None
+
+
+def test_dis_kaynak_notu_kat_esik_ustundeyse_uretilir_ve_hedgeli():
+    with patch.object(fark.dis_kaynak_onbellek, "oku", return_value={}), \
+            patch.object(fark.tavan_dis_kaynak, "olasilik", return_value=0.05), \
+            patch.object(fark.tavan_dis_kaynak, "TABAN_ORAN", 0.01):
+        # kat = 5.0 >= esik
+        not_ = fark.tavan_dis_kaynak_notu(_COZUM, 0.05, 3)
+    assert not_ is not None
+    assert "5 kat" in not_
+    assert "oluşabilir. Resmî bir tespit değildir." in not_
+    assert "LVO aktif" not in not_
+    assert "CAT II kullanılabilir" not in not_
+
+
+def test_dis_kaynak_notu_cache_bos_ise_temel_kaynak_metni_gosterir():
+    with patch.object(fark.dis_kaynak_onbellek, "oku",
+                      return_value={"acik_meteo_nem_2m": None, "komsu_tavan_ozellik": None}), \
+            patch.object(fark.tavan_dis_kaynak, "olasilik", return_value=0.05), \
+            patch.object(fark.tavan_dis_kaynak, "TABAN_ORAN", 0.01):
+        not_ = fark.tavan_dis_kaynak_notu(_COZUM, 0.05, 3)
+    assert "yalnızca METAR verisiyle" in not_
+
+
+def test_dis_kaynak_notu_cache_tazeyse_genis_kaynak_metni_gosterir():
+    with patch.object(fark.dis_kaynak_onbellek, "oku",
+                      return_value={"acik_meteo_nem_2m": 85, "komsu_tavan_ozellik": 1200}), \
+            patch.object(fark.tavan_dis_kaynak, "olasilik", return_value=0.05) as sahte_olasilik, \
+            patch.object(fark.tavan_dis_kaynak, "TABAN_ORAN", 0.01):
+        not_ = fark.tavan_dis_kaynak_notu(_COZUM, 0.05, 3)
+    assert "bölgesel nem ve komşu istasyon verisi dahil" in not_
+    _, kwargs = sahte_olasilik.call_args
+    assert kwargs["acik_meteo_nem_2m"] == 85
+    assert kwargs["komsu_tavan_ozellik"] == 1200
+
+
+def test_dis_kaynak_notu_tavan_yoksa_sozde_deger_gecirilir():
+    cozum_cavok = dict(_COZUM, tavan=None)
+    with patch.object(fark.dis_kaynak_onbellek, "oku", return_value={}), \
+            patch.object(fark.tavan_dis_kaynak, "olasilik", return_value=0.05) as sahte_olasilik, \
+            patch.object(fark.tavan_dis_kaynak, "TABAN_ORAN", 0.01):
+        fark.tavan_dis_kaynak_notu(cozum_cavok, 0.05, 3)
+    _, kwargs = sahte_olasilik.call_args
+    assert kwargs["tavan_ozellik"] == fark._TAVAN_YOK_FT
