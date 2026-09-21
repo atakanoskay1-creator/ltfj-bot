@@ -1,27 +1,24 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-21T21:50:57+00:00",
+ "uretildi": "2026-09-21T22:01:20+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-21T21:20:00+00:00",
-  "metin": "METAR LTFJ 212120Z 17003KT 140V200 9999 FEW035 SCT080 21/18 Q1015 NOSIG RMK RWY24R VRB02KT RWY06R 00000KT RWY24L 00000KT",
+  "zaman": "2026-09-21T21:50:00+00:00",
+  "metin": "METAR LTFJ 212150Z VRB01KT 9999 FEW035 BKN080 20/18 Q1014 NOSIG RMK RWY24R VRB03KT RWY06R VRB02KT RWY24L 00000KT",
   "ruzgar": {
-   "yon": 170,
-   "hiz": 3,
+   "yon": null,
+   "hiz": 1,
    "hamle": null,
-   "degisken": [
-    140,
-    200
-   ]
+   "degisken": null
   },
   "gorus": 9999,
   "cavok": false,
-  "tavan": null,
+  "tavan": 8000,
   "hava": [],
-  "sicaklik": 21,
+  "sicaklik": 20,
   "cig_noktasi": 18,
-  "qnh": 1015,
+  "qnh": 1014,
   "nosig": true,
   "renk": [
    "BLU",
@@ -30,32 +27,6 @@
   "renk_etiketi": "LTFJ Bot durum seviyesi",
   "dikkat": [],
   "pistler": [
-   {
-    "pist": "06L",
-    "yon_gercek": 64.1,
-    "bas": -0.8,
-    "yan": 2.9,
-    "yan_taraf": "sağdan",
-    "bas_hamle": null,
-    "yan_hamle": null,
-    "degisken": true,
-    "kaynak": "alan rüzgârından",
-    "kuyruk": true,
-    "kuyruk_asildi": false
-   },
-   {
-    "pist": "06R",
-    "yon_gercek": 64.1,
-    "bas": 0.0,
-    "yan": 0.0,
-    "yan_taraf": "soldan",
-    "bas_hamle": null,
-    "yan_hamle": null,
-    "degisken": false,
-    "kaynak": "AD 2.15 anemometreleri",
-    "kuyruk": false,
-    "kuyruk_asildi": false
-   },
    {
     "pist": "24L",
     "yon_gercek": 244.12,
@@ -72,13 +43,13 @@
   ],
   "kuyruk_limiti": 10,
   "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi",
-  "tercih_pist": "06R",
+  "tercih_pist": "24L",
   "rvr": [],
   "prs": [],
   "gorus_op": [],
   "trend": null,
-  "sis_riski": "Sis oluşum göstergesi: orta (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 3°C, rüzgâr 3 kt, gece şartları",
-  "ozet": "Rüzgâr 170° 3kt (değişken 140°–200°) · görüş 10+ km · 21°C · QNH 1015"
+  "sis_riski": "Sis oluşum göstergesi: yüksek (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 2°C, rüzgâr 1 kt, gece şartları",
+  "ozet": "Rüzgâr değişken 1kt · görüş 10+ km · tavan 8000 ft · 20°C · QNH 1014"
  },
  "taf": {
   "zaman": "2026-09-21T16:40:00+00:00",
@@ -2128,6 +2099,14 @@
    "tavan": null,
    "qnh": 1015,
    "sicaklik": 21,
+   "cig_noktasi": 18
+  },
+  {
+   "zaman": "2026-09-21T21:50:00+00:00",
+   "ruzgar_hiz": 1,
+   "tavan": 8000,
+   "qnh": 1014,
+   "sicaklik": 20,
    "cig_noktasi": 18
   }
  ]
