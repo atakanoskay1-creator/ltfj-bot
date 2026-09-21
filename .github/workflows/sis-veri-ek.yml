@@ -1,0 +1,77 @@
+name: Sis modeli ek veri kaynaklari
+
+# LTFJ'nin kendi METAR arsivinden (sis-veri.yml) BAGIMSIZ, deneysel ek veri
+# kaynaklarini ceker: komsu istasyon METAR'i (veri_cek_komsu.py) ve Open-Meteo
+# tarihsel reanalysis (veri_cek_acik_meteo.py). SADECE EGITIM/ANALIZ icindir -
+# canli bota veya donmus runtime modullerine hicbir sekilde baglanmaz (bkz.
+# sis_modeli/README.md izolasyon sozlesmesi). Elle tetiklenir, zamanlanmis
+# calismasi YOKTUR - ayni sis-veri.yml gibi tarihsel arsiv duzenli degismez.
+on:
+  workflow_dispatch:
+    inputs:
+      baslangic:
+        description: "Başlangıç yılı"
+        required: false
+        default: "2003"
+      bitis:
+        description: "Bitiş yılı (boş bırakılırsa içinde bulunulan yıl)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sis-modeli-ek-verisi
+  cancel-in-progress: false
+
+jobs:
+  veri:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Repoyu al
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Bagimliliklar
+        run: pip install --quiet requests
+
+      - name: Komsu istasyon arsivini cek
+        run: |
+          set -eu
+          BITIS="${{ inputs.bitis }}"
+          if [ -z "${BITIS}" ]; then BITIS="$(date -u +%Y)"; fi
+          python -m sis_modeli.veri_cek_komsu \
+            --baslangic "${{ inputs.baslangic }}" \
+            --bitis "${BITIS}"
+
+      - name: Open-Meteo reanalysis verisini cek
+        run: |
+          set -eu
+          BITIS="${{ inputs.bitis }}"
+          if [ -z "${BITIS}" ]; then BITIS="$(date -u +%Y)"; fi
+          python -m sis_modeli.veri_cek_acik_meteo \
+            --baslangic "${{ inputs.baslangic }}" \
+            --bitis "${BITIS}"
+
+      - name: Yeni veriyi repoya yaz
+        run: |
+          set -eu
+          DOSYALAR="sis_modeli/veri/komsu_ltfm_ozellik.csv.gz sis_modeli/veri/acik_meteo_ltfj.csv.gz"
+
+          if [ -z "$(git status --porcelain -- ${DOSYALAR})" ]; then
+            echo "Veri degismedi, commit yok."
+            exit 0
+          fi
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ${DOSYALAR}
+          git commit -m "sis modeli: ek veri kaynakları (komşu istasyon + Open-Meteo) güncellendi [skip ci]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

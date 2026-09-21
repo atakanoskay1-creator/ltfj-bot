@@ -41,11 +41,14 @@ class VeriCekmeHatasi(Exception):
     pass
 
 
-def _yil_indir(yil: int, oturum: requests.Session) -> str:
+def _yil_indir(yil: int, oturum: requests.Session, istasyon: str = ISTASYON) -> str:
     """Bir yilin ham METAR CSV'sini dondurur. Gecici ag hatalarinda ustel
-    geri cekilmeyle yeniden dener; kalici hatada VeriCekmeHatasi firlatir."""
+    geri cekilmeyle yeniden dener; kalici hatada VeriCekmeHatasi firlatir.
+
+    istasyon parametrelidir: komsu istasyon cekicisi (veri_cek_komsu.py) ayni
+    IEM ASOS mekanizmasini farkli bir ICAO kodu icin yeniden kullanir."""
     parametreler = {
-        "station": ISTASYON,
+        "station": istasyon,
         "data": "metar",
         "year1": yil, "month1": 1, "day1": 1,
         "year2": yil + 1, "month2": 1, "day2": 1,
@@ -70,7 +73,7 @@ def _yil_indir(yil: int, oturum: requests.Session) -> str:
                 print(f"  {yil}: ag hatasi ({e}), {bekle} sn sonra yeniden...",
                       file=sys.stderr)
                 time.sleep(bekle)
-    raise VeriCekmeHatasi(f"{yil} icin arsiv alinamadi: {son_hata}")
+    raise VeriCekmeHatasi(f"{istasyon} {yil} icin arsiv alinamadi: {son_hata}")
 
 
 def _satirlari_coz(ham_csv: str) -> tuple[list, Counter]:
@@ -102,7 +105,8 @@ def _satirlari_coz(ham_csv: str) -> tuple[list, Counter]:
     return satirlar, atlanan
 
 
-def arsivi_uret(baslangic: int, bitis: int, cikti: Path) -> dict:
+def arsivi_uret(baslangic: int, bitis: int, cikti: Path,
+                istasyon: str = ISTASYON) -> dict:
     """Yillari sirayla indirir, ayristirir ve tek bir gzip CSV'ye yazar.
     Ozet istatistik sozlugu dondurur."""
     cikti.parent.mkdir(parents=True, exist_ok=True)
@@ -114,7 +118,7 @@ def arsivi_uret(baslangic: int, bitis: int, cikti: Path) -> dict:
         yazici.writeheader()
         with requests.Session() as oturum:
             for yil in range(baslangic, bitis + 1):
-                ham = _yil_indir(yil, oturum)
+                ham = _yil_indir(yil, oturum, istasyon)
                 satirlar, atlanan = _satirlari_coz(ham)
                 for s in satirlar:
                     yazici.writerow(s)
@@ -137,11 +141,13 @@ def main(argv=None) -> int:
     ayristirici.add_argument("--bitis", type=int,
                              default=datetime.now(timezone.utc).year)
     ayristirici.add_argument("--cikti", type=Path, default=VARSAYILAN_CIKTI)
+    ayristirici.add_argument("--istasyon", default=ISTASYON,
+                             help="ICAO kodu (varsayilan LTFJ)")
     a = ayristirici.parse_args(argv)
 
-    print(f"{ISTASYON} arsivi: {a.baslangic}-{a.bitis}")
+    print(f"{a.istasyon} arsivi: {a.baslangic}-{a.bitis}")
     try:
-        ozet = arsivi_uret(a.baslangic, a.bitis, a.cikti)
+        ozet = arsivi_uret(a.baslangic, a.bitis, a.cikti, a.istasyon)
     except VeriCekmeHatasi as e:
         print(f"HATA: {e}", file=sys.stderr)
         return 1

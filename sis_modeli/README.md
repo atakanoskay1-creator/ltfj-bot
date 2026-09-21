@@ -40,6 +40,37 @@ olmadan tekrarlanabilir olur.
 elle tetiklenir) — geliştirme ortamının ağ politikası harici veri servislerine
 izin vermediği için yerelden çekilemez.
 
+### Ek veri kaynakları (deneysel, EĞİTİM-ONLY)
+
+Daha yüksek kesinlik arayışıyla, IEM METAR arşivinden **bağımsız** iki yeni
+kaynak eklendi. İkisi de sadece geçmişe dönük veri toplar — hiçbiri çalışma
+anındaki bota veya donmuş runtime modüllerine (`ltfj_sis_olasilik*.py`,
+`ltfj_tavan_tablosu.py`) bağlanmaz. İzolasyon sözleşmesi (yukarıda) burada da
+geçerlidir. **Anlamlı bir katkı holdout'ta kanıtlanmadan canlıya alınmaz.**
+
+- **Komşu istasyon METAR'ı** (`veri_cek_komsu.py`, LTFM — İstanbul Havalimanı):
+  aynı IEM ASOS mekanizması, farklı ICAO kodu. Amaç: sis/düşük tavan bölgesel
+  yayılır; komşu istasyonda birkaç saat önce görülen düşük görüş/tavan bir
+  ÖNCÜ (mekansal) sinyal olabilir. → `veri/komsu_ltfm_ozellik.csv.gz`
+
+- **Open-Meteo tarihsel reanalysis** (`veri_cek_acik_meteo.py`, ERA5 tabanlı,
+  1940'tan itibaren saatlik, anahtarsız/ücretsiz): yüzey alanları + 925/850 hPa
+  basınç seviyesi sıcaklık/nem — klasik radyasyon sisi öncüsü olan ALÇAK
+  SEVİYE İNVERSİYON gücünün türetilmesini sağlar. IEM'den bağımsız olduğu için
+  ayrıca 2021-2023 çiy noktası kusuru gibi sensör kaymalarını gelecekte
+  otomatik çapraz-doğrulamayla yakalamaya da yardımcı olabilir.
+  → `veri/acik_meteo_ltfj.csv.gz`
+
+**Durum:** her iki çekici de yazıldı, testleri (mocked HTTP) geçiyor, ayrı bir
+GitHub Actions workflow'una (`sis-veri-ek.yml`, elle tetiklenir) bağlandı.
+Open-Meteo'nun API sözleşmesi (değişken adları) bu ortamdan **canlı
+doğrulanamadı** — ağın egress proxy'si `open-meteo.com`'u engelliyor. İlk
+gerçek çalıştırma GitHub Actions'ta yapılmalı; bir değişken adı yanlışsa
+betik açık bir `AcikMeteoHatasi` fırlatır, sessizce boş sütun üretmez.
+Veri çekildikten sonraki adım: LTFJ ana arşiviyle zaman damgasına göre en
+yakın gözlem eşleştirmesiyle birleştirme (join) ve yeni aday özniteliklerin
+a priori WoE/IV taramasına sokulması — bu henüz yapılmadı.
+
 ## Yöntem (planlanan)
 
 - **Etiket:** gözlem anında görüş < 1000 m (sis) ve < 550 m (LVO seviyesi).
@@ -684,6 +715,10 @@ geçmez.
 ```bash
 # Arşivi çek ve türetilmiş veriyi üret (ağ gerekir - Actions'ta çalışır)
 python -m sis_modeli.veri_cek --baslangic 2003 --bitis 2026
+
+# Ek veri kaynakları (deneysel, EĞİTİM-ONLY - ağ gerekir, Actions'ta çalışır)
+python -m sis_modeli.veri_cek_komsu --baslangic 2003 --bitis 2026
+python -m sis_modeli.veri_cek_acik_meteo --baslangic 2003 --bitis 2026
 
 # Türetilmiş veriyi incele (ağ gerekmez)
 python -m sis_modeli.istatistik
