@@ -1,22 +1,25 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-21T06:50:49+00:00",
+ "uretildi": "2026-09-21T07:01:29+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-21T06:20:00+00:00",
-  "metin": "METAR LTFJ 210620Z 15002KT 9999 FEW030 21/18 Q1017 NOSIG RMK RWY24R VRB03KT RWY06R 00000KT RWY24L VRB02KT",
+  "zaman": "2026-09-21T06:50:00+00:00",
+  "metin": "METAR LTFJ 210650Z 11003KT 360V160 9999 FEW030 23/18 Q1017 NOSIG RMK RWY24R VRB03KT RWY06R VRB03KT RWY24L VRB03KT",
   "ruzgar": {
-   "yon": 150,
-   "hiz": 2,
+   "yon": 110,
+   "hiz": 3,
    "hamle": null,
-   "degisken": null
+   "degisken": [
+    360,
+    160
+   ]
   },
   "gorus": 9999,
   "cavok": false,
   "tavan": null,
   "hava": [],
-  "sicaklik": 21,
+  "sicaklik": 23,
   "cig_noktasi": 18,
   "qnh": 1017,
   "nosig": true,
@@ -30,26 +33,13 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 0.1,
-    "yan": 2.0,
+    "bas": 2.1,
+    "yan": 2.2,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": false,
+    "degisken": true,
     "kaynak": "alan rüzgârından",
-    "kuyruk": false,
-    "kuyruk_asildi": false
-   },
-   {
-    "pist": "06R",
-    "yon_gercek": 64.1,
-    "bas": 0.0,
-    "yan": 0.0,
-    "yan_taraf": "soldan",
-    "bas_hamle": null,
-    "yan_hamle": null,
-    "degisken": false,
-    "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": false,
     "kuyruk_asildi": false
    }
@@ -62,7 +52,7 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 150° 2kt · görüş 10+ km · 21°C · QNH 1017"
+  "ozet": "Rüzgâr 110° 3kt (değişken 360°–160°) · görüş 10+ km · 23°C · QNH 1017"
  },
  "taf": {
   "zaman": "2026-09-21T04:40:00+00:00",
@@ -1872,6 +1862,14 @@
    "tavan": null,
    "qnh": 1017,
    "sicaklik": 21,
+   "cig_noktasi": 18
+  },
+  {
+   "zaman": "2026-09-21T06:50:00+00:00",
+   "ruzgar_hiz": 3,
+   "tavan": null,
+   "qnh": 1017,
+   "sicaklik": 23,
    "cig_noktasi": 18
   }
  ]
