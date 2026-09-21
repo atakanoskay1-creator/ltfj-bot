@@ -1,17 +1,17 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-21T11:51:08+00:00",
+ "uretildi": "2026-09-21T12:01:35+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-21T11:20:00+00:00",
-  "metin": "METAR LTFJ 211120Z 23007KT 170V270 9999 SCT035 25/17 Q1015 NOSIG RMK RWY24R 23008KT 190V300 RWY06R 24008KT 210V270 RWY24L 25009KT 210V290",
+  "zaman": "2026-09-21T11:50:00+00:00",
+  "metin": "METAR LTFJ 211150Z 24006KT 210V270 9999 SCT035 26/17 Q1015 NOSIG RMK RWY24R 23005KT 170V280 RWY06R 22009KT RWY24L VRB07KT",
   "ruzgar": {
-   "yon": 230,
-   "hiz": 7,
+   "yon": 240,
+   "hiz": 6,
    "hamle": null,
    "degisken": [
-    170,
+    210,
     270
    ]
   },
@@ -19,7 +19,7 @@
   "cavok": false,
   "tavan": null,
   "hava": [],
-  "sicaklik": 25,
+  "sicaklik": 26,
   "cig_noktasi": 17,
   "qnh": 1015,
   "nosig": true,
@@ -33,8 +33,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": -6.8,
-    "yan": 1.7,
+    "bas": -6.0,
+    "yan": 0.4,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -46,34 +46,21 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": -8.0,
-    "yan": 0.6,
+    "bas": -8.2,
+    "yan": 3.7,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": false
    },
    {
-    "pist": "24L",
-    "yon_gercek": 244.12,
-    "bas": 9.0,
-    "yan": 0.9,
-    "yan_taraf": "sağdan",
-    "bas_hamle": null,
-    "yan_hamle": null,
-    "degisken": true,
-    "kaynak": "AD 2.15 anemometreleri",
-    "kuyruk": false,
-    "kuyruk_asildi": false
-   },
-   {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": 7.8,
-    "yan": 2.0,
+    "bas": 4.8,
+    "yan": 1.2,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -85,13 +72,13 @@
   ],
   "kuyruk_limiti": 10,
   "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi",
-  "tercih_pist": "24L",
+  "tercih_pist": "24R",
   "rvr": [],
   "prs": [],
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 230° 7kt (değişken 170°–270°) · görüş 10+ km · 25°C · QNH 1015"
+  "ozet": "Rüzgâr 240° 6kt (değişken 210°–270°) · görüş 10+ km · 26°C · QNH 1015"
  },
  "taf": {
   "zaman": "2026-09-21T10:40:00+00:00",
@@ -1981,6 +1968,14 @@
    "tavan": null,
    "qnh": 1015,
    "sicaklik": 25,
+   "cig_noktasi": 17
+  },
+  {
+   "zaman": "2026-09-21T11:50:00+00:00",
+   "ruzgar_hiz": 6,
+   "tavan": null,
+   "qnh": 1015,
+   "sicaklik": 26,
    "cig_noktasi": 17
   }
  ]
