@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:51976705",
   "id:51983713",
   "id:51989172",
   "id:51999908",
@@ -199,14 +198,15 @@
   "id:53114342",
   "id:53117016",
   "id:53118939",
-  "id:53125766"
+  "id:53125766",
+  "id:53131061"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 210520Z 08003KT 9999 FEW023 19/17 Q1018 NOSIG RMK RWY24R VRB02KT RWY06R VRB02KT RWY24L VRB02KT",
+ "son_metar": "METAR LTFJ 210550Z 00000KT 9999 FEW030 21/17 Q1017 NOSIG RMK RWY24R VRB03KT RWY06R 15002KT RWY24L VRB02KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-21T05:20:00+00:00",
+ "son_veri_zamani": "2026-09-21T05:50:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -1996,13 +1996,21 @@
    "qnh": 1018,
    "sicaklik": 19,
    "cig_noktasi": 17
+  },
+  {
+   "zaman": "2026-09-21T05:50:00+00:00",
+   "ruzgar_hiz": 0,
+   "tavan": null,
+   "qnh": 1017,
+   "sicaklik": 21,
+   "cig_noktasi": 17
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 210450Z 05004KT 9999 FEW023 18/17 Q1018 NOSIG RMK RWY24R 01004KT 330V050 RWY06R 02006KT RWY24L 36003KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 4 knot (çok hafif) rüzgâr esiyor, yan bileşen ihmal edilebilir düzeyde.\n\n**Görüş:** 10 kilometre ve daha fazla görüş var, uçuşa uygun.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 700 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler içinde uçuşu kısıtlayan unsur bulunmuyor; hava koşulları normal.",
   "TAF LTFJ 202240Z 2100/2124 04007KT CAVOK PROB30 TEMPO 2103/2106 1600 PRFG SCT005 BECMG 2106/2108 SCT035 PROB30 TEMPO 2108/2112 -SHRA BKN025 BECMG 2112/2115 CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde dönem içinde çoğunlukla görüş açık, rüzgar hafif kuzey-kuzeydoğu yönünden 7 knot.\n\n- **2103/2106 UTC:** İhtimal %30 ile geçici olarak görüş 1600 metre, hafif sis, 500 feet'te dağınık bulut.\n- **2106/2108 UTC:** Kademeli geçiş ile 3500 feet'te dağınık bulut.\n- **2108/2112 UTC:** İhtimal %30 ile geçici olarak hafif sağanak yağış, 2500 feet'te kırık bulut.\n- **2112/2115 UTC:** Kademeli geçiş ile görüş açık.",
   "TAF LTFJ 210440Z 2106/2206 VRB02KT 9999 SCT030 BECMG 2111/2114 CAVOK BECMG 2203/2206 SCT020 BKN070": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken rüzgâr ve kısmi bulutluluk beklenmektedir.\n\n- **2106/2111 UTC:** Değişken 2 knot rüzgâr, 9999 metre görüş, 3000 feet'te parçalı bulut.\n- **2111/2114 UTC:** Kademeli geçişle CAVOK (tam görüş ve açık gökyüzü).\n- **2203/2206 UTC:** Kademeli geçişle 2000 feet'te parçalı bulut, 7000 feet'te kapalı bulut.",
-  "METAR LTFJ 210520Z 08003KT 9999 FEW023 19/17 Q1018 NOSIG RMK RWY24R VRB02KT RWY06R VRB02KT RWY24L VRB02KT": "**Rüzgâr:** Doğu-kuzeydoğu yönünden çok hafif 3 knot rüzgâr esiyor, yan bileşen ihmal edilebilir düzeyde.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mevcut, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 700 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermemektedir, hava koşulları operasyonlar için uygun görünmektedir."
+  "METAR LTFJ 210520Z 08003KT 9999 FEW023 19/17 Q1018 NOSIG RMK RWY24R VRB02KT RWY06R VRB02KT RWY24L VRB02KT": "**Rüzgâr:** Doğu-kuzeydoğu yönünden çok hafif 3 knot rüzgâr esiyor, yan bileşen ihmal edilebilir düzeyde.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mevcut, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 700 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermemektedir, hava koşulları operasyonlar için uygun görünmektedir.",
+  "METAR LTFJ 210550Z 00000KT 9999 FEW030 21/17 Q1017 NOSIG RMK RWY24R VRB03KT RWY06R 15002KT RWY24L VRB02KT": "**Rüzgâr:** Rüzgâr yok denecek kadar az, sakin hava koşulları var.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mevcut, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 900 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve hava olayları açısından kısıtlayıcı bir unsur yoktur."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -2418,5 +2426,5 @@
   }
  },
  "notam_son_senkron": "2026-09-21T01:20:53+00:00",
- "guncelleme": "2026-09-21T05:50:52+00:00"
+ "guncelleme": "2026-09-21T06:01:29+00:00"
 }
