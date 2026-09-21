@@ -78,9 +78,49 @@ ayrılıp retry ediliyor. Komşu istasyon adımı workflow'da Open-Meteo'dan ön
 verisi bu ilk denemede **repoya yazılamadı** — düzeltmeyle birlikte
 workflow'un yeniden tetiklenmesi gerekiyor.
 
-Veri çekildikten sonraki adım: LTFJ ana arşiviyle zaman damgasına göre en
-yakın gözlem eşleştirmesiyle birleştirme (join) ve yeni aday özniteliklerin
-a priori WoE/IV taramasına sokulması — bu henüz yapılmadı.
+**İkinci gerçek çalıştırma (2026-09-21):** hız limiti düzeltmesi çalıştı, ama
+içinde bulunulan (henüz bitmemiş) 2026 yılını içeren son dilim "end_date
+gelecekte" hatası verdi — düzeltildi (`min(yıl sonu, bugün)`), üçüncü
+çalıştırma başarıyla tamamlandı: Open-Meteo 207.960 saatlik gözlem
+(2003-01-01 → 2026-09-21), komşu istasyon 138.059 gözlem (2018-11 → 2026-09).
+
+### Birleştirme (join) + tarama sonucu (`veri_birlestir.py`, `tavan_dis_kaynak_tarama.py`)
+
+LTFJ ana arşivi, komşu istasyon ve Open-Meteo'yla zaman damgasına göre en
+yakın gözlem eşleştirmesiyle (tolerans: komşu 45dk, Open-Meteo 35dk;
+tolerans dışında `None` — sessizce yanlış eşleşme yapılmaz) birleştirildi ve
+türetilmiş adaylar (`veri_birlestir.turet()`) tavan<500ft (3 saat ufuk, onset)
+hedefine karşı a priori WoE/IV taramasından geçirildi:
+
+| değişken | IV | monoton | yorum |
+|---|---|---|---|
+| `acik_meteo_nem_2m` (Open-Meteo bağıl nem) | 2.235 | evet | çok güçlü |
+| `komsu_tavan_ozellik` (LTFM tavan) | 1.761 | hayır | çok güçlü |
+| `komsu_gorus` (LTFM görüş) | 0.900 | hayır | çok güçlü |
+| `acik_meteo_bulut_alcak` (alçak bulut örtüsü) | 0.151 | evet | orta |
+| `acik_meteo_ruzgar_10m` | 0.096 | hayır | zayıf |
+| `komsu_sis_var`, `komsu_lvo_var` | 0.000 | — | işe yaramaz (LTFJ'de ZATEN doğrudan görüş/tavan var, LTFM'nin ikili sis/lvo etiketi buna ek bilgi katmıyor) |
+| `inversiyon_925`, `inversiyon_850` | — | — | **kova kurulamadı** — bkz. aşağıdaki bulgu |
+
+**ÖNEMLİ BULGU — basınç seviyesi verisi boş geldi:** Open-Meteo'nun tarihsel
+arşiv API'si `925hPa`/`850hPa` parametrelerini isim olarak kabul etti (hata
+vermedi, tüm yıllar indi) ama **tüm 208 bin satırda boş** döndürdü. Yüzey
+alanları (nem, bulut, rüzgâr) gerçek değer taşıyor — sorun sadece basınç
+seviyesi. Demek ki bu uç nokta basınç seviyesi çıkışını hiç desteklemiyor.
+**Sonuç: alçak seviye inversiyon gücü fikri bu kaynakla çalışmıyor** —
+gerçekleştirilemedi, başka bir veri kaynağı (örn. Forecast API veya gerçek
+radiosonde arşivi) gerekiyor.
+
+**Disiplin notu — bu bir keşiftir, doğrulanmış bir model iyileştirmesi
+DEĞİLDİR.** `acik_meteo_nem_2m` ve `komsu_tavan_ozellik`'in yüksek IV'si
+gerçek bir sinyale işaret ediyor (nem çok yüksekken tavan düşme olasılığı
+belirgin artıyor — fiziksel olarak beklenen yön), ama: (1) nadir olayda IV
+yapısal olarak şişer (woe.py'nin kendi uyarısı), (2) henüz walk-forward
+model eğitimine sokulmadı, (3) holdout'ta AYRICA doğrulanmadı, (4) komşu
+istasyon verisi rejim penceresinin (2017+) sadece son ~8 yılını kapsıyor.
+Canlıya alma kararı verilmeden önce en az `acik_meteo_nem_2m` ve
+`komsu_tavan_ozellik`'in gerçek modele eklenip holdout'ta blok bootstrap ile
+sınanması gerekiyor — bu adım henüz yapılmadı.
 
 ## Yöntem (planlanan)
 
@@ -746,6 +786,9 @@ python -m sis_modeli.veri_kalitesi --ab         # HOLDOUT AÇAR
 python -m sis_modeli.tavan_tarama
 python -m sis_modeli.tavan_tablo                # holdout açılmaz
 python -m sis_modeli.tavan_tablo --holdout      # TEK ATIŞ
+
+# Düşük tavan: dış kaynak (komşu istasyon + Open-Meteo) aday taraması
+python -m sis_modeli.tavan_dis_kaynak_tarama
 
 # Model B: görüşsüz atmosferik sis oluşum potansiyeli
 python -m sis_modeli.olusum_egit                     # tarama + walk-forward
