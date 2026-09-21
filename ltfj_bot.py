@@ -536,16 +536,29 @@ def _push_gonder_guvenli(baslik: str, govde: str, etiket: str) -> None:
     fonksiyondan gecer (bkz. push_bildirimi_gonder, notam_push_gonder)."""
     import ltfj_push
 
-    if not ayar("push", "aktif", varsayilan=True) or not ltfj_push.yapilandirilmis_mi():
+    if not ayar("push", "aktif", varsayilan=True):
+        print(f"  push [{etiket}]: atlandı - ayarlar.json::push.aktif kapalı.")
+        return
+    if not ltfj_push.yapilandirilmis_mi():
+        print(f"  push [{etiket}]: atlandı - FIREBASE_SERVICE_ACCOUNT/"
+              "FIREBASE_DATABASE_URL/VAPID_PRIVATE_KEY eksik.")
         return
     try:
         sonuc = ltfj_push.gonder(
             baslik, govde,
             ayar("push", "vapid_subject", varsayilan="mailto:ornek@ornek.com"),
             etiket=etiket)
-        if sonuc["gonderildi"] or sonuc["silindi"]:
-            print(f'  push [{etiket}]: {sonuc["gonderildi"]} gönderildi, '
-                 f'{sonuc["silindi"]} geçersiz abonelik silindi.')
+        # HER SONUC yazilir - "0 abone" ve "hepsi hata verdi" durumlari da.
+        # Eskiden sadece gonderildi/silindi sifirdan buyukse yazilirdi; bu
+        # yuzden "hic abone yok" ile "push hic denenmedi" loglarda AYIRT
+        # EDILEMIYORDU (21.09.2026 TAF'inda tam olarak bu oldu).
+        if not sonuc["abone"]:
+            print(f"  push [{etiket}]: kayıtlı abone YOK - kimseye gönderilmedi.")
+        else:
+            print(f'  push [{etiket}]: {sonuc["abone"]} abone, '
+                 f'{sonuc["gonderildi"]} gönderildi, '
+                 f'{sonuc["silindi"]} geçersiz abonelik silindi, '
+                 f'{sonuc["hata"]} hata.')
     except Exception as e:
         print(f"[uyarı] Push bildirimi gönderilemedi ({etiket}): {e}", file=sys.stderr)
 

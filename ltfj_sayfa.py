@@ -1262,9 +1262,14 @@ SABLON = """<!DOCTYPE html>
     }}
   }}
 
+  // Tarayicidaki abonelik TEK BASINA yetmez - sunucu (ltfj_push.py) SADECE
+  // Firebase'deki kayitlara gonderir. fetch() HTTP 401/403'te REDDETMEZ, bu
+  // yuzden yanit.ok ACIKCA kontrol edilir: aksi halde kurallar yazmayi
+  // engellese bile buton "Bildirimler acik" der, kullanici abone oldugunu
+  // sanir ama sunucuda hicbir kayit olmaz (21.09.2026 TAF'inda bu oldu).
   function abonelikKaydet(sub) {{
     var veri = sub.toJSON();
-    if (!DB_URL) return Promise.resolve();
+    if (!DB_URL) return Promise.reject(new Error("DB_URL tanımlı değil"));
     return fetch(tabanUrl() + "/" + idUret(veri.endpoint) + ".json", {{
       method: "PUT",
       headers: {{"Content-Type": "application/json"}},
@@ -1272,6 +1277,12 @@ SABLON = """<!DOCTYPE html>
         endpoint: veri.endpoint, keys: veri.keys,
         created_at: {{".sv": "timestamp"}},
       }}),
+    }}).then(function (yanit) {{
+      if (!yanit.ok) {{
+        throw new Error("abonelik sunucuya kaydedilemedi: HTTP " + yanit.status +
+                        " (Firebase kuralları push_abonelikler yazmaya izin veriyor mu?)");
+      }}
+      return yanit;
     }});
   }}
 

@@ -89,11 +89,15 @@ def govde_kur(baslik: str, govde: str, etiket: str | None = None, url: str = "./
 
 def gonder(baslik: str, govde: str, vapid_subject: str,
           etiket: str | None = None, url: str = "./") -> dict:
-    """Tum abonelere gonderir, {"gonderildi", "silindi", "hata"} sayaclarini
-    dondurur. TEK bir abonenin basarisiz olmasi digerlerini ENGELLEMEZ -
-    her biri kendi try/except'i icinde. Gecersiz/iptal edilmis bir abonelik
-    (404/410) Firebase'den fiilen SILINIR; diger hatalar (gecici ag sorunu
-    vb.) sessizce atlanir, bir sonraki gonderimde tekrar denenir."""
+    """Tum abonelere gonderir, {"abone", "gonderildi", "silindi", "hata"}
+    sayaclarini dondurur. TEK bir abonenin basarisiz olmasi digerlerini
+    ENGELLEMEZ - her biri kendi try/except'i icinde. Gecersiz/iptal edilmis
+    bir abonelik (404/410) Firebase'den fiilen SILINIR; diger hatalar (gecici
+    ag sorunu vb.) sessizce atlanir, bir sonraki gonderimde tekrar denenir.
+
+    "abone" KAYITLI abonelik sayisidir: 0 ise gonderilecek kimse yoktur -
+    "abone var ama hepsi hata verdi" durumundan ayirt edilebilsin diye ayri
+    tutulur (bkz. ltfj_bot._push_gonder_guvenli'nin log satiri)."""
     if not yapilandirilmis_mi():
         raise PushGonderimHatasi("Push yapılandırılmamış (VAPID/Firebase eksik).")
 
@@ -108,7 +112,7 @@ def gonder(baslik: str, govde: str, vapid_subject: str,
     vapid_private_key = os.environ["VAPID_PRIVATE_KEY"].strip()
     payload = govde_kur(baslik, govde, etiket, url)
 
-    sonuc = {"gonderildi": 0, "silindi": 0, "hata": 0}
+    sonuc = {"abone": len(abonelikler), "gonderildi": 0, "silindi": 0, "hata": 0}
     for abonelik_id, abonelik in abonelikler.items():
         if not isinstance(abonelik, dict) or "endpoint" not in abonelik or "keys" not in abonelik:
             continue

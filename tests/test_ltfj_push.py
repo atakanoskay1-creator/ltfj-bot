@@ -112,7 +112,7 @@ def test_gonder_tum_abonelere_basariyla_gonderir(monkeypatch, sahte_firebase, sa
 
     sonuc = push.gonder("Başlık", "Gövde", "mailto:x@x.com")
 
-    assert sonuc == {"gonderildi": 2, "silindi": 0, "hata": 0}
+    assert sonuc == {"abone": 2, "gonderildi": 2, "silindi": 0, "hata": 0}
     assert sahte_pywebpush.webpush.call_count == 2
 
 
@@ -123,7 +123,7 @@ def test_gonder_404_donen_abonelik_silinir(monkeypatch, sahte_firebase, sahte_py
 
     sonuc = push.gonder("Başlık", "Gövde", "mailto:x@x.com")
 
-    assert sonuc == {"gonderildi": 0, "silindi": 1, "hata": 0}
+    assert sonuc == {"abone": 1, "gonderildi": 0, "silindi": 1, "hata": 0}
     sahte_firebase.child.assert_called_once_with("a1")
     sahte_firebase.child.return_value.delete.assert_called_once()
 
@@ -147,7 +147,7 @@ def test_gonder_gecici_hata_silmez_sadece_sayar(monkeypatch, sahte_firebase, sah
 
     sonuc = push.gonder("Başlık", "Gövde", "mailto:x@x.com")
 
-    assert sonuc == {"gonderildi": 0, "silindi": 0, "hata": 1}
+    assert sonuc == {"abone": 1, "gonderildi": 0, "silindi": 0, "hata": 1}
     sahte_firebase.child.assert_not_called()
 
 
@@ -160,7 +160,7 @@ def test_gonder_bir_abone_basarisiz_digerlerini_engellemiyor(monkeypatch, sahte_
 
     sonuc = push.gonder("Başlık", "Gövde", "mailto:x@x.com")
 
-    assert sonuc == {"gonderildi": 1, "silindi": 0, "hata": 1}
+    assert sonuc == {"abone": 2, "gonderildi": 1, "silindi": 0, "hata": 1}
 
 
 def test_gonder_bozuk_kayit_atlanir_crash_etmez(monkeypatch, sahte_firebase, sahte_pywebpush):
@@ -173,14 +173,14 @@ def test_gonder_bozuk_kayit_atlanir_crash_etmez(monkeypatch, sahte_firebase, sah
 
     sonuc = push.gonder("Başlık", "Gövde", "mailto:x@x.com")
 
-    assert sonuc == {"gonderildi": 1, "silindi": 0, "hata": 0}
+    assert sonuc == {"abone": 3, "gonderildi": 1, "silindi": 0, "hata": 0}
 
 
 def test_gonder_bos_abonelik_listesinde_crash_etmez(monkeypatch, sahte_firebase, sahte_pywebpush):
     _ortam_ayarla(monkeypatch)
     sahte_firebase.get.return_value = None
 
-    assert push.gonder("Başlık", "Gövde", "mailto:x@x.com") == {"gonderildi": 0, "silindi": 0, "hata": 0}
+    assert push.gonder("Başlık", "Gövde", "mailto:x@x.com") == {"abone": 0, "gonderildi": 0, "silindi": 0, "hata": 0}
 
 
 def test_gonder_okuma_hatasinda_ozel_exception_firlatir(monkeypatch, sahte_firebase, sahte_pywebpush):
