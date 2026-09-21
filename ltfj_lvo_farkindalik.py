@@ -26,6 +26,9 @@ geçmiş arşivde bu koşullarda düşük tavanın ne sıklıkta görüldüğü 
 çıkar. O yüzden mutlak yüzde değil KAT söyler; gerekçesi
 ltfj_tavan_tablosu.py başındadır."""
 
+import ltfj_dis_kaynak_cache as dis_kaynak_onbellek
+import ltfj_sis_olasilik as sis_olasilik
+import ltfj_tavan_dis_kaynak as tavan_dis_kaynak
 import ltfj_tavan_tablosu as tavan_tablosu
 from ltfj_analiz import RE_BULUT, TAVAN_KATMANLARI, tokenla
 from ltfj_lvo_referans import RVR_ESIKLERI
@@ -39,6 +42,15 @@ CEILING_FARKINDALIK_ESIGI_FT = 200
 # yalnızca %6.4'ünde gerçekleşir - yani not seyrek çıkar, sürekli yanıp
 # duran bir uyarı olmaz. Eşik a priori; sonuçlara bakılarak ayarlanmadı.
 TAVAN_KAT_ESIGI = 3.0
+
+# tavan_dis_kaynak_notu() icin AYNI esik - iki notun tetiklenme sikligi
+# tutarli kalsin diye (sonuca bakilarak degil, tutarlilik icin secildi).
+TAVAN_DIS_KAYNAK_KAT_ESIGI = TAVAN_KAT_ESIGI
+
+# Tavan bildirilmemisse (CAVOK/NSC/SKC) "tavan yok" - sis_modeli/tavan.py
+# ile AYNI sozde-deger (TAVAN_YOK_FT), boylece dondurulmus WoE tablosunda
+# kendi bandina duser, None olarak "bilgi yok" ile KARISTIRILMAZ.
+_TAVAN_YOK_FT = 99999
 
 _HEDGE = "LVO şartları oluşabilir. Resmî bir tespit değildir."
 
@@ -138,4 +150,56 @@ def tavan_istatistik_notu(cozum: dict | None) -> str | None:
         f"{metin} Bu bir olasılık yüzdesi değil, GÖRELİ bir kıyaslamadır — mutlak "
         f"olasılık değildir, kesin bir yüzde olarak okunmamalıdır. LTFJ "
         f"{tavan_tablosu.KAYNAK_DONEM} arşivinden öğrenilmiştir. {_HEDGE}"
+    )
+
+
+def tavan_dis_kaynak_notu(cozum: dict | None, sis_olasilik_p: float | None,
+                          saat_utc: int | None) -> str | None:
+    """Çok değişkenli (dış kaynak destekli, geri düşmeli) tavan<500ft
+    modelinin (bkz. ltfj_tavan_dis_kaynak.py) GÖRELİ risk notu -
+    tavan_istatistik_notu ile AYNI "kat" dili, ama daha fazla değişkeni
+    (özellikle sis_olasılık + varsa canlı bölgesel nem/komşu istasyon
+    tavanı) BİRLİKTE ağırlıklandırarak üretilir - sis_modeli/
+    tavan_dis_kaynak_model.py'de HOLDOUT'TA doğrulandı.
+
+    sis_olasilik_p ve saat_utc ÇAĞIRAN TARAFTAN gelir (ltfj_sayfa.py zaten
+    sis kartı için hesaplıyor) - burada YENİDEN hesaplanmaz, aynı METAR
+    anından tutarlı bir değer kullanılır.
+
+    Dış kaynak (Open-Meteo/LTFM, bkz. ltfj_dis_kaynak_cache.py) BAYAT veya
+    HENÜZ mevcut değilse SESSİZCE TEMEL modele (yalnızca METAR + sis
+    olasılığı) düşer - hata vermez, not üretmeyi bırakmaz."""
+    if not cozum or sis_olasilik_p is None or saat_utc is None:
+        return None
+    sicaklik, cig = cozum.get("sicaklik"), cozum.get("cig_noktasi")
+    if sicaklik is None or cig is None:
+        return None
+    ruzgar_k = sis_olasilik.ruzgar_kuzey_bileseni(
+        cozum.get("ruzgar_yon"), cozum.get("ruzgar_hiz"))
+    tavan_deger = cozum.get("tavan")
+
+    dis = dis_kaynak_onbellek.oku()
+    p = tavan_dis_kaynak.olasilik(
+        spread=sicaklik - cig, gorus=cozum.get("gorus"),
+        tavan_ozellik=_TAVAN_YOK_FT if tavan_deger is None else tavan_deger,
+        saat=saat_utc, ruzgar_kuzey=ruzgar_k, sis_olasilik=sis_olasilik_p,
+        acik_meteo_nem_2m=dis.get("acik_meteo_nem_2m"),
+        komsu_tavan_ozellik=dis.get("komsu_tavan_ozellik"))
+    if p is None or tavan_dis_kaynak.TABAN_ORAN <= 0:
+        return None
+    kat = p / tavan_dis_kaynak.TABAN_ORAN
+    if kat < TAVAN_DIS_KAYNAK_KAT_ESIGI:
+        return None
+
+    genis_mi = (dis.get("acik_meteo_nem_2m") is not None
+               and dis.get("komsu_tavan_ozellik") is not None)
+    kaynak_notu = ("bölgesel nem ve komşu istasyon verisi dahil" if genis_mi
+                   else "şu an yalnızca METAR verisiyle - bölgesel veri kaynağı geçici olarak kullanılamıyor")
+    return (
+        f"Çok değişkenli istatistiksel modele göre ({kaynak_notu}), bulut "
+        f"tabanının önümüzdeki {tavan_dis_kaynak.HEDEF_UFUK_SAAT} saat içinde "
+        f"{tavan_dis_kaynak.HEDEF_TAVAN_FT} ft altına inmesi normalden "
+        f"yaklaşık {kat:.0f} kat daha olası görünüyor. Bu bir olasılık "
+        f"yüzdesi değil, GÖRELİ bir kıyaslamadır — kesin bir tahmin değildir. "
+        f"{_HEDGE}"
     )

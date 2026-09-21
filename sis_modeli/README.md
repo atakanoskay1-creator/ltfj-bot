@@ -384,19 +384,33 @@ kullanıcı deneyiminin üçüncü taraf servislerin çalışma süresine bağla
 Canlıya alma kararı **istatistiksel doğrulamadan ayrı, ek bir mimari karar**
 gerektirir.
 
-**Risk azaltımı: gevşek bağlı önbellekleyici tasarlandı (`ltfj_dis_kaynak_
-cache.py`, henüz BAĞLANMADI).** Yukarıdaki riski (özellikle bütçe çakışması
-ve tek nokta arızası) azaltmak için ayrı bir önbellekleme katmanı yazıldı:
-Open-Meteo (gerçek zamanlı Forecast API, arşiv API'si DEĞİL) ve komşu
-istasyon (LTFM, `ltfj_rasat.py` yeniden kullanılarak) kendi bağımsız
-zamanlamasında (`dis-kaynak-onbellek.yml`, ana botun 15 dk'lık döngüsüyle
-SENKRONİZE DEĞİL) çekilip `dis_kaynak_cache.json`'a yazılır. Ana bot
-(ileride bağlanırsa) bu dosyayı YEREL olarak okur, asla kendisi ağa çıkmaz.
-Bayatlık kontrolü (varsayılan 45 dk) ve kaynak başına kısmi hata toleransı
-var — bir kaynak çökerse diğerini kirletmez, ikisi de bayatsa okuma
-fonksiyonu None döner (TEMEL'e düşme sinyali). **Önbellek yazılıyor ama
-HİÇBİR YERDE OKUNMUYOR** — `ltfj_bot.py`/`ltfj_sayfa.py`'nin gerçek tahmin
-çıktısına bağlama, ayrı ve sonraki bir karar.
+**Risk azaltımı: gevşek bağlı önbellekleyici (`ltfj_dis_kaynak_cache.py`).**
+Yukarıdaki riski (özellikle bütçe çakışması ve tek nokta arızası) azaltmak
+için ayrı bir önbellekleme katmanı yazıldı: Open-Meteo (gerçek zamanlı
+Forecast API, arşiv API'si DEĞİL) ve komşu istasyon (LTFM, `ltfj_rasat.py`
+yeniden kullanılarak) kendi bağımsız zamanlamasında (`dis-kaynak-onbellek.yml`,
+ana botun 15 dk'lık döngüsüyle SENKRONİZE DEĞİL) çekilip
+`dis_kaynak_cache.json`'a yazılır. Ana bot bu dosyayı YEREL olarak okur,
+asla kendisi ağa çıkmaz. Bayatlık kontrolü (varsayılan 45 dk) ve kaynak
+başına kısmi hata toleransı var — bir kaynak çökerse diğerini kirletmez,
+ikisi de bayatsa okuma fonksiyonu None döner (TEMEL'e düşme sinyali).
+
+**CANLIYA BAĞLANDI (`ltfj_tavan_dis_kaynak.py`).** Model, `--holdout --dondur`
+ile egitim_tum (embargo'lu geliştirme, holdout sınırına kadar — 2024-2026'ya
+dondurma sırasında bile dokunulmadı, `ltfj_sis_olasilik.py` ile AYNI
+disiplin) üzerinde dondurulup GERİ DÜŞMELİ (TEMEL/GENİŞ) bir çalışma anı
+modülüne taşındı, `ltfj_lvo_farkindalik.tavan_dis_kaynak_notu()` ile LVO
+farkındalık paneline (dördüncü not olarak, mevcut üç notun YANINA, hiçbirini
+DEĞİŞTİRMEDEN) bağlandı. Dış kaynak taze/mevcutsa GENİŞ model, değilse
+sessizce TEMEL model kullanılır — hata vermez.
+
+**Dürüstlük notu — GENİŞ modelde bir supresör etkisi var:** `sis_olasilik`
+katsayısı GENİŞ modelde NEGATİF (-0.079, TEMEL modelde +0.093) — VIF
+taramasında görülen sis_olasilik/spread kolinerliğinin (14.29/11.00) beklenen
+bir sonucu, `tanilama.isaret_kontrolu`'nün "sağlıklı katsayı pozitiftir"
+kuralını ihlal ediyor. Agrege holdout performansı (AP/BSS) yine de gerçek ve
+doğrulanmış; ama GENİŞ model TEMEL kadar temiz yorumlanamıyor. Gizlenmedi,
+hem kod içi dokümantasyonda hem burada açıkça not edildi.
 
 ## Model B — görüşsüz atmosferik sis oluşum potansiyeli
 

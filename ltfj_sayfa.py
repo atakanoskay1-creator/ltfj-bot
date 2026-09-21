@@ -1711,6 +1711,26 @@ def _spread_egilimi(gecmis: list, simdi: datetime, saat: int = 3) -> float | Non
     return simdiki[1] - en_yakin
 
 
+def _sis_olasiligi_hesapla(guncel_cozum: dict | None, gecmis: list,
+                           simdi: datetime) -> float | None:
+    """sis_olasilik.olasilik()'i hesaplamak icin gerekli tum turetilmis
+    girdileri (ruzgar bileseni, spread, saat, egilim) toplar - hem sis
+    kartinda (_sis_olasiligi_html) hem LVO farkindalik panelindeki dis
+    kaynak notunda (farkindalik.tavan_dis_kaynak_notu, AYNI METAR anindan
+    TUTARLI bir deger kullansin diye) YENIDEN kullanilir."""
+    if not guncel_cozum:
+        return None
+    ruzgar_k = sis_olasilik.ruzgar_kuzey_bileseni(
+        guncel_cozum.get("ruzgar_yon"), guncel_cozum.get("ruzgar_hiz"))
+    sicaklik, cig = guncel_cozum.get("sicaklik"), guncel_cozum.get("cig_noktasi")
+    return sis_olasilik.olasilik(
+        spread=None if sicaklik is None or cig is None else sicaklik - cig,
+        gorus=guncel_cozum.get("gorus"),
+        saat=simdi.astimezone(timezone.utc).hour,
+        ruzgar_kuzey=ruzgar_k,
+        spread_egilim_3=_spread_egilimi(gecmis, simdi))
+
+
 def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
                         simdi: datetime) -> str:
     """Istatistiksel sis olasiligi karti.
@@ -1719,17 +1739,12 @@ def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
     Katsayilar dondurulmus modelden gelir (bkz. ltfj_sis_olasilik)."""
     if not guncel_cozum:
         return ""
+    p = _sis_olasiligi_hesapla(guncel_cozum, gecmis, simdi)
+    if p is None:
+        return ""
     ruzgar_k = sis_olasilik.ruzgar_kuzey_bileseni(
         guncel_cozum.get("ruzgar_yon"), guncel_cozum.get("ruzgar_hiz"))
     sicaklik, cig = guncel_cozum.get("sicaklik"), guncel_cozum.get("cig_noktasi")
-    p = sis_olasilik.olasilik(
-        spread=None if sicaklik is None or cig is None else sicaklik - cig,
-        gorus=guncel_cozum.get("gorus"),
-        saat=simdi.astimezone(timezone.utc).hour,
-        ruzgar_kuzey=ruzgar_k,
-        spread_egilim_3=_spread_egilimi(gecmis, simdi))
-    if p is None:
-        return ""
 
     yuzde = f"{100 * p:.0f}" if p >= 0.01 else f"{100 * p:.1f}"
     # Ciplak bir yuzde ("%3" gibi) tek basina "bu yuksek mi dusuk mu"
@@ -1812,7 +1827,8 @@ def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
     )
 
 
-def _lvo_farkindalik_html(guncel_cozum: dict | None, taf_tavan: int | None) -> str:
+def _lvo_farkindalik_html(guncel_cozum: dict | None, taf_tavan: int | None,
+                          gecmis: list, simdi: datetime) -> str:
     """LVO REFERENCE panelinin basindaki 'Farkindalik Notlari' alt bolumu -
     METAR (guncel_cozum) ve TAF'in (taf_tavan) KENDI gorus/tavan degerlerini
     ltfj_lvo_farkindalik ile GAYRI RESMI, hedge'li notlara cevirir. AWOS RVR
@@ -1822,10 +1838,18 @@ def _lvo_farkindalik_html(guncel_cozum: dict | None, taf_tavan: int | None) -> s
 
     Ucuncu not (tavan_istatistik_notu) esik karsilastirmasi DEGIL, arsivden
     ogrenilmis GORELI bir orandir - kat cinsinden, cunku tablonun seviyesi
-    donemler arasi kayiyor (bkz. ltfj_tavan_tablosu)."""
+    donemler arasi kayiyor (bkz. ltfj_tavan_tablosu). Dorduncu not
+    (tavan_dis_kaynak_notu) AYNI dilde ama cok degiskenli, dis kaynak
+    destekli (holdout'ta dogrulanmis) modelden gelir - gecmis/simdi, sis
+    olasiligini (sis kartiyla AYNI hesap - bkz. _sis_olasiligi_hesapla)
+    turetmek icin gerekli."""
+    sis_p = _sis_olasiligi_hesapla(guncel_cozum, gecmis, simdi)
+    saat_utc = simdi.astimezone(timezone.utc).hour
     notlar = [n for n in (farkindalik.metar_tavan_notu(guncel_cozum),
                           farkindalik.taf_tavan_notu(taf_tavan),
-                          farkindalik.tavan_istatistik_notu(guncel_cozum)) if n]
+                          farkindalik.tavan_istatistik_notu(guncel_cozum),
+                          farkindalik.tavan_dis_kaynak_notu(
+                              guncel_cozum, sis_p, saat_utc)) if n]
     sabit_html = "".join(f"<li>{html.escape(n)}</li>" for n in notlar)
     return (
         f'<ul class="lvo-not-listesi" id="lvo-fark-metar-taf">{sabit_html}</ul>'
@@ -2022,7 +2046,8 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
                       atc_notes_db_url=json.dumps(atc_notes_db_url or ""),
                       push_vapid_public_key=json.dumps(push_vapid_public_key or ""),
                       lvo_referans_html=_lvo_dokuman_referans_html(),
-                      lvo_farkindalik_html=_lvo_farkindalik_html(guncel_cozum, taf_tavan),
+                      lvo_farkindalik_html=_lvo_farkindalik_html(
+                          guncel_cozum, taf_tavan, gecmis, simdi),
                       sis_olasilik_html=_sis_olasiligi_html(guncel_cozum, gecmis, simdi),
                       rvr_esikleri_json=json.dumps(lvo.RVR_ESIKLERI, ensure_ascii=False),
                       vfr_html=_vfr_sekmesi_html(guncel_cozum)),
