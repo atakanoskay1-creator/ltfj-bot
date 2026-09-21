@@ -1,27 +1,27 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-21T09:50:51+00:00",
+ "uretildi": "2026-09-21T10:01:30+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-21T09:20:00+00:00",
-  "metin": "METAR LTFJ 210920Z 23008KT 190V250 9999 SCT035 23/17 Q1017 NOSIG RMK RWY24R 24009KT 210V280 RWY06R 23009KT RWY24L 22008KT",
+  "zaman": "2026-09-21T09:50:00+00:00",
+  "metin": "METAR LTFJ 210950Z 23008KT 190V260 9999 SCT035 25/18 Q1016 NOSIG RMK RWY24R 21009KT 150V230 RWY06R 22008KT RWY24L 22008KT 190V250",
   "ruzgar": {
    "yon": 230,
    "hiz": 8,
    "hamle": null,
    "degisken": [
     190,
-    250
+    260
    ]
   },
   "gorus": 9999,
   "cavok": false,
   "tavan": null,
   "hava": [],
-  "sicaklik": 23,
-  "cig_noktasi": 17,
-  "qnh": 1017,
+  "sicaklik": 25,
+  "cig_noktasi": 18,
+  "qnh": 1016,
   "nosig": true,
   "renk": [
    "BLU",
@@ -46,8 +46,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": -8.7,
-    "yan": 2.2,
+    "bas": -7.3,
+    "yan": 3.3,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -64,7 +64,7 @@
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": false,
+    "degisken": true,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -72,8 +72,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": 9.0,
-    "yan": 0.6,
+    "bas": 7.5,
+    "yan": 5.0,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -91,7 +91,7 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 230° 8kt (değişken 190°–250°) · görüş 10+ km · 23°C · QNH 1017"
+  "ozet": "Rüzgâr 230° 8kt (değişken 190°–260°) · görüş 10+ km · 25°C · QNH 1016"
  },
  "taf": {
   "zaman": "2026-09-21T04:40:00+00:00",
@@ -1950,6 +1950,14 @@
    "qnh": 1017,
    "sicaklik": 23,
    "cig_noktasi": 17
+  },
+  {
+   "zaman": "2026-09-21T09:50:00+00:00",
+   "ruzgar_hiz": 8,
+   "tavan": null,
+   "qnh": 1016,
+   "sicaklik": 25,
+   "cig_noktasi": 18
   }
  ]
 }
