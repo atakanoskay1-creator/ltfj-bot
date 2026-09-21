@@ -71,7 +71,9 @@ Web sayfasındaki **🔔 Bildirimlere izin ver** butonu, Telegram'dan bağımsı
 2. **`ayarlar.json::push.vapid_public_key`** — özel anahtarla *birlikte* üretilmiş açık anahtar. Gizli değildir, sayfaya gömülür; biri değişirse diğeri de değişmelidir. Boşsa buton hiç gösterilmez.
 3. **Firebase Rules'un güncel hali yayınlanmış olmalı.** `firebase-rules.json` içindeki `push_abonelikler` bloğu Rules sekmesinde **yoksa**, tarayıcı aboneliği oluşturur ama Firebase yazmayı reddeder — sunucu tarafında hiç abone olmaz ve *hiçbir bildirim gitmez*. Rules sekmesine dosyanın güncel içeriğini yapıştırıp **Publish** edin.
 
-Çalışıp çalışmadığını GitHub Actions logundan görebilirsiniz — bot her push denemesini yazar:
+**Hemen test etmek için:** Actions sekmesinden **Push testi (elle)** workflow'unu çalıştırın (`Run workflow`). Abone olan cihazlara gerçek bir test bildirimi düşürür ve abone/gönderildi/hata sayaçlarını yazar; başarısızsa adım kırmızı yanar. SPECI veya TAF beklemenize gerek kalmaz.
+
+Çalışıp çalışmadığını GitHub Actions logundan da görebilirsiniz — bot her push denemesini yazar:
 
 ```
   push [TAF]: 2 abone, 2 gönderildi, 0 geçersiz abonelik silindi, 0 hata.
