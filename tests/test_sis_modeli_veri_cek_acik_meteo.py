@@ -1,10 +1,13 @@
 """sis_modeli/veri_cek_acik_meteo.py testleri.
 
-En kritik test: API'nin beklenen degiskenlerden birini DONDURMEDIGI durum
-sessizce bos sutun URETMEMELI - acik bir AcikMeteoHatasi firlatmali. Bu
-betigin ag sozlesmesi bu ortamdan canli dogrulanamadigi icin (egress proxy
-open-meteo.com'u engelliyor), "yanlis param adi -> acik hata" davranisi
-GitHub Actions'ta ilk calistirmada sorunu hemen yuzeye cikarmak icin sart."""
+En kritik iki test:
+1) API'nin beklenen degiskenlerden birini DONDURMEDIGI durum sessizce bos
+   sutun URETMEMELI - acik bir AcikMeteoHatasi firlatmali.
+2) Open-Meteo'nun DAKIKALIK istek limiti govdesi ("...limit exceeded...")
+   KALICI bir hata gibi hemen basarisiz OLMAMALI - bu, ilk gercek calistirmada
+   (2026-09-21) gercekten yasanan bir arizaydi (bkz. modul dokumantasyonu);
+   retry edilmeli, diger (yanlis parametre gibi) kalici hatalardan AYRI ele
+   alinmali."""
 import csv
 import gzip
 from unittest.mock import MagicMock, patch
@@ -44,73 +47,103 @@ def _uyumasin(monkeypatch):
     monkeypatch.setattr(ak.time, "sleep", lambda s: None)
 
 
-# --------------------------------------------------------- _yil_indir
-def test_yil_indir_basarili_tum_degiskenleri_dondurur():
+# --------------------------------------------------------- _donem_indir
+def test_donem_indir_basarili_tum_degiskenleri_dondurur():
     oturum = MagicMock()
     oturum.get.return_value = _SahteYanit({"hourly": _saatlik_ornek()})
 
-    saatlik = ak._yil_indir(2003, oturum)
+    saatlik = ak._donem_indir(2003, 2003, oturum)
 
     assert saatlik["time"] == ["2003-01-01T00:00", "2003-01-01T01:00"]
     for v in ak.HOURLY_TUMU:
         assert v in saatlik
 
 
-def test_yil_indir_api_hata_govdesi_hemen_basarisiz_retry_edilmez():
-    """Open-Meteo hatali istekte HTTP 200/400 + {"error":true,...} dondurebilir
-    - bu, ayni istek tekrar aynen basarisiz olacagi icin RETRY EDILMEMELI."""
+def test_donem_indir_hiz_limiti_retry_edilir_sonunda_basarili_olur():
+    """Ilk gercek calistirmada (2026-09-21) tam olarak bu govde donmustu:
+    'Minutely API request limit exceeded...'. Bu KALICI degil, RETRY
+    edilmeli - yanlis parametre adi gibi hemen basarisiz OLMAMALI."""
+    hiz_limiti = _SahteYanit(
+        {"error": True,
+         "reason": "Minutely API request limit exceeded. Please try again "
+                   "in one minute."})
+    basarili = _SahteYanit({"hourly": _saatlik_ornek()})
+    oturum = MagicMock()
+    oturum.get.side_effect = [hiz_limiti, basarili]
+
+    saatlik = ak._donem_indir(2003, 2003, oturum)
+    assert saatlik["time"] == ["2003-01-01T00:00", "2003-01-01T01:00"]
+    assert oturum.get.call_count == 2
+
+
+def test_donem_indir_hiz_limiti_surekliyse_deneme_sayisi_kadar_retry_sonra_hata():
+    oturum = MagicMock()
+    oturum.get.return_value = _SahteYanit(
+        {"error": True, "reason": "Hourly API request limit exceeded."})
+
+    with pytest.raises(ak.AcikMeteoHatasi, match="limit exceeded"):
+        ak._donem_indir(2003, 2003, oturum)
+    assert oturum.get.call_count == ak.DENEME
+
+
+def test_donem_indir_api_hata_govdesi_hiz_limiti_disinda_hemen_basarisiz():
+    """Yanlis parametre adi gibi KALICI bir hata retry edilmemeli - ayni
+    istek tekrar aynen basarisiz olur, denemeleri bosa harcamanin anlami
+    yok (yanlis parametre hicbir zaman kendiliginden duzelmez)."""
     oturum = MagicMock()
     oturum.get.return_value = _SahteYanit(
         {"error": True, "reason": "Invalid parameter hourly"})
 
     with pytest.raises(ak.AcikMeteoHatasi, match="Invalid parameter"):
-        ak._yil_indir(2003, oturum)
+        ak._donem_indir(2003, 2003, oturum)
     assert oturum.get.call_count == 1
 
 
-def test_yil_indir_hourly_alani_yoksa_hata():
+def test_donem_indir_hourly_alani_yoksa_hata():
     oturum = MagicMock()
     oturum.get.return_value = _SahteYanit({"latitude": 40.9})
 
     with pytest.raises(ak.AcikMeteoHatasi, match="hourly"):
-        ak._yil_indir(2003, oturum)
+        ak._donem_indir(2003, 2003, oturum)
 
 
-def test_yil_indir_eksik_degisken_sessizce_atlanmiyor_acik_hata_veriyor():
+def test_donem_indir_eksik_degisken_sessizce_atlanmiyor_acik_hata_veriyor():
     saatlik = _saatlik_ornek()
     del saatlik["temperature_2m"]
     oturum = MagicMock()
     oturum.get.return_value = _SahteYanit({"hourly": saatlik})
 
     with pytest.raises(ak.AcikMeteoHatasi, match="temperature_2m"):
-        ak._yil_indir(2003, oturum)
+        ak._donem_indir(2003, 2003, oturum)
 
 
-def test_yil_indir_baglanti_hatasi_deneme_sayisi_kadar_retry_edilir():
+def test_donem_indir_baglanti_hatasi_deneme_sayisi_kadar_retry_edilir():
     oturum = MagicMock()
     oturum.get.side_effect = requests.ConnectionError("kopuk")
 
     with pytest.raises(ak.AcikMeteoHatasi):
-        ak._yil_indir(2003, oturum)
+        ak._donem_indir(2003, 2003, oturum)
     assert oturum.get.call_count == ak.DENEME
 
 
-def test_yil_indir_5xx_jsonsuz_govde_retry_edilip_sonunda_hata_verir():
+def test_donem_indir_5xx_jsonsuz_govde_retry_edilip_sonunda_hata_verir():
     oturum = MagicMock()
     oturum.get.return_value = _SahteYanit(status_code=503, json_error=True)
 
     with pytest.raises(ak.AcikMeteoHatasi):
-        ak._yil_indir(2003, oturum)
+        ak._donem_indir(2003, 2003, oturum)
     assert oturum.get.call_count == ak.DENEME
 
 
-def test_yil_indir_gecici_hatadan_sonra_basarili_olursa_sonuc_donulur():
-    basarili = _SahteYanit({"hourly": _saatlik_ornek()})
+def test_donem_indir_aralik_parametreleri_dogru_gonderilir():
     oturum = MagicMock()
-    oturum.get.side_effect = [requests.Timeout("zaman asimi"), basarili]
+    oturum.get.return_value = _SahteYanit({"hourly": _saatlik_ornek()})
 
-    saatlik = ak._yil_indir(2003, oturum)
-    assert saatlik["time"] == ["2003-01-01T00:00", "2003-01-01T01:00"]
+    ak._donem_indir(2010, 2015, oturum)
+
+    _, kwargs = oturum.get.call_args
+    assert kwargs["params"]["start_date"] == "2010-01-01"
+    assert kwargs["params"]["end_date"] == "2015-12-31"
 
 
 # --------------------------------------------------------- arsivi_uret
@@ -128,7 +161,7 @@ def test_arsivi_uret_coklu_yili_tek_csvye_yazar(tmp_path):
 
     with patch.object(ak.requests, "Session", return_value=oturum):
         cikti = tmp_path / "acik_meteo.csv.gz"
-        ozet = ak.arsivi_uret(2003, 2004, cikti)
+        ozet = ak.arsivi_uret(2003, 2004, cikti, yil_parca=1)
 
     assert ozet["gozlem"] == 5
     with gzip.open(cikti, "rt", newline="") as f:
@@ -139,12 +172,43 @@ def test_arsivi_uret_coklu_yili_tek_csvye_yazar(tmp_path):
     assert set(satirlar[0]) == {"zaman"} | set(ak.HOURLY_TUMU)
 
 
-def test_arsivi_uret_hata_yukseltilir_kismi_dosya_kalabilir(tmp_path):
+def test_arsivi_uret_yil_parca_istek_sayisini_azaltir(tmp_path):
+    """4 yillik araligi 2'lik dilimlerle cekmek TEK bir istekte 2 yili
+    birden almali - 4 ayri istek degil, 2 istek."""
     oturum = MagicMock()
-    oturum.get.return_value = _SahteYanit({"error": True, "reason": "kota"})
+    oturum.get.return_value = _SahteYanit({"hourly": _saatlik_ornek(2)})
     oturum.__enter__.return_value = oturum
     oturum.__exit__.return_value = False
 
     with patch.object(ak.requests, "Session", return_value=oturum):
-        with pytest.raises(ak.AcikMeteoHatasi, match="kota"):
-            ak.arsivi_uret(2003, 2003, tmp_path / "x.csv.gz")
+        ak.arsivi_uret(2003, 2006, tmp_path / "x.csv.gz", yil_parca=2)
+
+    assert oturum.get.call_count == 2
+    ilk_parametreler = oturum.get.call_args_list[0].kwargs["params"]
+    assert ilk_parametreler["start_date"] == "2003-01-01"
+    assert ilk_parametreler["end_date"] == "2004-12-31"
+
+
+def test_arsivi_uret_dilimler_arasi_bekler_ama_ilk_istekten_once_beklemez(tmp_path):
+    oturum = MagicMock()
+    oturum.get.return_value = _SahteYanit({"hourly": _saatlik_ornek(2)})
+    oturum.__enter__.return_value = oturum
+    oturum.__exit__.return_value = False
+
+    with patch.object(ak, "time") as sahte_time, \
+            patch.object(ak.requests, "Session", return_value=oturum):
+        ak.arsivi_uret(2003, 2006, tmp_path / "x.csv.gz", yil_parca=2)
+
+    sahte_time.sleep.assert_called_once_with(ak.ISTEKLER_ARASI_BEKLEME)
+
+
+def test_arsivi_uret_hata_yukseltilir(tmp_path):
+    oturum = MagicMock()
+    oturum.get.return_value = _SahteYanit(
+        {"error": True, "reason": "Invalid parameter hourly"})
+    oturum.__enter__.return_value = oturum
+    oturum.__exit__.return_value = False
+
+    with patch.object(ak.requests, "Session", return_value=oturum):
+        with pytest.raises(ak.AcikMeteoHatasi, match="Invalid parameter"):
+            ak.arsivi_uret(2003, 2003, tmp_path / "x.csv.gz", yil_parca=1)

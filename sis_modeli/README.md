@@ -63,10 +63,21 @@ geçerlidir. **Anlamlı bir katkı holdout'ta kanıtlanmadan canlıya alınmaz.*
 
 **Durum:** her iki çekici de yazıldı, testleri (mocked HTTP) geçiyor, ayrı bir
 GitHub Actions workflow'una (`sis-veri-ek.yml`, elle tetiklenir) bağlandı.
-Open-Meteo'nun API sözleşmesi (değişken adları) bu ortamdan **canlı
-doğrulanamadı** — ağın egress proxy'si `open-meteo.com`'u engelliyor. İlk
-gerçek çalıştırma GitHub Actions'ta yapılmalı; bir değişken adı yanlışsa
-betik açık bir `AcikMeteoHatasi` fırlatır, sessizce boş sütun üretmez.
+
+**İlk gerçek çalıştırma (2026-09-21):** Komşu istasyon (LTFM) başarıyla
+çekildi — LTFM 2018'de açıldığı için 2003-2017 için 0 gözlem beklenen bir
+sonuç, 2018-2026 arası ~138 bin gözlem var. Open-Meteo adımı **hata verdi**:
+"Minutely API request limit exceeded" — anahtarsız erişimde Open-Meteo'nun
+dakikalık istek limitine, art arda beklemesiz atılan yıl-başı isteklerle
+çarpıldı. Önemli olan: **değişken adları doğruydu** (12 yıl sorunsuz
+çekilmişti, hata parametre değil hız limitiydi). Düzeltme yapıldı: istekler
+artık tek tek değil `YIL_PARCA` (varsayılan 6) yıllık gruplar halinde ve
+aralarında bekleyerek atılıyor; hız limiti govdesi diğer kalıcı hatalardan
+ayrılıp retry ediliyor. Komşu istasyon adımı workflow'da Open-Meteo'dan önce
+çalıştığı ve iş genel olarak hata verince commit adımı atlandığı için LTFM
+verisi bu ilk denemede **repoya yazılamadı** — düzeltmeyle birlikte
+workflow'un yeniden tetiklenmesi gerekiyor.
+
 Veri çekildikten sonraki adım: LTFJ ana arşiviyle zaman damgasına göre en
 yakın gözlem eşleştirmesiyle birleştirme (join) ve yeni aday özniteliklerin
 a priori WoE/IV taramasına sokulması — bu henüz yapılmadı.
