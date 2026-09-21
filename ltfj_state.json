@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:51900656",
   "id:51907449",
   "id:51912435",
   "id:51922956",
@@ -199,14 +198,15 @@
   "id:53038078",
   "id:53040616",
   "id:53042612",
-  "id:53049300"
+  "id:53049300",
+  "id:53054415"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 202320Z 03005KT CAVOK 18/17 Q1019 NOSIG RMK RWY24R 34003KT 290V030 RWY06R 02006KT RWY24L 04005KT",
+ "son_metar": "METAR LTFJ 202350Z 03006KT CAVOK 19/17 Q1019 NOSIG RMK RWY24R 36004KT RWY06R 07004KT 020V090 RWY24L 07003KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-20T23:20:00+00:00",
+ "son_veri_zamani": "2026-09-20T23:50:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -1900,13 +1900,21 @@
    "qnh": 1019,
    "sicaklik": 18,
    "cig_noktasi": 17
+  },
+  {
+   "zaman": "2026-09-20T23:50:00+00:00",
+   "ruzgar_hiz": 6,
+   "tavan": null,
+   "qnh": 1019,
+   "sicaklik": 19,
+   "cig_noktasi": 17
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 202250Z 08005KT CAVOK 19/17 Q1019 NOSIG RMK RWY24R VRB02KT RWY06R 05007KT RWY24L 04006KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/s) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzeri, uçuş için rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil; hava koşulları operasyonel açıdan uygun.",
   "TAF LTFJ 201640Z 2018/2118 04013KT 9999 FEW035 SCT200 BECMG 2018/2022 04003KT CAVOK BECMG 2100/2103 SCT035 TEMPO 2106/2110 BKN030 BECMG 2110/2112 04013KT BECMG 2115/2118 05003KT CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken bulutluluk ve rüzgâr değişimleri beklenmektedir.\n\n- **2018/2022 UTC:** Kuzey-kuzeybatı 13 düğüm rüzgâr, 9999 metre görüş, az bulutlu (1000 ft), saçak bulutlar (20000 ft) → kademeli geçişle rüzgâr 3 düğüne düşecek, görüş sınırsız, bulut yok.\n\n- **2106/2110 UTC:** Geçici olarak orta bulutlu (3000 ft).\n\n- **2110/2118 UTC:** Kademeli geçişle rüzgâr 13 düğüne çıkacak, sonra 3 düğüne düşecek, görüş sınırsız, bulut yok.",
   "TAF LTFJ 202240Z 2100/2124 04007KT CAVOK PROB30 TEMPO 2103/2106 1600 PRFG SCT005 BECMG 2106/2108 SCT035 PROB30 TEMPO 2108/2112 -SHRA BKN025 BECMG 2112/2115 CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde dönem içinde çoğunlukla görüş açık, rüzgar hafif kuzey-kuzeydoğu yönünden 7 knot.\n\n- **2103/2106 UTC:** %30 ihtimalle geçici olarak görüş 1600 metre, hafif sis, 500 feet'te dağınık bulut.\n- **2106/2108 UTC:** Kademeli geçişle 3500 feet'te dağınık bulut.\n- **2108/2112 UTC:** %30 ihtimalle geçici olarak hafif sağanak yağış, 2500 feet'te kapalı bulut.\n- **2112/2115 UTC:** Kademeli geçişle görüş açık.",
-  "METAR LTFJ 202320Z 03005KT CAVOK 18/17 Q1019 NOSIG RMK RWY24R 34003KT 290V030 RWY06R 02006KT RWY24L 04005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/s) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş mükemmel, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, gökyüzü açık ve yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş açısından kısıtlayıcı unsur bulunmuyor, hava şartları uçuş için elverişli."
+  "METAR LTFJ 202320Z 03005KT CAVOK 18/17 Q1019 NOSIG RMK RWY24R 34003KT 290V030 RWY06R 02006KT RWY24L 04005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/s) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş mükemmel, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, gökyüzü açık ve yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş açısından kısıtlayıcı unsur bulunmuyor, hava şartları uçuş için elverişli.",
+  "METAR LTFJ 202350Z 03006KT CAVOK 19/17 Q1019 NOSIG RMK RWY24R 36004KT RWY06R 07004KT 020V090 RWY24L 07003KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 6 knot hızında hafif rüzgâr esiyor, yan bileşen minimal düzeydedir.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzeri mesafede her şey açıkça görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, gökyüzü açık ve yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş açısından kısıtlayıcı unsur yoktur, hava koşulları uçuş için elverişlidir."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -2322,5 +2330,5 @@
   }
  },
  "notam_son_senkron": "2026-09-20T19:20:52+00:00",
- "guncelleme": "2026-09-20T23:51:10+00:00"
+ "guncelleme": "2026-09-21T00:01:24+00:00"
 }
