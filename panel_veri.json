@@ -1,22 +1,19 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-21T02:20:48+00:00",
+ "uretildi": "2026-09-21T02:31:18+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-21T01:50:00+00:00",
-  "metin": "METAR LTFJ 210150Z 06003KT 020V080 CAVOK 18/17 Q1018 NOSIG RMK RWY24R 35007KT RWY06R 02004KT 340V040 RWY24L VRB01KT",
+  "zaman": "2026-09-21T02:20:00+00:00",
+  "metin": "METAR LTFJ 210220Z 08003KT 9999 FEW016 18/17 Q1018 NOSIG RMK RWY24R VRB02KT RWY06R 05004KT RWY24L 04003KT",
   "ruzgar": {
-   "yon": 60,
+   "yon": 80,
    "hiz": 3,
    "hamle": null,
-   "degisken": [
-    20,
-    80
-   ]
+   "degisken": null
   },
-  "gorus": 10000,
-  "cavok": true,
+  "gorus": 9999,
+  "cavok": false,
   "tavan": null,
   "hava": [],
   "sicaklik": 18,
@@ -33,12 +30,12 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 3.0,
-    "yan": 0.2,
-    "yan_taraf": "soldan",
+    "bas": 2.9,
+    "yan": 0.8,
+    "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "alan rüzgârından",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -46,21 +43,21 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 2.9,
-    "yan": 2.8,
+    "bas": 3.9,
+    "yan": 1.0,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": false,
     "kuyruk_asildi": false
    },
    {
-    "pist": "24R",
+    "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -1.9,
-    "yan": 6.7,
+    "bas": -2.7,
+    "yan": 1.2,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -72,13 +69,13 @@
   ],
   "kuyruk_limiti": 10,
   "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi",
-  "tercih_pist": "06L",
+  "tercih_pist": "06R",
   "rvr": [],
   "prs": [],
   "gorus_op": [],
   "trend": null,
   "sis_riski": "Sis oluşum göstergesi: yüksek (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 1°C, rüzgâr 3 kt, gece şartları",
-  "ozet": "Rüzgâr 060° 3kt (değişken 020°–080°) · görüş CAVOK · 18°C · QNH 1018"
+  "ozet": "Rüzgâr 080° 3kt · görüş 10+ km · 18°C · QNH 1018"
  },
  "taf": {
   "zaman": "2026-09-20T22:40:00+00:00",
@@ -1812,6 +1809,14 @@
   },
   {
    "zaman": "2026-09-21T01:50:00+00:00",
+   "ruzgar_hiz": 3,
+   "tavan": null,
+   "qnh": 1018,
+   "sicaklik": 18,
+   "cig_noktasi": 17
+  },
+  {
+   "zaman": "2026-09-21T02:20:00+00:00",
    "ruzgar_hiz": 3,
    "tavan": null,
    "qnh": 1018,
