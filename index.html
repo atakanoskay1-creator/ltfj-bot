@@ -169,6 +169,13 @@
     background:var(--kod-bg); border:1px solid var(--cizgi); color:var(--soluk);
   }
   .notam-durum { font-size:.75rem; color:var(--soluk); margin-left:auto; }
+  /* Suresi dolmus / henuz baslamamis NOTAM'in durum etiketi - soluk griden
+     ayrilsin ki arama sonuclarinda yururlukte olanla karistirilmasin. */
+  .notam-durum-gecmis { color:#b45309; font-weight:600; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .notam-durum-gecmis { color:#fbbf24; }
+  }
+  :root[data-theme="dark"] .notam-durum-gecmis { color:#fbbf24; }
   .notam-aktif-nokta {
     display:inline-block; width:8px; height:8px; border-radius:999px;
     background:#22c55e; box-shadow:0 0 0 2px rgba(34,197,94,.25); flex-shrink:0;
@@ -193,7 +200,10 @@
   .notam-bos { color:var(--soluk); font-size:.88rem; padding:8px 0; }
   .notam-arama { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
   .notam-arama input, .notam-arama select {
-    flex:1 1 140px; padding:8px 10px; border-radius:8px; border:1px solid var(--cizgi);
+    /* min-width:0 olmadan flex ogesi kendi icerik genisliginin altina
+       inemez - dar telefonlarda select'in etiketi kirpiliyordu. */
+    flex:1 1 140px; min-width:0; padding:8px 10px; border-radius:8px;
+    border:1px solid var(--cizgi);
     background:var(--bg); color:var(--metin); font-size:.85rem;
   }
   .notam-arama button {
@@ -375,7 +385,7 @@
 <header>
   <div class="header-metin">
     <h1>LTFJ · İstanbul Sabiha Gökçen</h1>
-    <div class="alt">Kaynak: MGM/METAR · Son güncelleme 21.09.2026 21:01 yerel</div>
+    <div class="alt">Kaynak: MGM/METAR · Son güncelleme 21.09.2026 21:10 yerel</div>
   </div>
   <div class="header-butonlar">
     <button type="button" class="yenile" id="bildirim-izin-btn" hidden>🔔 Bildirimler</button>
@@ -453,7 +463,15 @@
     <span class="zaman" id="notam-senkron-zamani"></span>
     <span class="notam-ok" id="notam-aktif-ok">▶</span>
   </div>
-  <div id="notam-aktif-liste" hidden><div class="notam-bos">Yükleniyor…</div></div>
+  <div id="notam-aktif-govde" hidden>
+    <div class="notam-arama" id="notam-aktif-filtre">
+      <input type="text" id="notam-aktif-q" placeholder="Numara, pist, anahtar kelime…">
+      <select id="notam-aktif-kategori"><option value="">Tüm kategoriler</option></select>
+      <select id="notam-aktif-eleman"><option value="">Tüm elemanlar</option></select>
+      <button type="button" id="notam-aktif-temizle">Temizle</button>
+    </div>
+    <div id="notam-aktif-liste"><div class="notam-bos">Yükleniyor…</div></div>
+  </div>
 </div>
 
 <div class="kart">
@@ -468,6 +486,9 @@
     <input type="date" id="notam-tarih-bitis">
     <select id="notam-durum">
       <option value="">Tüm durumlar</option>
+      <option value="yururlukte">Yürürlükte</option>
+      <option value="doldu">Süresi dolmuş</option>
+      <option value="baslamadi">Henüz başlamamış</option>
     </select>
     <button type="button" id="notam-ara-btn">Ara</button>
   </div>
@@ -529,6 +550,42 @@
 </footer>
 </div>
 <script>
+// NOTAM'in SU ANKI gecerliligi - HEM "Aktif NOTAM'lar"/arama bolumu HEM DE
+// LVO panelindeki NOTAM listesi bunu kullanir. TEK yerde durmasinin sebebi
+// somut: ayni "aktif mi?" karari iki ayri script'te kopyalanmisti ve
+// kopyalarin ikisi de ayni hatayi tasiyordu.
+//
+// Kritik: kayitlardaki `status` alani NOTAC'tan en son GORULDUGU andaki
+// degerdir ve DONUKTUR - suresi dolmus bir NOTAM yerel gecmiste sonsuza
+// dek "active" yazar. Bu yuzden suresi bitmis NOTAM'lar aktif gorunuyordu.
+// Tarih penceresini her cizimde YENIDEN hesapliyoruz; sayfa saatlerce
+// acik kalsa bile etiket kendiliginden dogruya doner.
+//
+// NOTAC'in kendi status'u yine de belirleyici: "cancelled"/"withdrawn"
+// gibi bir deger tarih penceresinden BAGIMSIZ olarak gecerlidir (iptal
+// edilmis bir NOTAM tarihi gecmemis olsa da yururlukte degildir).
+// effective_end bos olan NOTAM kalicidir (ornegin G4445/14), suresi dolmaz.
+window.ltfjNotamGecerlilik = function (n) {
+  "use strict";
+  var simdi = Date.now();
+  if (n.status && n.status !== "active") {
+    return {durum: "diger", etiket: n.status, vurgula: true};
+  }
+  var bas = n.effective_start ? Date.parse(n.effective_start) : NaN;
+  var bit = n.effective_end ? Date.parse(n.effective_end) : NaN;
+  if (!isNaN(bit) && bit < simdi) {
+    return {durum: "doldu", etiket: "süresi doldu", vurgula: true};
+  }
+  if (!isNaN(bas) && bas > simdi) {
+    return {durum: "baslamadi", etiket: "henüz başlamadı", vurgula: true};
+  }
+  if (!n.status) {
+    return {durum: "bilinmiyor", etiket: "", vurgula: false};
+  }
+  return {durum: "yururlukte", etiket: "yürürlükte", vurgula: false};
+};
+</script>
+<script>
 (function () {
   "use strict";
   function esc(s) {
@@ -541,12 +598,18 @@
   var aktifAcikMi = false;
   var aramaYapildiMi = false;
   var aktifEl = document.getElementById("notam-aktif-liste");
+  var aktifGovdeEl = document.getElementById("notam-aktif-govde");
+  var aktifQEl = document.getElementById("notam-aktif-q");
+  var aktifKategoriEl = document.getElementById("notam-aktif-kategori");
+  var aktifElemanEl = document.getElementById("notam-aktif-eleman");
   var aktifBaslikEl = document.getElementById("notam-aktif-baslik");
   var aktifSayiEl = document.getElementById("notam-aktif-sayi");
   var aktifOkEl = document.getElementById("notam-aktif-ok");
   var senkronEl = document.getElementById("notam-senkron-zamani");
   var sonucEl = document.getElementById("notam-arama-sonuc");
   var durumSelectEl = document.getElementById("notam-durum");
+
+  var gecerlilik = window.ltfjNotamGecerlilik;
 
   function notamKarti(n) {
     var etiketler = (n.tags || []).map(function (t) {
@@ -561,18 +624,17 @@
       ? '<div class="notam-ozet">' + esc(n.reading_short) +
         ' <span style="color:var(--soluk); font-size:.75rem;">(NOTAC otomatik özeti — hata içerebilir)</span></div>'
       : "";
-    // Aktif NOTAM'lari (status === "active") yesil bir noktayla isaretle -
-    // hem "Aktif NOTAM'lar" listesinde hem arama sonuclarinda ayni kart
-    // uretici kullanildigindan, arama sonucundaki aktif kayitlar da
-    // otomatik olarak isaretlenmis olur.
-    var aktifNoktasi = n.status === "active"
-      ? '<span class="notam-aktif-nokta" title="Aktif NOTAM"></span>' : "";
+    var g = gecerlilik(n);
+    // Yesil nokta SADECE su anda gercekten yururlukte olan NOTAM'a konur.
+    var aktifNoktasi = g.durum === "yururlukte"
+      ? '<span class="notam-aktif-nokta" title="Şu anda yürürlükte"></span>' : "";
     return (
       '<div class="notam-kart">' +
       '<div class="notam-ust">' + aktifNoktasi +
       '<span class="notam-no">' + esc(n.number || "—") + "</span>" +
       kategori + etiketler + pistler +
-      '<span class="notam-durum">' + esc(n.status || "") + "</span></div>" +
+      '<span class="notam-durum' + (g.vurgula ? " notam-durum-gecmis" : "") + '">' +
+      esc(g.etiket) + "</span></div>" +
       ozet +
       "<details><summary style=\"cursor:pointer; font-size:.82rem; color:var(--soluk);\">Ham NOTAM metni</summary>" +
       '<div class="notam-metin">' + esc(n.text || "") + "</div></details>" +
@@ -584,10 +646,43 @@
 
   function aktifPaneliAcKapat(zorlaAc) {
     aktifAcikMi = zorlaAc != null ? zorlaAc : !aktifAcikMi;
-    aktifEl.hidden = !aktifAcikMi;
+    aktifGovdeEl.hidden = !aktifAcikMi;
     aktifBaslikEl.setAttribute("aria-expanded", String(aktifAcikMi));
     aktifOkEl.textContent = aktifAcikMi ? "▼" : "▶";
     aktifOkEl.classList.toggle("acik", aktifAcikMi);
+  }
+
+  // Aktif listeye giren kayitlar: NOTAC'in son senkronda dondurduklerinden
+  // suresi GERCEKTEN dolmamis olanlar. Senkron bayatlarsa (NOTAC erisilemez)
+  // aradan gecen surede suresi biten bir NOTAM burada kalmaya devam
+  // ederdi - tarih kontrolu bunu da kapatiyor.
+  function yururluktekiler() {
+    return (veri.aktif || []).filter(function (n) {
+      return gecerlilik(n).durum === "yururlukte";
+    }).sort(function (a, b) {
+      return (a.number || "").localeCompare(b.number || "");
+    });
+  }
+
+  function aktifFiltrele(liste) {
+    var q = aktifQEl.value.trim().toLowerCase();
+    var kat = aktifKategoriEl.value;
+    var eleman = aktifElemanEl.value;
+    return liste.filter(function (n) {
+      if (kat && n.category_etiketi !== kat) return false;
+      if (eleman) {
+        var refler = (n.affected_elements || []).map(function (e) { return e.ref; });
+        if (refler.indexOf(eleman) === -1) return false;
+      }
+      if (q) {
+        var alanlar = [n.number, n.text, n.reading_short, n.reading_long]
+          .concat(n.tags || [])
+          .concat((n.affected_elements || []).map(function (e) { return e.ref; }))
+          .filter(Boolean).join(" ").toLowerCase();
+        if (alanlar.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
   }
 
   function aktifGoster() {
@@ -602,28 +697,48 @@
       return;
     }
 
-    var aktifler = (veri.aktif || []).slice().sort(function (a, b) {
-      return (a.number || "").localeCompare(b.number || "");
-    });
-    aktifSayiEl.textContent = aktifler.length
-      ? aktifler.length + " aktif"
-      : "aktif yok";
+    var tumu = yururluktekiler();
+    var gosterilecek = aktifFiltrele(tumu);
 
-    if (!aktifler.length) {
+    aktifSayiEl.textContent = !tumu.length
+      ? "aktif yok"
+      : (gosterilecek.length === tumu.length
+          ? tumu.length + " aktif"
+          : gosterilecek.length + " / " + tumu.length + " aktif");
+
+    if (!tumu.length) {
       aktifEl.innerHTML = '<div class="notam-bos">Aktif NOTAM bulunmuyor.</div>';
+    } else if (!gosterilecek.length) {
+      aktifEl.innerHTML = '<div class="notam-bos">Filtreye uyan aktif NOTAM yok.</div>';
     } else {
-      aktifEl.innerHTML = aktifler.map(notamKarti).join("");
+      aktifEl.innerHTML = gosterilecek.map(notamKarti).join("");
     }
   }
 
-  function durumSecenekleriDoldur() {
-    var gorulen = {};
-    (veri.gecmis || []).forEach(function (n) { if (n.status) gorulen[n.status] = true; });
-    Object.keys(gorulen).sort().forEach(function (d) {
-      var o = document.createElement("option");
-      o.value = d; o.textContent = d;
-      durumSelectEl.appendChild(o);
+  // Filtre secenekleri SADECE yururlukteki NOTAM'larda gercekten bulunan
+  // degerlerden uretilir - bos sonuc veren secenek listelenmez.
+  function aktifFiltreSecenekleriDoldur() {
+    var liste = yururluktekiler();
+    function doldur(el, degerler) {
+      var secili = el.value;
+      while (el.options.length > 1) el.remove(1);
+      degerler.sort().forEach(function (d) {
+        var o = document.createElement("option");
+        o.value = d; o.textContent = d;
+        el.appendChild(o);
+      });
+      // Veri yenilenince kullanicinin secimi hala gecerliyse KORUNUR.
+      el.value = degerler.indexOf(secili) !== -1 ? secili : "";
+    }
+    var kategoriler = {}, elemanlar = {};
+    liste.forEach(function (n) {
+      if (n.category_etiketi) kategoriler[n.category_etiketi] = true;
+      (n.affected_elements || []).forEach(function (e) {
+        if (e.ref) elemanlar[e.ref] = true;
+      });
     });
+    doldur(aktifKategoriEl, Object.keys(kategoriler));
+    doldur(aktifElemanEl, Object.keys(elemanlar));
   }
 
   function aramaCalistir() {
@@ -635,7 +750,9 @@
     var durum = durumSelectEl.value;
 
     var sonuclar = (veri.gecmis || []).filter(function (n) {
-      if (durum && n.status !== durum) return false;
+      // Kayittaki donuk `status` yerine HESAPLANAN gecerlilik - kartta
+      // gorunen etiketle birebir ayni olsun.
+      if (durum && gecerlilik(n).durum !== durum) return false;
       if (q) {
         var alanlar = [n.number, n.text, n.reading_short, n.reading_long]
           .concat(n.tags || [])
@@ -658,8 +775,8 @@
       .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
       .then(function (v) {
         veri = v;
+        aktifFiltreSecenekleriDoldur();
         aktifGoster();
-        durumSecenekleriDoldur();
         // Arama SADECE kullanici gercekten arama yaptiginda calisir - sayfa
         // ilk acildiginda (ya da veri yeniden yuklendiginde, kullanici henuz
         // hicbir kriter girmediyse) sonuc alani BOS kalir, "tum gecmis"
@@ -683,6 +800,19 @@
   aktifBaslikEl.addEventListener("click", function () { aktifPaneliAcKapat(); });
   aktifBaslikEl.addEventListener("keydown", function (e) {
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); aktifPaneliAcKapat(); }
+  });
+
+  // Filtre satirindaki tiklamalar paneli KAPATMAMALI - basligin disinda
+  // olmasina ragmen govde baslikla ayni kartta, kullanici yanlislikla
+  // katlamasin.
+  aktifQEl.addEventListener("input", aktifGoster);
+  aktifKategoriEl.addEventListener("change", aktifGoster);
+  aktifElemanEl.addEventListener("change", aktifGoster);
+  document.getElementById("notam-aktif-temizle").addEventListener("click", function () {
+    aktifQEl.value = "";
+    aktifKategoriEl.value = "";
+    aktifElemanEl.value = "";
+    aktifGoster();
   });
 
   document.getElementById("notam-ara-btn").addEventListener("click", aramaCalistir);
@@ -930,10 +1060,10 @@
     kart.className = "notam-kart";
     var ust = document.createElement("div");
     ust.className = "notam-ust";
-    if (n.status === "active") {
+    if (window.ltfjNotamGecerlilik(n).durum === "yururlukte") {
       var nokta = document.createElement("span");
       nokta.className = "notam-aktif-nokta";
-      nokta.title = "Aktif NOTAM";
+      nokta.title = "Şu anda yürürlükte";
       ust.appendChild(nokta);
     }
     var no = document.createElement("span");
@@ -959,7 +1089,11 @@
     fetch("notam_veri.json?_=" + Date.now(), {cache: "no-store"})
       .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
       .then(function (v) {
-        var aktif = (v && v.aktif) || [];
+        // Suresi dolmus bir NOTAM burada aktifmis gibi gorunmemeli - LVO
+        // panelinde bu, olmayan bir kisitlamayi varmis gibi gostermek olur.
+        var aktif = ((v && v.aktif) || []).filter(function (n) {
+          return window.ltfjNotamGecerlilik(n).durum === "yururlukte";
+        });
         var iliskili = aktif.filter(notamLvoIliskiliMi);
         notamListeEl.innerHTML = "";
         if (!iliskili.length) {
