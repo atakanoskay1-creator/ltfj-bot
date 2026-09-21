@@ -1,0 +1,78 @@
+name: Dış kaynak önbelleği
+
+# ltfj_dis_kaynak_cache.py'yi çalıştırır - Open-Meteo (bağıl nem) + komşu
+# istasyon LTFM (tavan) canlı değerlerini çekip dis_kaynak_cache.json'a yazar.
+#
+# KASITLI OLARAK ana bot workflow'undan (ltfj.yml) AYRI ve OKUNMAMIŞ
+# dakikalarda çalışır - amaç GEVŞEK BAĞLILIK: bu iş yavaşlasa/hata verse
+# bile ana botun 5 dakikalık bütçesini ETKİLEMEZ (bkz. ltfj_dis_kaynak_
+# cache.py modül dokümantasyonu). Ana bot bu dosyayı (varsa, henüz
+# bağlanmadıysa) yalnızca YEREL olarak okuyacak - asla kendisi ağa çıkmaz.
+on:
+  schedule:
+    - cron: "3,23,43 * * * *"     # ltfj.yml'nin 10,25,40,55'inden KASITLI FARKLI
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dis-kaynak-onbellek
+  cancel-in-progress: false
+
+jobs:
+  onbellek:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Repoyu al
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Bağımlılıklar
+        run: pip install --quiet requests
+
+      - name: Önbelleği güncelle
+        run: python -m ltfj_dis_kaynak_cache
+
+      - name: Önbelleği repoya geri yaz
+        run: |
+          set -u
+          DAL="${GITHUB_REF_NAME}"
+          DOSYA="dis_kaynak_cache.json"
+
+          if [ -z "$(git status --porcelain ${DOSYA})" ]; then
+            echo "Değişiklik yok, commit yok."
+            exit 0
+          fi
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          for deneme in 1 2 3; do
+            git add "${DOSYA}"
+            if ! git diff --cached --quiet; then
+              git commit -m "dış kaynak önbelleği güncellendi [skip ci]"
+            fi
+
+            if git push origin "HEAD:${DAL}"; then
+              echo "Push başarılı (deneme ${deneme})."
+              exit 0
+            fi
+
+            echo "Push reddedildi - başka bir çalıştırma araya girmiş."
+            echo "Bu dosyayı sadece BİZ yazıyoruz - birleştirme gerekmiyor,"
+            echo "bizim sürümümüzü uzaktakinin üzerine tekrar yazıyoruz."
+            cp "${DOSYA}" /tmp/bizim_onbellek.json
+            git fetch origin "${DAL}"
+            git reset --hard "origin/${DAL}"
+            cp /tmp/bizim_onbellek.json "${DOSYA}"
+          done
+
+          echo "3 denemede de push edilemedi." >&2
+          exit 1
