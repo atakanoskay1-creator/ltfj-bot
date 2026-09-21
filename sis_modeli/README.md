@@ -321,6 +321,69 @@ sınırı (bkz. dosya başı: "az parametre, her hücre doğrudan okunabilir"
 tercihi tam da bu esnekliği feda ediyor). Bu, ayrı ve daha büyük bir
 mimari deney gerektirir, burada yapılmadı.
 
+### Çok değişkenli model (`tavan_dis_kaynak_model.py`) — HOLDOUT'TA DOĞRULANDI
+
+Yukarıdaki tablo denemesi kazanamayınca, aynı adayları GERÇEKTEN çok
+değişkenli bir modelde (tablo değil, `model.py`nin sis modelinde kullanılan
+aynı IRLS/WoE lojistik regresyonu) test etmek için ayrı bir betik yazıldı.
+TEMEL = `spread, görüş, tavan_özellik, saat, rüzgâr_kuzey, sis_olasılık`
+(tablo denemesindeki "hub" değişkenlerinin TAMAMI BİRLİKTE) + dış kaynak
+adayları (`acik_meteo_nem_2m`, `komsu_tavan_ozellik`) tek tek ve birlikte
+eklendi.
+
+**VIF (çoklu doğrusal bağlantı) — kolinerlik iddiası SAYISALLAŞTIRILDI:**
+`sis_olasılık` (VIF 14.29) ve `spread` (VIF 11.00) birbiriyle güçlü kolineer
+— ama `acik_meteo_nem_2m` (VIF 2.85) ve `komsu_tavan_ozellik` (VIF 1.02)
+**DEĞİL**. Bu, yukarıdaki "kolinerlik nedeniyle kazanamadı" hipotezini KISMEN
+düzeltiyor: asıl sorun kolinerlik değil, tablo formatının yapısal sınırıymış
+(en fazla iki eksen birleştirebilmesi).
+
+**Geliştirme içi, eşleştirilmiş gün bazlı blok bootstrap** (aynı fold/gün
+örneklemesi, `veri_kalitesi.eslesmis_fark_araligi`):
+
+| spesifikasyon | AP | AP farkı (TEMEL'e göre) | %5–%95 |
+|---|---|---|---|
+| TEMEL | 0.091 | — | — |
+| TEMEL + nem | 0.127 | +0.036 | +0.020 – +0.052 ✓ |
+| TEMEL + komşu tavan | 0.103 | +0.012 | −0.002 – +0.029 |
+| **TEMEL + ikisi** | **0.133** | **+0.041** | **+0.009 – +0.074 ✓** |
+
+`TEMEL + ikisi` eşleştirilmiş aralıkta TEMEL'i geçti — TEK ATIŞ kuralına göre
+holdout açmayı hak eden bir aday.
+
+**Holdout doğrulaması (2024-2026, TEK ATIŞ — bu betik için #1):**
+
+| spesifikasyon | Brier×10⁴ | BSS | AP | AP %5–%95 |
+|---|---|---|---|---|
+| TEMEL | 104.09 | 0.048 | 0.114 | 0.086 – 0.149 |
+| **TEMEL + ikisi** | **102.47** | **0.063** | **0.136** | **0.104 – 0.178** |
+
+Eşleştirilmiş AP farkı (holdout): **+0.022, %5–%95: +0.000 – +0.043** —
+alt sınır sıfırın hemen üzerinde (sınırda ama pozitif), **kural sağlandı**.
+Geliştirmedeki kazanç (+0.041) holdout'ta küçüldü (+0.022) — beklenen bir
+küçülme (geliştirme-içi seçim her zaman hafif iyimserdir) ama **yön aynı
+kaldı ve aralık sıfırı içermedi**. AP'de holdout'ta ~%19 görece artış
+(0.114 → 0.136), BSS'te ~%31 görece artış (0.048 → 0.063).
+
+**Bu, oturumun en güçlü, holdout-doğrulanmış bulgusu** — önceki
+`sis_olasılık × tavan_özellik` tablo eklemesinden (holdout AP 0.093 → 0.096,
+~%3 görece artış) daha büyük bir kazanç.
+
+**KRİTİK MİMARİ FARK — canlıya almadan önce mutlaka değerlendirilmeli:**
+Önceki denemelerin (sis_olasılık, tablo çiftleri) hepsi çalışma anında
+ZATEN mevcut olan verilerden (METAR'ın kendisi + dondurulmuş `ltfj_sis_
+olasilik.olasilik()`) üretiliyordu — hiçbiri yeni bir dış bağımlılık
+gerektirmiyordu. **Bu kazanç FARKLI**: `acik_meteo_nem_2m` ve
+`komsu_tavan_ozellik` canlı tahmin sırasında GERÇEK ZAMANLI olarak
+Open-Meteo ve IEM'den (LTFM) çekilmesi gerekir — yani bot her tahmin
+döngüsünde iki yeni dış API'ye bağımlı hale gelir. Bu, projenin baştan
+beri koruduğu "çalışma anı sadece `math` import eder, ağa çıkmaz" izolasyon
+sözleşmesini GENİŞLETMEK demektir: yeni hata modları (API çökmesi, hız
+limiti — tam da bu oturumda karşılaşılan türden), gecikme, ve canlı
+kullanıcı deneyiminin üçüncü taraf servislerin çalışma süresine bağlanması.
+Canlıya alma kararı **istatistiksel doğrulamadan ayrı, ek bir mimari karar**
+gerektirir.
+
 ## Model B — görüşsüz atmosferik sis oluşum potansiyeli
 
 Model A (yukarıdaki lojistik regresyon) soruyor: *"mevcut görüş dahil,
