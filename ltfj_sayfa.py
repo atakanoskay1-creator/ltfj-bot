@@ -85,7 +85,12 @@ SABLON = """<!DOCTYPE html>
     font-size:.82rem; font-weight:650; cursor:pointer; white-space:nowrap;
   }}
   button.yenile:hover {{ color:var(--metin); border-color:var(--vurgu); }}
+  button.yenile:disabled {{ opacity:.6; cursor:default; }}
+  .header-butonlar {{ display:flex; gap:8px; flex-shrink:0; }}
   @media (max-width:480px) {{
+    header {{ flex-wrap:wrap; }}
+    .header-metin {{ flex:1 1 100%; }}
+    .header-butonlar {{ flex:1 1 100%; justify-content:flex-end; }}
     button.yenile {{ padding:8px 10px; font-size:.78rem; }}
   }}
   .kart {{
@@ -417,7 +422,10 @@ SABLON = """<!DOCTYPE html>
     <h1>{icao} · İstanbul Sabiha Gökçen</h1>
     <div class="alt">Kaynak: MGM/METAR · Son güncelleme {guncelleme}</div>
   </div>
-  <button type="button" class="yenile" id="sayfa-yenile-btn">⟳ Yenile</button>
+  <div class="header-butonlar">
+    <button type="button" class="yenile" id="bildirim-izin-btn" hidden>🔔 Bildirimler</button>
+    <button type="button" class="yenile" id="sayfa-yenile-btn">⟳ Yenile</button>
+  </div>
 </header>
 {govde}
 {sis_olasilik_html}
@@ -1188,6 +1196,128 @@ SABLON = """<!DOCTYPE html>
 <script>
 (function () {{
   "use strict";
+  // Web Push (tarayici bildirimleri) - SPECI/TAF/duzeltme/renk kotulesmesi
+  // ve yeni NOTAM icin (bkz. ltfj_push.py). Abonelik ATC Notes ile AYNI
+  // Firebase Realtime Database'e, "push_abonelikler" path'ine, DOGRUDAN
+  // fetch() ile yazilir - ayri bir SDK/CDN gerekmez. VAPID_PUBLIC_KEY GIZLI
+  // DEGIL (bkz. ltfj_ayarlar.py::push); bos ise buton hic gosterilmez.
+  var VAPID_PUBLIC_KEY = {push_vapid_public_key};
+  var DB_URL = {atc_notes_db_url};
+  var btn = document.getElementById("bildirim-izin-btn");
+  if (!btn || !VAPID_PUBLIC_KEY) return;
+
+  function destekleniyor_mu() {{
+    return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+  }}
+
+  function tabanUrl() {{
+    var taban = DB_URL;
+    while (taban.length && taban.charAt(taban.length - 1) === "/") {{
+      taban = taban.slice(0, -1);
+    }}
+    return taban + "/push_abonelikler";
+  }}
+
+  function urlBase64ToUint8Array(base64String) {{
+    var dolgu = "=".repeat((4 - (base64String.length % 4)) % 4);
+    var base64 = (base64String + dolgu).replace(/-/g, "+").replace(/_/g, "/");
+    var ham = atob(base64);
+    var dizi = new Uint8Array(ham.length);
+    for (var i = 0; i < ham.length; i++) dizi[i] = ham.charCodeAt(i);
+    return dizi;
+  }}
+
+  // Guvenlik icin degil - sadece "ayni endpoint hep ayni anahtara yazsin"
+  // (yeniden abone olma cakisma/yinelenen kayit uretmesin) icin senkron,
+  // basit bir hash. crypto.subtle.digest promise dondurdugu icin burada
+  // gereksiz karmasiklik katardi.
+  function idUret(endpoint) {{
+    var h = 2166136261;
+    for (var i = 0; i < endpoint.length; i++) {{
+      h ^= endpoint.charCodeAt(i);
+      h = (h * 16777619) >>> 0;
+    }}
+    return "p" + h.toString(16) + endpoint.length;
+  }}
+
+  function durumGoster(durum) {{
+    btn.hidden = false;
+    if (durum === "acik") {{
+      btn.textContent = "🔔 Bildirimler açık";
+      btn.disabled = false;
+    }} else if (durum === "reddedildi") {{
+      btn.textContent = "🔕 İzin verilmedi";
+      btn.disabled = true;
+    }} else if (durum === "beklemede") {{
+      btn.textContent = "…";
+      btn.disabled = true;
+    }} else if (durum === "hata") {{
+      btn.textContent = "🔔 Bildirimler (tekrar dene)";
+      btn.disabled = false;
+    }} else if (durum === "desteklenmiyor") {{
+      btn.hidden = true;
+    }} else {{
+      btn.textContent = "🔔 Bildirimlere izin ver";
+      btn.disabled = false;
+    }}
+  }}
+
+  function abonelikKaydet(sub) {{
+    var veri = sub.toJSON();
+    if (!DB_URL) return Promise.resolve();
+    return fetch(tabanUrl() + "/" + idUret(veri.endpoint) + ".json", {{
+      method: "PUT",
+      headers: {{"Content-Type": "application/json"}},
+      body: JSON.stringify({{
+        endpoint: veri.endpoint, keys: veri.keys,
+        created_at: {{".sv": "timestamp"}},
+      }}),
+    }});
+  }}
+
+  function aboneOl() {{
+    if (Notification.permission === "denied") {{ durumGoster("reddedildi"); return; }}
+    durumGoster("beklemede");
+    navigator.serviceWorker.register("sw.js").then(function () {{
+      // subscribe() aktif (activate asamasini gecmis) bir servis calisani
+      // ister - register()'in dondurdugu kayit "installing" durumunda
+      // olabilir, bu yuzden hazir olana kadar bekleyen .ready kullanilir.
+      return navigator.serviceWorker.ready;
+    }}).then(function (kayit) {{
+      return Notification.requestPermission().then(function (izin) {{
+        if (izin !== "granted") {{ durumGoster("reddedildi"); throw new Error("izin verilmedi"); }}
+        return kayit.pushManager.getSubscription().then(function (mevcut) {{
+          return mevcut || kayit.pushManager.subscribe({{
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+          }});
+        }});
+      }});
+    }}).then(function (sub) {{
+      return abonelikKaydet(sub).then(function () {{ durumGoster("acik"); }});
+    }}).catch(function (err) {{
+      console.error("[push] abone olma hatası:", err);
+      if (Notification.permission !== "denied") durumGoster("hata");
+    }});
+  }}
+
+  function baslangicDurumu() {{
+    if (!destekleniyor_mu()) {{ durumGoster("desteklenmiyor"); return; }}
+    if (Notification.permission === "denied") {{ durumGoster("reddedildi"); return; }}
+    navigator.serviceWorker.getRegistration().then(function (kayit) {{
+      return kayit ? kayit.pushManager.getSubscription() : null;
+    }}).then(function (sub) {{
+      durumGoster(sub ? "acik" : "kapali");
+    }}).catch(function () {{ durumGoster("kapali"); }});
+  }}
+
+  btn.addEventListener("click", aboneOl);
+  baslangicDurumu();
+}})();
+</script>
+<script>
+(function () {{
+  "use strict";
   // Sayfanin METAR/TAF/pist govdesi bot her calistiginda YENIDEN uretilen
   // statik bir dosyadir (canli bir fetch() ile guncellenmez) - "Yenile"
   // butonu bu yuzden butun sayfayi, tarayici onbellegini atlayacak sekilde
@@ -1846,7 +1976,7 @@ def _kart(rapor: dict, yorum_onbellegi: dict | None = None) -> str:
 
 
 def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict | None = None,
-              atc_notes_db_url: str = ""):
+              atc_notes_db_url: str = "", push_vapid_public_key: str = ""):
     """yorum_onbellegi: state["yorum_onbellegi"] (ham rapor metni -> Claude
     yorumu/cevirisi) - Telegram ile PAYLASILAN onbellek, burada okunur,
     YENIDEN hesaplanmaz. Verilmezse (ornegin eski cagiran kod) kartlar
@@ -1856,7 +1986,12 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
     atc_notes_db_url: ayarlar.json::atc_notes.database_url - Firebase'in
     KENDI tasarimi geregi GIZLI DEGIL (bkz. ltfj_ayarlar.py), sayfa
     icine oldugu gibi gomulur. Bos ise ATC Notes bolumu "yapilandirilmamis"
-    mesaji gosterir."""
+    mesaji gosterir.
+
+    push_vapid_public_key: ayarlar.json::push.vapid_public_key - ozel
+    anahtarin (VAPID_PRIVATE_KEY, GH secret) esi, GIZLI DEGIL, istemci
+    tarafinda applicationServerKey olarak aynen gomulur. Bos ise "Bildirimler"
+    butonu hic gosterilmez (bkz. bildirim-izin-btn script'i)."""
     simdi = datetime.now(timezone.utc).astimezone(YEREL_TZ)
     # METAR/SPECI SADECE zamana gore siralanir - tipi ne olursa olsun en
     # yeni rapor en basta olur. Eskiden SPECI her zaman METAR'dan once
@@ -1885,6 +2020,7 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
         SABLON.format(icao=html.escape(icao), govde=govde,
                       guncelleme=f"{simdi:%d.%m.%Y %H:%M} yerel",
                       atc_notes_db_url=json.dumps(atc_notes_db_url or ""),
+                      push_vapid_public_key=json.dumps(push_vapid_public_key or ""),
                       lvo_referans_html=_lvo_dokuman_referans_html(),
                       lvo_farkindalik_html=_lvo_farkindalik_html(guncel_cozum, taf_tavan),
                       sis_olasilik_html=_sis_olasiligi_html(guncel_cozum, gecmis, simdi),

@@ -161,9 +161,19 @@ def notam_senkronize(state: dict):
     # esitligiyle belirliyor (bkz. ltfj_notam.notam_veri_yaz), iki ayri
     # datetime.now() cagrisi bu esitligi kirar.
     simdi = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    state["notam_gecmisi"] = ltfj_notam.gecmisi_guncelle(state.get("notam_gecmisi") or {}, aktif, simdi)
+    eski_gecmis = state.get("notam_gecmisi") or {}
+    eski_idler = set(eski_gecmis)
+    yeni_gecmis = ltfj_notam.gecmisi_guncelle(eski_gecmis, aktif, simdi)
+    state["notam_gecmisi"] = yeni_gecmis
     state["notam_son_senkron"] = simdi
     print(f"  NOTAM senkronize edildi: {len(aktif)} aktif NOTAM ({location}).")
+
+    # Ilk senkronizasyonda (eski_gecmis bos) TUM aktif NOTAM'lar "yeni"
+    # sayilir - bu durumda push'a bogulmamak icin HICBIRI bildirilmez
+    # (ltfj_bot'un METAR tarafindaki "ilk_calisma" ile ayni ilke).
+    if eski_gecmis:
+        for nid in set(yeni_gecmis) - eski_idler:
+            notam_push_gonder(yeni_gecmis[nid])
 
 
 def atc_notes_temizligini_calistir() -> int | None:
@@ -461,6 +471,100 @@ def renk_onemli_mi(eski: str | None, yeni: str | None) -> bool:
         return False
     e, y = RENK_SIRA.get(eski, 0), RENK_SIRA.get(yeni, 0)
     return e >= ONEMLI_BANT or y >= ONEMLI_BANT
+
+
+def renk_kotulesti_mi(eski: str | None, yeni: str | None) -> bool:
+    """renk_onemli_mi'nin AKSINE tek yonlu: sadece KOTULESME (BLU/WHT/GRN'den
+    YLO/AMB/RED'e) - Web Push icin. Telegram'daki 'renk_degisimi' iyilesmeyi
+    de bildirir (kullanicinin bilmek isteyecegi bir sey); Web Push icin
+    kullanici acikca 'renk kotulesmesi' istedi (duzelme degil) - bkz.
+    ltfj_push.py, push_tetiklenmeli_mi()."""
+    if not eski or not yeni or eski == yeni:
+        return False
+    e, y = RENK_SIRA.get(eski, 0), RENK_SIRA.get(yeni, 0)
+    return y > e and y >= ONEMLI_BANT
+
+
+def push_tetiklenmeli_mi(rapor: dict, renk_kotulesti: bool) -> bool:
+    """Web Push SADECE dort durumda tetiklenir: SPECI, TAF, duzeltme
+    (AMD/COR), renk KOTULESMESI - kullanicinin acikca istedigi kume (bkz.
+    sohbet gecmisi). Rutin METAR ve 'dikkat' esigi (Telegram'daki 'dikkat'
+    anahtari) BURADA YOK - kullanici bunlari istemedi, METAR zaten
+    kontrolorun ekraninda."""
+    b = ayar("bildirim", "bildir", varsayilan={}) or {}
+    tip = rapor["tip"]
+    return (
+        (tip == "SPECI" and b.get("speci", True))
+        or (tip == "TAF" and b.get("taf", True))
+        or (bool(rapor.get("duzeltme")) and b.get("duzeltme", True))
+        or (renk_kotulesti and b.get("renk_degisimi", True))
+    )
+
+
+def _push_baslik(rapor: dict) -> str:
+    tip, duzeltme = rapor["tip"], rapor.get("duzeltme")
+    simge = SIMGE.get(tip, "ℹ️")
+    ad = f"{ICAO} {tip}"
+    if duzeltme in ("AMD", "COR"):
+        ad += " (DÜZELTME)" if duzeltme == "AMD" else " (DÜZELTİLMİŞ)"
+        simge = "✏️"
+    return f"{simge} {ad}"
+
+
+def _push_govde(rapor: dict, cozum: dict | None, renk_bilgisi: tuple | None) -> str:
+    """Telegram'daki AYNI kaynaktan (ozet_satiri/RENK_SIMGE) turer - iki
+    kanal arasinda bilgi birbirinden FARKLILASMAZ, sadece bicim kisalir
+    (push govdesi HTML degil duz metindir, OS bunu birkac satirla sinirlar)."""
+    satirlar = []
+    if rapor.get("zaman"):
+        yerel = rapor["zaman"].astimezone(YEREL_TZ)
+        satirlar.append(f'{rapor["zaman"]:%d.%m %H:%MZ} · {yerel:%H:%M} yerel')
+    if rapor["tip"] == "TAF":
+        satirlar.append("Yeni TAF yayınlandı")
+    elif cozum:
+        satirlar.append(ozet_satiri(cozum))
+    if renk_bilgisi:
+        kod, aciklama = renk_bilgisi
+        satirlar.append(f'{RENK_SIMGE.get(kod, "")} {kod} — {aciklama}')
+    return "\n".join(satirlar) if satirlar else rapor["metin"][:180]
+
+
+def _push_gonder_guvenli(baslik: str, govde: str, etiket: str) -> None:
+    """Basarisizligi (yapilandirilmamis, ag hatasi vb.) HER ZAMAN yutar -
+    Web Push Telegram'a EK bir kanaldir, ana akisi asla bozamaz. METAR/
+    SPECI/TAF/duzeltme/renk-kotulesmesi VE yeni NOTAM push'lari AYNI bu
+    fonksiyondan gecer (bkz. push_bildirimi_gonder, notam_push_gonder)."""
+    import ltfj_push
+
+    if not ayar("push", "aktif", varsayilan=True) or not ltfj_push.yapilandirilmis_mi():
+        return
+    try:
+        sonuc = ltfj_push.gonder(
+            baslik, govde,
+            ayar("push", "vapid_subject", varsayilan="mailto:ornek@ornek.com"),
+            etiket=etiket)
+        if sonuc["gonderildi"] or sonuc["silindi"]:
+            print(f'  push [{etiket}]: {sonuc["gonderildi"]} gönderildi, '
+                 f'{sonuc["silindi"]} geçersiz abonelik silindi.')
+    except Exception as e:
+        print(f"[uyarı] Push bildirimi gönderilemedi ({etiket}): {e}", file=sys.stderr)
+
+
+def push_bildirimi_gonder(rapor: dict, cozum: dict | None, renk_bilgisi: tuple | None) -> None:
+    _push_gonder_guvenli(_push_baslik(rapor), _push_govde(rapor, cozum, renk_bilgisi), rapor["tip"])
+
+
+def _notam_push_govde(kayit: dict) -> str:
+    satirlar = []
+    if kayit.get("number"):
+        satirlar.append(kayit["number"])
+    if kayit.get("text"):
+        satirlar.append(kayit["text"][:180])
+    return "\n".join(satirlar) if satirlar else "Yeni bir NOTAM yayınlandı."
+
+
+def notam_push_gonder(kayit: dict) -> None:
+    _push_gonder_guvenli(f"📋 {ICAO} Yeni NOTAM", _notam_push_govde(kayit), "NOTAM")
 
 
 def bildirim_karari(rapor, dikkat, renk_degisti) -> tuple[bool, bool]:
@@ -762,8 +866,10 @@ def main():
         if notlar and notlar["ws"]:
             dikkat = True
 
-        renk = notlar["renk"][0] if notlar and notlar["renk"] else None
+        renk_bilgisi = notlar["renk"] if notlar and notlar["renk"] else None
+        renk = renk_bilgisi[0] if renk_bilgisi else None
         renk_degisti = renk_onemli_mi(state.get("son_renk"), renk)
+        renk_kotulesti = renk_kotulesti_mi(state.get("son_renk"), renk)
 
         at, sessiz = bildirim_karari(rapor, dikkat, renk_degisti)
 
@@ -778,6 +884,12 @@ def main():
                 continue
         else:
             print(f'  rutin, bildirim yok: {rapor["tip"]} {anahtar(rapor)}')
+
+        # Web Push, Telegram'dan TAMAMEN BAGIMSIZ bir kanal - Telegram
+        # basarisiz/gonderilmedi olsa da (yukaridaki 'continue' hic
+        # calismadiysa) SPECI/TAF/duzeltme/renk-kotulesmesi push'u dener.
+        if push_tetiklenmeli_mi(rapor, renk_kotulesti):
+            push_bildirimi_gonder(rapor, cozum, renk_bilgisi)
 
         gorulen.add(anahtar(rapor))
         if renk:
@@ -818,7 +930,8 @@ def main():
             from ltfj_sayfa import sayfa_yaz
             sayfa_yaz(raporlar, state.get("olcum_gecmisi", []), KLASOR / "index.html",
                       state.get("yorum_onbellegi", {}),
-                      ayar("atc_notes", "database_url", varsayilan=""))
+                      ayar("atc_notes", "database_url", varsayilan=""),
+                      ayar("push", "vapid_public_key", varsayilan=""))
         except Exception as e:
             print(f"[uyarı] Web sayfası üretilemedi: {e}", file=sys.stderr)
 

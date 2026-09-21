@@ -87,6 +87,27 @@ VARSAYILAN = {
         # METAR/NOTAM bolumlerini etkilemez.
         "database_url": "",
     },
+    "push": {
+        # Web Push (tarayici bildirimleri, Telegram'a EK) - SPECI, TAF,
+        # duzeltme (AMD/COR), renk kotulesmesi ve yeni NOTAM icin. Abonelik
+        # kayitlari atc_notes ile AYNI Firebase Realtime Database'de,
+        # "push_abonelikler" path'inde tutulur (ayri bir database_url
+        # gerekmez). VAPID_PRIVATE_KEY ortam degiskeni tanimli degilse
+        # (ya da pywebpush kurulu degilse) tum ozellik sessizce devre disi
+        # kalir - METAR/TAF/NOTAM akisini hicbir sekilde etkilemez (bkz.
+        # ltfj_push.py).
+        "aktif": True,
+        # VAPID public key GIZLI DEGIL - istemci tarafinda (index.html)
+        # applicationServerKey olarak aynen gorunur; guvenlik ozel anahtarin
+        # (VAPID_PRIVATE_KEY, GH secret, asla buraya yazilmaz) gizliliginden
+        # gelir. Ikisi TEK SEFERDE, birlikte uretildi - biri degisirse
+        # digeri de degismeli, aksi halde var olan abonelikler gecersiz kalir.
+        "vapid_public_key": "BMdotDlhyTA4r0JaNfv3l530aWh5n57WKqxEh2XroHWhxdbcbqp_aBLMIGOUN2FTdyjd_9t1W1N3J73SDJko0KI",
+        # Push servislerine "bu gonderen kim" diye kendini tanitmak icin bir
+        # iletisim adresi (RFC 8292) - kotuye kullanim bulunursa push servisi
+        # bu adresten ulasir. Gercek bir adresle degistirilmeli.
+        "vapid_subject": "mailto:ornek@ornek.com",
+    },
 }
 
 

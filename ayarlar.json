@@ -54,5 +54,12 @@
   "_aciklama": "database_url'i Firebase Console > Realtime Database'den alip buraya yaz (ornek: https://PROJE-ADI-default-rtdb.europe-west1.firebasedatabase.app). Bu URL gizli degil - guvenlik firebase-rules.json ile saglanir. Bos birakilirsa web sayfasindaki ATC Notes bolumu 'yapilandirilmamis' gosterir.",
   "aktif": true,
   "database_url": "https://ltfj-39d4b-default-rtdb.europe-west1.firebasedatabase.app/"
+ },
+
+ "push": {
+  "_aciklama": "Web Push (tarayici bildirimleri) - SPECI/TAF/duzeltme/renk kotulesmesi/yeni NOTAM icin. Abonelikler atc_notes ile AYNI Firebase'de tutulur. Sunucu tarafinda gonderim icin GitHub Secret'i olarak VAPID_PRIVATE_KEY gerekir - tanimli degilse ozellik sessizce devre disi kalir. vapid_public_key GIZLI DEGIL, ozel anahtarla BIRLIKTE uretildi - biri degisirse digeri de degismeli.",
+  "aktif": true,
+  "vapid_public_key": "BMdotDlhyTA4r0JaNfv3l530aWh5n57WKqxEh2XroHWhxdbcbqp_aBLMIGOUN2FTdyjd_9t1W1N3J73SDJko0KI",
+  "vapid_subject": "mailto:ornek@ornek.com"
  }
 }
