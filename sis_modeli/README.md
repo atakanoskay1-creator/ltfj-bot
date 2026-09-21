@@ -276,6 +276,51 @@ alması demek — izolasyon sözleşmesini bozmaz (hâlâ sadece `math`), ama
 çağıran tarafın (`ltfj_sayfa.py`) iki modülün çıktısını birbirine
 bağlaması gerekir.
 
+### Dış kaynak adayları tabloya eklendi — kazanamadı (negatif ama bilgilendirici sonuç)
+
+`tavan_dis_kaynak_tarama.py`'nin tek değişkenli taramasında `acik_meteo_nem_2m`
+(IV 2.235) ve `komsu_tavan_ozellik` (IV 1.761) güçlü çıkmıştı. Bu ikisi,
+`sis_olasilik`'in eklenmesiyle AYNI disiplinle (a priori, spread'in orijinal
+eş kümesiyle simetrik: görüş, tavan_özellik, saat, rüzgâr_kuzey, + ayrıca
+sis_olasilik'in kendisiyle ve birbirleriyle — toplam 13 yeni çift)
+`ADAY_CIFTLER`'a eklendi ve **gerçek** iki-değişkenli tabloya sokuldu
+(`dis_kaynak_ekle()`).
+
+**Geliştirme içi seçim sonucu (holdout'a DOKUNULMADI):**
+
+| çift | AP | Brier×10⁴ |
+|---|---|---|
+| **sis_olasılık × tavan_özellik — MEVCUT ŞAMPİYON** | **0.111** | **77.64** |
+| acik_meteo_nem_2m × sis_olasılık — EN İYİ YENİ | 0.103 | 77.99 |
+| sis_olasılık × saat | 0.103 | 77.93 |
+| komsu_tavan_özellik × sis_olasılık | 0.099 | 78.43 |
+| *(kalan 21 çift, hepsi daha düşük)* | | |
+
+**Sonuç: hiçbir dış kaynak çifti mevcut şampiyonu geçemedi.** En iyi yeni
+aday (`acik_meteo_nem_2m × sis_olasılık`, AP 0.103) ikinci sırada — yakın
+ama önde değil. Şampiyon değişmediği için **holdout açılmadı** (TEK ATIŞ
+kuralı: yeni bir aday kazanmadıkça holdout'u tüketmenin gerekçesi yok).
+
+**İstatistiksel yorum — neden yüksek tekil IV, ikili tabloda kazanmadı:**
+Bu, ders kitabı örneği bir "artık bilgi" (marginal information) durumu.
+`acik_meteo_nem_2m`'in TEK BAŞINA IV'si yüksekti çünkü nem, sisin fiziksel
+öncüsü — ama `sis_olasilik` (Model A'nın çıktısı) zaten nem dahil birçok
+METAR değişkenini bir araya getiren bir bileşik skor. İki değişken
+ÇAKIŞAN bilgi taşıyorsa (kolinerlik), ikinci değişkenin TEKİL gücü yüksek
+olsa bile BİRLİKTE kullanıldığında kattığı ARTIK bilgi küçük olur — tam
+olarak burada gözlenen. `komsu_tavan_özellik` için ayrıca ikinci bir kısıt
+var: 2018 öncesi veri yok (LTFM o yıl açıldı), yani rejim penceresinin
+(2017+) ilk ~1.5 yılı bu eksende bilgisiz.
+
+**Bu, "veriyi artırmak işe yaramıyor" anlamına GELMEZ** — anlamı şu: basit
+iki-eksenli tablo mimarisi, zaten güçlü olan `sis_olasilik`'in üstüne bu
+iki değişkenin kattığı payı yakalayamıyor. Gerçek bir kazanç için muhtemelen
+gereken, ikiden fazla değişkeni BİRLİKTE (lojistik regresyon gibi düzgün
+çok-değişkenli bir model) ağırlıklandırmak — tablo yönteminin kendi
+sınırı (bkz. dosya başı: "az parametre, her hücre doğrudan okunabilir"
+tercihi tam da bu esnekliği feda ediyor). Bu, ayrı ve daha büyük bir
+mimari deney gerektirir, burada yapılmadı.
+
 ## Model B — görüşsüz atmosferik sis oluşum potansiyeli
 
 Model A (yukarıdaki lojistik regresyon) soruyor: *"mevcut görüş dahil,

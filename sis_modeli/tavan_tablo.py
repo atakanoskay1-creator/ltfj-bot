@@ -68,6 +68,15 @@ APRIORI_BANTLAR = {
     "ruzgar_kuzey": [-3, 0, 3],
     # Dondurulmus sis modelinin ciktisi icin log-olcekli bantlar.
     "sis_olasilik": [0.005, 0.02, 0.05, 0.15, 0.35],
+    # Bagil nem (%) - doyma esigine (RH->%100) yaklasan klasik meteorolojik
+    # esikler; tavan_dis_kaynak_tarama.py taramasindan SONRA degil, o
+    # taramanin BULGUSUNA (IV 2.235, guclu monoton) dayanarak eklendi ama
+    # sinirlarin kendisi sonuca bakilarak degil, fiziksel esiklerle secildi.
+    "acik_meteo_nem_2m": [70, 80, 90, 95],
+    # Komsu istasyonun (LTFM) kendi tavani - LTFJ'nin tavan_ozellik'iyle
+    # AYNI fiziksel buyukluk, AYNI a priori esikler (CAT II/VFR) tekrar
+    # kullanildi - yeni bir esik uydurulmadi.
+    "komsu_tavan_ozellik": [500, 1000, 1500, 3000],
 }
 
 ADAY_CIFTLER = [
@@ -96,6 +105,25 @@ ADAY_CIFTLER = [
     ("sis_olasilik", "tavan_ozellik"),
     ("sis_olasilik", "saat"),
     ("sis_olasilik", "ruzgar_kuzey"),
+    # DIS KAYNAK ADAYLARI (tavan_dis_kaynak_tarama.py'de tek degiskenli
+    # taramada guclu cikanlar - IV 2.235 ve 1.761, bkz. README). AYNI
+    # simetride: spread'in orijinal es kumesiyle + sis_olasilik ile eslendi.
+    # DIKKAT: komsu_tavan_ozellik icin veri sadece 2018 sonrasi mevcut
+    # (LTFM o yil acildi) - rejim penceresinin (2017+) ilk ~1.5 yili bu
+    # eksende "veri yok" hucresine duser, cokmez ama o donemde bilgisizdir.
+    ("acik_meteo_nem_2m", "spread"),
+    ("acik_meteo_nem_2m", "gorus"),
+    ("acik_meteo_nem_2m", "tavan_ozellik"),
+    ("acik_meteo_nem_2m", "saat"),
+    ("acik_meteo_nem_2m", "ruzgar_kuzey"),
+    ("acik_meteo_nem_2m", "sis_olasilik"),
+    ("komsu_tavan_ozellik", "spread"),
+    ("komsu_tavan_ozellik", "gorus"),
+    ("komsu_tavan_ozellik", "tavan_ozellik"),
+    ("komsu_tavan_ozellik", "saat"),
+    ("komsu_tavan_ozellik", "ruzgar_kuzey"),
+    ("komsu_tavan_ozellik", "sis_olasilik"),
+    ("acik_meteo_nem_2m", "komsu_tavan_ozellik"),
 ]
 
 
@@ -327,6 +355,21 @@ def sis_olasiligi_ekle(kayitlar: list) -> list:
     return kayitlar
 
 
+def dis_kaynak_ekle(kayitlar: list, komsu_yol: Path = None,
+                    acik_meteo_yol: Path = None) -> list:
+    """Her kayda komsu istasyon + Open-Meteo türetilmiş alanlarını ekler
+    (veri_birlestir.py). tavan_dis_kaynak_tarama.py'deki tek değişkenli
+    taramada acik_meteo_nem_2m (IV 2.235) ve komsu_tavan_ozellik (IV 1.761)
+    güçlü çıktı (bkz. README) - bu fonksiyon o adayları GERÇEK tabloya
+    (ADAY_CIFTLER'daki "DIŞ KAYNAK ADAYLARI" çiftleri) sokar."""
+    from sis_modeli import veri_birlestir
+
+    komsu_yol = komsu_yol or veri_birlestir.VARSAYILAN_KOMSU
+    acik_meteo_yol = acik_meteo_yol or veri_birlestir.VARSAYILAN_ACIK_METEO
+    return veri_birlestir.turet(
+        veri_birlestir.zenginlestir(kayitlar, komsu_yol, acik_meteo_yol))
+
+
 def kalibrasyon_tablosu(kayitlar: list, alan: str = "sis_olasilik",
                         sinirlar: list = None) -> list:
     """Bir olasilik ciktisinin bant bazinda GERCEKLESEN oranini verir.
@@ -441,8 +484,8 @@ def main(argv=None) -> int:
         print(f"HATA: {secenek.veri} yok.", file=sys.stderr)
         return 1
 
-    aday = sis_olasiligi_ekle(
-        tavan.hazirla(veri_oku(secenek.veri), esik_ft=secenek.esik))
+    aday = dis_kaynak_ekle(sis_olasiligi_ekle(
+        tavan.hazirla(veri_oku(secenek.veri), esik_ft=secenek.esik)))
     gelistirme = bolme.gelistirme(aday)
 
     print(f"Hedef: 3 saat içinde tavan <{secenek.esik} ft (onset), "
