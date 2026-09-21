@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:52165175",
   "id:52168054",
   "id:52176349",
   "id:52178986",
@@ -199,14 +198,15 @@
   "id:53302979",
   "id:53311210",
   "id:53313697",
-  "id:53321824"
+  "id:53321824",
+  "id:53324496"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 212020Z 23003KT 170V280 9999 FEW035 21/17 Q1014 NOSIG RMK RWY24R 23003KT 200V260 RWY06R 24003KT RWY24L VRB01KT",
+ "son_metar": "METAR LTFJ 212050Z 15003KT 9999 FEW035 21/18 Q1015 NOSIG RMK RWY24R 14004KT 070V190 RWY06R 14003KT RWY24L 15003KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-21T20:20:00+00:00",
+ "son_veri_zamani": "2026-09-21T20:50:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -2236,13 +2236,21 @@
    "qnh": 1014,
    "sicaklik": 21,
    "cig_noktasi": 17
+  },
+  {
+   "zaman": "2026-09-21T20:50:00+00:00",
+   "ruzgar_hiz": 3,
+   "tavan": null,
+   "qnh": 1015,
+   "sicaklik": 21,
+   "cig_noktasi": 18
   }
  ],
  "yorum_onbellegi": {
-  "TAF LTFJ 211640Z 2118/2218 36007KT 9999 FEW035 BECMG 2200/2204 BKN030 BKN080 BECMG 2204/2208 -SHRA BKN025 BKN080 TEMPO 2208/2212 33015G25KT 2200 TSRA SCT015CB BKN025 BKN080 TEMPO 2212/2216 33015G25KT 4000 TSRA FEW015CB BKN025 BKN080": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 36007KT rüzgarı ve iyi görüş koşullarından başlayarak, kademeli olarak bulutlanma artacak ve geçici olarak gök gürültülü sağanak yağış beklenmektedir.\n\n- **2118/2200 UTC:** 36007KT rüzgarı, 9999 metre görüş, az bulut 035 ft\n- **2200/2208 UTC:** Kademeli geçişle orta bulut 030 ft ve 080 ft, sonra hafif sağanak başlayacak\n- **2208/2216 UTC:** Geçici olarak 33015G25KT rüzgarı, 2200-4000 metre görüş, gök gürültülü sağanak, az/orta bulut 015-025 ft ve 080 ft",
-  "METAR LTFJ 211920Z VRB02KT 9999 FEW035 21/16 Q1014 NOSIG RMK RWY24R 06003KT 040V130 RWY06R 08003KT 050V110 RWY24L VRB02KT": "**Rüzgâr:** Rüzgâr değişken yönlerden 2 knot (çok hafif) esiyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 3500 feet (1050 metre) yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Raporlanan veriler kısıtlayıcı unsur içermiyor; hava koşulları operasyonel açıdan uygun görünüyor.",
   "METAR LTFJ 211950Z 16001KT 9999 FEW035 21/16 Q1014 NOSIG RMK RWY24R VRB02KT RWY06R 00000KT RWY24L VRB02KT": "**Rüzgâr:** Güneydoğudan çok hafif 1 knot hızında esiyor, yan rüzgâr bileşeni ihmal edilebilir düzeyde.\n\n**Görüş:** 10 kilometre ve daha fazla görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 3500 feet (1050 metre) yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve bulut durumu açısından kısıtlayıcı unsur yoktur; önümüzdeki 2 saatte önemli değişiklik beklenmemektedir.",
-  "METAR LTFJ 212020Z 23003KT 170V280 9999 FEW035 21/17 Q1014 NOSIG RMK RWY24R 23003KT 200V260 RWY06R 24003KT RWY24L VRB01KT": "**Rüzgâr:** Kuzeybatıdan hafif esintiler, 3 knot hızında, yönü 170 ile 280 derece arasında değişiyor.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 3500 feet (1050 metre) yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Raporlanan veriler içinde uçuşu kısıtlayan önemli bir unsur bulunmuyor."
+  "METAR LTFJ 212020Z 23003KT 170V280 9999 FEW035 21/17 Q1014 NOSIG RMK RWY24R 23003KT 200V260 RWY06R 24003KT RWY24L VRB01KT": "**Rüzgâr:** Kuzeybatıdan hafif esintiler, 3 knot hızında, yönü 170 ile 280 derece arasında değişiyor.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 3500 feet (1050 metre) yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Raporlanan veriler içinde uçuşu kısıtlayan önemli bir unsur bulunmuyor.",
+  "METAR LTFJ 212050Z 15003KT 9999 FEW035 21/18 Q1015 NOSIG RMK RWY24R 14004KT 070V190 RWY06R 14003KT RWY24L 15003KT": "**Rüzgâr:** Güneydoğudan 3 knot (çok hafif) rüzgâr esiyor, yan bileşen ihmal edilebilir düzeyde.\n\n**Görüş:** 10 kilometre ve daha fazla görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 1050 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Raporlanan veriler kısıtlayıcı unsur içermiyor, hava koşulları operasyonel açıdan elverişli görünüyor.",
+  "TAF LTFJ 211640Z 2118/2218 36007KT 9999 FEW035 BECMG 2200/2204 BKN030 BKN080 BECMG 2204/2208 -SHRA BKN025 BKN080 TEMPO 2208/2212 33015G25KT 2200 TSRA SCT015CB BKN025 BKN080 TEMPO 2212/2216 33015G25KT 4000 TSRA FEW015CB BKN025 BKN080": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 21. günün 18:00 UTC'den 22. günün 18:00 UTC'ye kadar olan dönemde rüzgâr ve bulutluluk değişimleri ile geçici sağanak ve gök gürültülü sağanak beklenmektedir.\n\n- **2118/2200 UTC:** Rüzgâr 360 derece 7 knot, görüş 9999 metre, az bulutlu 3500 feet.\n\n- **2200/2208 UTC:** Kademeli geçişle bulutluluk artacak (3000 feet orta, 8000 feet orta), sonra hafif sağanak başlayacak (2500 feet orta, 8000 feet orta).\n\n- **2208/2216 UTC:** Geçici olarak rüzgâr 330 derece 15 knot, 25 knot rüzgâr esintileri; görüş 2200-4000 metre; gök gürültülü sağanak, 1500 feet az/seyrek gök gürültü bulutları, 2500 feet orta, 8000 feet orta."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -2684,5 +2692,5 @@
   }
  },
  "notam_son_senkron": "2026-09-21T19:40:56+00:00",
- "guncelleme": "2026-09-21T20:50:55+00:00"
+ "guncelleme": "2026-09-21T21:01:33+00:00"
 }
