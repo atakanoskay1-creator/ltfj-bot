@@ -77,6 +77,25 @@ ADAY_CIFTLER = [
     ("spread", "ruzgar_kuzey"),
     ("gorus", "tavan_ozellik"),
     ("gorus", "saat"),
+    # sis_olasilik (dondurulmus Model A'nin cikisi) simdiye kadar tabloya
+    # yalnizca RAKIP bir yontem olarak kiyaslanmisti (_yontemler ->
+    # "ham SİS modeli") - hic bir CIFTIN EKSENI olarak denenmedi. Oysa
+    # olculdu: Model A'nin ham skoru TEK BASINA holdout'ta tabloyu (AP
+    # 0.093) geciyor (AP 0.103, bkz. README "Dikkat çeken sonuç"). spread
+    # ve gorus'un asil kazanan cifte zaten yaptigi gibi, sis_olasilik de
+    # BURADA gorus/spread'in ayni "hub" rolunu deneyecek sekilde her
+    # degiskenle eslendi - tek bir cift onceden secilip kazanmasi
+    # beklenmedi (spread'in aday listesindeki tum eslerle simetrik).
+    # DIKKAT: sis_olasiligi_ekle()'nin kendi uyarisi burada da gecerli -
+    # gelistirme (2017-2023) donemi Model A'nin KENDI egitim donemi
+    # icinde, yani asagidaki cift_sec() sonucu o adaylar icin ORNEK ICI
+    # (iyimser) olabilir; kazanan cift ancak holdout'ta (Model A icin
+    # GERCEKTEN disarida kalan 2024-2026) dogrulanirsa guvenilir sayilir.
+    ("sis_olasilik", "spread"),
+    ("sis_olasilik", "gorus"),
+    ("sis_olasilik", "tavan_ozellik"),
+    ("sis_olasilik", "saat"),
+    ("sis_olasilik", "ruzgar_kuzey"),
 ]
 
 
