@@ -10,6 +10,7 @@ En kritik iki test:
    alinmali."""
 import csv
 import gzip
+from datetime import date, datetime, timezone
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -144,6 +145,30 @@ def test_donem_indir_aralik_parametreleri_dogru_gonderilir():
     _, kwargs = oturum.get.call_args
     assert kwargs["params"]["start_date"] == "2010-01-01"
     assert kwargs["params"]["end_date"] == "2015-12-31"
+
+
+def test_donem_indir_icinde_bulunulan_yil_icin_bugune_kadar_ister():
+    """Ikinci gercek calistirmada (2026-09-21) tam olarak bu hatayla
+    karsilasildi: henuz bitmemis yil icin '{yil}-12-31' istemek Open-Meteo'yu
+    reddettirdi - API en fazla BUGUNE kadar veri veriyor."""
+    bugun = datetime.now(timezone.utc).date()
+    oturum = MagicMock()
+    oturum.get.return_value = _SahteYanit({"hourly": _saatlik_ornek()})
+
+    ak._donem_indir(bugun.year, bugun.year, oturum)
+
+    _, kwargs = oturum.get.call_args
+    assert kwargs["params"]["end_date"] == bugun.isoformat()
+
+
+def test_donem_indir_gecmis_yil_icin_hala_31_aralik_ister():
+    oturum = MagicMock()
+    oturum.get.return_value = _SahteYanit({"hourly": _saatlik_ornek()})
+
+    ak._donem_indir(2010, 2010, oturum)
+
+    _, kwargs = oturum.get.call_args
+    assert kwargs["params"]["end_date"] == "2010-12-31"
 
 
 # --------------------------------------------------------- arsivi_uret
