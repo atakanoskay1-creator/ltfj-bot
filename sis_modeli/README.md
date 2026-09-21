@@ -152,6 +152,48 @@ daha iyi sıralıyor.** Sis ve düşük tavan birlikte oluyor (CAT II tavanları
 %86'sı sisli). Tablonun kattığı şey daha iyi bir sıralayıcı değil, tavan
 kriterine **doğrudan okunabilir** bir göreli risk ölçeği.
 
+### Tablo çifti güncellendi: sis_olasilık × tavan_özellik
+
+Yukarıdaki bulgu (sis modeli tabloyu tek başına geçiyor) uzun süre bir
+karşılaştırma notu olarak kaldı, hiç aksiyona dönüşmedi: `sis_olasilik`
+`ADAY_CIFTLER`'da hiçbir çiftin **ekseni** olarak denenmemişti — sadece
+rakip bir yöntem olarak ölçülüyordu. `spread`'in aday listesindeki tüm
+eşleriyle (görüş, tavan_özellik, saat, rüzgâr_kuzey) simetrik olacak
+şekilde `sis_olasilik` da eklendi (a priori, sonuca bakılmadan — `spread`
+zaten hangi partnerlerle test ediliyorsa `sis_olasilik` da AYNI partnerlerle
+test edildi, tek bir çift önceden seçilip kazanması beklenmedi).
+
+**Gelişme içi seçim** (holdout'a dokunmadan): `sis_olasilık × tavan_özellik`
+açık farkla kazandı (AP 0.111, eski şampiyon spread×görüş'ün 0.082'sini
+geçti). Bu adım **iyimser** olabilir — `sis_olasilik` o dönemde (2017-2023)
+Model A'nın kendi eğitim döneminin İÇİNDE, yani örnek içi.
+
+**Holdout doğrulaması (2024-2026, bu karşılaştırma için TEK ATIŞ #2 — ilk
+holdout açılışı yukarıdaki spread×görüş tablosu içindi):**
+
+| yöntem | Brier×10⁴ | BSS | AP |
+|---|---|---|---|
+| **tablo (sis_olasılık × tavan_özellik) — YENİ** | **104.87** | **0.041** | **0.096** |
+| tablo (spread × görüş) — ESKİ | 105.55 | 0.035 | 0.093 |
+| ham sis modeli (kalibresiz) | 105.70 | 0.033 | 0.103 |
+| kalibre sis modeli | 104.97 | 0.040 | 0.088 |
+
+Yeni çift, eski tabloyu **üç metrikte de** (Brier, BSS, AP) geçiyor — gerçek
+ama mütevazı bir kazanç. Ham sis modeli AP'de hâlâ hafifçe önde (0.103), ama
+yeni tablo Brier ve BSS'te ondan da iyi — yani tablo formatının kattığı
+kalibrasyon (büzülme + iki eksenli hücreleme) ham skordan daha güvenilir
+olasılıklar üretiyor. Kat yapısının holdout'a taşınması da önceki tabloyla
+aynı örüntüde: log korelasyon 0.935 (sıralama taşınıyor), kat oranı medyanı
+2.17 (seviye taşınmıyor — zaten bilinen, ayrı bir sorun değil).
+
+**Durum:** ölçüldü ve doğrulandı, ama HENÜZ canlıya bağlanmadı
+(`ltfj_tavan_tablosu.py` hâlâ eski spread×görüş çiftini kullanıyor). Canlıya
+almak, çalışma anı modülünün artık `sis_olasilik` değerini de (zaten
+`ltfj_sis_olasilik.olasilik()` ile hesaplanıyor, sis kartı için) girdi olarak
+alması demek — izolasyon sözleşmesini bozmaz (hâlâ sadece `math`), ama
+çağıran tarafın (`ltfj_sayfa.py`) iki modülün çıktısını birbirine
+bağlaması gerekir.
+
 ## Model B — görüşsüz atmosferik sis oluşum potansiyeli
 
 Model A (yukarıdaki lojistik regresyon) soruyor: *"mevcut görüş dahil,
