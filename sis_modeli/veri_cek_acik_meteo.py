@@ -39,6 +39,13 @@ ISTEKLER_ARASI_BEKLEME kadar bekleyerek cekmek; ayrica hiz limiti govdesi
 hatalardan (yanlis parametre adi gibi) AYRI ele alinir - o TEK durumda
 retry edilir, digerlerinde hemen ve acik sekilde basarisiz olunur.
 
+IKINCI CALISTIRMADAN OGRENILDI (2026-09-21, ayni gun): hiz limiti duzeltmesi
+calisti, ama ICINDE BULUNULAN (henuz bitmemis) yili iceren son dilim "yanlis
+end_date" hatasi verdi - kod her dilimin bitisini korukorune "{yil}-12-31"
+olarak istiyordu, ama Open-Meteo gelecekteki bir tarihi (henuz yasanmamis
+31 Aralik) kabul etmiyor, en fazla BUGUNE kadar veri veriyor. Duzeltme:
+istenen end_date artik min(yil sonu, bugun) ile sinirlaniyor.
+
 Kullanim:
     python -m sis_modeli.veri_cek_acik_meteo --baslangic 2003 --bitis 2026
 """
@@ -48,7 +55,7 @@ import csv
 import gzip
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 import requests
@@ -105,9 +112,15 @@ def _donem_indir(baslangic_yil: int, bitis_yil: int,
     beklenen degiskenlerden biri yanitta yoksa (yanlis ad, API degisikligi)
     sessizce atlanmaz - o KALICI kabul edilip acik hata verir."""
     etiket = f"{baslangic_yil}-{bitis_yil}"
+    # Icinde bulunulan (henuz bitmemis) yil icin 31 Aralik'i istemek API'yi
+    # reddettirir - Open-Meteo en fazla BUGUNE kadar veri verir. Ilk gercek
+    # calistirmada (2026-09-21) tam olarak bu hatayla karsilasildi: "end_date
+    # is out of allowed range ... to 2026-09-21".
+    bitis_tarihi = min(date(bitis_yil, 12, 31), datetime.now(timezone.utc).date())
     parametreler = {
         "latitude": LTFJ_ENLEM, "longitude": LTFJ_BOYLAM,
-        "start_date": f"{baslangic_yil}-01-01", "end_date": f"{bitis_yil}-12-31",
+        "start_date": f"{baslangic_yil}-01-01",
+        "end_date": bitis_tarihi.isoformat(),
         "hourly": ",".join(HOURLY_TUMU),
         "timezone": "UTC",
     }
