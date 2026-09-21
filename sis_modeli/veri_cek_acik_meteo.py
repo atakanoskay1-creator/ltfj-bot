@@ -46,6 +46,19 @@ olarak istiyordu, ama Open-Meteo gelecekteki bir tarihi (henuz yasanmamis
 31 Aralik) kabul etmiyor, en fazla BUGUNE kadar veri veriyor. Duzeltme:
 istenen end_date artik min(yil sonu, bugun) ile sinirlaniyor.
 
+UCUNCU BULGU (2026-09-21, veri_birlestir.py taramasinda): basinc seviyesi
+(HOURLY_BASINC / 925-850hPa) sutunlari BASARIYLA cekildi (API hata vermedi,
+tum yillar sorunsuz indi) ama TUM 208 bin satirda BOS (None/'') geldi.
+Yuzey alanlari (HOURLY_YUZEY) gercek deger tasiyor - sorun sadece basinc
+seviyesi. Demek ki archive-api.open-meteo.com uc noktasi bu parametre
+adlarini SESSIZCE kabul edip veri DONDURMUYOR - muhtemelen tarihsel arsiv
+uc noktasi basinc seviyesi cikisini hic desteklemiyor (Forecast API'de
+olabilir). SONUC: alcak seviye inversiyon gucu fikri BU KAYNAKLA
+calismiyor; koddaki HOURLY_BASINC/BASINC_SEVIYELERI kasitli olarak
+SILINMEDI (basinc seviyesi baska bir uc nokta/kaynaktan denenmek istenirse
+diye), ama tavan_dis_kaynak_tarama.py'deki inversiyon adaylari bu yuzden
+hep "kova kurulamadi" veriyor - bu bir BUG DEGIL.
+
 Kullanim:
     python -m sis_modeli.veri_cek_acik_meteo --baslangic 2003 --bitis 2026
 """
