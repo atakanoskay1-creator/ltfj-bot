@@ -1,0 +1,34 @@
+name: Push testi (elle)
+
+# SADECE elle calistirilir - zamanlanmis tetikleyici YOK. Amaci "abone
+# oldum, calisiyor mu?" sorusunu SPECI/TAF beklemeden cevaplamak.
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    env:
+      TZ: Europe/Istanbul
+      FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
+      VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+
+    steps:
+      - name: Repoyu al
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Bagimliliklar
+        run: pip install --quiet firebase-admin pywebpush
+
+      # Basarisizsa adim KIRMIZI olur - Actions sekmesinde tek bakista
+      # gorunur, log okumaya gerek kalmaz.
+      - name: Test bildirimi gonder
+        run: python push_testi.py
