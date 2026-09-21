@@ -1,13 +1,13 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-21T01:20:53+00:00",
+ "uretildi": "2026-09-21T01:31:09+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-21T00:50:00+00:00",
-  "metin": "METAR LTFJ 210050Z 06004KT CAVOK 18/17 Q1018 NOSIG RMK RWY24R 35004KT RWY06R 05005KT RWY24L 05004KT",
+  "zaman": "2026-09-21T01:20:00+00:00",
+  "metin": "METAR LTFJ 210120Z 07004KT CAVOK 18/17 Q1018 NOSIG RMK RWY24R 03003KT 340V100 RWY06R 04006KT RWY24L 05004KT",
   "ruzgar": {
-   "yon": 60,
+   "yon": 70,
    "hiz": 4,
    "hamle": null,
    "degisken": null
@@ -31,8 +31,8 @@
     "pist": "06L",
     "yon_gercek": 64.1,
     "bas": 4.0,
-    "yan": 0.3,
-    "yan_taraf": "soldan",
+    "yan": 0.4,
+    "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
     "degisken": false,
@@ -43,8 +43,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 4.8,
-    "yan": 1.2,
+    "bas": 5.5,
+    "yan": 2.4,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -69,12 +69,12 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -1.1,
-    "yan": 3.8,
+    "bas": -2.5,
+    "yan": 1.7,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": false,
+    "degisken": true,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": false
@@ -88,7 +88,7 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": "Sis oluşum göstergesi: yüksek (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 1°C, rüzgâr 4 kt, gece şartları",
-  "ozet": "Rüzgâr 060° 4kt · görüş CAVOK · 18°C · QNH 1018"
+  "ozet": "Rüzgâr 070° 4kt · görüş CAVOK · 18°C · QNH 1018"
  },
  "taf": {
   "zaman": "2026-09-20T22:40:00+00:00",
@@ -1806,6 +1806,14 @@
   },
   {
    "zaman": "2026-09-21T00:50:00+00:00",
+   "ruzgar_hiz": 4,
+   "tavan": null,
+   "qnh": 1018,
+   "sicaklik": 18,
+   "cig_noktasi": 17
+  },
+  {
+   "zaman": "2026-09-21T01:20:00+00:00",
    "ruzgar_hiz": 4,
    "tavan": null,
    "qnh": 1018,
