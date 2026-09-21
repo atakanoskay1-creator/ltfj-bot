@@ -384,6 +384,20 @@ kullanıcı deneyiminin üçüncü taraf servislerin çalışma süresine bağla
 Canlıya alma kararı **istatistiksel doğrulamadan ayrı, ek bir mimari karar**
 gerektirir.
 
+**Risk azaltımı: gevşek bağlı önbellekleyici tasarlandı (`ltfj_dis_kaynak_
+cache.py`, henüz BAĞLANMADI).** Yukarıdaki riski (özellikle bütçe çakışması
+ve tek nokta arızası) azaltmak için ayrı bir önbellekleme katmanı yazıldı:
+Open-Meteo (gerçek zamanlı Forecast API, arşiv API'si DEĞİL) ve komşu
+istasyon (LTFM, `ltfj_rasat.py` yeniden kullanılarak) kendi bağımsız
+zamanlamasında (`dis-kaynak-onbellek.yml`, ana botun 15 dk'lık döngüsüyle
+SENKRONİZE DEĞİL) çekilip `dis_kaynak_cache.json`'a yazılır. Ana bot
+(ileride bağlanırsa) bu dosyayı YEREL olarak okur, asla kendisi ağa çıkmaz.
+Bayatlık kontrolü (varsayılan 45 dk) ve kaynak başına kısmi hata toleransı
+var — bir kaynak çökerse diğerini kirletmez, ikisi de bayatsa okuma
+fonksiyonu None döner (TEMEL'e düşme sinyali). **Önbellek yazılıyor ama
+HİÇBİR YERDE OKUNMUYOR** — `ltfj_bot.py`/`ltfj_sayfa.py`'nin gerçek tahmin
+çıktısına bağlama, ayrı ve sonraki bir karar.
+
 ## Model B — görüşsüz atmosferik sis oluşum potansiyeli
 
 Model A (yukarıdaki lojistik regresyon) soruyor: *"mevcut görüş dahil,
