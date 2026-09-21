@@ -24,7 +24,7 @@
     "push_abonelikler": {
       ".read": false,
       "$abonelik_id": {
-        ".write": "!data.exists() && newData.exists()",
+        ".write": "newData.exists()",
         ".validate": "newData.hasChildren(['endpoint', 'keys', 'created_at'])",
         "endpoint": {
           ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1000"

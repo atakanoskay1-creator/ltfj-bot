@@ -95,7 +95,8 @@ def test_push_govde_renk_bilgisi_iceriyor():
 def sahte_ltfj_push(monkeypatch):
     fake = types.ModuleType("ltfj_push")
     fake.yapilandirilmis_mi = MagicMock(return_value=True)
-    fake.gonder = MagicMock(return_value={"gonderildi": 1, "silindi": 0, "hata": 0})
+    fake.gonder = MagicMock(
+        return_value={"abone": 1, "gonderildi": 1, "silindi": 0, "hata": 0})
     monkeypatch.setitem(sys.modules, "ltfj_push", fake)
     return fake
 
@@ -120,3 +121,43 @@ def test_push_bildirimi_gonder_hata_asla_yukselmiyor(monkeypatch, sahte_ltfj_pus
     """Push gonderiminde HERHANGI bir hata METAR/TAF akisini asla bozmamali."""
     sahte_ltfj_push.gonder.side_effect = RuntimeError("ağ hatası")
     bot.push_bildirimi_gonder(_rapor("SPECI"), None, None)  # exception fırlatmamalı
+
+
+# --------------------------------------------- sessiz basarisizlik OLMAMALI
+# 21.09.2026: TAF Telegram'a gitti ama push logda HIC gorunmedi - eski kod
+# sadece gonderildi/silindi > 0 ise yazdirirdi, bu yuzden "abone yok",
+# "hepsi hata verdi" ve "push hic denenmedi" AYIRT EDILEMIYORDU. Asagidaki
+# testler her durumun loga DUSTUGUNU garanti eder.
+def test_abone_yoksa_log_bunu_acikca_soyluyor(capsys, sahte_ltfj_push):
+    sahte_ltfj_push.gonder.return_value = {
+        "abone": 0, "gonderildi": 0, "silindi": 0, "hata": 0}
+    bot.push_bildirimi_gonder(_rapor("TAF"), None, None)
+    cikti = capsys.readouterr().out
+    assert "push [TAF]" in cikti
+    assert "abone YOK" in cikti
+
+
+def test_abone_var_ama_hepsi_hata_verirse_log_hatayi_gosteriyor(capsys, sahte_ltfj_push):
+    """En sinsi durum: abonelikler duruyor ama her gonderim patliyor.
+    Eskiden bu TAMAMEN sessizdi (gonderildi=0, silindi=0)."""
+    sahte_ltfj_push.gonder.return_value = {
+        "abone": 3, "gonderildi": 0, "silindi": 0, "hata": 3}
+    bot.push_bildirimi_gonder(_rapor("TAF"), None, None)
+    cikti = capsys.readouterr().out
+    assert "3 abone" in cikti and "0 gönderildi" in cikti and "3 hata" in cikti
+
+
+def test_yapilandirilmamissa_sebebi_loga_yaziliyor(capsys, sahte_ltfj_push):
+    sahte_ltfj_push.yapilandirilmis_mi.return_value = False
+    bot.push_bildirimi_gonder(_rapor("TAF"), None, None)
+    cikti = capsys.readouterr().out
+    assert "atlandı" in cikti and "VAPID_PRIVATE_KEY" in cikti
+
+
+def test_push_kapaliysa_sebebi_loga_yaziliyor(capsys, monkeypatch, sahte_ltfj_push):
+    monkeypatch.setattr(bot, "ayar",
+                        lambda *a, **k: False if a[:2] == ("push", "aktif") else k.get("varsayilan"))
+    bot.push_bildirimi_gonder(_rapor("TAF"), None, None)
+    cikti = capsys.readouterr().out
+    assert "atlandı" in cikti and "aktif" in cikti
+    sahte_ltfj_push.gonder.assert_not_called()

@@ -61,13 +61,31 @@ Kurulum:
 
 > **Not:** `firebase-rules.json` LVO panelinin manuel AWOS RVR giriş yolu (`awos_rvr`) için de kurallar içerir — ATC Notes'u zaten kurduysanız **aynı Firebase projesini** kullanabilirsiniz, sadece Rules sekmesindeki içeriği dosyanın güncel haliyle yeniden yapıştırıp **Publish** etmeniz yeterli (yeni bir proje/veritabanı gerekmez).
 
-### 5. LVO Reference Paneli
+### 5. Tarayıcı Bildirimleri (Web Push)
+
+Web sayfasındaki **🔔 Bildirimlere izin ver** butonu, Telegram'dan bağımsız ikinci bir kanaldır: SPECI, TAF, düzeltme (AMD/COR), renk **kötüleşmesi** ve yeni NOTAM durumlarında telefona/tarayıcıya bildirim düşürür (rutin METAR düşürmez). Abonelikler ATC Notes ile aynı Firebase veritabanında, `push_abonelikler` yolunda tutulur; gönderimi `ltfj_push.py` yapar.
+
+Çalışması için **üçü birden** gerekir:
+
+1. **Repository Secret'ları:** `FIREBASE_SERVICE_ACCOUNT`, `FIREBASE_DATABASE_URL` (yukarıdaki ATC Notes kurulumuyla aynı) ve ayrıca `VAPID_PRIVATE_KEY`. Üçünden biri eksikse özellik sessizce devre dışı kalır, METAR/TAF akışı etkilenmez.
+2. **`ayarlar.json::push.vapid_public_key`** — özel anahtarla *birlikte* üretilmiş açık anahtar. Gizli değildir, sayfaya gömülür; biri değişirse diğeri de değişmelidir. Boşsa buton hiç gösterilmez.
+3. **Firebase Rules'un güncel hali yayınlanmış olmalı.** `firebase-rules.json` içindeki `push_abonelikler` bloğu Rules sekmesinde **yoksa**, tarayıcı aboneliği oluşturur ama Firebase yazmayı reddeder — sunucu tarafında hiç abone olmaz ve *hiçbir bildirim gitmez*. Rules sekmesine dosyanın güncel içeriğini yapıştırıp **Publish** edin.
+
+Çalışıp çalışmadığını GitHub Actions logundan görebilirsiniz — bot her push denemesini yazar:
+
+```
+  push [TAF]: 2 abone, 2 gönderildi, 0 geçersiz abonelik silindi, 0 hata.
+  push [TAF]: kayıtlı abone YOK - kimseye gönderilmedi.     ← 3. adım eksik olabilir
+  push [TAF]: atlandı - FIREBASE_SERVICE_ACCOUNT/... eksik.  ← 1. adım eksik
+```
+
+### 6. LVO Reference Paneli
 
 LVO Reference paneli, "SABİHA GÖKÇEN HAVALİMANI DÜŞÜK GÖRÜŞ OPERASYONLARI TALİMATI" (TL.007 Rev.1, 16.08.2024) dokümanındaki referans RVR eşiklerini gösterir, ve ATC'nin manuel olarak gireceği AWOS RVR'ı (06R/24R × TDZ/MID/STOP-END) paylaşımlı olarak tutar. Sayfa açıldığında kapalıdır — panel başlığına tıklanınca açılır, uzun metinler sayfa yüklenirken gösterilmez.
 
 Panelin başında, **Farkındalık Notları** adında gayri resmi bir alt bölüm bulunur: en son METAR/TAF'ın kendi görüş/tavan değeri ve girilen AWOS RVR, dokümanın kendi eşik değerleriyle karşılaştırılıp "... LVO şartları oluşabilir. Resmî bir tespit değildir." gibi hedge'li (kesin olmayan) uyarı cümlelerine dökülür (bkz. `ltfj_lvo_farkindalik.py`). **Bu panel hiçbir operasyonel karar üretmez** — METAR'dan RVR türetmez, "LVO aktif", "CAT II kullanılabilir" gibi kesin bir sonuç çıkarmaz; sadece mevcut bilgileri kaynağıyla ve hedge'li bir dille gösterir. Yukarıdaki ATC Notes kurulumuyla **aynı Firebase veritabanını** kullanır — ayrıca bir kurulum gerekmez, sadece `firebase-rules.json`'ın güncel halinin Rules sekmesine yapıştırılmış olması yeterlidir.
 
-### 6. VFR Sekmesi
+### 7. VFR Sekmesi
 
 Sayfanın sağ kenarında küçük bir "VFR" sekmesi bulunur. Bu sekme, en son METAR/SPECI'nin görüş ve bulut tabanı (tavan) değerlerini ICAO Annex 2 (Rules of the Air) Table 3-1'in FL100 altı satırıyla (görüş ≥ 5 km, tavan ≥ 1.500 ft — Sabiha Gökçen CTR'si sürekli kontrollü hava sahası olduğu için tüm irtifalarda aynı eşik) karşılaştırır ve şartlar sağlanıyorsa yeşil, sağlanmıyorsa kırmızı yanar. Kırmızıyken/tıklandığında açılan panelde hangi eşiğin (görüş ve/veya tavan) sağlanmadığı yazar. Bu, projedeki diğer METAR-tabanlı göstergelerle (ör. sis riski) aynı mantıkla çalışan, tamamen statik/deterministik bir hesaplamadır — ek kurulum, Firebase veya harici veri kaynağı gerektirmez; hiçbir zaman "LVO/CAT II" gibi operasyonel bir karar iddiasında bulunmaz, sadece görüş/tavan-VFR eşiği karşılaştırmasıdır.
 
