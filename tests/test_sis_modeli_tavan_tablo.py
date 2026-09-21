@@ -3,7 +3,11 @@
 En kritik test: sis_olasilik (dondurulmus Model A'nin cikisi) artik
 ADAY_CIFTLER icinde bir EKSEN olarak var - tablo_kur/tahmin bunu diger
 degiskenler gibi genel olarak isleyebilmeli, ozel bir dal gerekmemeli."""
-from sis_modeli.tavan_tablo import ADAY_CIFTLER, tablo_kur, tahmin
+from pathlib import Path
+from unittest.mock import patch
+
+from sis_modeli.tavan_tablo import (ADAY_CIFTLER, dis_kaynak_ekle,
+                                    tablo_kur, tahmin)
 
 
 def _kayit(sis_olasilik, tavan_ozellik, hedef, gun="2024-01-01"):
@@ -39,3 +43,40 @@ def test_tahmin_tabloda_olmayan_hucrede_taban_dondurur():
     # hucresi) crash etmemeli, taban dondurmeli.
     p = tahmin(tablo, {"sis_olasilik": None, "tavan_ozellik": None})
     assert p == tablo["taban"]
+
+
+# --------------------------------------------------- dis kaynak adaylari
+def test_dis_kaynak_adaylari_hub_ile_simetrik():
+    """acik_meteo_nem_2m ve komsu_tavan_ozellik, sis_olasilik'in orijinal
+    es kumesiyle (spread, gorus, tavan_ozellik, saat, ruzgar_kuzey) AYNI
+    simetride test edilmis mi?"""
+    sis_esleri = {b for a, b in ADAY_CIFTLER if a == "sis_olasilik"}
+    for hub in ("acik_meteo_nem_2m", "komsu_tavan_ozellik"):
+        esler = {b for a, b in ADAY_CIFTLER if a == hub}
+        assert sis_esleri <= esler | {"sis_olasilik"}
+
+
+def test_dis_kaynak_ekle_veri_birlestiri_cagirir(tmp_path):
+    with patch("sis_modeli.veri_birlestir.zenginlestir") as mock_zen, \
+            patch("sis_modeli.veri_birlestir.turet") as mock_turet:
+        mock_zen.return_value = ["zenginlesmis"]
+        mock_turet.return_value = ["turetilmis"]
+
+        sonuc = dis_kaynak_ekle([{"zaman": "2024-01-01T00:00"}],
+                                komsu_yol=tmp_path / "k.csv.gz",
+                                acik_meteo_yol=tmp_path / "a.csv.gz")
+
+    assert sonuc == ["turetilmis"]
+    mock_zen.assert_called_once()
+    mock_turet.assert_called_once_with(["zenginlesmis"])
+
+
+def test_dis_kaynak_ekle_kaynak_dosya_yoksa_cokmez(tmp_path):
+    """Gercek dosyalar yoksa (henuz cekilmemisse) None'lu alanlarla
+    devam etmeli, ADAY_CIFTLER taramasini cokertmemeli."""
+    sonuc = dis_kaynak_ekle(
+        [{"zaman": "2024-01-01T00:00", "hedef": False}],
+        komsu_yol=tmp_path / "yok_komsu.csv.gz",
+        acik_meteo_yol=tmp_path / "yok_am.csv.gz")
+    assert sonuc[0]["acik_meteo_nem_2m"] is None
+    assert sonuc[0]["komsu_tavan_ozellik"] is None
