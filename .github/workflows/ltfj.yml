@@ -34,6 +34,7 @@ jobs:
       NOTAC_API_KEY: ${{ secrets.NOTAC_API_KEY }}
       FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
       FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
+      VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
 
     steps:
       - name: Repoyu al
@@ -45,7 +46,7 @@ jobs:
           python-version: "3.12"
 
       - name: Bagimliliklar
-        run: pip install --quiet requests firebase-admin
+        run: pip install --quiet requests firebase-admin pywebpush
 
       - name: Botu calistir
         run: python ltfj_bot.py
