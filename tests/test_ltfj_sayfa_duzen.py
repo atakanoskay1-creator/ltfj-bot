@@ -183,3 +183,24 @@ def test_firebase_kurali_awos_silmeye_izin_veriyor():
     kural = json.loads((kok / "firebase-rules.json").read_text(encoding="utf-8"))
     yazma = kural["rules"]["awos_rvr"]["$rvr_id"][".write"]
     assert yazma == "!data.exists() || !newData.exists()"
+
+
+def test_rvr_silme_url_i_tabanUrl_uzerinden_kuruluyor(tmp_path):
+    """REGRESYON: tabanUrl() sonuna ".json" EKLER. Ilk surumde yol
+    birlestirilerek yaziliyordu ve ".../awos_rvr.json/<id>.json" gibi
+    gecersiz bir URL cikiyordu - buton her zaman hata veriyordu.
+
+    Sahte bir Firebase'e karsi dogrulandi: DELETE artik
+    /awos_rvr/<id>.json yoluna gidiyor ve SADECE secili pistin kayitlari
+    siliniyor."""
+    html = _sayfa(tmp_path)
+    assert 'tabanUrl("awos_rvr/" + encodeURIComponent(id))' in html
+    assert 'tabanUrl("awos_rvr") + "/"' not in html
+
+
+def test_rvr_silme_hatasi_sebebini_soyluyor(tmp_path):
+    """Ilk surumdeki mesaj her hatayi "kurallar" diye sunuyordu ve asil
+    sorunu (bozuk URL) gizliyordu."""
+    html = _sayfa(tmp_path)
+    assert 'err.message' in html
+    assert "401/403" in html
