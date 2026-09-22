@@ -48,6 +48,51 @@ GRAFIKLER = (
     ("sicaklik", "Sıcaklık", "°C", "#ef4444"),
 )
 
+# --------------------------------------------------------------- yazı tipi
+# IBM Plex Sans/Mono, GitHub Pages'ten KENDİ deposundan servis edilir -
+# fonts.googleapis.com'a istek YOK. Sebep: sayfa havalimanı ağından
+# açılıyor; üçüncü taraf CDN engellenirse yazı tipi sessizce sistem
+# fontuna düşerdi. Dosyalar yazitipi/ klasöründe (toplam ~130 KB) ve
+# bot tarafından YENIDEN URETILMEZ, depoda statik dururlar.
+#
+# Sans DEGISKEN (400..700): sayfada 20 yerde geçen font-weight:650 gibi
+# ara ağırlıklar tam olarak o ağırlıkta çizilir, yuvarlanmaz.
+# Mono statiktir (400/600) - IBM Plex Mono'nun değişken sürümü Google
+# Fonts'ta yok; 650 isteyen iki yer 600'e yuvarlanır, fark edilmez.
+#
+# Türkçe latin alt kümesine SIGMAZ: ğ/ş/İ latin-ext'te, ı latin'de.
+# İkisi de gömülü. Δ/▶/⟳ ve emoji hiçbirinde yok, tarayıcı onları
+# karakter bazında sistem fontuna düşürür - beklenen davranış.
+YAZITIPI_KLASORU = "yazitipi"
+_LATIN = ("U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, "
+          "U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, "
+          "U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD")
+_LATIN_EXT = ("U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, "
+              "U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, "
+              "U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, "
+              "U+2113, U+2C60-2C7F, U+A720-A7FF")
+
+# (aile adı, dosya adı, font-weight, unicode-range)
+YAZITIPI_DOSYALARI = (
+    ("IBM Plex Sans", "plex-sans-latin-400-700.woff2", "400 700", _LATIN),
+    ("IBM Plex Sans", "plex-sans-latin-ext-400-700.woff2", "400 700", _LATIN_EXT),
+    ("IBM Plex Mono", "plex-mono-latin-400.woff2", "400", _LATIN),
+    ("IBM Plex Mono", "plex-mono-latin-ext-400.woff2", "400", _LATIN_EXT),
+    ("IBM Plex Mono", "plex-mono-latin-600.woff2", "600", _LATIN),
+    ("IBM Plex Mono", "plex-mono-latin-ext-600.woff2", "600", _LATIN_EXT),
+)
+
+# font-display:swap - yazı tipi inene kadar sayfa BOŞ beklemez, sistem
+# fontuyla çizilir sonra değişir. Operasyonel bir sayfada "yazı yok"
+# hali "yazı biraz sonra değişti" halinden çok daha kötü.
+YAZITIPI_CSS = "\n".join(
+    f'  @font-face {{ font-family:"{aile}"; font-style:normal;\n'
+    f'    font-weight:{agirlik}; font-display:swap;\n'
+    f'    src:url("{YAZITIPI_KLASORU}/{dosya}") format("woff2");\n'
+    f"    unicode-range:{aralik}; }}"
+    for aile, dosya, agirlik, aralik in YAZITIPI_DOSYALARI)
+
+
 SABLON = """<!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -56,7 +101,11 @@ SABLON = """<!DOCTYPE html>
 <title>{icao} · Hava Durumu</title>
 <meta name="description" content="{icao} anlık METAR ve TAF">
 <style>
+{yazitipi_css}
   :root {{
+    /* Mono yigini eskiden 6 ayri yerde KOPYALANMISTI - biri guncellenip
+       otekiler unutulabilirdi. Tek kaynak. */
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
     --bg:#f8fafc; --kart:#ffffff; --metin:#0f172a; --soluk:#64748b;
     --cizgi:#e2e8f0; --vurgu:#0f172a; --kod-bg:#f1f5f9;
   }}
@@ -73,7 +122,11 @@ SABLON = """<!DOCTYPE html>
   * {{ box-sizing:border-box; }}
   body {{
     margin:0; background:var(--bg); color:var(--metin);
-    font:16px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    /* 1.55 -> 1.62: sayfadaki uzun Turkce uyari paragraflari icin
+       gozu dinlendiren asil degisiklik satir araligi. */
+    font:16px/1.62 "IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,
+         "Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
     padding:24px 16px 48px;
   }}
   .sar {{ max-width:680px; margin:0 auto; }}
@@ -153,7 +206,7 @@ SABLON = """<!DOCTYPE html>
   pre {{
     background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:10px;
     padding:12px; overflow-x:auto; font-size:.8rem; line-height:1.5;
-    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; margin:12px 0 0;
+    font-family:var(--mono); margin:12px 0 0;
     white-space:pre-wrap; word-break:break-word;
   }}
   footer {{ color:var(--soluk); font-size:.8rem; text-align:center; margin-top:28px; }}
@@ -249,7 +302,7 @@ SABLON = """<!DOCTYPE html>
   .kat[open] > summary::after {{ transform:rotate(90deg); }}
   .kat > summary:hover {{ color:var(--metin); }}
   .kat-rozet {{
-    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.75rem;
+    font-family:var(--mono); font-size:.75rem;
     color:var(--metin); font-weight:600; margin-left:8px;
   }}
   /* Kart basligi olarak kullanilan katlanabilir summary - .basrow ile ayni
@@ -279,7 +332,7 @@ SABLON = """<!DOCTYPE html>
   }}
   .tahmin-saat {{
     font-size:.78rem; font-weight:650; margin-bottom:4px;
-    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-family:var(--mono);
   }}
   .tahmin-spread {{ font-size:1.05rem; font-weight:700; margin-bottom:4px; }}
   /* Modelin sis kodu verdigi saat - kart kenarligi ve kucuk bir etiketle
@@ -307,7 +360,7 @@ SABLON = """<!DOCTYPE html>
   .notam-kart:last-child {{ border-bottom:none; }}
   .notam-ust {{ display:flex; align-items:center; gap:8px; flex-wrap:wrap;
                 margin-bottom:6px; }}
-  .notam-no {{ font-weight:650; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }}
+  .notam-no {{ font-weight:650; font-family:var(--mono); }}
   .notam-etiket {{
     padding:2px 8px; border-radius:999px; font-size:.72rem; font-weight:600;
     background:var(--kod-bg); border:1px solid var(--cizgi); color:var(--soluk);
@@ -337,7 +390,7 @@ SABLON = """<!DOCTYPE html>
   .notam-metin {{
     background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:8px;
     padding:10px; font-size:.78rem; line-height:1.5; margin-top:6px;
-    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; white-space:pre-wrap;
+    font-family:var(--mono); white-space:pre-wrap;
     word-break:break-word;
   }}
   .notam-kaynak {{ font-size:.72rem; color:var(--soluk); margin-top:6px; }}
@@ -380,7 +433,7 @@ SABLON = """<!DOCTYPE html>
     border-bottom:1px solid var(--cizgi);
   }}
   .lvo-esik-satir:last-child {{ border-bottom:none; }}
-  .lvo-esik-deger {{ font-weight:650; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }}
+  .lvo-esik-deger {{ font-weight:650; font-family:var(--mono); }}
   .lvo-not-listesi {{ font-size:.78rem; color:var(--soluk); margin:8px 0 0; padding-left:18px; }}
   .lvo-not-listesi li {{ margin-bottom:4px; }}
   .lvo-awos-grid {{ display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; }}
@@ -2550,6 +2603,7 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
 
     hedef.write_text(
         SABLON.format(icao=html.escape(icao), govde=govde,
+                      yazitipi_css=YAZITIPI_CSS,
                       guncelleme=f"{simdi:%d.%m.%Y %H:%M} yerel",
                       atc_notes_db_url=json.dumps(atc_notes_db_url or ""),
                       push_vapid_public_key=json.dumps(push_vapid_public_key or ""),
