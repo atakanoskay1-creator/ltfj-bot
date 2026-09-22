@@ -33,10 +33,16 @@ ARŞİV API'si (archive-api.open-meteo.com) burada KULLANILMAZ - o uç nokta
 gecikmeli/geçici (ERA5T tipi) veri döndürebilir. Bunun yerine gerçek
 zamanlı FORECAST API'sinin (api.open-meteo.com) "current" bloğu kullanılır.
 
-KAPSAM - BU BETİK HENÜZ CANLI TAHMİNE BAĞLANMADI. Önbellek yazılıyor ama
-hiçbir yerde OKUNMUYOR (ltfj_bot.py/ltfj_sayfa.py bu dosyayı henüz import
-etmiyor) - bağlama, istatistiksel doğrulamadan AYRI ve SONRAKİ bir karar
-(bkz. sis_modeli/README.md "KRİTİK MİMARİ FARK" notu).
+ÖNBELLEĞİN İKİ AYRI TÜKETİCİSİ VAR:
+  * oku()        - model girdileri (acik_meteo_nem_2m, komsu_tavan_ozellik).
+                   ltfj_lvo_farkindalik.py bunları dondurulmuş modele verir;
+                   bayatsa None döner ve model TEMEL'e düşer.
+  * tahmin_oku() - saatlik model tahmini, SADECE sayfada gösterilir.
+                   Hiçbir modele girdi DEĞİLDİR ve TAF'ın yerine geçmez -
+                   geriye dönük dürüst test edilemediği için (Open-Meteo'nun
+                   Previous Runs arşivi 2024'ten başlıyor, holdout
+                   penceremizle çakışıyor) tahmine dayalı bir özellik
+                   eğitilmedi; bu blok bilgi amaçlıdır.
 
 Kullanım:
     python -m ltfj_dis_kaynak_cache             # çek + yaz (ağ gerekir)
@@ -59,6 +65,25 @@ VARSAYILAN_DOSYA = Path(__file__).resolve().parent / "dis_kaynak_cache.json"
 # Bundan eskiyse alan "dış veri yok" sayılır - onbellek yazma cadence'i
 # (varsayılan 20 dk, dis-kaynak-onbellek.yml) + birkaç deneme payı.
 ESIK_DK = 45
+
+# Saatlik tahminin bayatlık eşiği AYRI ve daha uzun: "şu anki nem" 45
+# dakikada anlamını yitirir, ama 12 saatlik bir tahmin 2 saat önce
+# çekilmiş olsa da hâlâ kullanılabilir (yalnızca ilk saatleri geçmişte
+# kalır, onları zaten ayıklıyoruz). Model girdileriyle AYNI eşiğe
+# bağlamak, kullanılabilir bir tahmini gereksiz yere çöpe atardı.
+TAHMIN_ESIK_DK = 180
+
+# Kaç saat ileriye bakılacağı. 12 saat, bir vardiyayı ve sis için kritik
+# gece/sabah penceresini kapsar; daha uzunu sayfada okunabilirliği bozar.
+TAHMIN_SAAT = 12
+
+# Sis/tavan açısından anlamlı olanlar: spread (sıcaklık - çiy noktası) bu
+# projedeki en güçlü öncü göstergeydi (bkz. sis_modeli/README.md), görüş
+# ve düşük bulut ise sonucun kendisine en yakın alanlar.
+HOURLY_ALANLAR = (
+    "temperature_2m", "dew_point_2m", "relative_humidity_2m",
+    "wind_speed_10m", "wind_direction_10m", "cloud_cover_low", "visibility",
+)
 
 LTFJ_ENLEM, LTFJ_BOYLAM = 40.8986, 29.3092
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"   # FORECAST - arşiv DEĞİL
@@ -89,6 +114,58 @@ def _acik_meteo_nem_cek() -> float:
     if nem is None:
         raise OnbellekHatasi("Open-Meteo yanıtında 'current.relative_humidity_2m' yok")
     return nem
+
+
+def _saatlik_tahmin_cek() -> list[dict]:
+    """Önümüzdeki TAHMIN_SAAT saatin model tahmini.
+
+    DİKKAT - bu bir MODEL tahminidir, TAF DEĞİLDİR: resmî havacılık
+    tahmini yerine geçmez, sayfada da açıkça öyle etiketlenir. Amaç
+    eğilimi görmek (spread daralıyor mu, nem yükseliyor mu), kesin bir
+    değer okumak değil.
+
+    Open-Meteo saatlik bloğu GEÇMİŞ saatleri de döndürür (günün başından
+    itibaren); şu andan öncekiler ayıklanır."""
+    parametreler = {
+        "latitude": LTFJ_ENLEM, "longitude": LTFJ_BOYLAM,
+        "hourly": ",".join(HOURLY_ALANLAR), "timezone": "UTC",
+        "forecast_days": 2,
+    }
+    c = requests.get(OPEN_METEO_URL, params=parametreler, timeout=ZAMAN_ASIMI)
+    try:
+        veri = c.json()
+    except ValueError:
+        c.raise_for_status()
+        raise OnbellekHatasi(f"Open-Meteo: yanıt JSON değil (HTTP {c.status_code})")
+    if isinstance(veri, dict) and veri.get("error"):
+        raise OnbellekHatasi(f"Open-Meteo hata döndürdü - {veri.get('reason')}")
+    c.raise_for_status()
+
+    saatlik = veri.get("hourly") or {}
+    zamanlar = saatlik.get("time") or []
+    if not zamanlar:
+        raise OnbellekHatasi("Open-Meteo yanıtında 'hourly.time' yok")
+
+    simdi = datetime.now(timezone.utc)
+    satirlar = []
+    for i, zaman_str in enumerate(zamanlar):
+        try:
+            zaman = datetime.fromisoformat(zaman_str).replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue
+        if zaman < simdi:
+            continue
+        satir = {"saat": zaman_str}
+        for alan in HOURLY_ALANLAR:
+            dizi = saatlik.get(alan) or []
+            satir[alan] = dizi[i] if i < len(dizi) else None
+        satirlar.append(satir)
+        if len(satirlar) >= TAHMIN_SAAT:
+            break
+
+    if not satirlar:
+        raise OnbellekHatasi("Open-Meteo yanıtında ileriye dönük saat yok")
+    return satirlar
 
 
 def _komsu_tavan_cek() -> float | None:
@@ -132,6 +209,15 @@ def guncelle(dosya: Path = VARSAYILAN_DOSYA) -> dict:
         print(f"[uyarı] {KOMSU_ICAO} güncellenemedi, eski değer korunuyor: {e}",
               file=sys.stderr)
 
+    # Üçüncü kaynak, diğer ikisinden BAĞIMSIZ: çökerse nem/komşu tavanı
+    # etkilenmez (ve tersi). Ayrı try bloğu tam olarak bunun için.
+    try:
+        onbellek["saatlik_tahmin"] = _saatlik_tahmin_cek()
+        onbellek["saatlik_tahmin_guncelleme"] = simdi
+    except (requests.RequestException, OnbellekHatasi) as e:
+        print(f"[uyarı] Saatlik tahmin güncellenemedi, eski değer korunuyor: {e}",
+              file=sys.stderr)
+
     dosya.write_text(json.dumps(onbellek, ensure_ascii=False, indent=1),
                      encoding="utf-8")
     return onbellek
@@ -163,6 +249,44 @@ def oku(dosya: Path = VARSAYILAN_DOSYA, esik_dk: float = ESIK_DK) -> dict:
     return sonuc
 
 
+def tahmin_oku(dosya: Path = VARSAYILAN_DOSYA,
+               esik_dk: float = TAHMIN_ESIK_DK) -> list[dict]:
+    """Saatlik tahmini okur; yoksa/bayatsa BOŞ liste döner (None değil -
+    çağıran taraf doğrudan döngüye sokabilsin).
+
+    oku()'dan AYRI tutulmasının iki sebebi var: (1) bayatlık eşiği farklı
+    (bkz. TAHMIN_ESIK_DK), (2) oku()'nun çıktısı dondurulmuş modele girdi
+    olarak gidiyor (ltfj_lvo_farkindalik) - oraya alan eklemek o sözleşmeyi
+    kirletirdi.
+
+    Önbellek yazıldığı andan beri geçen saatler AYIKLANIR: 40 dk önce
+    yazılmış bir tahminin ilk satırı artık geçmişte kalmış olabilir."""
+    ham = _oku_ham(dosya)
+    satirlar = ham.get("saatlik_tahmin")
+    zaman_str = ham.get("saatlik_tahmin_guncelleme")
+    if not isinstance(satirlar, list) or not satirlar or not zaman_str:
+        return []
+    try:
+        zaman = datetime.fromisoformat(zaman_str)
+    except ValueError:
+        return []
+    simdi = datetime.now(timezone.utc)
+    if (simdi - zaman).total_seconds() / 60 > esik_dk:
+        return []
+
+    taze = []
+    for satir in satirlar:
+        if not isinstance(satir, dict):
+            continue
+        try:
+            an = datetime.fromisoformat(satir.get("saat", "")).replace(tzinfo=timezone.utc)
+        except (ValueError, TypeError):
+            continue
+        if an >= simdi:
+            taze.append(satir)
+    return taze
+
+
 def main(argv=None) -> int:
     a = argparse.ArgumentParser(description=__doc__)
     a.add_argument("--dosya", type=Path, default=VARSAYILAN_DOSYA)
@@ -180,6 +304,17 @@ def main(argv=None) -> int:
     for alan, deger in sonuc.items():
         etiket = "kullanılamıyor (bayat/yok)" if deger is None else str(deger)
         print(f"  {alan:<24}{etiket}")
+
+    tahmin = tahmin_oku(secenek.dosya)
+    if not tahmin:
+        print("  saatlik_tahmin         kullanılamıyor (bayat/yok)")
+    else:
+        print(f"  saatlik_tahmin          {len(tahmin)} saat")
+        for satir in tahmin:
+            sic, cig = satir.get("temperature_2m"), satir.get("dew_point_2m")
+            spread = None if sic is None or cig is None else round(sic - cig, 1)
+            print(f"    {satir.get('saat')}  T={sic}  Td={cig}  spread={spread}"
+                  f"  görüş={satir.get('visibility')}")
     return 0
 
 

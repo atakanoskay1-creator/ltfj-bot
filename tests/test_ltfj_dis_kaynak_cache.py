@@ -92,6 +92,7 @@ def test_komsu_tavan_cek_ulasilamazsa_rasathatasi_yukselir():
 def test_guncelle_ikisi_de_basarili_ikisini_de_yazar(tmp_path):
     dosya = tmp_path / "cache.json"
     with patch.object(dkc, "_acik_meteo_nem_cek", return_value=91), \
+            patch.object(dkc, "_saatlik_tahmin_cek", return_value=[]), \
             patch.object(dkc, "_komsu_tavan_cek", return_value=1500):
         dkc.guncelle(dosya)
 
@@ -111,6 +112,7 @@ def test_guncelle_bir_kaynak_basarisizsa_digerini_kirletmez(tmp_path):
 
     with patch.object(dkc, "_acik_meteo_nem_cek",
                       side_effect=dkc.OnbellekHatasi("Open-Meteo çöktü")), \
+            patch.object(dkc, "_saatlik_tahmin_cek", return_value=[]), \
             patch.object(dkc, "_komsu_tavan_cek", return_value=2200):
         dkc.guncelle(dosya)
 
@@ -122,6 +124,7 @@ def test_guncelle_bir_kaynak_basarisizsa_digerini_kirletmez(tmp_path):
 def test_guncelle_komsu_kaynagi_ulasilamazsa_diger_yazilir(tmp_path):
     dosya = tmp_path / "cache.json"
     with patch.object(dkc, "_acik_meteo_nem_cek", return_value=60), \
+            patch.object(dkc, "_saatlik_tahmin_cek", return_value=[]), \
             patch.object(dkc, "_komsu_tavan_cek",
                         side_effect=ltfj_rasat.AgHatasi("MGM cevap vermedi")):
         dkc.guncelle(dosya)
@@ -185,3 +188,155 @@ def test_main_oku_bayragi_aga_cikmaz(tmp_path):
         kod = dkc.main(["--dosya", str(dosya), "--oku"])
     assert kod == 0
     mock_guncelle.assert_not_called()
+
+
+# ============================================================ saatlik tahmin
+# Bu blok SADECE sayfada gosterilir, hicbir modele girdi degildir - ama
+# onbellek sozlesmesi ayni: kendi basina cokerse digerlerini kirletmemeli.
+def _saatlik_yanit(saat_sayisi=14, baslangic_saat_once=2):
+    """Open-Meteo'nun hourly blogunu taklit eder. Kasitli olarak GECMIS
+    saatlerle baslar - API gunun basindan itibaren dondurur, ayiklanmali."""
+    ilk = (datetime.now(timezone.utc) - timedelta(hours=baslangic_saat_once)
+           ).replace(minute=0, second=0, microsecond=0)
+    zamanlar = [(ilk + timedelta(hours=i)).strftime("%Y-%m-%dT%H:%M")
+                for i in range(saat_sayisi)]
+    hourly = {"time": zamanlar}
+    for alan in dkc.HOURLY_ALANLAR:
+        hourly[alan] = list(range(saat_sayisi))
+    return _SahteYanit({"hourly": hourly})
+
+
+def test_saatlik_tahmin_cek_gecmis_saatleri_ayikliyor():
+    with patch.object(dkc.requests, "get", return_value=_saatlik_yanit()):
+        satirlar = dkc._saatlik_tahmin_cek()
+    simdi = datetime.now(timezone.utc)
+    assert satirlar
+    for s in satirlar:
+        an = datetime.fromisoformat(s["saat"]).replace(tzinfo=timezone.utc)
+        assert an >= simdi
+
+
+def test_saatlik_tahmin_cek_tahmin_saat_kadariyla_sinirli():
+    with patch.object(dkc.requests, "get",
+                      return_value=_saatlik_yanit(saat_sayisi=48)):
+        assert len(dkc._saatlik_tahmin_cek()) == dkc.TAHMIN_SAAT
+
+
+def test_saatlik_tahmin_cek_istenen_alanlari_tasiyor():
+    with patch.object(dkc.requests, "get", return_value=_saatlik_yanit()):
+        satir = dkc._saatlik_tahmin_cek()[0]
+    for alan in dkc.HOURLY_ALANLAR:
+        assert alan in satir, alan
+
+
+def test_saatlik_tahmin_cek_hata_govdesi_yukseltir():
+    yanit = _SahteYanit({"error": True, "reason": "kota"})
+    with patch.object(dkc.requests, "get", return_value=yanit):
+        with pytest.raises(dkc.OnbellekHatasi):
+            dkc._saatlik_tahmin_cek()
+
+
+def test_saatlik_tahmin_cek_hourly_yoksa_yukseltir():
+    with patch.object(dkc.requests, "get", return_value=_SahteYanit({})):
+        with pytest.raises(dkc.OnbellekHatasi):
+            dkc._saatlik_tahmin_cek()
+
+
+def test_saatlik_tahmin_cek_hepsi_gecmisse_yukseltir():
+    """Ileriye donuk tek saat yoksa bos liste yazmaktansa hata yukseltip
+    ESKI tahmini korumak daha dogru."""
+    yanit = _saatlik_yanit(saat_sayisi=2, baslangic_saat_once=10)
+    with patch.object(dkc.requests, "get", return_value=yanit):
+        with pytest.raises(dkc.OnbellekHatasi):
+            dkc._saatlik_tahmin_cek()
+
+
+def test_guncelle_tahmin_cokerse_diger_ikisi_yazilir(tmp_path):
+    dosya = tmp_path / "cache.json"
+    with patch.object(dkc, "_acik_meteo_nem_cek", return_value=88), \
+            patch.object(dkc, "_komsu_tavan_cek", return_value=900), \
+            patch.object(dkc, "_saatlik_tahmin_cek",
+                         side_effect=dkc.OnbellekHatasi("tahmin çöktü")):
+        dkc.guncelle(dosya)
+    veri = json.loads(dosya.read_text())
+    assert veri["acik_meteo_nem_2m"] == 88
+    assert veri["komsu_tavan_ozellik"] == 900
+    assert "saatlik_tahmin" not in veri
+
+
+def test_guncelle_nem_cokerse_tahmin_yine_yazilir(tmp_path):
+    dosya = tmp_path / "cache.json"
+    satirlar = [{"saat": "2026-01-01T00:00", "temperature_2m": 5}]
+    with patch.object(dkc, "_acik_meteo_nem_cek",
+                      side_effect=dkc.OnbellekHatasi("çöktü")), \
+            patch.object(dkc, "_komsu_tavan_cek", return_value=1200), \
+            patch.object(dkc, "_saatlik_tahmin_cek", return_value=satirlar):
+        dkc.guncelle(dosya)
+    veri = json.loads(dosya.read_text())
+    assert veri["saatlik_tahmin"] == satirlar
+
+
+# ------------------------------------------------------------- tahmin_oku
+def _ileri_satir(saat_sonra):
+    an = (datetime.now(timezone.utc) + timedelta(hours=saat_sonra)
+          ).replace(minute=0, second=0, microsecond=0)
+    return {"saat": an.strftime("%Y-%m-%dT%H:%M"), "temperature_2m": 10}
+
+
+def test_tahmin_oku_taze_tahmini_dondurur(tmp_path):
+    dosya = tmp_path / "cache.json"
+    dosya.write_text(json.dumps({
+        "saatlik_tahmin": [_ileri_satir(1), _ileri_satir(2)],
+        "saatlik_tahmin_guncelleme": _zaman(dk_once=10),
+    }))
+    assert len(dkc.tahmin_oku(dosya)) == 2
+
+
+def test_tahmin_oku_bayatsa_bos_liste(tmp_path):
+    dosya = tmp_path / "cache.json"
+    dosya.write_text(json.dumps({
+        "saatlik_tahmin": [_ileri_satir(1)],
+        "saatlik_tahmin_guncelleme": _zaman(dk_once=dkc.TAHMIN_ESIK_DK + 30),
+    }))
+    assert dkc.tahmin_oku(dosya) == []
+
+
+def test_tahmin_oku_gecmis_saatleri_ayikliyor(tmp_path):
+    """40 dk once yazilmis bir tahminin ilk satiri artik gecmiste olabilir."""
+    dosya = tmp_path / "cache.json"
+    dosya.write_text(json.dumps({
+        "saatlik_tahmin": [_ileri_satir(-3), _ileri_satir(-1), _ileri_satir(2)],
+        "saatlik_tahmin_guncelleme": _zaman(dk_once=40),
+    }))
+    assert len(dkc.tahmin_oku(dosya)) == 1
+
+
+def test_tahmin_oku_dosya_yoksa_bos_liste(tmp_path):
+    assert dkc.tahmin_oku(tmp_path / "yok.json") == []
+
+
+def test_tahmin_oku_bozuk_kayitlarda_cokmez(tmp_path):
+    dosya = tmp_path / "cache.json"
+    dosya.write_text(json.dumps({
+        "saatlik_tahmin": ["dict degil", {"saat": "bozuk"}, _ileri_satir(1)],
+        "saatlik_tahmin_guncelleme": _zaman(dk_once=5),
+    }))
+    assert len(dkc.tahmin_oku(dosya)) == 1
+
+
+def test_tahmin_oku_esigi_oku_dan_daha_gevsek():
+    """12 saatlik bir tahmin, 'şu anki nem' kadar hizli bayatlamaz."""
+    assert dkc.TAHMIN_ESIK_DK > dkc.ESIK_DK
+
+
+def test_oku_sozlesmesi_tahminle_kirlenmedi(tmp_path):
+    """oku()'nun ciktisi dondurulmus modele girdi olarak gidiyor - oraya
+    tahmin alani SIZMAMALI."""
+    dosya = tmp_path / "cache.json"
+    dosya.write_text(json.dumps({
+        "acik_meteo_nem_2m": 80, "acik_meteo_guncelleme": _zaman(dk_once=5),
+        "komsu_tavan_ozellik": 1000, "komsu_guncelleme": _zaman(dk_once=5),
+        "saatlik_tahmin": [_ileri_satir(1)],
+        "saatlik_tahmin_guncelleme": _zaman(dk_once=5),
+    }))
+    assert set(dkc.oku(dosya)) == {"acik_meteo_nem_2m", "komsu_tavan_ozellik"}

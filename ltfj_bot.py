@@ -941,10 +941,22 @@ def main():
     if ayar("web_sayfasi", varsayilan=True):
         try:
             from ltfj_sayfa import sayfa_yaz
+
+            # Saatlik tahmin GEVŞEK BAĞLI: yerel önbellekten okunur, ağa
+            # çıkılmaz. Önbellek yoksa/bayatsa boş liste döner ve o blok
+            # sayfada hiç görünmez - METAR/TAF akışı etkilenmez.
+            try:
+                import ltfj_dis_kaynak_cache
+                saatlik_tahmin = ltfj_dis_kaynak_cache.tahmin_oku()
+            except Exception as e:
+                print(f"[uyarı] Saatlik tahmin okunamadı, atlanıyor: {e}", file=sys.stderr)
+                saatlik_tahmin = []
+
             sayfa_yaz(raporlar, state.get("olcum_gecmisi", []), KLASOR / "index.html",
                       state.get("yorum_onbellegi", {}),
                       ayar("atc_notes", "database_url", varsayilan=""),
-                      ayar("push", "vapid_public_key", varsayilan=""))
+                      ayar("push", "vapid_public_key", varsayilan=""),
+                      saatlik_tahmin)
         except Exception as e:
             print(f"[uyarı] Web sayfası üretilemedi: {e}", file=sys.stderr)
 
