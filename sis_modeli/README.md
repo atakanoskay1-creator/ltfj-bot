@@ -539,15 +539,70 @@ Taban orana bölündüğünde (`AP/taban`) sıralama gücü 30dk–2h arasında
 **düz** (~6.8) ve 3 saatte 6.16'ya *düşüyor*.
 
 > **Bu, yukarıdaki "performans ufuk uzadıkça artıyor" ifadesini
-> düzeltir.** Ham AP artıyordu, taban orana göre normalize edilmiş
-> sıralama gücü artmıyor. Yavaş-eğilim açıklaması hâlâ 30 dakikanın neden
-> en zayıf ufuk olduğunu açıklıyor, ama "3 saat en iyisi" sonucu
-> desteklenmiyor — LSS ve AP/taban birlikte **2 saati** işaret ediyor.
->
-> Uyarı: bu sayıların güven aralığı HESAPLANMADI. 6.85/6.90/6.79 farkları
-> neredeyse kesinlikle gürültü; 3 saatteki düşüş (%10) gürültü olabilir de
-> olmayabilir de. Kesinleştirmek için `blok_guven_araligi` ile bootstrap
-> gerekir.
+> düzeltir.** Ham AP artıyordu; taban orana göre normalize edilmiş
+> sıralama gücü artmıyor.
+
+#### Eşli bootstrap: hangi fark gerçek? — `--bootstrap 200`
+
+Yukarıdaki nokta tahminleri tek başına yeterli değildi. Ufuklar **aynı
+günlerin havasını** paylaştığı için (dt kümeleri birebir aynı) gün-blok
+**eşli** bootstrap yapıldı: her replikada dört ufuk da aynı gün örneği
+üzerinde hesaplanıyor, fark doğrudan ölçülüyor. İki marjinal aralığın
+örtüşmesi "fark yok" demek değildir — bu koşu bunun ders kitabı örneğini
+de verdi (aşağıya bkz.).
+
+```
+python -m sis_modeli.ufuk_deneyi --bootstrap 200
+```
+
+**LSS** (%5–%95, 200 tekrar):
+
+| ufuk | LSS | aralık | | fark (a−b) | medyan | aralık | karar |
+|---|---|---|---|---|---|---|---|
+| 30dk | 0.145 | [0.125, 0.165] | | 30dk−1h | −0.023 | [−0.031, −0.016] | **ayırt edilir** |
+| 1h | 0.169 | [0.153, 0.186] | | 30dk−2h | −0.048 | [−0.076, −0.016] | **ayırt edilir** |
+| 2h | 0.194 | [0.167, 0.220] | | 30dk−3h | −0.045 | [−0.072, −0.016] | **ayırt edilir** |
+| 3h | 0.190 | [0.162, 0.214] | | 1h−2h | −0.025 | [−0.050, 0.004] | belirsiz |
+| | | | | 1h−3h | −0.021 | [−0.044, 0.005] | belirsiz |
+| | | | | **2h−3h** | **0.004** | **[−0.004, 0.010]** | **belirsiz** |
+
+**AP/taban** (%5–%95, 200 tekrar):
+
+| ufuk | AP/taban | aralık | | fark (a−b) | medyan | aralık | karar |
+|---|---|---|---|---|---|---|---|
+| 30dk | 7.136 | [6.155, 8.556] | | 30dk−1h | 0.285 | [−0.087, 0.815] | belirsiz |
+| 1h | 6.876 | [5.979, 8.188] | | 30dk−2h | 0.320 | [−1.240, 2.266] | belirsiz |
+| 2h | 6.858 | [6.067, 8.163] | | 1h−2h | 0.041 | [−1.464, 1.581] | belirsiz |
+| 3h | 6.195 | [5.496, 7.317] | | 1h−3h | 0.715 | [−0.738, 2.297] | belirsiz |
+| | | | | **2h−3h** | **0.636** | **[0.374, 1.038]** | **ayırt edilir** |
+
+**Ne çözüldü, ne çözülmedi:**
+
+1. **30 dakika kesin olarak en zayıf ufuk.** LSS'te üç kıyasın üçü de
+   0'ı dışlıyor, replikaların %0.0'ında 30dk öne geçmiyor. Yukarıdaki
+   yavaş-eğilim açıklaması **doğrulandı**.
+
+2. **LSS, 1h / 2h / 3h arasını AYIRT EDEMİYOR.** Nokta tahmini 2 saatte
+   tepe yapıyor ama 2h−3h farkı [−0.004, 0.010], yani sıfırı içeriyor
+   (replikaların %78.5'i 2h lehine — zayıf). *Bu, bu bölümün ilk
+   yazımındaki "LSS ve AP/taban birlikte 2 saati işaret ediyor"
+   ifadesini ÇÜRÜTÜR: LSS bu konuda sessiz.*
+
+3. **AP/taban'da 2h > 3h GERÇEK.** Fark 0.636, aralık [0.374, 1.038],
+   replikaların %100'ü aynı yönde. 3 saatteki sıralama gücü düşüşü
+   gürültü değil.
+
+4. **Eşli bootstrap'in neden gerekli olduğunun kanıtı bu tabloda:**
+   AP/taban'ın marjinal aralıkları neredeyse tamamen örtüşüyor
+   (30dk [6.155, 8.556] ile 3h [5.496, 7.317]), ama eşli 2h−3h farkı dar
+   ve sıfırı dışlıyor. Marjinal aralıklara bakıp "hiçbir fark yok"
+   denseydi gerçek bir etki kaçırılacaktı.
+
+**Toparlarsak:** "3 saat en iyi ufuk" iddiası desteklenmiyor — 3 saat,
+sıralama gücünde 2 saatten ölçülebilir biçimde *kötü*. "2 saat en iyi"
+iddiası ise yalnızca AP/taban'a dayanıyor; LSS onu doğrulamıyor. En
+savunulabilir okuma: **anlamlı ufuk 1–3 saat aralığı, 30 dakika değil;
+bu aralık içinde 2 saat lehine tek yönlü bir kanıt var.**
 
 **Beceri ne kadarı sadece günlük döngü?** `LSS|saat` sütunu, referansın
 saati bildiği (dolayısıyla günlük döngüyü referansa devrettiği) durumu
@@ -976,6 +1031,7 @@ python -m sis_modeli.tavan_dis_kaynak_tarama
 python -m sis_modeli.olusum_egit                     # tarama + walk-forward
 python -m sis_modeli.olusum_egit --dahil-gorus        # görüş-ablasyon karşılaştırması
 python -m sis_modeli.ufuk_deneyi                      # 30dk/1h/2h/3h lead-time
+python -m sis_modeli.ufuk_deneyi --bootstrap 200      # + eşli gün-blok güven aralıkları
 python -m sis_modeli.olusum_holdout_degerlendir       # TEK ATIŞ
 
 # Tavan: görüşsüz süreklilik (A) + oluşum (B) modelleri
