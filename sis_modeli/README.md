@@ -611,6 +611,79 @@ orana göre ölçülen becerinin bir kısmı "model günlük döngüyü öğrend
 demek. Fark her ufukta **%25–29**. Geriye kalan (~0.14) günlük döngünün
 ÖTESİNDE, gerçekten atmosferik olan beceri — mütevazı ama açıkça pozitif.
 
+### Katmanlı model: TEK mi, mevsim/saate göre AYRI mı? — `katmanli_deney.py`
+
+Yabra ve ark. (2026) veriyi sis olasılığı yüksek/düşük aylara ve saatlere
+bölüp ayrı modeller eğitmenin tek genel modeli geçtiğini buldu — ama
+**yalnızca 2 saat ve üzeri ufuklarda** (2 saatte %20'ye varan kazanç);
+1 saatte geçmedi, çünkü orada süreklilik baskın ve bölme sadece örnek
+sayısını düşürüyor. Aynı deney bu projenin verisiyle tekrarlandı.
+
+Türetilen katmanlar (yalnızca eğitim verisinden, her fold'da yeniden)
+fiziksel olarak anlamlı: **mevsim** = Ocak/Şubat/Mart, **saat** = 21–04
+UTC (00:00–07:00 yerel, radyasyon sisi penceresi). Hiçbir fold'da havuza
+geri düşülmedi.
+
+```
+python -m sis_modeli.katmanli_deney --bootstrap 200
+```
+
+| ufuk | katman | LSS | AP/taban | | LSS farkı (katmanlı−tek) | AP/taban farkı |
+|---|---|---|---|---|---|---|
+| 1h | tek | 0.169 | 6.88 | | — | — |
+| 1h | mevsim | 0.101 | 10.07 | | **−0.070** [−0.091, −0.048] | +2.781 [−1.322, 8.454] |
+| 1h | **saat** | **0.191** | **10.93** | | **+0.023** [0.003, 0.046] | **+4.295** [2.529, 6.470] |
+| 2h | tek | 0.194 | 6.86 | | — | — |
+| 2h | mevsim | 0.145 | 6.08 | | **−0.049** [−0.085, −0.017] | −0.777 [−1.792, 0.283] |
+| 2h | saat | 0.164 | 7.11 | | **−0.029** [−0.046, −0.011] | +0.315 [−0.584, 1.490] |
+| 3h | tek | 0.190 | 6.19 | | — | — |
+| 3h | mevsim | 0.170 | 8.00 | | −0.020 [−0.050, 0.006] | **+1.688** [0.128, 4.504] |
+| 3h | saat | 0.174 | 6.58 | | −0.016 [−0.033, 0.002] | +0.414 [−0.028, 0.983] |
+
+(Kalın = eşli gün-blok bootstrap'te aralık 0'ı dışlıyor.)
+
+**SONUÇ: makalenin bulgusu tekrarlanmadı, TERSİNE DÖNDÜ.**
+
+Tek açık kazanç **1 saatlik ufukta saate göre katmanlamada** ve iki
+metrikte birden görülüyor (LSS +0.023, replikaların %97'si; AP/taban
++4.295, %100'ü). 2 saatte saat katmanlaması LSS'te açıkça *kötüleşiyor*;
+3 saatte her iki katmanlama da belirsiz.
+
+**Neden ters?** Ezeiza modellerinin en güçlü kestiricisi başlangıç
+anındaki sisti — yani 1 saatte süreklilik her şeyi taşıyordu ve ek yapı
+bir işe yaramıyordu. Bu projenin Model B'sinde süreklilik YOK (onset-only,
+görüşsüz). Dolayısıyla 1 saat burada "sürekliliğin çözdüğü" bir ufuk
+değil; tam tersine, **günlük zamanlamanın en keskin ayırt edici olduğu**
+ufuk. "Saat 03:00 ve sis penceresindeyiz" bilgisi, önümüzdeki 1 saatte
+sis oluşup oluşmayacağı için güçlü; 2–3 saate yayıldıkça pencere bulanıyor
+ve saat etiketi keskinliğini yitiriyor.
+
+`saat` zaten bir model değişkeni olduğu için, saate göre katmanlama
+pratikte "her günlük rejim için ayrı WoE tablosu" demek — yani bir
+etkileşim etkisi. 1 saatte bunun bedeli (örnek bölünmesi) getirisinden
+küçük, 2 saatten sonra büyük.
+
+**Mevsim katmanlaması zararlı.** 1 ve 2 saatte LSS'te açıkça kötüleşiyor.
+1 saatte dikkat çekici bir ayrışma var: AP/taban 6.88'den 10.07'ye
+çıkarken LSS 0.169'dan 0.101'e *düşüyor* — yani sıralama iyileşiyor ama
+olasılıklar bozuluyor. Beklenen bir şey: "düşük sezon" modeli çok az
+pozitif görüyor, stratum içinde sıralamayı yapabiliyor ama kalibrasyonu
+bozuk kalıyor. Kalibrasyon bu sayfada olasılık gösterdiğimiz için birincil
+metrik (bkz. `degerlendir` modül başlığı), dolayısıyla bu bir kazanç
+değil.
+
+**Çoklu kıyas uyarısı.** 12 kıyas yapıldı (2 metrik × 3 ufuk × 2
+katmanlama), %90 aralıkla. Şansa bağlı ~1 yanlış pozitif beklenir.
+1h/saat sonucu İKİ metrikte birden ve yüksek replika oranıyla ayırt
+ediliyor — en sağlam bulgu bu. Buna karşılık 3h/mevsim'in AP/taban
+kazancı (+1.688) tek metrikte ve kendi LSS'i ters işaretli; bunu kazanç
+saymıyorum.
+
+**Yapılmayanlar:** bu bir geliştirme dönemi bulgusudur, **holdout
+açılmadı**. Ayrıca "1 saat katmanlı" ile "2 saat tek" doğrudan
+kıyaslanmadı — farklı hedefleri tahmin ettikleri için o kıyas anlamlı
+değil; tabloda yan yana durmaları bir sıralama iddiası taşımaz.
+
 **Dış kıyas.** Yabra ve ark. (2026, ön baskı) Ezeiza'da 1 saatte ~%70,
 6 saatte ~%32 LSS bildiriyor. **Bu sayılar bu tabloyla kıyaslanamaz:**
 (1) onların sis tanımı görüş <5000 m (pus dahil), taban oran %4 — burada
@@ -1032,6 +1105,7 @@ python -m sis_modeli.olusum_egit                     # tarama + walk-forward
 python -m sis_modeli.olusum_egit --dahil-gorus        # görüş-ablasyon karşılaştırması
 python -m sis_modeli.ufuk_deneyi                      # 30dk/1h/2h/3h lead-time
 python -m sis_modeli.ufuk_deneyi --bootstrap 200      # + eşli gün-blok güven aralıkları
+python -m sis_modeli.katmanli_deney --bootstrap 200   # tek model mi, mevsim/saat katmanlı mı
 python -m sis_modeli.olusum_holdout_degerlendir       # TEK ATIŞ
 
 # Tavan: görüşsüz süreklilik (A) + oluşum (B) modelleri
