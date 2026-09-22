@@ -1168,7 +1168,10 @@ window.ltfjKalanSure = function (ms) {{
           return null;
         }}
         return Promise.all(idler.map(function (id) {{
-          return fetch(tabanUrl("awos_rvr") + "/" + encodeURIComponent(id) + ".json",
+          // tabanUrl() sonuna ".json" EKLER - kaydin yolunu ona parametre
+          // olarak vermek gerekir. Birlestirerek yazmak
+          // ".../awos_rvr.json/<id>.json" gibi gecersiz bir URL uretiyordu.
+          return fetch(tabanUrl("awos_rvr/" + encodeURIComponent(id)),
                        {{method: "DELETE"}})
             .then(function (r) {{
               if (!r.ok) throw new Error("HTTP " + r.status);
@@ -1177,8 +1180,11 @@ window.ltfjKalanSure = function (ms) {{
       }})
       .then(function (sonuc) {{ if (sonuc) awosYukle(); }})
       .catch(function (err) {{
-        awosHataEl.textContent = "AWOS RVR temizlenemedi (Firebase kuralları "
-          + "silmeye izin veriyor mu?), tekrar deneyin.";
+        // Hata metni SEBEBI tasisin: ilk surumde sadece "kurallar silmeye
+        // izin veriyor mu?" yaziyordu ve asil sorun (bozuk URL) teshis
+        // edilemiyordu. 401/403 kural, 400/404 yol sorununu isaret eder.
+        awosHataEl.textContent = "AWOS RVR temizlenemedi (" + err.message + ")."
+          + " 401/403 ise Firebase kuralları silmeye izin vermiyor demektir.";
         console.error("[lvo] awos temizleme hatası:", err);
       }})
       .finally(function () {{ btn.disabled = false; }});
