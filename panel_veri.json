@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-22T06:40:56+00:00",
+ "uretildi": "2026-09-22T06:50:49+00:00",
  "metar": {
-  "tip": "METAR",
+  "tip": "SPECI",
   "duzeltme": null,
-  "zaman": "2026-09-22T06:20:00+00:00",
-  "metin": "METAR LTFJ 220620Z 01007KT 340V050 9999 -SHRA FEW017CB SCT030 BKN080 21/18 Q1014 NOSIG RMK RWY24R 36010KT RWY06R 36007KT 330V040 RWY24L 36009KT",
+  "zaman": "2026-09-22T06:39:00+00:00",
+  "metin": "SPECI LTFJ 220639Z 01007KT 340V050 9999 -TSRA FEW015CB SCT030 BKN070 21/18 Q1014 RESHRA TEMPO 34016G26KT 2400 TSRA RMK RWY24R 36010KT RWY06R 36009KT RWY24L 01009KT 330V040",
   "ruzgar": {
    "yon": 10,
    "hiz": 7,
@@ -17,20 +17,22 @@
   },
   "gorus": 9999,
   "cavok": false,
-  "tavan": 8000,
+  "tavan": 7000,
   "hava": [
-   "-SHRA"
+   "-TSRA"
   ],
   "sicaklik": 21,
   "cig_noktasi": 18,
   "qnh": 1014,
-  "nosig": true,
+  "nosig": false,
   "renk": [
    "BLU",
    "çok iyi"
   ],
   "renk_etiketi": "LTFJ Bot durum seviyesi",
-  "dikkat": [],
+  "dikkat": [
+   "Gök gürültülü fırtına"
+  ],
   "pistler": [
    {
     "pist": "06L",
@@ -48,12 +50,12 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 3.1,
-    "yan": 6.3,
+    "bas": 3.9,
+    "yan": 8.1,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -61,15 +63,15 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -3.9,
-    "yan": 8.1,
+    "bas": -5.3,
+    "yan": 7.3,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": false,
+    "degisken": true,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
-    "kuyruk_asildi": false
+    "kuyruk_asildi": true
    },
    {
     "pist": "24R",
@@ -89,11 +91,14 @@
   "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış nedeniyle ıslak/kirli pist kabul edildi",
   "tercih_pist": "06L",
   "rvr": [],
-  "prs": [],
+  "prs": [
+   "gök gürültülü fırtına",
+   "24L için arka rüzgâr 5 kt üstü"
+  ],
   "gorus_op": [],
-  "trend": null,
+  "trend": "Geçici: 34016G26KT 2400 TSRA",
   "sis_riski": null,
-  "ozet": "Rüzgâr 010° 7kt (değişken 340°–050°) · görüş 10+ km · tavan 8000 ft · hafif sağanak yağmur · 21°C · QNH 1014"
+  "ozet": "Rüzgâr 010° 7kt (değişken 340°–050°) · görüş 10+ km · tavan 7000 ft · hafif gök gürültülü yağmur · 21°C · QNH 1014"
  },
  "taf": {
   "zaman": "2026-09-22T04:40:00+00:00",
@@ -2293,6 +2298,14 @@
    "zaman": "2026-09-22T06:20:00+00:00",
    "ruzgar_hiz": 7,
    "tavan": 8000,
+   "qnh": 1014,
+   "sicaklik": 21,
+   "cig_noktasi": 18
+  },
+  {
+   "zaman": "2026-09-22T06:39:00+00:00",
+   "ruzgar_hiz": 7,
+   "tavan": 7000,
    "qnh": 1014,
    "sicaklik": 21,
    "cig_noktasi": 18
