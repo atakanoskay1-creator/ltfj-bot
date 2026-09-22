@@ -130,12 +130,31 @@ def test_kart_sayfada_yuzde_olarak_gorunuyor():
     assert re.search(r'sis-olasilik-deger">%[\d.]+<', html)
 
 
-def test_kart_mevcut_sis_gostergesinin_yerine_gecmiyor():
-    """Kullanici acikca istedi: sis_riski() kalacak, yeni kart AYRI duracak."""
+def test_sezgisel_sis_riski_satiri_SAYFADAN_kaldirildi():
+    """Karar DEGISTI: eskiden sezgisel "Sis riski" satiri ile istatistiksel
+    kart yan yana duruyordu. Kullanici bunu kaldirmamizi istedi - iki ayri
+    sis ifadesi yan yana olunca hangisine guvenilecegi belirsizlesiyordu.
+
+    ltfj_pist.sis_riski() SILINMEDI, Telegram tarafinda kullanilmaya
+    devam ediyor (bkz. ltfj_pist.havacilik_notlari)."""
     html = _sayfa("LTFJ 172120Z 01003KT 6000 SCT020 08/07 Q1020")
-    assert "Sis riski" in html                      # mevcut sezgisel gosterge
-    assert "İstatistiksel sis olasılığı" in html    # yeni kart
-    assert "sezgisel yöntem" in html                # mevcutun kendi uyarisi
+    assert "Sis riski" not in html
+    assert "İstatistiksel sis olasılığı" in html
+
+
+def test_sis_riski_fonksiyonu_hala_calisiyor():
+    """Sayfadan kaldirmak, fonksiyonu kaldirmak DEGIL."""
+    from datetime import datetime, timezone
+
+    import ltfj_pist
+    from ltfj_analiz import metar_coz
+
+    # FG/BR zaten varken fonksiyon None doner (sis "olusma riski" degil,
+    # olmus demektir) - bu yuzden sayfa testiyle AYNI, sissiz ama spread'i
+    # dar METAR kullaniliyor.
+    cozum = metar_coz("METAR LTFJ 172120Z 01003KT 6000 SCT020 08/07 Q1020")
+    assert ltfj_pist.sis_riski(cozum, datetime(2026, 9, 17, 21, 20,
+                                               tzinfo=timezone.utc)) is not None
 
 
 def test_kart_kaynagini_ve_sinirlarini_belirtiyor():

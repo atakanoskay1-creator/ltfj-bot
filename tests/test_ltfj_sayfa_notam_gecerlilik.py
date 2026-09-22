@@ -116,12 +116,20 @@ def test_filtre_secenekleri_sadece_yururluktekilerden_uretiliyor(tmp_path):
     assert "while (el.options.length > 1) el.remove(1);" in html
 
 
-def test_acilir_kapanir_govde_filtreleri_de_kapsiyor(tmp_path):
-    """Filtreler listenin USTUNDE ve ayni katlanabilir govdenin icinde
-    olmali - panel kapaliyken filtre satiri da gorunmemeli."""
+def test_filtreler_notam_bolumunun_icinde(tmp_path):
+    """Filtreler listenin USTUNDE ve NOTAM bolumunun icinde olmali - bolum
+    kapaliyken filtre satiri da gorunmemeli.
+
+    Ac/kapa artik elle yazilmis JS degil <details> ile yapiliyor; eski
+    aktifGovdeEl/aktifPaneliAcKapat mekanizmasi kaldirildi."""
     html = _sayfa(tmp_path)
-    assert 'id="notam-aktif-govde" hidden' in html
-    assert "aktifGovdeEl.hidden = !aktifAcikMi;" in html
+    assert "aktifPaneliAcKapat" not in html
+    notam_karti = html.split("<summary>NOTAM")[1].split("</details></div>")[0]
+    for eid in ("notam-aktif-filtre", "notam-aktif-liste", "notam-q"):
+        assert 'id="' + eid + '"' in notam_karti, eid
+    # Filtre satiri listeden ONCE gelmeli.
+    assert notam_karti.index('id="notam-aktif-filtre"') < \
+        notam_karti.index('id="notam-aktif-liste"')
 
 
 # ------------------------------------------------------- canli arama
