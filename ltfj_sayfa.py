@@ -225,6 +225,12 @@ SABLON = """<!DOCTYPE html>
   /* Kart basligi olarak kullanilan katlanabilir summary - .basrow ile ayni
      tipografi (Trend / NOTAM Geçmişi gibi bolum basliklari icin). */
   .kat-kart > summary {{ font-size:1rem; color:var(--metin); font-weight:650; }}
+  /* Bir katlanir kartin icindeki alt bolumler - araya ince cizgi girsin ki
+     saatlik tahmin ile olasilik karti ayri ayri okunabilsin (eskiden ayri
+     kartlardi). Bolum adlari burada YAZILMIYOR: testler bu adlarin sayfada
+     bulunup bulunmadigina bakiyor, CSS yorumu yanlis pozitif uretirdi. */
+  .alt-bolum {{ padding-top:12px; }}
+  .alt-bolum + .alt-bolum {{ margin-top:12px; border-top:1px solid var(--cizgi); }}
   .kat-kart > summary::after {{ font-size:.7rem; color:var(--soluk); }}
 
   /* Önümüzdeki saatler şeridi - dar ekranda yatay kaydirilir, dikey
@@ -357,6 +363,12 @@ SABLON = """<!DOCTYPE html>
     padding:8px 14px; border-radius:8px; border:none; background:var(--vurgu);
     color:var(--bg); font-weight:650; font-size:.85rem; cursor:pointer; flex-shrink:0;
   }}
+  /* Temizleme YIKICI ve PAYLASILAN veriyi siler - kaydet butonuyla ayni
+     agirlikta durmasin diye ikincil (cerceveli) gorunum. */
+  .lvo-form button.lvo-awos-temizle {{
+    background:transparent; color:var(--soluk); border:1px solid var(--cizgi);
+  }}
+  .lvo-form button.lvo-awos-temizle:hover {{ color:#ef4444; border-color:#ef4444; }}
   .lvo-hata {{ color:#ef4444; font-size:.8rem; margin-top:6px; min-height:1.1em; }}
   .lvo-esik-kaynak {{ font-size:.72rem; color:var(--soluk); display:block; margin-top:2px; }}
 
@@ -490,8 +502,7 @@ SABLON = """<!DOCTYPE html>
   </div>
 </header>
 {govde}
-{saatlik_tahmin_html}
-{sis_olasilik_html}
+{beklenti_html}
 
 <div class="kart">
   <div class="basrow notam-aktif-baslik" id="lvo-baslik" role="button" tabindex="0"
@@ -532,6 +543,7 @@ SABLON = """<!DOCTYPE html>
         <input type="number" id="lvo-awos-end" min="0" max="9999" inputmode="numeric">
       </div>
       <button type="button" id="lvo-awos-kaydet">SAVE AWOS RVR</button>
+      <button type="button" id="lvo-awos-temizle" class="lvo-awos-temizle">CLEAR</button>
     </div>
     <div id="lvo-awos-hata" class="lvo-hata"></div>
 
@@ -541,23 +553,20 @@ SABLON = """<!DOCTYPE html>
   </div>
 </div>
 
-<div class="bolum-baslik">NOTAM — Bilgi Amaçlı</div>
-<div class="notam-uyari">
-  ⚠️ Bilgi amaçlıdır. Operasyon öncesi güncel resmî NOTAM/PIB kontrol edilmelidir.
-  Kaynak: NOTAC (FAA NOTAM Management System tabanlı üçüncü taraf servis) —
-  resmî bir Türk/EUROCONTROL NOTAM kaynağı değildir. Bu bölüm hiçbir operasyonel
-  öneri üretmez; aşağıdaki meteorolojik analiz bu veriden bağımsızdır.
-</div>
 
+<!-- TEK "NOTAM" basligi: aktif liste + gecmis aramasi + kaynak uyarisi.
+     Eskiden ucu de ayri ayri sayfada duruyordu (bolum basligi + sari uyari
+     kutusu + iki kart). Uyari EN ALTTA: her acilista once okunan degil,
+     gerektiginde basvurulan bir not. -->
 <div class="kart">
-  <div class="basrow notam-aktif-baslik" id="notam-aktif-baslik" role="button" tabindex="0"
-       aria-expanded="false">
-    <span class="tip">Aktif NOTAM'lar</span>
-    <span class="notam-aktif-sayi" id="notam-aktif-sayi"></span>
+  <details class="kat kat-kart">
+  <summary>NOTAM
+    <span class="kat-rozet" id="notam-aktif-sayi"></span>
     <span class="zaman" id="notam-senkron-zamani"></span>
-    <span class="notam-ok" id="notam-aktif-ok">▶</span>
-  </div>
-  <div id="notam-aktif-govde" hidden>
+  </summary>
+
+  <div class="alt-bolum">
+    <div class="basrow"><span class="tip">Aktif NOTAM'lar</span></div>
     <div class="notam-arama" id="notam-aktif-filtre">
       <input type="text" id="notam-aktif-q" placeholder="Numara, pist, anahtar kelime…">
       <select id="notam-aktif-kategori"><option value="">Tüm kategoriler</option></select>
@@ -566,28 +575,36 @@ SABLON = """<!DOCTYPE html>
     </div>
     <div id="notam-aktif-liste"><div class="notam-bos">Yükleniyor…</div></div>
   </div>
-</div>
 
-<div class="kart">
-  <details class="kat kat-kart">
-  <summary>NOTAM Geçmişi / Arama <span class="kat-rozet" id="notam-gecmis-sayi"></span></summary>
-  <div class="notam-arama-not">
-    Bu arama yalnızca botun bugüne kadar yerel olarak gördüğü NOTAM'ları
-    kapsar — NOTAC'ın kendi tam arşivi değildir.
+  <div class="alt-bolum">
+    <details class="kat">
+    <summary>Geçmiş / Arama <span class="kat-rozet" id="notam-gecmis-sayi"></span></summary>
+    <div class="notam-arama-not">
+      Bu arama yalnızca botun bugüne kadar yerel olarak gördüğü NOTAM'ları
+      kapsar — NOTAC'ın kendi tam arşivi değildir.
+    </div>
+    <div class="notam-arama">
+      <input type="text" id="notam-q" placeholder="Numara, pist, anahtar kelime…">
+      <input type="date" id="notam-tarih-baslangic">
+      <input type="date" id="notam-tarih-bitis">
+      <select id="notam-durum">
+        <option value="">Tüm durumlar</option>
+        <option value="yururlukte">Yürürlükte</option>
+        <option value="doldu">Süresi dolmuş</option>
+        <option value="baslamadi">Henüz başlamamış</option>
+      </select>
+      <button type="button" id="notam-arama-temizle">Temizle</button>
+    </div>
+    <div id="notam-arama-sonuc"><div class="notam-bos">Yükleniyor…</div></div>
+    </details>
   </div>
-  <div class="notam-arama">
-    <input type="text" id="notam-q" placeholder="Numara, pist, anahtar kelime…">
-    <input type="date" id="notam-tarih-baslangic">
-    <input type="date" id="notam-tarih-bitis">
-    <select id="notam-durum">
-      <option value="">Tüm durumlar</option>
-      <option value="yururlukte">Yürürlükte</option>
-      <option value="doldu">Süresi dolmuş</option>
-      <option value="baslamadi">Henüz başlamamış</option>
-    </select>
-    <button type="button" id="notam-arama-temizle">Temizle</button>
+
+  <div class="notam-uyari">
+    ⚠️ Bilgi amaçlıdır. Operasyon öncesi güncel resmî NOTAM/PIB kontrol edilmelidir.
+    Kaynak: NOTAC (FAA NOTAM Management System tabanlı üçüncü taraf servis) —
+    resmî bir Türk/EUROCONTROL NOTAM kaynağı değildir. Bu bölüm hiçbir operasyonel
+    öneri üretmez; sayfadaki meteorolojik analiz bu veriden bağımsızdır.
   </div>
-  <div id="notam-arama-sonuc"><div class="notam-bos">Yükleniyor…</div></div>
   </details>
 </div>
 
@@ -712,15 +729,11 @@ window.ltfjKalanSure = function (ms) {{
   }}
 
   var veri = null;
-  var aktifAcikMi = false;
   var aktifEl = document.getElementById("notam-aktif-liste");
-  var aktifGovdeEl = document.getElementById("notam-aktif-govde");
   var aktifQEl = document.getElementById("notam-aktif-q");
   var aktifKategoriEl = document.getElementById("notam-aktif-kategori");
   var aktifElemanEl = document.getElementById("notam-aktif-eleman");
-  var aktifBaslikEl = document.getElementById("notam-aktif-baslik");
   var aktifSayiEl = document.getElementById("notam-aktif-sayi");
-  var aktifOkEl = document.getElementById("notam-aktif-ok");
   var senkronEl = document.getElementById("notam-senkron-zamani");
   var sonucEl = document.getElementById("notam-arama-sonuc");
   var durumSelectEl = document.getElementById("notam-durum");
@@ -758,14 +771,6 @@ window.ltfjKalanSure = function (ms) {{
       esc(n.effective_start || "—") + " → " + esc(n.effective_end || "—") + "</div>" +
       "</div>"
     );
-  }}
-
-  function aktifPaneliAcKapat(zorlaAc) {{
-    aktifAcikMi = zorlaAc != null ? zorlaAc : !aktifAcikMi;
-    aktifGovdeEl.hidden = !aktifAcikMi;
-    aktifBaslikEl.setAttribute("aria-expanded", String(aktifAcikMi));
-    aktifOkEl.textContent = aktifAcikMi ? "▼" : "▶";
-    aktifOkEl.classList.toggle("acik", aktifAcikMi);
   }}
 
   // Aktif listeye giren kayitlar: NOTAC'in son senkronda dondurduklerinden
@@ -920,11 +925,9 @@ window.ltfjKalanSure = function (ms) {{
       }});
   }}
 
-  aktifBaslikEl.addEventListener("click", function () {{ aktifPaneliAcKapat(); }});
-  aktifBaslikEl.addEventListener("keydown", function (e) {{
-    if (e.key === "Enter" || e.key === " ") {{ e.preventDefault(); aktifPaneliAcKapat(); }}
-  }});
-
+  // Ac/kapa artik <details> ile yapiliyor (bkz. NOTAM karti) - eskiden
+  // burada elle yazilmis bir ok/aria-expanded yonetimi vardi, kalktikca
+  // ayni isi tarayicinin yerlisi goruyor.
   // Filtre satirindaki tiklamalar paneli KAPATMAMALI - basligin disinda
   // olmasina ragmen govde baslikla ayni kartta, kullanici yanlislikla
   // katlamasin.
@@ -1136,6 +1139,50 @@ window.ltfjKalanSure = function (ms) {{
         console.error("[lvo] awos okuma hatası:", err);
       }});
   }}
+
+  // Secili pistin TUM AWOS RVR kayitlarini siler. Tek tek degil hepsi,
+  // cunku gosterim her pist|pozisyon icin EN YENI kaydi seciyor - sadece
+  // sonuncuyu silmek bir oncekini geri getirirdi.
+  //
+  // Firebase kurali silmeye izin verir ama UZERINE YAZMAYA izin vermez
+  // (bkz. firebase-rules.json awos_rvr: "!data.exists() || !newData.exists()").
+  // Kurallarin guncel hali yayinlanmamissa istek 401/403 doner ve bunu
+  // sessizce yutmuyoruz - kullaniciya soyluyoruz.
+  document.getElementById("lvo-awos-temizle").addEventListener("click", function () {{
+    awosHataEl.textContent = "";
+    if (!DB_URL) {{ awosHataEl.textContent = "LVO paneli şu anda yapılandırılmamış."; return; }}
+    var pist = document.getElementById("lvo-awos-pist").value;
+    // Paylasilan operasyonel veri siliniyor - once onay.
+    if (!window.confirm(pist + " pistinin girilmiş AWOS RVR değerleri silinecek. Onaylıyor musunuz?")) return;
+
+    var btn = document.getElementById("lvo-awos-temizle");
+    btn.disabled = true;
+    fetch(tabanUrl("awos_rvr") + "?_=" + Date.now())
+      .then(function (r) {{ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }})
+      .then(function (kayitlar) {{
+        var idler = Object.keys(kayitlar || {{}}).filter(function (id) {{
+          return kayitlar[id] && kayitlar[id].runway === pist;
+        }});
+        if (!idler.length) {{
+          awosHataEl.textContent = pist + " için silinecek kayıt yok.";
+          return null;
+        }}
+        return Promise.all(idler.map(function (id) {{
+          return fetch(tabanUrl("awos_rvr") + "/" + encodeURIComponent(id) + ".json",
+                       {{method: "DELETE"}})
+            .then(function (r) {{
+              if (!r.ok) throw new Error("HTTP " + r.status);
+            }});
+        }}));
+      }})
+      .then(function (sonuc) {{ if (sonuc) awosYukle(); }})
+      .catch(function (err) {{
+        awosHataEl.textContent = "AWOS RVR temizlenemedi (Firebase kuralları "
+          + "silmeye izin veriyor mu?), tekrar deneyin.";
+        console.error("[lvo] awos temizleme hatası:", err);
+      }})
+      .finally(function () {{ btn.disabled = false; }});
+  }});
 
   document.getElementById("lvo-awos-kaydet").addEventListener("click", function () {{
     awosHataEl.textContent = "";
@@ -1981,6 +2028,14 @@ def _sis_olasiligi_hesapla(guncel_cozum: dict | None, gecmis: list,
         spread_egilim_3=_spread_egilimi(gecmis, simdi))
 
 
+def _sis_olasilik_rozeti(guncel_cozum: dict | None, gecmis: list,
+                         simdi: datetime) -> str:
+    """Katlanmış "Beklenti" başlığında görünen kısa olasılık rozeti -
+    kartın kendisiyle AYNI hesabı kullanır (ayrı bir sayı üretmez)."""
+    p = _sis_olasiligi_hesapla(guncel_cozum, gecmis, simdi)
+    return "" if p is None else f"{p * 100:.1f}"
+
+
 def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
                         simdi: datetime) -> str:
     """Istatistiksel sis olasiligi karti.
@@ -2046,7 +2101,7 @@ def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
         )
 
     return (
-        '<div class="kart sis-olasilik">'
+        '<div class="alt-bolum sis-olasilik">'
         '<div class="basrow"><span class="tip">İstatistiksel sis olasılığı</span>'
         '<span class="lvo-provenance">İSTATİSTİKSEL</span></div>'
         '<div class="sis-olasilik-ust">'
@@ -2059,9 +2114,8 @@ def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
         f'civarındadır — {kiyas_ifade}.</div>'
         f'{ek_gosterge_html}'
         '<div class="sis-olasilik-not">LTFJ\'nin 2011–2023 METAR arşivinden '
-        'öğrenilmiş istatistiksel bir tahmindir; resmî tahmin değildir, TAF\'ın '
-        'yerine geçmez ve yukarıdaki "Sis riski" göstergesinden bağımsız olarak '
-        'hesaplanır.</div>'
+        'öğrenilmiş istatistiksel bir tahmindir; resmî tahmin değildir ve '
+        'TAF\'ın yerine geçmez.</div>'
         '<button type="button" id="sis-model-diyagram-btn" '
         'class="sis-olasilik-diyagram-btn">İki modelin bağlantısını gör</button>'
         '</div>'
@@ -2235,8 +2289,11 @@ def _kart(rapor: dict, yorum_onbellegi: dict | None = None) -> str:
             satirlar.append(("Pist görüş menzili", "; ".join(notlar["rvr"])))
         if notlar["trend"]:
             satirlar.append(("Eğilim", notlar["trend"]))
-        if notlar["sis"]:
-            satirlar.append(("Sis riski", notlar["sis"].split(":", 1)[-1].strip()))
+        # "Sis riski" satiri KASITLI OLARAK kaldirildi: sezgisel bir METAR
+        # tabanli ifadeydi ve sayfada ayrica HOLDOUT'TA DOGRULANMIS
+        # "İstatistiksel sis olasılığı" karti var - iki ayri sis ifadesi yan
+        # yana durunca hangisine guvenilecegi belirsizlesiyordu.
+        # notlar["sis"] Telegram tarafinda kullanilmaya devam ediyor.
         for g in notlar["gorus_op"]:
             satirlar.append(("Görüş operasyonu", g))
 
@@ -2246,8 +2303,6 @@ def _kart(rapor: dict, yorum_onbellegi: dict | None = None) -> str:
                 for a, b in satirlar) + "</table>")
         if pist_kaynagi:
             p.append(f'<div class="pist-kaynak">✈️ {html.escape(pist_kaynagi)}</div>')
-
-        p.append('<div><a class="panel-link" href="panel.html">🛫 ATC Panelinde aç →</a></div>')
 
     govde = taf_bicimle(rapor["metin"]) if tip == "TAF" else rapor["metin"]
     p.append(f"<pre>{html.escape(govde)}</pre></div>")
@@ -2303,7 +2358,7 @@ def _saatlik_tahmin_html(satirlar: list) -> str:
             "</div>")
 
     return (
-        '<div class="kart">'
+        '<div class="alt-bolum">'
         '<div class="basrow"><span class="tip">Önümüzdeki saatler</span>'
         '<span class="zaman">Open-Meteo model tahmini</span></div>'
         '<div class="tahmin-uyari">Bu bir <strong>model tahminidir, TAF değildir</strong> — '
@@ -2314,6 +2369,22 @@ def _saatlik_tahmin_html(satirlar: list) -> str:
         "<strong>spread</strong> (sıcaklık − çiy noktası, düştükçe sis riski artar) · "
         "görüş · rüzgâr · düşük bulut oranı.</div>"
         "</div>")
+
+
+def _beklenti_html(tahmin_html: str, sis_html: str, sis_yuzde: str = "") -> str:
+    """"Önümüzdeki saatler" ve "İstatistiksel sis olasılığı" TEK katlanır
+    başlık altında - ikisi de "birazdan ne olacak" sorusunu yanıtlıyor,
+    ayrı iki kart olarak durmaları sayfayı gereksiz böluyordu.
+
+    Rozet kapalıyken de olasılığı gösterir; bölüm unutulmasın diye."""
+    if not tahmin_html and not sis_html:
+        return ""
+    rozet = (f'<span class="kat-rozet">sis %{html.escape(sis_yuzde)}</span>'
+             if sis_yuzde else "")
+    return ('<div class="kart"><details class="kat kat-kart">'
+            f'<summary>Beklenti · önümüzdeki saatler {rozet}</summary>'
+            f"{tahmin_html}{sis_html}"
+            "</details></div>")
 
 
 def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict | None = None,
@@ -2366,8 +2437,10 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
                       lvo_referans_html=_lvo_dokuman_referans_html(),
                       lvo_farkindalik_html=_lvo_farkindalik_html(
                           guncel_cozum, taf_tavan, gecmis, simdi),
-                      saatlik_tahmin_html=_saatlik_tahmin_html(saatlik_tahmin or []),
-                      sis_olasilik_html=_sis_olasiligi_html(guncel_cozum, gecmis, simdi),
+                      beklenti_html=_beklenti_html(
+                          _saatlik_tahmin_html(saatlik_tahmin or []),
+                          _sis_olasiligi_html(guncel_cozum, gecmis, simdi),
+                          _sis_olasilik_rozeti(guncel_cozum, gecmis, simdi)),
                       rvr_esikleri_json=json.dumps(lvo.RVR_ESIKLERI, ensure_ascii=False),
                       vfr_html=_vfr_sekmesi_html(guncel_cozum)),
         encoding="utf-8")

@@ -52,7 +52,7 @@
     "awos_rvr": {
       ".read": true,
       "$rvr_id": {
-        ".write": "!data.exists() && newData.exists()",
+        ".write": "!data.exists() || !newData.exists()",
         ".validate": "newData.hasChildren(['runway', 'position', 'value', 'unit', 'entered_at', 'source'])",
         "runway": {
           ".validate": "newData.isString() && (newData.val() === '06R' || newData.val() === '24R')"

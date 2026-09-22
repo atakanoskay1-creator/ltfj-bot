@@ -114,3 +114,72 @@ def test_ok_isareti_summary_icin_mutlak_konumlu(tmp_path):
     assert ".kat > summary::after" in html
     blok = html.split(".kat > summary::after")[1][:200]
     assert "position:absolute" in blok
+
+
+# ============================================ ikinci tur sadelestirme
+# Kullanici istedi: sezgisel sis satiri ve ATC Panel linki kalksin;
+# tahmin+olasilik TEK baslik altinda; NOTAM bolumleri TEK baslik altinda
+# ve kaynak uyarisi EN ALTTA; RVR girisine temizleme butonu.
+def test_atc_panel_linki_kaldirildi(tmp_path):
+    assert 'href="panel.html"' not in _sayfa(tmp_path)
+
+
+def test_tahmin_ve_sis_tek_baslik_altinda(tmp_path):
+    from datetime import timedelta
+    ilk = (datetime.now(timezone.utc) + timedelta(hours=1)).replace(
+        minute=0, second=0, microsecond=0)
+    tahmin = [{"saat": ilk.strftime("%Y-%m-%dT%H:%M"), "temperature_2m": 12,
+               "dew_point_2m": 8, "visibility": 9000, "wind_speed_10m": 9,
+               "cloud_cover_low": 40}]
+    html = _sayfa(tmp_path, saatlik_tahmin=tahmin)
+    assert "Beklenti · önümüzdeki saatler" in html
+    # Ikisi de AYNI katlanir bolumun icinde - artik ayri kart degiller.
+    beklenti = html.split("Beklenti · önümüzdeki saatler")[1].split("</details>")[0]
+    assert "Önümüzdeki saatler" in beklenti
+    assert "İstatistiksel sis olasılığı" in beklenti
+
+
+def test_notam_tek_baslik_altinda_ve_uyari_en_altta(tmp_path):
+    html = _sayfa(tmp_path)
+    notam = html.split("<summary>NOTAM")[1].split("</details>\n</div>")[0]
+    for parca in ("Aktif NOTAM'lar", "Geçmiş / Arama", "notam-uyari"):
+        assert parca in notam, parca
+    # Uyari, iki alt bolumden de SONRA gelmeli.
+    assert notam.index("notam-uyari") > notam.index("Geçmiş / Arama")
+    assert notam.index("Geçmiş / Arama") > notam.index("Aktif NOTAM'lar")
+
+
+def test_notam_bolum_basligi_ve_sari_kutu_sayfa_akisindan_kalkti(tmp_path):
+    """Eskiden basligin altinda her zaman gorunen bir sari kutu vardi."""
+    html = _sayfa(tmp_path)
+    assert 'bolum-baslik">NOTAM' not in html
+
+
+def test_rvr_temizleme_butonu_var(tmp_path):
+    html = _sayfa(tmp_path)
+    assert 'id="lvo-awos-temizle"' in html
+    assert "awos temizleme hatası" in html
+
+
+def test_rvr_temizleme_onay_istiyor(tmp_path):
+    """Paylasilan operasyonel veri siliniyor - sessizce olmamali."""
+    assert "window.confirm(" in _sayfa(tmp_path)
+
+
+def test_rvr_temizleme_secili_pistin_TUM_kayitlarini_siliyor(tmp_path):
+    """Gosterim her pist|pozisyon icin EN YENI kaydi seciyor; sadece
+    sonuncuyu silmek bir oncekini geri getirirdi."""
+    html = _sayfa(tmp_path)
+    assert 'kayitlar[id].runway === pist' in html
+    assert 'method: "DELETE"' in html
+
+
+def test_firebase_kurali_awos_silmeye_izin_veriyor():
+    """Kural silmeye izin vermeli ama UZERINE YAZMAYA izin VERMEMELI."""
+    import json
+    from pathlib import Path as _P
+
+    kok = _P(__file__).resolve().parent.parent
+    kural = json.loads((kok / "firebase-rules.json").read_text(encoding="utf-8"))
+    yazma = kural["rules"]["awos_rvr"]["$rvr_id"][".write"]
+    assert yazma == "!data.exists() || !newData.exists()"

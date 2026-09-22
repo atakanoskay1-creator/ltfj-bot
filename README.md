@@ -59,6 +59,8 @@ Kurulum:
 4. Realtime Database sayfasının üstünde görünen veritabanı URL'inizi (ör. `https://PROJE-ADI-default-rtdb.europe-west1.firebasedatabase.app`) `ayarlar.json`'daki `atc_notes.database_url` alanına yazın. Web sayfası bu URL'e doğrudan `fetch()` ile REST istekleri atar (ayrı bir SDK/CDN gerekmez). **Bu URL gizli değildir** — Firebase'in kendi tasarımı gereği istemci tarafında (web sayfasında) görünür; güvenlik 3. adımdaki Rules ile sağlanır.
 5. **Project settings > Service accounts > Generate new private key** ile bir JSON dosyası indirin. **Bu dosya gizlidir** — reponun **Settings > Secrets and variables > Actions** kısmına `FIREBASE_SERVICE_ACCOUNT` adıyla (JSON içeriğinin tamamını) ve `FIREBASE_DATABASE_URL` adıyla veritabanı URL'inizi Repository Secret olarak ekleyin.
 
+> **Not:** `awos_rvr` kuralı girilen RVR değerlerinin **silinmesine** izin verir (LVO panelindeki `CLEAR` butonu); üzerine yazmaya izin vermez. Bu kural değiştiyse Rules sekmesindeki içeriği güncelleyip yeniden **Publish** edin, aksi halde CLEAR butonu 401/403 alır ve sayfada hata gösterir.
+
 > **Not:** `firebase-rules.json` LVO panelinin manuel AWOS RVR giriş yolu (`awos_rvr`) için de kurallar içerir — ATC Notes'u zaten kurduysanız **aynı Firebase projesini** kullanabilirsiniz, sadece Rules sekmesindeki içeriği dosyanın güncel haliyle yeniden yapıştırıp **Publish** etmeniz yeterli (yeni bir proje/veritabanı gerekmez).
 
 ### 5. Tarayıcı Bildirimleri (Web Push)
