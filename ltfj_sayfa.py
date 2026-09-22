@@ -197,6 +197,36 @@ SABLON = """<!DOCTYPE html>
   }}
   .sis-olasilik-diyagram-btn:hover {{ background:var(--kod-bg); }}
 
+  /* Katlanabilir bolum - LVO/Aktif NOTAM'daki ok'lu baslikla AYNI gorunumu
+     verir ama JS gerektirmez (<details> yerlisi). Sayfa 5.9 ekran
+     kaydirmaya ulasmisti; METAR/TAF yorumlari, trend grafikleri ve NOTAM
+     arama formu varsayilan olarak katlandi - hicbiri SILINMEDI, bir
+     dokunusla aciliyor. */
+  .kat {{ margin-top:10px; }}
+  /* Flex DEGIL: baslik metni uzun rozetle yan yana gelince flex ogesi
+     daralip "Trend · son 6 saat" uc satira kiriliyordu. Normal akis +
+     mutlak konumlu ok, metnin dogal sarmasina izin verir. */
+  .kat > summary {{
+    cursor:pointer; user-select:none; list-style:none;
+    position:relative; padding-right:20px;
+    font-size:.82rem; color:var(--soluk);
+  }}
+  .kat > summary::-webkit-details-marker {{ display:none; }}
+  .kat > summary::after {{
+    content:"▶"; font-size:.7rem; position:absolute; right:0; top:.2em;
+    transition:transform .15s ease; display:inline-block;
+  }}
+  .kat[open] > summary::after {{ transform:rotate(90deg); }}
+  .kat > summary:hover {{ color:var(--metin); }}
+  .kat-rozet {{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.75rem;
+    color:var(--metin); font-weight:600; margin-left:8px;
+  }}
+  /* Kart basligi olarak kullanilan katlanabilir summary - .basrow ile ayni
+     tipografi (Trend / NOTAM Geçmişi gibi bolum basliklari icin). */
+  .kat-kart > summary {{ font-size:1rem; color:var(--metin); font-weight:650; }}
+  .kat-kart > summary::after {{ font-size:.7rem; color:var(--soluk); }}
+
   /* Önümüzdeki saatler şeridi - dar ekranda yatay kaydirilir, dikey
      kaydirmayi bolmesin diye sabit yukseklikli hucreler. */
   .tahmin-uyari {{
@@ -539,7 +569,8 @@ SABLON = """<!DOCTYPE html>
 </div>
 
 <div class="kart">
-  <div class="basrow"><span class="tip">NOTAM Geçmişi / Arama</span></div>
+  <details class="kat kat-kart">
+  <summary>NOTAM Geçmişi / Arama <span class="kat-rozet" id="notam-gecmis-sayi"></span></summary>
   <div class="notam-arama-not">
     Bu arama yalnızca botun bugüne kadar yerel olarak gördüğü NOTAM'ları
     kapsar — NOTAC'ın kendi tam arşivi değildir.
@@ -557,6 +588,7 @@ SABLON = """<!DOCTYPE html>
     <button type="button" id="notam-arama-temizle">Temizle</button>
   </div>
   <div id="notam-arama-sonuc"><div class="notam-bos">Yükleniyor…</div></div>
+  </details>
 </div>
 
 <!-- ATC Notes artik sayfa akisinda degil - sag altta sabit FAB'la acilan
@@ -869,6 +901,13 @@ window.ltfjKalanSure = function (ms) {{
         veri = v;
         aktifFiltreSecenekleriDoldur();
         aktifGoster();
+        // Bolum katli geldigi icin basliktaki sayac, icinde ne kadar kayit
+        // oldugunu acmadan gosterir.
+        var gecmisSayiEl = document.getElementById("notam-gecmis-sayi");
+        if (gecmisSayiEl) {{
+          var adet = (veri.gecmis || []).length;
+          gecmisSayiEl.textContent = adet ? adet + " kayıt" : "";
+        }}
         // Kriter girilmemisse aramaCalistir zaten ipucu metnini basar.
         aramaCalistir();
       }})
@@ -1816,8 +1855,21 @@ def _trend_bolumu(gecmis: list) -> str:
     bloklar = [b for b in bloklar if b]
     if not bloklar:
         return ""
-    return (f'<div class="kart"><div class="grafik-ust">Trend</div>'
-            f'<div class="grafik-grid">{"".join(bloklar)}</div></div>')
+    # Katli gelir - 563 px'lik dort grafik, "su an ne oluyor" sorusunun
+    # cevabi degil; bakmak isteyince aciliyor. Basliktaki rozet, kapaliyken
+    # de son degerleri gosterir ki bolum UNUTULMASIN.
+    # Rozet SADECE degerler - basliklari da yazinca uc satira tasiyordu ve
+    # ozet rozeti okunabilirligini kaybediyordu. Hemen altindaki grafikler
+    # zaten hangi degerin ne oldugunu adiyla yaziyor.
+    ozet = " · ".join(
+        f"{guncel[alan]:g}{birim}"
+        for alan, _, birim, _ in GRAFIKLER
+        if guncel and guncel.get(alan) is not None)
+    rozet = f'<span class="kat-rozet">{html.escape(ozet)}</span>' if ozet else ""
+    return ('<div class="kart"><details class="kat kat-kart">'
+            f'<summary>Trend · son 6 saat {rozet}</summary>'
+            f'<div class="grafik-grid">{"".join(bloklar)}</div>'
+            "</details></div>")
 
 
 def _lvo_dokuman_referans_html() -> str:
@@ -2146,9 +2198,14 @@ def _kart(rapor: dict, yorum_onbellegi: dict | None = None) -> str:
          f'<span class="zaman">{html.escape(zaman)}</span>{rozet}</div>']
 
     if yorum:
-        p.append('<div class="yorum"><div class="yorum-etiket">'
-                  '🤖 Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</div>'
-                  f'{_yorum_html(yorum)}</div>')
+        # Yorum KATLI gelir: METAR/TAF kartlari sayfanin %43'unu kapliyordu
+        # (1175 + 970 px) ve sismenin sebebi cok paragrafli bu metindi.
+        # Kontrolor once rakamlara bakiyor - ozet satiri, dikkat uyarilari
+        # ve pist rüzgârlari ACIK kaliyor, sadece duz anlatim katlaniyor.
+        p.append('<details class="kat"><summary>'
+                 '🤖 Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)'
+                 '</summary>'
+                 f'<div class="yorum">{_yorum_html(yorum)}</div></details>')
 
     if cozum:
         dikkat = uyarilar(cozum)
