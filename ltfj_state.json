@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:52431224",
   "id:52433169",
   "id:52439834",
   "id:52444936",
@@ -199,7 +198,8 @@
   "id:53559838",
   "id:53564587",
   "id:53572548",
-  "id:53575028"
+  "id:53575028",
+  "id:53576871"
  ],
  "ilk_calisma": false,
  "son_metar": "METAR LTFJ 221650Z 05005KT 020V080 9999 FEW017 BKN033 BKN080 19/16 Q1013 RESHRA NOSIG RMK RWY24R 02004KT 320V060 RWY06R 04005KT 360V080 RWY24L 02003KT",
@@ -2556,10 +2556,10 @@
   }
  ],
  "yorum_onbellegi": {
-  "TAF AMD LTFJ 220547Z 2206/2306 VRB02KT 9999 SCT030 BKN080 BECMG 2206/2208 36014KT -SHRA FEW015 BKN025 BKN090 TEMPO 2206/2210 34016G26KT 2400 TSRA SCT014CB BKN022 BKN070 TEMPO 2210/2214 35015G25KT 4000 TSRA FEW016CB BKN023 BKN070 TEMPO 2218/2222 2200 SHRA FEW016CB BKN023 BKN070 BECMG 2218/2221 03004KT": "**LTFJ Havacılık Meteoroloji Tahmini**\n\n**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken rüzgârdan başlayarak güneydoğu yönlü rüzgâr ve sağanak yağış beklenmektedir.\n\n- **2206/2208 UTC:** Kademeli geçişle güneydoğu 14 düğün rüzgâr, hafif sağanak, az bulut 015 ft, parçalı bulut 025 ft ve 090 ft.\n\n- **2206/2210 UTC:** Geçici olarak güneydoğu 16 düğün rüzgâr 26 düğün hızlı, görüş 2400 m, gök gürültülü sağanak, az bulut 014 ft (kümülonimbus), parçalı bulut 022 ft ve 070 ft.\n\n- **2210/2214 UTC:** Geçici olarak güneydoğu 15 düğün rüzgâr 25 düğün hızlı, görüş 4000 m, gök gürültülü sağanak, az bulut 016 ft (kümülonimbus), parçalı bulut 023 ft ve 070 ft.\n\n- **2218/2222 UTC:** Geçici olarak görüş 2200 m, hafif sağanak, az bulut 016 ft (kümülonimbus), parçalı bulut 023 ft ve 070 ft; kademeli geçişle 2218/2221 UTC arasında kuzey 04 düğün rüzgâr.",
   "TAF LTFJ 221040Z 2212/2312 01016KT 9999 -SHRA FEW014 BKN025 BKN080 TEMPO 2212/2216 35018G28KT 4000 TSRA FEW013CB BKN022 BKN070 TEMPO 2216/2220 35018G28KT 3000 SHRA FEW015CB BKN023 BKN070 TEMPO 2220/2224 35018G28KT 3000 SHRA BECMG 2221/2224 VRB02KT BECMG 2305/2308 35012KT PROB40 2308/2312 4000 TSRA FEW015CB BKN023 BKN070": "**Genel:** İstanbul Sabiha Gökçen Havalimanı'nda hafif yağmur eşliğinde değişken hava beklenmektedir.\n\n- **2212/2216 UTC:** Geçici olarak güneydoğu yönünden 18 düğüm rüzgar, 28 düğüne kadar fırtınalı, 4000 metre görüş, gök gürültülü sağanak yağmur, az bulut (gök gürültülü), kırık bulut.\n\n- **2216/2224 UTC:** Geçici olarak güneydoğu yönünden 18 düğüm rüzgar, 28 düğüne kadar fırtınalı, 3000 metre görüş, sağanak yağmur, az bulut (gök gürültülü), kırık bulut.\n\n- **2221/2224 UTC:** Kademeli geçiş ile değişken rüzgar 2 düğüme; **2305/2308 UTC** kademeli geçiş ile güneydoğu 12 düğüm; **2308/2312 UTC** %40 ihtimal 4000 metre görüş, gök gürültülü sağanak yağmur, az bulut (gök gürültülü), kırık bulut.",
   "SPECI LTFJ 221050Z 02014KT 340V040 9999 SCT022 BKN070 20/16 Q1014 NOSIG RMK RWY24R 36010KT 320V020 RWY06R 36018KT RWY24L 01013KT 330V030": "**Rüzgâr:** Kuzey-kuzeydoğu yönünden 14 knot (yaklaşık 26 km/s) şiddette esen rüzgâr, yönü 340° ile 040° arasında değişiyor ve pistle yaklaşık 10 knot yan bileşen oluşturuyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için görüş açısından rahat koşullar var.\n\n**Gökyüzü:** Yaklaşık 2200 metre yükseklikte parçalı bulutluluk, 7000 metre yükseklikte çok bulutluluk görülüyor; hava olayı ve yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve bulut durumu operasyonel sınırlamalar içinde kalmakta, önümüzdeki 2 saatte hava koşullarında önemli değişiklik beklenmemektedir.",
-  "METAR LTFJ 221420Z 03014KT 9999 -SHRA FEW017 BKN029 BKN080 20/16 Q1013 NOSIG RMK RWY24R 01011KT RWY06R 01012KT RWY24L 01009KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 14 düğüm hızla esen rüzgâr, pistle yaklaşık 8 düğüm yan bileşen oluşturuyor.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, görüş açısından rahat koşullar.\n\n**Gökyüzü:** Az miktarda bulut 520 metre yükseklikte, daha yüksekte çok bulutlu katmanlar 880 ve 2400 metre civarında; hafif sağanak yağmur gözleniyor.\n\n**Uçuşa etkisi:** Hafif sağanak ve yan rüzgâr bileşeni operasyonları etkileyebilecek unsurlar olarak rapor ediliyor; önümüzdeki 2 saatte hava koşullarında önemli değişiklik beklenmiyorsa da pilot ve ATC bu verileri değerlendirerek karar verecektir."
+  "METAR LTFJ 221420Z 03014KT 9999 -SHRA FEW017 BKN029 BKN080 20/16 Q1013 NOSIG RMK RWY24R 01011KT RWY06R 01012KT RWY24L 01009KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 14 düğüm hızla esen rüzgâr, pistle yaklaşık 8 düğüm yan bileşen oluşturuyor.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, görüş açısından rahat koşullar.\n\n**Gökyüzü:** Az miktarda bulut 520 metre yükseklikte, daha yüksekte çok bulutlu katmanlar 880 ve 2400 metre civarında; hafif sağanak yağmur gözleniyor.\n\n**Uçuşa etkisi:** Hafif sağanak ve yan rüzgâr bileşeni operasyonları etkileyebilecek unsurlar olarak rapor ediliyor; önümüzdeki 2 saatte hava koşullarında önemli değişiklik beklenmiyorsa da pilot ve ATC bu verileri değerlendirerek karar verecektir.",
+  "TAF LTFJ 221640Z 2218/2318 VRB02KT 9999 BKN035 BKN080 BECMG 2218/2220 01013KT -SHRA FEW017 BKN025 TEMPO 2220/2223 4000 SHRA FEW018TCU BKN022 TEMPO 2223/2302 35016G26KT 4000 SHRA BECMG 2302/2305 VRB02KT BECMG 2305/2308 01012KT TEMPO 2308/2312 35016G26KT 4000 TSRA FEW016CB BKN025": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 22/18 UTC ile 23/18 UTC arasında değişken rüzgar ve bulutlu hava beklenmektedir.\n\n- **22/18–22/20 UTC:** Kademeli geçişle 010° yönünden 13 knot rüzgar, hafif sağanak, az bulut 1700 ft, kırılı bulut 2500 ft.\n\n- **22/20–23/02 UTC:** Geçici olarak 4000 m görüş, sağanak, az bulut 1800 ft (gök gürültülü), kırılı bulut 2200 ft; sonra 350° yönünden 16 knot rüzgar, 26 knot hava akıntısı, 4000 m görüş, sağanak.\n\n- **23/02–23/05 UTC:** Kademeli geçişle değişken rüzgar 2 knot; 23/05–23/08 UTC kademeli geçişle 010° yönünden 12 knot rüzgar.\n\n- **23/08–23/12 UTC:** Geçici olarak 350° yönünden 16 knot rüzgar, 26 knot hava akıntısı, 4000 m görüş, gök gürültülü sağanak, az bulut 1600 ft (gök gürültü bulutları), kırılı bulut 2500 ft."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3001,5 +3001,5 @@
   }
  },
  "notam_son_senkron": "2026-09-22T13:51:02+00:00",
- "guncelleme": "2026-09-22T17:01:26+00:00"
+ "guncelleme": "2026-09-22T17:10:58+00:00"
 }
