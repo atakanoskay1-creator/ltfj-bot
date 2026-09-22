@@ -1,19 +1,16 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-22T12:50:56+00:00",
+ "uretildi": "2026-09-22T13:01:20+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-22T12:20:00+00:00",
-  "metin": "METAR LTFJ 221220Z 02013KT 340V040 9999 FEW017 BKN029 BKN080 20/16 Q1014 NOSIG RMK RWY24R 01013KT RWY06R 01013KT RWY24L 01012KT",
+  "zaman": "2026-09-22T12:50:00+00:00",
+  "metin": "METAR LTFJ 221250Z 02013KT 9999 FEW017 BKN029 BKN080 20/16 Q1014 NOSIG RMK RWY24R 01012KT RWY06R 01013KT RWY24L 01011KT",
   "ruzgar": {
    "yon": 20,
    "hiz": 13,
    "hamle": null,
-   "degisken": [
-    340,
-    40
-   ]
+   "degisken": null
   },
   "gorus": 9999,
   "cavok": false,
@@ -38,7 +35,7 @@
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "alan rüzgârından",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -59,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -7.0,
-    "yan": 9.7,
+    "bas": -6.4,
+    "yan": 8.9,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -72,8 +69,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -7.6,
-    "yan": 10.5,
+    "bas": -7.0,
+    "yan": 9.7,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -91,7 +88,7 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 020° 13kt (değişken 340°–040°) · görüş 10+ km · tavan 2900 ft · 20°C · QNH 1014"
+  "ozet": "Rüzgâr 020° 13kt · görüş 10+ km · tavan 2900 ft · 20°C · QNH 1014"
  },
  "taf": {
   "zaman": "2026-09-22T10:40:00+00:00",
@@ -2401,6 +2398,14 @@
   },
   {
    "zaman": "2026-09-22T12:20:00+00:00",
+   "ruzgar_hiz": 13,
+   "tavan": 2900,
+   "qnh": 1014,
+   "sicaklik": 20,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-22T12:50:00+00:00",
    "ruzgar_hiz": 13,
    "tavan": 2900,
    "qnh": 1014,
