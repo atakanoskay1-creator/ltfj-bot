@@ -43,6 +43,29 @@ def test_suresi_dolmus_ve_baslamamis_etiketleri_var(tmp_path):
     assert "henüz başlamadı" in html
 
 
+# --------------------------------------------------------- kalan sure
+def test_yururluktekilerde_kalan_sure_yaziliyor(tmp_path):
+    """'yürürlükte' yazmak bilgi tasimiyordu - Aktif NOTAM listesindeki
+    HER kart zaten yururlukte. Yerine kalan sure yaziliyor."""
+    html = _sayfa(tmp_path)
+    assert "window.ltfjKalanSure" in html
+    assert '"yürürlükte"' not in html
+
+
+def test_kalan_sure_kademeleri_ve_kalici_notam(tmp_path):
+    html = _sayfa(tmp_path)
+    for parca in ("dk kaldı", "sa kaldı", "gün kaldı",
+                  "birazdan bitiyor", "süresiz"):
+        assert parca in html, parca
+
+
+def test_kalan_sure_goreceli_yaziliyor_mutlak_saat_degil(tmp_path):
+    """Sayfadaki saatler yerel, NOTAM verisi UTC - mutlak saat yazmak
+    saat dilimi belirtilmeden yaniltici olurdu."""
+    html = _sayfa(tmp_path)
+    assert "toLocaleTimeString" not in html.split("ltfjKalanSure")[1][:400]
+
+
 def test_iptal_edilmis_notam_tarihten_bagimsiz_olarak_ayri_ele_aliniyor(tmp_path):
     """NOTAC'in kendi status'u 'active' DEGILSE (cancelled/withdrawn)
     tarih penceresi bakilmadan o deger gosterilmeli - iptal edilmis bir
@@ -99,3 +122,32 @@ def test_acilir_kapanir_govde_filtreleri_de_kapsiyor(tmp_path):
     html = _sayfa(tmp_path)
     assert 'id="notam-aktif-govde" hidden' in html
     assert "aktifGovdeEl.hidden = !aktifAcikMi;" in html
+
+
+# ------------------------------------------------------- canli arama
+def test_arama_butonu_kaldirildi_canli_suzuluyor(tmp_path):
+    """Aktif liste yazdikca suzulurken aramanin ayri bir 'Ara' adimi
+    istemesi ayni sayfada iki farkli etkilesim demekti."""
+    html = _sayfa(tmp_path)
+    assert "notam-ara-btn" not in html
+    assert 'id="notam-arama-temizle"' in html
+    assert 'getElementById("notam-q").addEventListener("input", aramaCalistir)' in html
+
+
+def test_arama_tarih_ve_durum_degisiminde_de_calisiyor(tmp_path):
+    html = _sayfa(tmp_path)
+    for eid in ("notam-tarih-baslangic", "notam-tarih-bitis"):
+        assert 'getElementById("' + eid + '").addEventListener("change", aramaCalistir)' in html
+    assert 'durumSelectEl.addEventListener("change", aramaCalistir)' in html
+
+
+def test_kriter_yoksa_tum_gecmis_dokulmuyor(tmp_path):
+    """Bilincli tercih: 'gecmis' NOTAC'in arsivi degil, sadece botun
+    gordukleri - istenmeden dokulmesi yaniltici olur."""
+    html = _sayfa(tmp_path)
+    assert "if (!q && !ts && !te && !durum)" in html
+    assert "Aramak için yukarıdaki" in html
+
+
+def test_artik_kullanilmayan_arama_bayragi_kalmadi(tmp_path):
+    assert "aramaYapildiMi" not in _sayfa(tmp_path)

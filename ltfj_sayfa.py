@@ -531,7 +531,7 @@ SABLON = """<!DOCTYPE html>
       <option value="doldu">Süresi dolmuş</option>
       <option value="baslamadi">Henüz başlamamış</option>
     </select>
-    <button type="button" id="notam-ara-btn">Ara</button>
+    <button type="button" id="notam-arama-temizle">Temizle</button>
   </div>
   <div id="notam-arama-sonuc"><div class="notam-bos">Yükleniyor…</div></div>
 </div>
@@ -623,7 +623,28 @@ window.ltfjNotamGecerlilik = function (n) {{
   if (!n.status) {{
     return {{durum: "bilinmiyor", etiket: "", vurgula: false}};
   }}
-  return {{durum: "yururlukte", etiket: "yürürlükte", vurgula: false}};
+  // "yururlukte" yazmak bilgi tasimiyordu - Aktif NOTAM listesindeki HER
+  // kart zaten yururlukte. Yerine kontrolorun gercekten merak ettigi sey:
+  // ne kadar kaldi. effective_end bos olan NOTAM kalici, "süresiz".
+  return {{
+    durum: "yururlukte",
+    etiket: isNaN(bit) ? "süresiz" : window.ltfjKalanSure(bit - simdi),
+    vurgula: false,
+  }};
+}};
+
+// Milisaniye farkini kisa, okunur bir kalan sureye cevirir. Mutlak saat
+// yerine GORECELI sure yaziyoruz: sayfada saatler yerel, NOTAM verisi UTC -
+// "16:00'da bitiyor" hangi saat dilimi oldugu belirtilmeden yaniltici olur,
+// "6 sa kaldı" ise saat diliminden bagimsiz dogru.
+window.ltfjKalanSure = function (ms) {{
+  "use strict";
+  var dk = Math.floor(ms / 60000);
+  if (dk < 1) return "birazdan bitiyor";
+  if (dk < 60) return dk + " dk kaldı";
+  var saat = Math.floor(dk / 60);
+  if (saat < 48) return saat + " sa kaldı";
+  return Math.floor(saat / 24) + " gün kaldı";
 }};
 </script>
 <script>
@@ -637,7 +658,6 @@ window.ltfjNotamGecerlilik = function (n) {{
 
   var veri = null;
   var aktifAcikMi = false;
-  var aramaYapildiMi = false;
   var aktifEl = document.getElementById("notam-aktif-liste");
   var aktifGovdeEl = document.getElementById("notam-aktif-govde");
   var aktifQEl = document.getElementById("notam-aktif-q");
@@ -784,11 +804,19 @@ window.ltfjNotamGecerlilik = function (n) {{
 
   function aramaCalistir() {{
     if (!veri) return;
-    aramaYapildiMi = true;
     var q = document.getElementById("notam-q").value.trim().toLowerCase();
     var ts = document.getElementById("notam-tarih-baslangic").value;
     var te = document.getElementById("notam-tarih-bitis").value;
     var durum = durumSelectEl.value;
+
+    // Hicbir kriter girilmediyse TUM gecmisi dokmuyoruz - bu bilincli bir
+    // tercih: "gecmis" NOTAC'in arsivi degil, sadece botun gordukleri;
+    // istenmeden karsiya dokulmesi yaniltici olur.
+    if (!q && !ts && !te && !durum) {{
+      sonucEl.innerHTML = '<div class="notam-bos">Aramak için yukarıdaki '
+        + "alanlardan birini doldurun.</div>";
+      return;
+    }}
 
     var sonuclar = (veri.gecmis || []).filter(function (n) {{
       // Kayittaki donuk `status` yerine HESAPLANAN gecerlilik - kartta
@@ -818,16 +846,8 @@ window.ltfjNotamGecerlilik = function (n) {{
         veri = v;
         aktifFiltreSecenekleriDoldur();
         aktifGoster();
-        // Arama SADECE kullanici gercekten arama yaptiginda calisir - sayfa
-        // ilk acildiginda (ya da veri yeniden yuklendiginde, kullanici henuz
-        // hicbir kriter girmediyse) sonuc alani BOS kalir, "tum gecmis"
-        // otomatik dokulmez.
-        if (aramaYapildiMi) {{
-          aramaCalistir();
-        }} else {{
-          sonucEl.innerHTML = '<div class="notam-bos">Arama yapmak için yukarıdaki '
-            + "alanları doldurup “Ara”ya basın.</div>";
-        }}
+        // Kriter girilmemisse aramaCalistir zaten ipucu metnini basar.
+        aramaCalistir();
       }})
       .catch(function (err) {{
         var mesaj = '<div class="notam-bos">NOTAM verisi şu anda alınamıyor.</div>';
@@ -856,9 +876,19 @@ window.ltfjNotamGecerlilik = function (n) {{
     aktifGoster();
   }});
 
-  document.getElementById("notam-ara-btn").addEventListener("click", aramaCalistir);
-  document.getElementById("notam-q").addEventListener("keydown", function (e) {{
-    if (e.key === "Enter") aramaCalistir();
+  // Aktif liste filtreleriyle AYNI davranis: yazdikca/sectikce suzuluyor,
+  // ayri bir "Ara" adimi yok. Gecmis birkac yuz kayitla sinirli oldugu icin
+  // her tusta yeniden cizmek sorun degil.
+  document.getElementById("notam-q").addEventListener("input", aramaCalistir);
+  document.getElementById("notam-tarih-baslangic").addEventListener("change", aramaCalistir);
+  document.getElementById("notam-tarih-bitis").addEventListener("change", aramaCalistir);
+  durumSelectEl.addEventListener("change", aramaCalistir);
+  document.getElementById("notam-arama-temizle").addEventListener("click", function () {{
+    document.getElementById("notam-q").value = "";
+    document.getElementById("notam-tarih-baslangic").value = "";
+    document.getElementById("notam-tarih-bitis").value = "";
+    durumSelectEl.value = "";
+    aramaCalistir();
   }});
   veriYukle();
 }})();
