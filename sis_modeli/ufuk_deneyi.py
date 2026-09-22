@@ -38,7 +38,7 @@ def calistir(ham: list, ufuk_saat: float, alanlar: list = ALANLAR,
     aday = hedef.onset_adaylari(kayitlar)
     gelistirme = bolme.gelistirme(aday)
 
-    gercek, tahmin = [], []
+    gercek, tahmin, saatler = [], [], []
     tahmin_map = {}
     for eg_yillari, test_yillari in bolme.foldlar():
         egitim = (bolme.ayir_embargolu(gelistirme, eg_yillari, sonraki_yil=min(test_yillari))
@@ -51,10 +51,16 @@ def calistir(ham: list, ufuk_saat: float, alanlar: list = ALANLAR,
             p = model.olasilik(katsayilar, r, tablolar)
             gercek.append(bool(r["hedef"]))
             tahmin.append(p)
+            saatler.append(r["dt"].hour)
             tahmin_map[r["dt"]] = p
 
     taban = sum(gercek) / len(gercek) if gercek else 0.0
     iklim = [taban] * len(gercek)
+    # Saate KOSULLU iklim: duz taban orandan daha zor bir referans.
+    # Modelin degiskenleri arasinda `saat` de var; duz orana gore olculen
+    # beceri "gunluk dongusu ogrenildi"yi atmosferik beceri gibi
+    # gosterebilir (bkz. degerlendir.kosullu_iklim).
+    iklim_saat = degerlendir.kosullu_iklim(saatler, gercek)
 
     # Event-level: TUM (onset-filtresiz) kayitlardan bagimsiz olaylari bul,
     # holdout yillarindakileri disarida birak (gelistirme evreniyle tutarli).
@@ -70,6 +76,8 @@ def calistir(ham: list, ufuk_saat: float, alanlar: list = ALANLAR,
         "bss": degerlendir.brier_skill(tahmin, gercek, iklim),
         "ap": degerlendir.ortalama_kesinlik(tahmin, gercek),
         "log_loss": degerlendir.log_loss(tahmin, gercek) if gercek else 0.0,
+        "lss": degerlendir.log_skill(tahmin, gercek, iklim),
+        "lss_saat": degerlendir.log_skill(tahmin, gercek, iklim_saat),
         "roc_auc": degerlendir.roc_auc(tahmin, gercek),
         "olay_sayisi": sum(1 for t in temsilciler if t["temsilci"] is not None),
         "olay_esikleri": olay_esikleri,
@@ -90,14 +98,16 @@ def main(argv=None) -> int:
     print("Model B — çoklu ufuk (lead-time) deneyi (holdout AÇILMADI)")
     print(f"Değişkenler: {', '.join(ALANLAR)}\n")
     print(f"{'ufuk':>8}{'n':>9}{'poz':>6}{'olay':>7}{'Brier×10⁴':>11}"
-          f"{'BSS':>8}{'AP':>8}{'LogLoss':>9}{'ROC-AUC':>9}")
+          f"{'BSS':>8}{'AP':>8}{'LogLoss':>9}{'LSS':>8}{'LSS|saat':>10}"
+          f"{'ROC-AUC':>9}")
     sonuclar = {}
     for ufuk in UFUKLAR_SAAT:
         s = calistir(ham, ufuk)
         sonuclar[ufuk] = s
         print(f"{_etiket(ufuk):>8}{s['n']:>9}{s['poz']:>6}{s['olay_sayisi']:>7}"
               f"{1e4*s['brier']:>11.2f}{s['bss']:>8.3f}{s['ap']:>8.3f}"
-              f"{s['log_loss']:>9.3f}{s['roc_auc']:>9.3f}")
+              f"{s['log_loss']:>9.3f}{s['lss']:>8.3f}{s['lss_saat']:>10.3f}"
+              f"{s['roc_auc']:>9.3f}")
 
     esikler = sonuclar[UFUKLAR_SAAT[0]]["olay_esikleri"]
     baslik_esikleri = [f">=%{100 * e['esik']:g}" for e in esikler]

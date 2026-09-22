@@ -11,6 +11,13 @@ Kullanilan metrikler:
     Kullaniciya olasilik gosterecegimiz icin EN ONEMLI metrik budur.
   - Ortalama kesinlik (AP / PR egrisi alti): siralama gucu
   - Belirli esiklerde precision/recall: "kac kere bosuna alarm, kac kacirma"
+  - Log-olabilirlik beceri skoru (LSS): BSS'in log-kayip karsiligi. NEDEN
+    GEREKLI - Jewson (2004) ve Benedetti (2009), olay olasiligi cok
+    kucukken Brier Score'un COZUNURLUGUNU KAYBETTIGINI gosterdi: model
+    iyilesse bile BS kipirdamaz. Bu projenin taban orani %0.76, yani tam
+    o bolgede (lead-time tablosunda BSS 2 saatte 1 saatten DUSUK cikmisti,
+    AP monoton artarken). Ayni referansa gore log-kayip orani cok daha
+    duyarli. Bkz. Yabra ve ark. (2026), Ezeiza havaalani.
 """
 
 import math
@@ -89,6 +96,56 @@ def log_loss(tahminler: list, gercekler: list, eps: float = 1e-9) -> float:
         p = min(max(p, eps), 1 - eps)
         toplam += -math.log(p) if y else -math.log(1 - p)
     return toplam / n
+
+
+def log_skill(tahminler: list, gercekler: list, referans: list,
+              eps: float = 1e-9) -> float:
+    """LSS = 1 - LogLoss(model) / LogLoss(referans).
+
+    brier_skill ile AYNI bicim: 0 = referansla ayni, 1 = mukemmel,
+    negatif = referanstan KOTU.
+
+    NOT: Yabra ve ark. (2026) Denklem 4'te LS'yi isaretsiz yazip
+    "mukemmel tahmin LS = -sonsuz" diyor; bu iki ifade kendi icinde
+    tutarsiz. Beceri skoru (1 - LS/LS_ref) yalnizca LS NEGATIF
+    log-olabilirlik iken calisir (mukemmel = 0 -> LSS = 1). Burada
+    log_loss() zaten ortalama negatif log-olabilirlik oldugu icin
+    dogrudan kullaniliyor."""
+    ls_ref = log_loss(referans, gercekler, eps)
+    if ls_ref <= 0:
+        return 0.0
+    return 1.0 - log_loss(tahminler, gercekler, eps) / ls_ref
+
+
+# Kucuk kovalarin genel taban orana cekilme gucu. 50 = "bir kovanin kendi
+# oranina inanmak icin ~50 gozlem gerekir". Sis nadir oldugu icin bu sart:
+# yumusatma olmadan tek pozitifi olmayan bir saat kovasi p=0 verir ve o
+# saatte bir olay olursa referans SONSUZ ceza alir, LSS anlamsizlasir.
+KOVA_YUMUSATMA = 50.0
+
+
+def kosullu_iklim(anahtarlar: list, gercekler: list,
+                  yumusatma: float = KOVA_YUMUSATMA) -> list:
+    """Anahtar basina (ornegin saat) taban oran - DUZ taban orandan daha
+    ZOR bir referans.
+
+    Neden gerekli: sisin gucli bir gunluk dongusu var ve modelin kendi
+    degiskenleri arasinda `saat` DE var. Duz taban orana gore olculen
+    beceri, "model gunluk dongusu ogrendi"yi atmosferik beceri gibi
+    gosterebilir. Saate kosullu referans bu payi referansa devreder;
+    geriye kalan beceri gercekten atmosferik olandir.
+
+    Referans, dogrulama orneginin KENDI ikliminden kurulur (tahmin
+    sistemi degil, normalizasyon) - brier_skill'deki duz taban oranla
+    ayni uygulama."""
+    n = len(gercekler) or 1
+    genel = sum(1 for y in gercekler if y) / n
+    toplam, pozitif = defaultdict(int), defaultdict(int)
+    for a, y in zip(anahtarlar, gercekler):
+        toplam[a] += 1
+        pozitif[a] += int(bool(y))
+    return [(pozitif[a] + yumusatma * genel) / (toplam[a] + yumusatma)
+            for a in anahtarlar]
 
 
 def roc_auc(tahminler: list, gercekler: list) -> float:

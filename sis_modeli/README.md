@@ -505,18 +505,64 @@ holdout hiçbirinde açılmaz.
 
 **Ölçülen sonuç — beklenenin TERSİ yönde:**
 
-| ufuk | n | olay | AP | BSS | ROC-AUC |
-|---|---|---|---|---|---|
-| 30dk | 155.634 | 252 | 0.011 | 0.005 | 0.898 |
-| 1h | 155.634 | 256 | 0.021 | 0.010 | 0.901 |
-| 2h | 155.634 | 256 | 0.038 | 0.004 | 0.903 |
-| **3h** | 155.634 | 256 | **0.049** | 0.015 | 0.891 |
+| ufuk | n | poz | olay | taban | AP | AP/taban | BSS | LSS | LSS\|saat | ROC-AUC |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 30dk | 155.634 | 250 | 252 | %0.161 | 0.011 | 6.85 | 0.005 | 0.145 | 0.103 | 0.898 |
+| 1h | 155.634 | 474 | 256 | %0.305 | 0.021 | 6.90 | 0.010 | 0.169 | 0.122 | 0.901 |
+| **2h** | 155.634 | 871 | 256 | %0.560 | 0.038 | 6.79 | 0.004 | **0.194** | **0.145** | 0.903 |
+| 3h | 155.634 | 1238 | 256 | %0.795 | **0.049** | 6.16 | 0.015 | 0.190 | 0.139 | 0.891 |
 
-Performans ufuk **uzadıkça artıyor**, kısaldıkça değil. Fiziksel olarak
-tutarlı: bu modelin yakaladığı sinyal ("koşullar sise elverişli hale
-geliyor") **yavaş** bir eğilim — spread'in saatler içindeki düşüşü. 30
-dakikalık bir pencerede bu eğilimin olaya dönüşmesi için yeterli zaman
-genelde yok; 3 saat bu yavaş sinyale "gerçekleşme şansı" tanıyor.
+#### LSS eklendikten sonra bu tablo YENİDEN OKUNDU
+
+`LSS` (log-olabilirlik beceri skoru) ve saate koşullu referans sonradan
+eklendi (bkz. `degerlendir.log_skill` / `kosullu_iklim`); gerekçe Jewson
+(2004) ve Benedetti (2009): olay olasılığı çok küçükken Brier Score
+çözünürlüğünü kaybeder. Bu projenin taban oranı %0.8'in altında.
+
+**Eklenmesi üç şeyi değiştirdi:**
+
+**1. BSS'in bu tabloda gürültü ölçtüğü doğrulandı.** BSS 2 saatte (0.004)
+hem 1 saatten (0.010) hem 30 dakikadan (0.005) *düşük* çıkıyor — AP
+monoton artarken. LSS'te böyle bir kırılma yok: 0.145 → 0.169 → 0.194 →
+0.190. Tahmin edilen kusur, tahmin edildiği yerde çıktı.
+
+**2. Olasılık kalitesi 2 saatte tepe yapıyor, 3 saatte değil.** AP (sıralama
+gücü) 3 saate kadar artmaya devam ediyor ama LSS (olasılığın kendi
+kalitesi) 2 saatte tepe yapıp düşüyor. İkisi farklı soru soruyor:
+"satırları riske göre sıralayabiliyor mu" ile "ürettiği olasılık sayısı
+doğru mu".
+
+**3. AP'nin ufukla artması büyük ölçüde PREVALANS YAN ETKİSİ.** Rastgele
+bir sınıflandırıcının AP'si taban orana eşittir; ufuk genişledikçe olay
+sıklaşıyor (%0.161 → %0.795), dolayısıyla AP doğal olarak yükseliyor.
+Taban orana bölündüğünde (`AP/taban`) sıralama gücü 30dk–2h arasında
+**düz** (~6.8) ve 3 saatte 6.16'ya *düşüyor*.
+
+> **Bu, yukarıdaki "performans ufuk uzadıkça artıyor" ifadesini
+> düzeltir.** Ham AP artıyordu, taban orana göre normalize edilmiş
+> sıralama gücü artmıyor. Yavaş-eğilim açıklaması hâlâ 30 dakikanın neden
+> en zayıf ufuk olduğunu açıklıyor, ama "3 saat en iyisi" sonucu
+> desteklenmiyor — LSS ve AP/taban birlikte **2 saati** işaret ediyor.
+>
+> Uyarı: bu sayıların güven aralığı HESAPLANMADI. 6.85/6.90/6.79 farkları
+> neredeyse kesinlikle gürültü; 3 saatteki düşüş (%10) gürültü olabilir de
+> olmayabilir de. Kesinleştirmek için `blok_guven_araligi` ile bootstrap
+> gerekir.
+
+**Beceri ne kadarı sadece günlük döngü?** `LSS|saat` sütunu, referansın
+saati bildiği (dolayısıyla günlük döngüyü referansa devrettiği) durumu
+ölçer. Modelin değişkenleri arasında `saat` de var, bu yüzden düz taban
+orana göre ölçülen becerinin bir kısmı "model günlük döngüyü öğrendi"
+demek. Fark her ufukta **%25–29**. Geriye kalan (~0.14) günlük döngünün
+ÖTESİNDE, gerçekten atmosferik olan beceri — mütevazı ama açıkça pozitif.
+
+**Dış kıyas.** Yabra ve ark. (2026, ön baskı) Ezeiza'da 1 saatte ~%70,
+6 saatte ~%32 LSS bildiriyor. **Bu sayılar bu tabloyla kıyaslanamaz:**
+(1) onların sis tanımı görüş <5000 m (pus dahil), taban oran %4 — burada
+ICAO tanımı (<1000 m) ve %0.76; (2) kendi ifadeleriyle modellerinin en
+güçlü kestiricisi *başlangıç anındaki sis*, yani skorun büyük kısmı
+süreklilik. Bu proje `hedef.onset_adaylari` ile sis zaten varken olan
+satırları dışarıda bırakıyor — yalnızca oluşum tahmin ediliyor.
 
 **Event-level tespit oranı (olay başına TEK temsilci tahmin, eşiği geçen
 olay yüzdesi) daha da açık konuşuyor:**
