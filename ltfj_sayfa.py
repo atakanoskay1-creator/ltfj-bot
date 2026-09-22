@@ -98,6 +98,31 @@ SABLON = """<!DOCTYPE html>
     .header-butonlar {{ flex:1 1 100%; justify-content:flex-end; }}
     button.yenile {{ padding:8px 10px; font-size:.78rem; }}
   }}
+  /* Yapiskan tek satir ozet: "su an bir sikinti var mi?" sorusunu
+     kaydirmadan yanitlar. Kartlar katlandiktan sonra sayfa kisaldi ama
+     kaydirinca ustteki METAR karti ekrandan cikiyordu; bu satir kalir.
+     z-index kasitli olarak 40: sayfa icerigiNIN ustunde, ama sabit
+     kapli katmanlarin (VFR sekmesi 58, ATC modali 65) ALTINDA. */
+  .ozet-serit {{
+    position:sticky; top:0; z-index:40;
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    margin:0 0 16px; padding:9px 12px;
+    background:var(--kart); border:1px solid var(--cizgi); border-radius:12px;
+    font-size:.85rem; font-variant-numeric:tabular-nums;
+  }}
+  /* Renk kodu rozeti kart rozetiyle AYNI gorunsun (.rozet ile ayni
+     yazi rengi) - iki farkli gorsel dil ayni seyi anlatmasin. */
+  .ozet-renk {{
+    padding:2px 8px; border-radius:999px; color:#fff;
+    font-weight:700; font-size:.75rem; letter-spacing:.02em;
+  }}
+  .ozet-oge {{ color:var(--metin); white-space:nowrap; }}
+  /* Ayirici nokta: ogeler arasinda, ilkinden once DEGIL. */
+  .ozet-oge + .ozet-oge::before {{ content:"·"; color:var(--soluk); margin-right:8px; }}
+  @media (max-width:480px) {{
+    .ozet-serit {{ font-size:.8rem; gap:6px; padding:8px 10px; }}
+    .ozet-oge + .ozet-oge::before {{ margin-right:6px; }}
+  }}
   .kart {{
     background:var(--kart); border:1px solid var(--cizgi); border-radius:14px;
     padding:18px; margin-bottom:16px;
@@ -517,6 +542,7 @@ SABLON = """<!DOCTYPE html>
     <button type="button" class="yenile" id="sayfa-yenile-btn">⟳ Yenile</button>
   </div>
 </header>
+{ozet_serit_html}
 {govde}
 {beklenti_html}
 
@@ -2408,6 +2434,56 @@ def _saatlik_tahmin_html(satirlar: list) -> str:
         "</div>")
 
 
+def _ozet_serit_html(cozum: dict | None, notlar: dict | None) -> str:
+    """Sayfanın üstünde YAPIŞKAN duran tek satırlık durum özeti.
+
+    Amaç: "şu an bir sıkıntı var mı?" sorusunu SIFIR kaydırmayla
+    yanıtlamak. Kartlar katlandıktan sonra sayfa 2.4 ekrana indi ama
+    bu satır kaydırırken de görünür kaldığı için cevap her an elde.
+
+    Değerler ham METAR'dan gelir - yorum/tahmin YOK. Eksik alan "—"
+    olur; satır hiç çizilmemektense eksik çizilir, çünkü yokluğu da
+    bilgidir (ör. tavan bildirilmiyor)."""
+    if not cozum:
+        return ""
+
+    def _gorus(m):
+        if m is None:
+            return "—"
+        return "10+ km" if m >= 9999 else (f"{m / 1000:g} km" if m >= 1000 else f"{m} m")
+
+    tavan = cozum.get("tavan")
+    yon, hiz = cozum.get("ruzgar_yon"), cozum.get("ruzgar_hiz")
+    hamle = cozum.get("ruzgar_hamle")
+    if hiz is None:
+        ruzgar = "—"
+    else:
+        ruzgar = ("VRB" if yon is None else f"{yon:03d}°") + f"/{hiz}"
+        if hamle:
+            ruzgar += f"G{hamle}"
+    sic, cig = cozum.get("sicaklik"), cozum.get("cig_noktasi")
+    spread = "—" if sic is None or cig is None else f"Δ{sic - cig}°"
+
+    rozet = ""
+    if notlar and notlar.get("renk"):
+        kod, _ = notlar["renk"]
+        rozet = (f'<span class="ozet-renk" style="background:'
+                 f'{RENK_KODU.get(kod, "#64748b")}">{html.escape(kod)}</span>')
+
+    # (deger, tooltip) - serit kisa olmak zorunda, ne olduklari
+    # title'da duruyor; ekran okuyucu da bunu okur.
+    ogeler = [
+        (_gorus(cozum.get("gorus")), "Görüş"),
+        ("tavan yok" if tavan is None else f"{tavan} ft", "Bulut tavanı"),
+        (ruzgar, "Rüzgâr (yön/hız, G=hamle)"),
+        (spread, "Spread (sıcaklık - çiy noktası)"),
+    ]
+    return ('<div class="ozet-serit" id="ozet-serit">' + rozet
+            + "".join(f'<span class="ozet-oge" title="{html.escape(t)}">'
+                      f"{html.escape(d)}</span>" for d, t in ogeler)
+            + "</div>")
+
+
 def _beklenti_html(tahmin_html: str, sis_html: str, sis_yuzde: str = "") -> str:
     """"Önümüzdeki saatler" ve "İstatistiksel sis olasılığı" TEK katlanır
     başlık altında - ikisi de "birazdan ne olacak" sorusunu yanıtlıyor,
@@ -2462,6 +2538,12 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
 
     guncel_rapor = next((r for r in sirali if r["tip"] in ("METAR", "SPECI")), None)
     guncel_cozum = metar_coz(guncel_rapor["metin"]) if guncel_rapor else None
+    # Ust seritteki renk rozeti kartlarla AYNI hesaptan gelsin diye
+    # havacilik_notlari burada bir kez daha cagriliyor (saf fonksiyon,
+    # ag/dosya erisimi yok); rozetin karttakinden sessizce sapmamasi icin.
+    guncel_notlar = (havacilik_notlari(guncel_cozum, guncel_rapor["metin"],
+                                       guncel_rapor.get("zaman"))
+                     if guncel_cozum else None)
     guncel_taf_rapor = next((r for r in sirali if r["tip"] == "TAF"), None)
     taf_tavan = (farkindalik.taf_en_dusuk_tavan_ft(guncel_taf_rapor["metin"])
                  if guncel_taf_rapor else None)
@@ -2471,6 +2553,8 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
                       guncelleme=f"{simdi:%d.%m.%Y %H:%M} yerel",
                       atc_notes_db_url=json.dumps(atc_notes_db_url or ""),
                       push_vapid_public_key=json.dumps(push_vapid_public_key or ""),
+                      ozet_serit_html=_ozet_serit_html(
+                          guncel_cozum, guncel_notlar),
                       lvo_referans_html=_lvo_dokuman_referans_html(),
                       lvo_farkindalik_html=_lvo_farkindalik_html(
                           guncel_cozum, taf_tavan, gecmis, simdi),
