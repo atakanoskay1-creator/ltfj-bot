@@ -1,18 +1,18 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-22T09:51:11+00:00",
+ "uretildi": "2026-09-22T10:01:24+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-22T09:20:00+00:00",
-  "metin": "METAR LTFJ 220920Z 35011KT 320V030 9999 -SHRA FEW015CB BKN025 BKN080 20/18 Q1015 NOSIG RMK RWY24R 35012KT RWY06R 35012KT RWY24L 36010KT",
+  "zaman": "2026-09-22T09:50:00+00:00",
+  "metin": "METAR LTFJ 220950Z 35012KT 320V020 9999 -SHRA FEW015CB BKN025 BKN080 21/17 Q1015 NOSIG RMK RWY24R 34013KT RWY06R 35014KT RWY24L 36011KT",
   "ruzgar": {
    "yon": 350,
-   "hiz": 11,
+   "hiz": 12,
    "hamle": null,
    "degisken": [
     320,
-    30
+    20
    ]
   },
   "gorus": 9999,
@@ -21,8 +21,8 @@
   "hava": [
    "-SHRA"
   ],
-  "sicaklik": 20,
-  "cig_noktasi": 18,
+  "sicaklik": 21,
+  "cig_noktasi": 17,
   "qnh": 1015,
   "nosig": true,
   "renk": [
@@ -35,8 +35,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 3.0,
-    "yan": 10.6,
+    "bas": 3.3,
+    "yan": 11.5,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -48,8 +48,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 3.3,
-    "yan": 11.5,
+    "bas": 3.8,
+    "yan": 13.5,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -61,8 +61,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -4.4,
-    "yan": 9.0,
+    "bas": -4.8,
+    "yan": 9.9,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -74,8 +74,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -3.3,
-    "yan": 11.5,
+    "bas": -1.3,
+    "yan": 12.9,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -93,7 +93,7 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 350° 11kt (değişken 320°–030°) · görüş 10+ km · tavan 2500 ft · hafif sağanak yağmur · 20°C · QNH 1015"
+  "ozet": "Rüzgâr 350° 12kt (değişken 320°–020°) · görüş 10+ km · tavan 2500 ft · hafif sağanak yağmur · 21°C · QNH 1015"
  },
  "taf": {
   "zaman": "2026-09-22T04:40:00+00:00",
@@ -2352,6 +2352,14 @@
    "qnh": 1015,
    "sicaklik": 20,
    "cig_noktasi": 18
+  },
+  {
+   "zaman": "2026-09-22T09:50:00+00:00",
+   "ruzgar_hiz": 12,
+   "tavan": 2500,
+   "qnh": 1015,
+   "sicaklik": 21,
+   "cig_noktasi": 17
   }
  ]
 }
