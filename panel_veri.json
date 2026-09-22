@@ -1,21 +1,18 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-22T22:21:06+00:00",
+ "uretildi": "2026-09-22T22:26:53+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-22T21:50:00+00:00",
-  "metin": "METAR LTFJ 222150Z 01011KT 350V050 6000 SHRA FEW007 SCT018TCU BKN022 15/14 Q1012 RESHRA BECMG NSW RMK RWY24R 34011KT RWY06R 34014KT RWY24L 35009KT",
+  "zaman": "2026-09-22T22:20:00+00:00",
+  "metin": "METAR LTFJ 222220Z 02011KT 7000 SHRA FEW007 SCT018TCU BKN022 15/14 Q1012 BECMG NSW RMK RWY24R 34013KT RWY06R 35013KT RWY24L 35011KT",
   "ruzgar": {
-   "yon": 10,
+   "yon": 20,
    "hiz": 11,
    "hamle": null,
-   "degisken": [
-    350,
-    50
-   ]
+   "degisken": null
   },
-  "gorus": 6000,
+  "gorus": 7000,
   "cavok": false,
   "tavan": 2200,
   "hava": [
@@ -35,12 +32,12 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 6.5,
-    "yan": 8.9,
+    "bas": 7.9,
+    "yan": 7.7,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "alan rüzgârından",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -48,8 +45,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 1.4,
-    "yan": 13.9,
+    "bas": 3.6,
+    "yan": 12.5,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -61,8 +58,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -2.5,
-    "yan": 8.7,
+    "bas": -3.0,
+    "yan": 10.6,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -74,8 +71,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -1.1,
-    "yan": 10.9,
+    "bas": -1.3,
+    "yan": 12.9,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -93,20 +90,13 @@
   "gorus_op": [],
   "trend": "Kademeli geçiş: NSW",
   "sis_riski": null,
-  "ozet": "Rüzgâr 010° 11kt (değişken 350°–050°) · görüş 6000 m · tavan 2200 ft · sağanak yağmur · 15°C · QNH 1012"
+  "ozet": "Rüzgâr 020° 11kt · görüş 7000 m · tavan 2200 ft · sağanak yağmur · 15°C · QNH 1012"
  },
  "taf": {
   "zaman": "2026-09-22T16:40:00+00:00",
   "metin": "TAF LTFJ 221640Z 2218/2318 VRB02KT 9999 BKN035 BKN080 BECMG 2218/2220 01013KT -SHRA FEW017 BKN025 TEMPO 2220/2223 4000 SHRA FEW018TCU BKN022 TEMPO 2223/2302 35016G26KT 4000 SHRA BECMG 2302/2305 VRB02KT BECMG 2305/2308 01012KT TEMPO 2308/2312 35016G26KT 4000 TSRA FEW016CB BKN025"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-16T21:20:00+00:00",
-   "ruzgar_hiz": 6,
-   "tavan": null,
-   "qnh": 1016,
-   "sicaklik": 17
-  },
   {
    "zaman": "2026-09-16T21:50:00+00:00",
    "ruzgar_hiz": 5,
@@ -2454,6 +2444,14 @@
   },
   {
    "zaman": "2026-09-22T21:50:00+00:00",
+   "ruzgar_hiz": 11,
+   "tavan": 2200,
+   "qnh": 1012,
+   "sicaklik": 15,
+   "cig_noktasi": 14
+  },
+  {
+   "zaman": "2026-09-22T22:20:00+00:00",
    "ruzgar_hiz": 11,
    "tavan": 2200,
    "qnh": 1012,
