@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:52303543",
   "id:52310230",
   "id:52318766",
   "id:52321600",
@@ -199,14 +198,15 @@
   "id:53439505",
   "id:53446205",
   "id:53451167",
-  "id:53451832"
+  "id:53451832",
+  "id:53460242"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 220650Z 02007KT 340V050 9999 -TSRA FEW015CB SCT030 BKN070 20/18 Q1014 RESHRA TEMPO 34016G26KT 2400 TSRA RMK RWY24R 36011KT RWY06R 36008KT 310V030 RWY24L 36009KT",
+ "son_metar": "METAR LTFJ 220720Z 01009KT 320V040 7000 -TSRA FEW015CB SCT030 BKN070 21/17 Q1014 TEMPO 34016G26KT 2400 TSRA RMK RWY24R 36012KT RWY06R 35009KT 320V020 RWY24L 36010KT",
  "son_uyari": null,
- "son_renk": "BLU",
+ "son_renk": "WHT",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-22T06:50:00+00:00",
+ "son_veri_zamani": "2026-09-22T07:20:00+00:00",
  "olcum_gecmisi": [
   {
    "zaman": "2026-09-16T03:48:00+00:00",
@@ -2420,13 +2420,21 @@
    "qnh": 1014,
    "sicaklik": 20,
    "cig_noktasi": 18
+  },
+  {
+   "zaman": "2026-09-22T07:20:00+00:00",
+   "ruzgar_hiz": 9,
+   "tavan": 7000,
+   "qnh": 1014,
+   "sicaklik": 21,
+   "cig_noktasi": 17
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 220520Z VRB03KT 9999 FEW015 BKN030 BKN080 21/18 Q1014 NOSIG RMK RWY24R VRB01KT RWY06R VRB01KT RWY24L 33003KT 290V010": "**Rüzgâr:** Rüzgâr değişken yönde ve çok hafif, saniyede yaklaşık 1-2 metre hızında esiyordu.\n\n**Görüş:** Ufuk çizgisine kadar 10 kilometre ve daha fazla mesafede net görüş vardı, uçuş için rahat koşullar.\n\n**Gökyüzü:** Düşük seviyede az bulutlu (1500 feet, yaklaşık 450 metre), orta seviyede çok bulutlu (3000 feet, yaklaşık 900 metre), yağış yok.\n\n**Uçuşa etkisi:** Raporlanan koşullarda görüş ve rüzgâr açısından belirgin kısıtlama yoktu, hava durumu 2 saat içinde önemli değişiklik göstermeyecekti.",
   "TAF AMD LTFJ 220547Z 2206/2306 VRB02KT 9999 SCT030 BKN080 BECMG 2206/2208 36014KT -SHRA FEW015 BKN025 BKN090 TEMPO 2206/2210 34016G26KT 2400 TSRA SCT014CB BKN022 BKN070 TEMPO 2210/2214 35015G25KT 4000 TSRA FEW016CB BKN023 BKN070 TEMPO 2218/2222 2200 SHRA FEW016CB BKN023 BKN070 BECMG 2218/2221 03004KT": "**LTFJ Havacılık Meteoroloji Tahmini**\n\n**Genel:** Değişken rüzgârdan başlayarak kuzeyden güçlü rüzgâr ve sağanak yağış beklenmektedir.\n\n- **2206/2208 UTC:** Kuzeyden 14 knot rüzgâr, hafif sağanak, az bulut 1500 ft, parçalı bulut 2500 ft ve 9000 ft.\n- **2206/2210 UTC (geçici):** Kuzeyden 16 knot rüzgâr, 26 knot hava akıntısı, 2400 m görüş, gök gürültülü sağanak, az gök gürültü bulutları 1400 ft, parçalı bulut 2200 ft ve 7000 ft.\n- **2210/2214 UTC (geçici):** Kuzeyden 15 knot rüzgâr, 25 knot hava akıntısı, 4000 m görüş, gök gürültülü sağanak, az gök gürültü bulutları 1600 ft, parçalı bulut 2300 ft ve 7000 ft.\n- **2218/2222 UTC (geçici):** 2200 m görüş, sağanak, az gök gürültü bulutları 1600 ft, parçalı bulut 2300 ft ve 7000 ft; kademeli geçişle 0300 UTC'de kuzeydoğudan 4 knot rüzgâra.",
   "METAR LTFJ 220620Z 01007KT 340V050 9999 -SHRA FEW017CB SCT030 BKN080 21/18 Q1014 NOSIG RMK RWY24R 36010KT RWY06R 36007KT 330V040 RWY24L 36009KT": "**Rüzgâr:** Kuzeydan 7 knot hızla esiyor, yönü 340 ile 50 derece arasında değişiyor ve yan rüzgâr bileşeni 6 knot.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, görüş açısından rahat.\n\n**Gökyüzü:** Az bulutlu 1700 metrede fırtına bulutu, parçalı 3000 metrede bulut, çok bulutlu 8000 metrede; hafif sağanak yağmur yağıyor.\n\n**Uçuşa etkisi:** Fırtına bulutu ve hafif sağanak yağmur dikkat gerektiriyor, rüzgâr ve görüş kısıtlayıcı değil.",
-  "SPECI LTFJ 220639Z 01007KT 340V050 9999 -TSRA FEW015CB SCT030 BKN070 21/18 Q1014 RESHRA TEMPO 34016G26KT 2400 TSRA RMK RWY24R 36010KT RWY06R 36009KT RWY24L 01009KT 330V040": "**Rüzgâr:** Kuzey-kuzeydoğudan 7 knot hızla esen rüzgâr, yönü 340° ile 050° arasında değişiyor ve yan bileşeni hafif.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için görüş açısından rahat koşullar.\n\n**Gökyüzü:** 1500 feet'te (yaklaşık 450 metre) az bulutlu ve fırtına bulutları, 3000 feet'te parçalı bulutlar, 7000 feet'te çok bulutlu; hafif gök gürültülü yağmur yağıyor.\n\n**Uçuşa etkisi:** Gök gürültülü yağmur ve düşük seviyedeki fırtına bulutları dikkat gerektiriyor; rüzgâr şiddeti ve görüş kısıtlayıcı değil."
+  "SPECI LTFJ 220639Z 01007KT 340V050 9999 -TSRA FEW015CB SCT030 BKN070 21/18 Q1014 RESHRA TEMPO 34016G26KT 2400 TSRA RMK RWY24R 36010KT RWY06R 36009KT RWY24L 01009KT 330V040": "**Rüzgâr:** Kuzey-kuzeydoğudan 7 knot hızla esen rüzgâr, yönü 340° ile 050° arasında değişiyor ve yan bileşeni hafif.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için görüş açısından rahat koşullar.\n\n**Gökyüzü:** 1500 feet'te (yaklaşık 450 metre) az bulutlu ve fırtına bulutları, 3000 feet'te parçalı bulutlar, 7000 feet'te çok bulutlu; hafif gök gürültülü yağmur yağıyor.\n\n**Uçuşa etkisi:** Gök gürültülü yağmur ve düşük seviyedeki fırtına bulutları dikkat gerektiriyor; rüzgâr şiddeti ve görüş kısıtlayıcı değil.",
+  "METAR LTFJ 220720Z 01009KT 320V040 7000 -TSRA FEW015CB SCT030 BKN070 21/17 Q1014 TEMPO 34016G26KT 2400 TSRA RMK RWY24R 36012KT RWY06R 35009KT 320V020 RWY24L 36010KT": "**Rüzgâr:** Kuzey-kuzeybatıdan 9 knot (yaklaşık 17 km/s) hızla esiyor, yönü 320 ile 40 derece arasında değişiyor ve yan rüzgâr bileşeni 7 knottur.\n\n**Görüş:** 7000 metre mesafede görüş sağlanıyor, uçuş için yeterlidir.\n\n**Gökyüzü:** 1500 metre yükseklikte az bulutlu ve fırtına bulutları var, 3000 metrede parçalı bulutlar, 7000 metrede çok bulutlu; hafif gök gürültülü yağmur yağıyor.\n\n**Uçuşa etkisi:** Görüş 7000 metre ve gök gürültülü yağmur ile hafif kısıtlama var, rüzgâr şiddeti ve yan bileşeni operasyonel sınırlar içindedir."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -2868,5 +2876,5 @@
   }
  },
  "notam_son_senkron": "2026-09-22T01:48:03+00:00",
- "guncelleme": "2026-09-22T07:21:04+00:00"
+ "guncelleme": "2026-09-22T07:31:21+00:00"
 }
