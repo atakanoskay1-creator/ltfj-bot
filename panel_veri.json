@@ -1,28 +1,27 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-22T11:21:03+00:00",
+ "uretildi": "2026-09-22T19:21:01+00:00",
  "metar": {
-  "tip": "SPECI",
+  "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-22T10:50:00+00:00",
-  "metin": "SPECI LTFJ 221050Z 02014KT 340V040 9999 SCT022 BKN070 20/16 Q1014 NOSIG RMK RWY24R 36010KT 320V020 RWY06R 36018KT RWY24L 01013KT 330V030",
+  "zaman": "2026-09-22T18:50:00+00:00",
+  "metin": "METAR LTFJ 221850Z 03009KT 9999 -SHRA BKN030 BKN080 18/16 Q1012 TEMPO 4000 SHRA RMK RWY24R 36009KT RWY06R 01009KT RWY24L 01009KT",
   "ruzgar": {
-   "yon": 20,
-   "hiz": 14,
+   "yon": 30,
+   "hiz": 9,
    "hamle": null,
-   "degisken": [
-    340,
-    40
-   ]
+   "degisken": null
   },
   "gorus": 9999,
   "cavok": false,
-  "tavan": 7000,
-  "hava": [],
-  "sicaklik": 20,
+  "tavan": 3000,
+  "hava": [
+   "-SHRA"
+  ],
+  "sicaklik": 18,
   "cig_noktasi": 16,
-  "qnh": 1014,
-  "nosig": true,
+  "qnh": 1012,
+  "nosig": false,
   "renk": [
    "BLU",
    "çok iyi"
@@ -33,12 +32,12 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 10.1,
-    "yan": 9.7,
+    "bas": 7.5,
+    "yan": 5.0,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "alan rüzgârından",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -46,8 +45,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 7.9,
-    "yan": 16.2,
+    "bas": 5.3,
+    "yan": 7.3,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -59,115 +58,47 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -7.6,
-    "yan": 10.5,
+    "bas": -5.3,
+    "yan": 7.3,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
-    "kuyruk_asildi": false
+    "kuyruk_asildi": true
    },
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -4.4,
-    "yan": 9.0,
+    "bas": -3.9,
+    "yan": 8.1,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": false
    }
   ],
-  "kuyruk_limiti": 10,
-  "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi",
+  "kuyruk_limiti": 5,
+  "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış nedeniyle ıslak/kirli pist kabul edildi",
   "tercih_pist": "06L",
   "rvr": [],
-  "prs": [],
+  "prs": [
+   "24L için arka rüzgâr 5 kt üstü"
+  ],
   "gorus_op": [],
-  "trend": null,
+  "trend": "Geçici: 4000 SHRA",
   "sis_riski": null,
-  "ozet": "Rüzgâr 020° 14kt (değişken 340°–040°) · görüş 10+ km · tavan 7000 ft · 20°C · QNH 1014"
+  "ozet": "Rüzgâr 030° 9kt · görüş 10+ km · tavan 3000 ft · hafif sağanak yağmur · 18°C · QNH 1012"
  },
  "taf": {
-  "zaman": "2026-09-22T10:40:00+00:00",
-  "metin": "TAF LTFJ 221040Z 2212/2312 01016KT 9999 -SHRA FEW014 BKN025 BKN080 TEMPO 2212/2216 35018G28KT 4000 TSRA FEW013CB BKN022 BKN070 TEMPO 2216/2220 35018G28KT 3000 SHRA FEW015CB BKN023 BKN070 TEMPO 2220/2224 35018G28KT 3000 SHRA BECMG 2221/2224 VRB02KT BECMG 2305/2308 35012KT PROB40 2308/2312 4000 TSRA FEW015CB BKN023 BKN070"
+  "zaman": "2026-09-22T16:40:00+00:00",
+  "metin": "TAF LTFJ 221640Z 2218/2318 VRB02KT 9999 BKN035 BKN080 BECMG 2218/2220 01013KT -SHRA FEW017 BKN025 TEMPO 2220/2223 4000 SHRA FEW018TCU BKN022 TEMPO 2223/2302 35016G26KT 4000 SHRA BECMG 2302/2305 VRB02KT BECMG 2305/2308 01012KT TEMPO 2308/2312 35016G26KT 4000 TSRA FEW016CB BKN025"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-16T03:48:00+00:00",
-   "ruzgar_hiz": 8,
-   "tavan": 3500,
-   "qnh": 1016,
-   "sicaklik": 18
-  },
-  {
-   "zaman": "2026-09-16T12:20:00+00:00",
-   "ruzgar_hiz": 7,
-   "tavan": 3000,
-   "qnh": 1017,
-   "sicaklik": 19
-  },
-  {
-   "zaman": "2026-09-16T12:50:00+00:00",
-   "ruzgar_hiz": 7,
-   "tavan": 3000,
-   "qnh": 1017,
-   "sicaklik": 19
-  },
-  {
-   "zaman": "2026-09-16T13:20:00+00:00",
-   "ruzgar_hiz": 7,
-   "tavan": 4000,
-   "qnh": 1017,
-   "sicaklik": 19
-  },
-  {
-   "zaman": "2026-09-16T13:50:00+00:00",
-   "ruzgar_hiz": 8,
-   "tavan": 4000,
-   "qnh": 1017,
-   "sicaklik": 18
-  },
-  {
-   "zaman": "2026-09-16T14:20:00+00:00",
-   "ruzgar_hiz": 8,
-   "tavan": 4000,
-   "qnh": 1017,
-   "sicaklik": 18
-  },
-  {
-   "zaman": "2026-09-16T14:50:00+00:00",
-   "ruzgar_hiz": 10,
-   "tavan": 4000,
-   "qnh": 1017,
-   "sicaklik": 18
-  },
-  {
-   "zaman": "2026-09-16T15:20:00+00:00",
-   "ruzgar_hiz": 11,
-   "tavan": 4000,
-   "qnh": 1017,
-   "sicaklik": 18
-  },
-  {
-   "zaman": "2026-09-16T15:50:00+00:00",
-   "ruzgar_hiz": 8,
-   "tavan": 10000,
-   "qnh": 1017,
-   "sicaklik": 18
-  },
-  {
-   "zaman": "2026-09-16T16:20:00+00:00",
-   "ruzgar_hiz": 9,
-   "tavan": 10000,
-   "qnh": 1016,
-   "sicaklik": 18
-  },
   {
    "zaman": "2026-09-16T16:50:00+00:00",
    "ruzgar_hiz": 8,
@@ -2381,6 +2312,142 @@
    "tavan": 7000,
    "qnh": 1014,
    "sicaklik": 20,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-22T11:20:00+00:00",
+   "ruzgar_hiz": 13,
+   "tavan": 7000,
+   "qnh": 1015,
+   "sicaklik": 20,
+   "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-22T11:50:00+00:00",
+   "ruzgar_hiz": 13,
+   "tavan": 2900,
+   "qnh": 1014,
+   "sicaklik": 20,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-22T12:20:00+00:00",
+   "ruzgar_hiz": 13,
+   "tavan": 2900,
+   "qnh": 1014,
+   "sicaklik": 20,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-22T12:50:00+00:00",
+   "ruzgar_hiz": 13,
+   "tavan": 2900,
+   "qnh": 1014,
+   "sicaklik": 20,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-22T13:20:00+00:00",
+   "ruzgar_hiz": 14,
+   "tavan": 2900,
+   "qnh": 1014,
+   "sicaklik": 19,
+   "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-22T13:50:00+00:00",
+   "ruzgar_hiz": 12,
+   "tavan": 2900,
+   "qnh": 1013,
+   "sicaklik": 20,
+   "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-22T14:20:00+00:00",
+   "ruzgar_hiz": 14,
+   "tavan": 2900,
+   "qnh": 1013,
+   "sicaklik": 20,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-22T14:50:00+00:00",
+   "ruzgar_hiz": 11,
+   "tavan": 3300,
+   "qnh": 1013,
+   "sicaklik": 19,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-22T15:20:00+00:00",
+   "ruzgar_hiz": 11,
+   "tavan": 3300,
+   "qnh": 1013,
+   "sicaklik": 19,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-22T15:50:00+00:00",
+   "ruzgar_hiz": 10,
+   "tavan": 3300,
+   "qnh": 1013,
+   "sicaklik": 19,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-22T16:20:00+00:00",
+   "ruzgar_hiz": 8,
+   "tavan": 3300,
+   "qnh": 1013,
+   "sicaklik": 19,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-22T16:50:00+00:00",
+   "ruzgar_hiz": 5,
+   "tavan": 3300,
+   "qnh": 1013,
+   "sicaklik": 19,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-22T17:20:00+00:00",
+   "ruzgar_hiz": 6,
+   "tavan": 3500,
+   "qnh": 1013,
+   "sicaklik": 19,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-22T17:50:00+00:00",
+   "ruzgar_hiz": 6,
+   "tavan": 3500,
+   "qnh": 1013,
+   "sicaklik": 19,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-22T18:13:00+00:00",
+   "ruzgar_hiz": 6,
+   "tavan": 3000,
+   "qnh": 1013,
+   "sicaklik": 19,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-22T18:20:00+00:00",
+   "ruzgar_hiz": 6,
+   "tavan": 3000,
+   "qnh": 1013,
+   "sicaklik": 19,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-22T18:50:00+00:00",
+   "ruzgar_hiz": 9,
+   "tavan": 3000,
+   "qnh": 1012,
+   "sicaklik": 18,
    "cig_noktasi": 16
   }
  ]
