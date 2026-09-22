@@ -1,8 +1,8 @@
 {
  "acik_meteo_nem_2m": 87,
- "acik_meteo_guncelleme": "2026-09-22T01:23:03.400547+00:00",
- "komsu_tavan_ozellik": 10000,
- "komsu_guncelleme": "2026-09-22T01:23:03.400547+00:00",
+ "acik_meteo_guncelleme": "2026-09-22T01:54:42.850028+00:00",
+ "komsu_tavan_ozellik": 2300,
+ "komsu_guncelleme": "2026-09-22T01:54:42.850028+00:00",
  "saatlik_tahmin": [
   {
    "saat": "2026-09-22T02:00",
@@ -125,5 +125,5 @@
    "visibility": 21900.0
   }
  ],
- "saatlik_tahmin_guncelleme": "2026-09-22T01:23:03.400547+00:00"
+ "saatlik_tahmin_guncelleme": "2026-09-22T01:54:42.850028+00:00"
 }
