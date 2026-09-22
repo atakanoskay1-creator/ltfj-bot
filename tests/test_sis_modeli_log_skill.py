@@ -118,3 +118,89 @@ def test_az_ornekli_kova_genel_orana_cekiliyor():
 
 def test_yumusatma_sabiti_tek_yerde():
     assert d.KOVA_YUMUSATMA > 0
+
+
+# ============================================== esli (paired) blok bootstrap
+# NEDEN ESLI: iki MARJINAL guven araligi ORTUSUYOR diye "fark yok"
+# denemez - yaygin bir okuma hatasidir. Ufuklar ayni gunlerin havasini
+# paylastigi icin ayni gun ornegi uzerinde FARKI olcmek cok daha guclu.
+def _seri(gun_sayisi=40, satir=10, kayma=0.0, tohum=0):
+    import random as _r
+    r = _r.Random(tohum)
+    gunler, tahminler, gercekler = [], [], []
+    for g in range(gun_sayisi):
+        for _ in range(satir):
+            y = r.random() < 0.1
+            gunler.append(f"gun{g}")
+            gercekler.append(y)
+            # kayma buyudukce tahmin gercege daha cok yaklasir
+            temel = 0.7 if y else 0.3
+            tahminler.append(min(max(temel + kayma * (1 if y else -1), 0.01), 0.99))
+    return gunler, tahminler, gercekler
+
+
+def test_ayni_seri_kendisiyle_kiyaslaninca_fark_tam_sifir():
+    """EN KRITIK SAGLAMA: esleme bozuksa (her seri ayri gun ornegi
+    gorurse) ayni seri kendisiyle kiyaslandiginda bile sifir olmayan
+    bir fark cikar."""
+    s = _seri()
+    _a, f = d.esli_blok_guven_araligi({"x": s, "y": s}, d.brier, tekrar=40)
+    alt, ust, orta, _oran = f[("x", "y")]
+    assert alt == ust == orta == 0.0
+
+
+def test_ayni_seri_araliklari_da_ozdes():
+    s = _seri()
+    a, _f = d.esli_blok_guven_araligi({"x": s, "y": s}, d.brier, tekrar=40)
+    assert a["x"] == a["y"]
+
+
+def test_acikca_daha_iyi_seri_ayirt_ediliyor():
+    g, t_kotu, y = _seri(kayma=0.0)
+    _g2, t_iyi, _y2 = _seri(kayma=0.25)
+    a, f = d.esli_blok_guven_araligi(
+        {"iyi": (g, t_iyi, y), "kotu": (g, t_kotu, y)}, d.brier, tekrar=80)
+    alt, ust, _orta, oran = f[("iyi", "kotu")]
+    assert ust < 0, "Brier'de dusuk iyidir; iyi - kotu NEGATIF olmali"
+    assert oran < 0.05
+
+
+def test_gun_bloklari_bozulmuyor():
+    """Satir bazinda yeniden ornekleme araligi sahte sekilde daraltirdi.
+    Blok bozulsaydi ayni gunun satirlari bagimsiz sayilirdi."""
+    # DIKKAT (bu test de bir kez yanlis kuruldu): 0.9/True ve 0.1/False
+    # bloklari AYNI Brier'i (0.01) verir, karisim ne olursa olsun sonuc
+    # sabit cikar ve test blok yapisini sinamaz. Bloklarin metrigi
+    # FARKLI olmali.
+    gunler = ["a"] * 50 + ["b"] * 50
+    tahminler = [0.9] * 100
+    gercekler = [True] * 50 + [False] * 50      # a: 0.01, b: 0.81
+    a, _f = d.esli_blok_guven_araligi(
+        {"x": (gunler, tahminler, gercekler)}, d.brier, tekrar=60)
+    alt, ust = a["x"]
+    # Yalnizca 2 blok var -> ornek aa/ab/ba/bb; Brier 0.01, 0.41 veya
+    # 0.81 olabilir, yani aralik GENIS. Blok bozulup satir bazinda
+    # orneklenseydi hepsi ~0.41'e yakinsardi.
+    assert ust - alt > 0.1
+
+
+def test_ortak_olmayan_gunler_kesisime_indiriliyor():
+    g1 = ["a"] * 10 + ["b"] * 10
+    g2 = ["b"] * 10 + ["c"] * 10
+    t = [0.5] * 20
+    y = [i % 5 == 0 for i in range(20)]
+    a, f = d.esli_blok_guven_araligi(
+        {"x": (g1, t, y), "y": (g2, t, y)}, d.brier, tekrar=20)
+    assert ("x", "y") in f          # cokmeden kesisim ("b") ile calismali
+
+
+def test_bos_girdi_cokmuyor():
+    assert d.esli_blok_guven_araligi({}, d.brier, tekrar=5) == ({}, {})
+
+
+def test_tohum_ayni_sonucu_veriyor():
+    """Rapor edilen sayilar tekrar uretilebilir olmali."""
+    s = _seri()
+    kur = lambda: d.esli_blok_guven_araligi({"x": s}, d.brier,
+                                            tekrar=30, tohum=7)
+    assert kur() == kur()

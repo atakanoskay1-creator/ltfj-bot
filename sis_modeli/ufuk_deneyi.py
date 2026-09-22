@@ -38,7 +38,7 @@ def calistir(ham: list, ufuk_saat: float, alanlar: list = ALANLAR,
     aday = hedef.onset_adaylari(kayitlar)
     gelistirme = bolme.gelistirme(aday)
 
-    gercek, tahmin, saatler = [], [], []
+    gercek, tahmin, saatler, gunler = [], [], [], []
     tahmin_map = {}
     for eg_yillari, test_yillari in bolme.foldlar():
         egitim = (bolme.ayir_embargolu(gelistirme, eg_yillari, sonraki_yil=min(test_yillari))
@@ -52,6 +52,7 @@ def calistir(ham: list, ufuk_saat: float, alanlar: list = ALANLAR,
             gercek.append(bool(r["hedef"]))
             tahmin.append(p)
             saatler.append(r["dt"].hour)
+            gunler.append(r["gun"])
             tahmin_map[r["dt"]] = p
 
     taban = sum(gercek) / len(gercek) if gercek else 0.0
@@ -81,12 +82,56 @@ def calistir(ham: list, ufuk_saat: float, alanlar: list = ALANLAR,
         "roc_auc": degerlendir.roc_auc(tahmin, gercek),
         "olay_sayisi": sum(1 for t in temsilciler if t["temsilci"] is not None),
         "olay_esikleri": olay_esikleri,
+        # Esli bootstrap icin ham satirlar (gun = blok anahtari).
+        "satirlar": (gunler, tahmin, gercek),
     }
+
+
+def _lss_olcusu(tahminler, gercekler):
+    """Iklim referansi HER REPLIKANIN KENDI orneginden kurulur - sabit
+    bir referans kullanmak, orneklemin taban orani oynadikca beceriyi
+    yapay olarak oynatirdi."""
+    n = len(gercekler) or 1
+    taban = sum(1 for y in gercekler if y) / n
+    return degerlendir.log_skill(tahminler, gercekler, [taban] * len(gercekler))
+
+
+def _ap_lift_olcusu(tahminler, gercekler):
+    """AP / taban oran. Ham AP ufuk genisledikce OLAY SIKLASTIGI icin
+    de yukselir; rastgele siniflandiricinin AP'si taban orana esittir,
+    bu yuzden adil kiyas icin bolunur."""
+    n = len(gercekler) or 1
+    taban = sum(1 for y in gercekler if y) / n
+    if taban <= 0:
+        return 0.0
+    return degerlendir.ortalama_kesinlik(tahminler, gercekler) / taban
+
+
+def _bootstrap_yaz(sonuclar: dict, tekrar: int) -> None:
+    seriler = {_etiket(u): s["satirlar"] for u, s in sonuclar.items()}
+    for baslik, olcu in (("LSS", _lss_olcusu), ("AP/taban", _ap_lift_olcusu)):
+        araliklar, farklar = degerlendir.esli_blok_guven_araligi(
+            seriler, olcu, tekrar=tekrar)
+        print(f"\n{baslik} — gün-blok EŞLİ bootstrap ({tekrar} tekrar, %5–%95)")
+        for u, s in sonuclar.items():
+            ad = _etiket(u)
+            alt, ust = araliklar[ad]
+            print(f"  {ad:<6}{olcu(s['satirlar'][1], s['satirlar'][2]):>8.3f}"
+                  f"   [{alt:>6.3f}, {ust:>6.3f}]")
+        print(f"  farklar (a − b; aralık 0'ı İÇERİYORSA fark gürültüden "
+              f"ayırt edilemez):")
+        for (a, b), (alt, ust, orta, oran) in farklar.items():
+            karar = "belirsiz" if alt <= 0 <= ust else "AYIRT EDİLİR"
+            print(f"    {a:>5} − {b:<5} {orta:>7.3f}  "
+                  f"[{alt:>6.3f}, {ust:>6.3f}]  a>b: %{100*oran:>5.1f}  {karar}")
 
 
 def main(argv=None) -> int:
     a = argparse.ArgumentParser(description=__doc__)
     a.add_argument("--veri", type=Path, default=VARSAYILAN_VERI)
+    a.add_argument("--bootstrap", type=int, default=0, metavar="TEKRAR",
+                   help="gun-blok ESLI bootstrap; ufuklar AYNI gun "
+                        "orneginde kiyaslanir (onerilen: 200)")
     secenek = a.parse_args(argv)
     if not secenek.veri.exists():
         import sys
@@ -108,6 +153,9 @@ def main(argv=None) -> int:
               f"{1e4*s['brier']:>11.2f}{s['bss']:>8.3f}{s['ap']:>8.3f}"
               f"{s['log_loss']:>9.3f}{s['lss']:>8.3f}{s['lss_saat']:>10.3f}"
               f"{s['roc_auc']:>9.3f}")
+
+    if secenek.bootstrap:
+        _bootstrap_yaz(sonuclar, secenek.bootstrap)
 
     esikler = sonuclar[UFUKLAR_SAAT[0]]["olay_esikleri"]
     baslik_esikleri = [f">=%{100 * e['esik']:g}" for e in esikler]

@@ -181,6 +181,73 @@ def roc_auc(tahminler: list, gercekler: list) -> float:
     return u / (pozitif * negatif)
 
 
+def esli_blok_guven_araligi(seriler: dict, olcu, tekrar: int = 200,
+                            tohum: int = 0) -> tuple:
+    """Birden cok seri icin AYNI bootstrap orneginde gun-blok araliklari.
+
+    seriler: {ad: (gunler, tahminler, gercekler)} - hepsi ayni gun
+    evrenini paylasmali (paylasmiyorsa KESISIM kullanilir).
+
+    NEDEN ESLI: iki marjinal aralik ORTUSUYOR diye "fark yok" denemez -
+    bu yaygin bir okuma hatasidir. Ufuklar ayni gunlerin havasini
+    paylasiyor; ayni gunleri ornekleyip FARKI olcmek cok daha guclu bir
+    kiyastir. Burada her replikada tum seriler ayni gun ornegi uzerinde
+    hesaplanir, boylece farkin dagilimi dogrudan cikar.
+
+    olcu: (tahminler, gercekler) -> float. Iklim referansi gerektiren
+    beceri skorlari icin referans OLCU ICINDE, her replikanin kendi
+    orneginden yeniden kurulmalidir (bkz. ufuk_deneyi).
+
+    Doner: (araliklar, farklar)
+      araliklar : {ad: (alt, ust)}                    %5-%95
+      farklar   : {(a, b): (alt, ust, medyan, oran)}  a - b farki;
+                  `oran` = farkin pozitif ciktigi replika yuzdesi."""
+    adlar = list(seriler)
+    if not adlar:
+        return {}, {}
+
+    # Gun -> satirlar, her seri icin ayri; ortak gun evreni uzerinde.
+    indeks, gun_kumeleri = {}, []
+    for ad in adlar:
+        gunler, tahminler, gercekler = seriler[ad]
+        d = defaultdict(list)
+        for g, t, y in zip(gunler, tahminler, gercekler):
+            d[g].append((t, y))
+        indeks[ad] = d
+        gun_kumeleri.append(set(d))
+    ortak = sorted(set.intersection(*gun_kumeleri))
+    if not ortak:
+        return {ad: (0.0, 0.0) for ad in adlar}, {}
+
+    rastgele = random.Random(tohum)
+    ornekler = {ad: [] for ad in adlar}
+    for _ in range(tekrar):
+        secilen = [rastgele.choice(ortak) for _ in ortak]
+        for ad in adlar:
+            d = indeks[ad]
+            t_ler, y_ler = [], []
+            for g in secilen:
+                for t, y in d[g]:
+                    t_ler.append(t)
+                    y_ler.append(y)
+            ornekler[ad].append(olcu(t_ler, y_ler))
+
+    def _aralik(degerler):
+        v = sorted(degerler)
+        return (v[int(0.05 * len(v))], v[min(int(0.95 * len(v)), len(v) - 1)])
+
+    araliklar = {ad: _aralik(ornekler[ad]) for ad in adlar}
+    farklar = {}
+    for i, a in enumerate(adlar):
+        for b in adlar[i + 1:]:
+            d = [x - y for x, y in zip(ornekler[a], ornekler[b])]
+            alt, ust = _aralik(d)
+            sirali = sorted(d)
+            farklar[(a, b)] = (alt, ust, sirali[len(sirali) // 2],
+                               sum(1 for x in d if x > 0) / len(d))
+    return araliklar, farklar
+
+
 def blok_guven_araligi(kayitlar: list, tahminler: list, gercekler: list,
                        olcu, gun_alani: str = "gun", tekrar: int = 200,
                        tohum: int = 0) -> tuple:
