@@ -197,6 +197,28 @@ SABLON = """<!DOCTYPE html>
   }}
   .sis-olasilik-diyagram-btn:hover {{ background:var(--kod-bg); }}
 
+  /* Önümüzdeki saatler şeridi - dar ekranda yatay kaydirilir, dikey
+     kaydirmayi bolmesin diye sabit yukseklikli hucreler. */
+  .tahmin-uyari {{
+    background:rgba(234,179,8,.12); border:1px solid rgba(234,179,8,.4);
+    border-radius:10px; padding:8px 10px; margin:8px 0 12px; font-size:.8rem;
+  }}
+  .tahmin-serit {{
+    display:flex; gap:6px; overflow-x:auto; padding-bottom:6px;
+    -webkit-overflow-scrolling:touch;
+  }}
+  .tahmin-hucre {{
+    flex:0 0 auto; min-width:66px; text-align:center; padding:8px 6px;
+    border:1px solid var(--cizgi); border-radius:10px; background:var(--kod-bg);
+  }}
+  .tahmin-saat {{
+    font-size:.78rem; font-weight:650; margin-bottom:4px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }}
+  .tahmin-spread {{ font-size:1.05rem; font-weight:700; margin-bottom:4px; }}
+  .tahmin-satir {{ font-size:.72rem; color:var(--soluk); line-height:1.5; }}
+  .tahmin-aciklama {{ font-size:.72rem; color:var(--soluk); margin-top:8px; }}
+
   .bolum-baslik {{ font-weight:650; font-size:1.05rem; margin:28px 0 12px; }}
   .notam-uyari {{
     background:rgba(234,179,8,.12); border:1px solid rgba(234,179,8,.4);
@@ -438,6 +460,7 @@ SABLON = """<!DOCTYPE html>
   </div>
 </header>
 {govde}
+{saatlik_tahmin_html}
 {sis_olasilik_html}
 
 <div class="kart">
@@ -2174,8 +2197,71 @@ def _kart(rapor: dict, yorum_onbellegi: dict | None = None) -> str:
     return "".join(p)
 
 
+def _saatlik_tahmin_html(satirlar: list) -> str:
+    """Önümüzdeki saatlerin MODEL tahmini (Open-Meteo) - TAF DEĞİLDİR.
+
+    Bilinçli olarak yorum/uyarı üretmiyor, sadece ham eğilimi gösteriyor:
+    bu veriyle geriye dönük dürüst bir doğrulama yapılamadı (bkz.
+    ltfj_dis_kaynak_cache modül açıklaması), dolayısıyla ondan bir karar
+    sinyali türetmek sayfanın geri kalanındaki disipline aykırı olurdu.
+
+    Spread (sıcaklık - çiy noktası) başa konuyor: bu projedeki tüm
+    tavan/sis çalışmalarında en güçlü öncü gösterge oydu."""
+    if not satirlar:
+        return ""
+
+    def _yerel_saat(iso: str) -> str:
+        try:
+            an = datetime.fromisoformat(iso).replace(tzinfo=timezone.utc)
+        except (ValueError, TypeError):
+            return "—"
+        return f"{an.astimezone(YEREL_TZ):%H:%M}"
+
+    def _sayi(deger, birim="", basamak=0):
+        if deger is None:
+            return "—"
+        return f"{deger:.{basamak}f}{birim}"
+
+    hucreler = []
+    for s in satirlar:
+        sic, cig = s.get("temperature_2m"), s.get("dew_point_2m")
+        spread = None if sic is None or cig is None else sic - cig
+        gorus_m = s.get("visibility")
+        # Open-Meteo görüşü METRE verir; 10 km ve üstünü METAR'daki gibi
+        # "10+" olarak kısaltıyoruz - aradaki her 100 metreyi göstermek
+        # olmayan bir hassasiyet ima ederdi.
+        if gorus_m is None:
+            gorus = "—"
+        elif gorus_m >= 10000:
+            gorus = "10+ km"
+        else:
+            gorus = f"{gorus_m / 1000:.1f} km"
+        hucreler.append(
+            '<div class="tahmin-hucre">'
+            f'<div class="tahmin-saat">{html.escape(_yerel_saat(s.get("saat", "")))}</div>'
+            f'<div class="tahmin-spread">{_sayi(spread, "°", 1)}</div>'
+            f'<div class="tahmin-satir">{html.escape(gorus)}</div>'
+            f'<div class="tahmin-satir">{_sayi(s.get("wind_speed_10m"), " km/s")}</div>'
+            f'<div class="tahmin-satir">{_sayi(s.get("cloud_cover_low"), "%")}</div>'
+            "</div>")
+
+    return (
+        '<div class="kart">'
+        '<div class="basrow"><span class="tip">Önümüzdeki saatler</span>'
+        '<span class="zaman">Open-Meteo model tahmini</span></div>'
+        '<div class="tahmin-uyari">Bu bir <strong>model tahminidir, TAF değildir</strong> — '
+        "resmî havacılık tahmini yerine geçmez, operasyonel karar için TAF ve "
+        "resmî kaynaklar esastır. Eğilimi görmek için konulmuştur.</div>"
+        '<div class="tahmin-serit">' + "".join(hucreler) + "</div>"
+        '<div class="tahmin-aciklama">Satırlar: saat (yerel) · '
+        "<strong>spread</strong> (sıcaklık − çiy noktası, düştükçe sis riski artar) · "
+        "görüş · rüzgâr · düşük bulut oranı.</div>"
+        "</div>")
+
+
 def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict | None = None,
-              atc_notes_db_url: str = "", push_vapid_public_key: str = ""):
+              atc_notes_db_url: str = "", push_vapid_public_key: str = "",
+              saatlik_tahmin: list | None = None):
     """yorum_onbellegi: state["yorum_onbellegi"] (ham rapor metni -> Claude
     yorumu/cevirisi) - Telegram ile PAYLASILAN onbellek, burada okunur,
     YENIDEN hesaplanmaz. Verilmezse (ornegin eski cagiran kod) kartlar
@@ -2223,6 +2309,7 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
                       lvo_referans_html=_lvo_dokuman_referans_html(),
                       lvo_farkindalik_html=_lvo_farkindalik_html(
                           guncel_cozum, taf_tavan, gecmis, simdi),
+                      saatlik_tahmin_html=_saatlik_tahmin_html(saatlik_tahmin or []),
                       sis_olasilik_html=_sis_olasiligi_html(guncel_cozum, gecmis, simdi),
                       rvr_esikleri_json=json.dumps(lvo.RVR_ESIKLERI, ensure_ascii=False),
                       vfr_html=_vfr_sekmesi_html(guncel_cozum)),
