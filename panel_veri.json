@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-22T04:20:52+00:00",
+ "uretildi": "2026-09-22T04:31:13+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-22T03:50:00+00:00",
-  "metin": "METAR LTFJ 220350Z VRB02KT 9999 FEW015 BKN030 BKN080 20/17 Q1014 NOSIG RMK RWY24R VRB02KT RWY06R VRB01KT RWY24L 14003KT 090V180",
+  "zaman": "2026-09-22T04:20:00+00:00",
+  "metin": "METAR LTFJ 220420Z VRB02KT 9999 FEW015 BKN030 BKN080 20/17 Q1014 NOSIG RMK RWY24R VRB02KT RWY06R VRB02KT RWY24L 00000KT",
   "ruzgar": {
    "yon": null,
    "hiz": 2,
@@ -30,14 +30,14 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -0.7,
-    "yan": 2.9,
-    "yan_taraf": "soldan",
+    "bas": -0.0,
+    "yan": 0.0,
+    "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
-    "kuyruk": true,
+    "kuyruk": false,
     "kuyruk_asildi": false
    }
   ],
@@ -2199,6 +2199,14 @@
   },
   {
    "zaman": "2026-09-22T03:50:00+00:00",
+   "ruzgar_hiz": 2,
+   "tavan": 3000,
+   "qnh": 1014,
+   "sicaklik": 20,
+   "cig_noktasi": 17
+  },
+  {
+   "zaman": "2026-09-22T04:20:00+00:00",
    "ruzgar_hiz": 2,
    "tavan": 3000,
    "qnh": 1014,
