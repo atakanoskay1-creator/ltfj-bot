@@ -340,3 +340,47 @@ def test_oku_sozlesmesi_tahminle_kirlenmedi(tmp_path):
         "saatlik_tahmin_guncelleme": _zaman(dk_once=5),
     }))
     assert set(dkc.oku(dosya)) == {"acik_meteo_nem_2m", "komsu_tavan_ozellik"}
+
+
+# ------------------------------------------- deneysel alanlar / geri dusme
+def test_deneysel_alanlar_kabul_edilirse_isteniyor():
+    yakalanan = {}
+
+    def sahte_get(url, params=None, timeout=None):
+        yakalanan["hourly"] = params["hourly"]
+        return _saatlik_yanit()
+
+    with patch.object(dkc.requests, "get", side_effect=sahte_get):
+        dkc._saatlik_tahmin_cek()
+    for alan in dkc.HOURLY_DENEYSEL:
+        assert alan in yakalanan["hourly"], alan
+
+
+def test_deneysel_alan_reddedilirse_cekirdekle_tekrar_deneniyor():
+    """KRİTİK: Open-Meteo geçersiz bir alan görünce isteğin TAMAMINI
+    reddeder. Bu durumda şerit tamamen kaybolmamalı - deneysel alanlar
+    düşürülüp bir kez daha denenmeli."""
+    cagrilar = []
+
+    def sahte_get(url, params=None, timeout=None):
+        cagrilar.append(params["hourly"])
+        if "boundary_layer_height" in params["hourly"]:
+            return _SahteYanit({"error": True, "reason": "Cannot initialize ..."})
+        return _saatlik_yanit()
+
+    with patch.object(dkc.requests, "get", side_effect=sahte_get):
+        satirlar = dkc._saatlik_tahmin_cek()
+
+    assert len(cagrilar) == 2
+    assert "boundary_layer_height" not in cagrilar[1]
+    assert satirlar                      # serit yine uretildi
+    assert "weather_code" not in satirlar[0]
+
+
+def test_cekirdek_de_reddedilirse_hata_yukseliyor():
+    """Geri düşme SONSUZ değil - çekirdek de başarısızsa eski tahmin
+    korunmalı (guncelle() bunu yakalayıp eski değeri bırakıyor)."""
+    yanit = _SahteYanit({"error": True, "reason": "kota"})
+    with patch.object(dkc.requests, "get", return_value=yanit):
+        with pytest.raises(dkc.OnbellekHatasi):
+            dkc._saatlik_tahmin_cek()

@@ -90,3 +90,55 @@ def test_sayfaya_gomulunce_gorunuyor(tmp_path):
     assert "Önümüzdeki saatler" in html
     assert "TAF değildir" in html
     assert 'class="tahmin-serit"' in html
+
+
+# ================================================ sis kodu + sınır tabakası
+# Bu iki alan DENEYSEL: Open-Meteo kabul etmezse önbellekte hiç olmazlar
+# (bkz. ltfj_dis_kaynak_cache.HOURLY_DENEYSEL). Şerit her iki durumda da
+# çizilmeli - eksikliği hata değil.
+def _sisli_satir(kod=45, blh=120.0):
+    s = _satirlar(n=1)[0]
+    s["weather_code"] = kod
+    s["boundary_layer_height"] = blh
+    return [s]
+
+
+def test_sis_kodunda_isaret_ve_kenarlik_var():
+    html = s._saatlik_tahmin_html(_sisli_satir(kod=45))
+    assert "🌫 sis" in html
+    assert "tahmin-hucre-sis" in html
+
+
+def test_kiragili_sis_kodu_48_de_isaretleniyor():
+    assert "🌫 sis" in s._saatlik_tahmin_html(_sisli_satir(kod=48))
+
+
+def test_sissiz_kodda_isaret_yok():
+    html = s._saatlik_tahmin_html(_sisli_satir(kod=3))
+    assert "🌫 sis" not in html
+    assert "tahmin-hucre-sis" not in html
+
+
+def test_sinir_tabakasi_yuksekligi_gosteriliyor():
+    assert "120 m" in s._saatlik_tahmin_html(_sisli_satir(blh=120.0))
+
+
+def test_deneysel_alanlar_yoksa_serit_yine_ciziliyor():
+    """En kritik test: Open-Meteo bu alanları reddederse şerit
+    kaybolmamalı, sadece işaret/satır çıkmamalı."""
+    html = s._saatlik_tahmin_html(_satirlar(n=3))   # weather_code/blh YOK
+    assert html.count('class="tahmin-hucre') == 3
+    assert "🌫 sis" not in html
+
+
+def test_sis_kodlari_tek_yerde_tanimli():
+    """Sabit kopyalanmasın - alanın tanımıyla aynı yerde dursun."""
+    import ltfj_dis_kaynak_cache as dkc
+    assert s.SIS_KODLARI is dkc.SIS_KODLARI
+    assert 45 in dkc.SIS_KODLARI and 48 in dkc.SIS_KODLARI
+
+
+def test_aciklama_sis_isaretini_ve_blh_yi_anlatiyor():
+    html = s._saatlik_tahmin_html(_sisli_satir())
+    assert "WMO 45/48" in html
+    assert "sınır tabakası" in html

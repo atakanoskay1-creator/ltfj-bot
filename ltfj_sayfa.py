@@ -18,6 +18,11 @@ import ltfj_sis_olasilik as sis_olasilik
 import ltfj_sis_olasilik_b as sis_olasilik_b
 import ltfj_vfr as vfr
 from ltfj_analiz import metar_coz, ozet_satiri, uyarilar
+# Sis kodlari alanin KENDI tanimiyla ayni yerde dursun - bu oturumda
+# kopyalanmis bir sabit (NOTAM gecerlilik karari) iki yerde ayni hatayi
+# tasidi, tekrarlamayalim. ltfj_rasat zaten import edildigi icin ek bir
+# agir bagimlilik gelmiyor.
+from ltfj_dis_kaynak_cache import SIS_KODLARI
 from ltfj_ayarlar import YEREL_TZ
 from ltfj_pist import RENK_SIMGE, havacilik_notlari
 from ltfj_rasat import taf_bicimle
@@ -252,6 +257,17 @@ SABLON = """<!DOCTYPE html>
     font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
   }}
   .tahmin-spread {{ font-size:1.05rem; font-weight:700; margin-bottom:4px; }}
+  /* Modelin sis kodu verdigi saat - kart kenarligi ve kucuk bir etiketle
+     isaretlenir. Renk DEGIL simge+metin tasiyor: renk korlugunde de,
+     kucuk ekranda da okunur kalsin. */
+  .tahmin-hucre-sis {{ border-color:#b45309; }}
+  .tahmin-sis {{ font-size:.68rem; font-weight:700; color:#b45309; margin-bottom:3px; }}
+  @media (prefers-color-scheme: dark) {{
+    :root:not([data-theme="light"]) .tahmin-hucre-sis {{ border-color:#fbbf24; }}
+    :root:not([data-theme="light"]) .tahmin-sis {{ color:#fbbf24; }}
+  }}
+  :root[data-theme="dark"] .tahmin-hucre-sis {{ border-color:#fbbf24; }}
+  :root[data-theme="dark"] .tahmin-sis {{ color:#fbbf24; }}
   .tahmin-satir {{ font-size:.72rem; color:var(--soluk); line-height:1.5; }}
   .tahmin-aciklama {{ font-size:.72rem; color:var(--soluk); margin-top:8px; }}
 
@@ -2354,13 +2370,26 @@ def _saatlik_tahmin_html(satirlar: list) -> str:
             gorus = "10+ km"
         else:
             gorus = f"{gorus_m / 1000:.1f} km"
+        # weather_code ve boundary_layer_height DENEYSEL alanlar: Open-Meteo
+        # kabul etmezse onbellekte hic olmazlar (bkz. ltfj_dis_kaynak_cache.
+        # HOURLY_DENEYSEL). Yoklugunda hucre eskisi gibi cizilir.
+        sisli = s.get("weather_code") in SIS_KODLARI
+        sis_isareti = ('<div class="tahmin-sis" title="Model bu saatte sis '
+                       'bekliyor (WMO kodu)">🌫 sis</div>') if sisli else ""
+        blh = s.get("boundary_layer_height")
+        blh_satiri = ("" if blh is None else
+                      f'<div class="tahmin-satir" title="Sınır tabakası '
+                      f'yüksekliği - alçaldıkça radyasyon sisine elverişli">'
+                      f'{blh:.0f} m</div>')
         hucreler.append(
-            '<div class="tahmin-hucre">'
+            f'<div class="tahmin-hucre{" tahmin-hucre-sis" if sisli else ""}">'
             f'<div class="tahmin-saat">{html.escape(_yerel_saat(s.get("saat", "")))}</div>'
             f'<div class="tahmin-spread">{_sayi(spread, "°", 1)}</div>'
+            f"{sis_isareti}"
             f'<div class="tahmin-satir">{html.escape(gorus)}</div>'
             f'<div class="tahmin-satir">{_sayi(s.get("wind_speed_10m"), " km/s")}</div>'
             f'<div class="tahmin-satir">{_sayi(s.get("cloud_cover_low"), "%")}</div>'
+            f"{blh_satiri}"
             "</div>")
 
     return (
@@ -2373,7 +2402,9 @@ def _saatlik_tahmin_html(satirlar: list) -> str:
         '<div class="tahmin-serit">' + "".join(hucreler) + "</div>"
         '<div class="tahmin-aciklama">Satırlar: saat (yerel) · '
         "<strong>spread</strong> (sıcaklık − çiy noktası, düştükçe sis riski artar) · "
-        "görüş · rüzgâr · düşük bulut oranı.</div>"
+        "görüş · rüzgâr · düşük bulut oranı · sınır tabakası yüksekliği "
+        "(alçaldıkça radyasyon sisine elverişli). 🌫 işareti, modelin o saat "
+        "için sis kodu (WMO 45/48) verdiğini gösterir.</div>"
         "</div>")
 
 
