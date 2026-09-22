@@ -322,6 +322,13 @@ SABLON = """<!DOCTYPE html>
     background:rgba(234,179,8,.12); border:1px solid rgba(234,179,8,.4);
     border-radius:10px; padding:8px 10px; margin:8px 0 12px; font-size:.8rem;
   }}
+  /* Tahminin yasi - sadece TAHMIN_YAS_UYARI_DK'yi gecince cizilir.
+     Uyari rengi DEGIL: bayat tahmin bir hata degil, sadece bir baglam. */
+  .tahmin-yas {{
+    margin-left:auto; font-size:.72rem; color:var(--soluk);
+    border:1px solid var(--cizgi); border-radius:999px; padding:2px 8px;
+    white-space:nowrap;
+  }}
   .tahmin-serit {{
     display:flex; gap:6px; overflow-x:auto; padding-bottom:6px;
     -webkit-overflow-scrolling:touch;
@@ -2410,7 +2417,13 @@ def _kart(rapor: dict, yorum_onbellegi: dict | None = None) -> str:
     return "".join(p)
 
 
-def _saatlik_tahmin_html(satirlar: list) -> str:
+# Bundan eski bir tahminde yaş satırda AÇIKÇA yazılır. Altındaki yaşlar
+# için yazmıyoruz: önbellek zaten sık sık bu aralıkta ve her seferinde
+# "18 dk önce" yazmak bilgi değil gürültü olurdu.
+TAHMIN_YAS_UYARI_DK = 90
+
+
+def _saatlik_tahmin_html(satirlar: list, yas_dk: float | None = None) -> str:
     """Önümüzdeki saatlerin MODEL tahmini (Open-Meteo) - TAF DEĞİLDİR.
 
     Bilinçli olarak yorum/uyarı üretmiyor, sadece ham eğilimi gösteriyor:
@@ -2419,7 +2432,11 @@ def _saatlik_tahmin_html(satirlar: list) -> str:
     sinyali türetmek sayfanın geri kalanındaki disipline aykırı olurdu.
 
     Spread (sıcaklık - çiy noktası) başa konuyor: bu projedeki tüm
-    tavan/sis çalışmalarında en güçlü öncü gösterge oydu."""
+    tavan/sis çalışmalarında en güçlü öncü gösterge oydu.
+
+    yas_dk: tahminin kaç dakika önce çekildiği (bkz.
+    ltfj_dis_kaynak_cache.tahmin_yasi_dk). Verilmezse yaş yazılmaz -
+    eski çağrılar aynen çalışır."""
     if not satirlar:
         return ""
 
@@ -2434,6 +2451,18 @@ def _saatlik_tahmin_html(satirlar: list) -> str:
         if deger is None:
             return "—"
         return f"{deger:.{basamak}f}{birim}"
+
+    # Yaş neden gösteriliyor: GitHub zamanlanmış koşuları düşürdüğü için
+    # önbellek bazen saatlerce yenilenmiyor. Şeridi gizlemek yerine (eskiden
+    # öyleydi, "bazen var bazen yok" şikâyetine yol açtı) kaç saatlik bir
+    # model çıktısına bakıldığı yazılıyor - karar okuyanın.
+    yas_rozeti = ""
+    if yas_dk is not None and yas_dk >= TAHMIN_YAS_UYARI_DK:
+        if yas_dk < 120:
+            metin = f"{yas_dk / 60:.1f} saat önceki model çıktısı"
+        else:
+            metin = f"{yas_dk / 60:.0f} saat önceki model çıktısı"
+        yas_rozeti = f'<span class="tahmin-yas">{html.escape(metin)}</span>'
 
     hucreler = []
     for s in satirlar:
@@ -2474,7 +2503,7 @@ def _saatlik_tahmin_html(satirlar: list) -> str:
     return (
         '<div class="alt-bolum">'
         '<div class="basrow"><span class="tip">Önümüzdeki saatler</span>'
-        '<span class="zaman">Open-Meteo model tahmini</span></div>'
+        '<span class="zaman">Open-Meteo model tahmini</span>' + yas_rozeti + '</div>'
         '<div class="tahmin-uyari">Bu bir <strong>model tahminidir, TAF değildir</strong> — '
         "resmî havacılık tahmini yerine geçmez, operasyonel karar için TAF ve "
         "resmî kaynaklar esastır. Eğilimi görmek için konulmuştur.</div>"
@@ -2555,7 +2584,8 @@ def _beklenti_html(tahmin_html: str, sis_html: str, sis_yuzde: str = "") -> str:
 
 def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict | None = None,
               atc_notes_db_url: str = "", push_vapid_public_key: str = "",
-              saatlik_tahmin: list | None = None):
+              saatlik_tahmin: list | None = None,
+              tahmin_yas_dk: float | None = None):
     """yorum_onbellegi: state["yorum_onbellegi"] (ham rapor metni -> Claude
     yorumu/cevirisi) - Telegram ile PAYLASILAN onbellek, burada okunur,
     YENIDEN hesaplanmaz. Verilmezse (ornegin eski cagiran kod) kartlar
@@ -2613,7 +2643,8 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
                       lvo_farkindalik_html=_lvo_farkindalik_html(
                           guncel_cozum, taf_tavan, gecmis, simdi),
                       beklenti_html=_beklenti_html(
-                          _saatlik_tahmin_html(saatlik_tahmin or []),
+                          _saatlik_tahmin_html(saatlik_tahmin or [],
+                                               yas_dk=tahmin_yas_dk),
                           _sis_olasiligi_html(guncel_cozum, gecmis, simdi),
                           _sis_olasilik_rozeti(guncel_cozum, gecmis, simdi)),
                       rvr_esikleri_json=json.dumps(lvo.RVR_ESIKLERI, ensure_ascii=False),

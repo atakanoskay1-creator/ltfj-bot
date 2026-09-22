@@ -948,15 +948,19 @@ def main():
             try:
                 import ltfj_dis_kaynak_cache
                 saatlik_tahmin = ltfj_dis_kaynak_cache.tahmin_oku()
+                # Yaş da okunuyor: şerit bayatlayınca artık GİZLENMİYOR,
+                # kaç saatlik bir model çıktısı olduğunu yazıyor.
+                tahmin_yas_dk = ltfj_dis_kaynak_cache.tahmin_yasi_dk()
             except Exception as e:
                 print(f"[uyarı] Saatlik tahmin okunamadı, atlanıyor: {e}", file=sys.stderr)
                 saatlik_tahmin = []
+                tahmin_yas_dk = None
 
             sayfa_yaz(raporlar, state.get("olcum_gecmisi", []), KLASOR / "index.html",
                       state.get("yorum_onbellegi", {}),
                       ayar("atc_notes", "database_url", varsayilan=""),
                       ayar("push", "vapid_public_key", varsayilan=""),
-                      saatlik_tahmin)
+                      saatlik_tahmin, tahmin_yas_dk)
         except Exception as e:
             print(f"[uyarı] Web sayfası üretilemedi: {e}", file=sys.stderr)
 
