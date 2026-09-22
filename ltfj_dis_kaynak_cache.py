@@ -85,6 +85,23 @@ HOURLY_ALANLAR = (
     "wind_speed_10m", "wind_direction_10m", "cloud_cover_low", "visibility",
 )
 
+# BU ALANLARIN bu uç noktada kabul edildiği DOĞRULANAMADI (Open-Meteo
+# dokümanı bu ortamdan okunamıyor; boundary_layer_height dokümanlarda
+# ECMWF uç noktasına atfediliyor). Open-Meteo GEÇERSİZ bir alan görünce
+# isteğin TAMAMINI hata ile döndürür - yani bunları çekirdek listeye
+# koymak, hâlihazırda çalışan şeridi tamamen kaybettirebilirdi.
+#
+# Bu yüzden önce çekirdek + deneysel isteniyor; Open-Meteo reddederse
+# SADECE çekirdekle bir kez daha deneniyor. Hangi alanların düştüğü loga
+# yazılıyor, böylece sessizce eksik veriyle yaşamıyoruz.
+#   weather_code           - WMO kodu; 45 = sis, 48 = kırağılı sis
+#   boundary_layer_height  - sığ sınır tabakası + hafif rüzgâr + yüksek nem
+#                            radyasyon sisinin fizik imzası
+HOURLY_DENEYSEL = ("weather_code", "boundary_layer_height")
+
+# WMO hava kodlarından sis olanlar (bkz. weather_code).
+SIS_KODLARI = (45, 48)
+
 LTFJ_ENLEM, LTFJ_BOYLAM = 40.8986, 29.3092
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"   # FORECAST - arşiv DEĞİL
 KOMSU_ICAO = "LTFM"
@@ -116,19 +133,14 @@ def _acik_meteo_nem_cek() -> float:
     return nem
 
 
-def _saatlik_tahmin_cek() -> list[dict]:
-    """Önümüzdeki TAHMIN_SAAT saatin model tahmini.
+def _hourly_iste(alanlar: tuple) -> tuple[dict, tuple]:
+    """Open-Meteo saatlik bloğunu ister; (yanıt, istenen alanlar) döner.
 
-    DİKKAT - bu bir MODEL tahminidir, TAF DEĞİLDİR: resmî havacılık
-    tahmini yerine geçmez, sayfada da açıkça öyle etiketlenir. Amaç
-    eğilimi görmek (spread daralıyor mu, nem yükseliyor mu), kesin bir
-    değer okumak değil.
-
-    Open-Meteo saatlik bloğu GEÇMİŞ saatleri de döndürür (günün başından
-    itibaren); şu andan öncekiler ayıklanır."""
+    Hata gövdesini OnbellekHatasi'na çevirir - çağıran taraf bunu
+    "bu alan listesi kabul edilmedi" sinyali olarak kullanır."""
     parametreler = {
         "latitude": LTFJ_ENLEM, "longitude": LTFJ_BOYLAM,
-        "hourly": ",".join(HOURLY_ALANLAR), "timezone": "UTC",
+        "hourly": ",".join(alanlar), "timezone": "UTC",
         "forecast_days": 2,
     }
     c = requests.get(OPEN_METEO_URL, params=parametreler, timeout=ZAMAN_ASIMI)
@@ -140,6 +152,28 @@ def _saatlik_tahmin_cek() -> list[dict]:
     if isinstance(veri, dict) and veri.get("error"):
         raise OnbellekHatasi(f"Open-Meteo hata döndürdü - {veri.get('reason')}")
     c.raise_for_status()
+    return veri, alanlar
+
+
+def _saatlik_tahmin_cek() -> list[dict]:
+    """Önümüzdeki TAHMIN_SAAT saatin model tahmini.
+
+    DİKKAT - bu bir MODEL tahminidir, TAF DEĞİLDİR: resmî havacılık
+    tahmini yerine geçmez, sayfada da açıkça öyle etiketlenir. Amaç
+    eğilimi görmek (spread daralıyor mu, nem yükseliyor mu), kesin bir
+    değer okumak değil.
+
+    Open-Meteo saatlik bloğu GEÇMİŞ saatleri de döndürür (günün başından
+    itibaren); şu andan öncekiler ayıklanır."""
+    # Once cekirdek + deneysel; Open-Meteo deneysel alanlardan birini
+    # tanimazsa TUM istegi reddeder, o yuzden SADECE cekirdekle bir kez
+    # daha deneniyor (bkz. HOURLY_DENEYSEL).
+    try:
+        veri, alanlar = _hourly_iste(HOURLY_ALANLAR + HOURLY_DENEYSEL)
+    except OnbellekHatasi as e:
+        print(f"[uyarı] Open-Meteo deneysel alanları ({', '.join(HOURLY_DENEYSEL)}) "
+              f"kabul etmedi, onlarsız deneniyor: {e}", file=sys.stderr)
+        veri, alanlar = _hourly_iste(HOURLY_ALANLAR)
 
     saatlik = veri.get("hourly") or {}
     zamanlar = saatlik.get("time") or []
@@ -156,7 +190,7 @@ def _saatlik_tahmin_cek() -> list[dict]:
         if zaman < simdi:
             continue
         satir = {"saat": zaman_str}
-        for alan in HOURLY_ALANLAR:
+        for alan in alanlar:
             dizi = saatlik.get(alan) or []
             satir[alan] = dizi[i] if i < len(dizi) else None
         satirlar.append(satir)
