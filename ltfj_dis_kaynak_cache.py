@@ -71,7 +71,17 @@ ESIK_DK = 45
 # çekilmiş olsa da hâlâ kullanılabilir (yalnızca ilk saatleri geçmişte
 # kalır, onları zaten ayıklıyoruz). Model girdileriyle AYNI eşiğe
 # bağlamak, kullanılabilir bir tahmini gereksiz yere çöpe atardı.
-TAHMIN_ESIK_DK = 180
+# ÖLÇÜLDÜ, tahmin edilmedi: cron ":3,23,43" (20 dk) ayarlı ama GitHub
+# zamanlanmış koşuları düşürüyor - 26 saatte 78 yerine 6 planlı koşu
+# gerçekleşti, aralıklar 2-6 saat (hepsi BAŞARILI; çekme kodu sağlam).
+# 180 dk eşik bu gerçek kadansın altındaydı, bu yüzden şerit zamanın
+# önemli bir kısmında kayboluyordu ("bazen görünüyor bazen görünmüyor").
+#
+# Sert eşiğin zaten sınırlı bir işi var: aşağıdaki ayıklama geçmiş
+# saatleri kendiliğinden atıyor, yani bayat tahmin GİDEREK KISALIYOR ve
+# son satırı da geçince şerit kendiliğinden kayboluyor. Eşik yalnızca
+# "çok daha eski bir model çevriminden gelmiş" durumu keser.
+TAHMIN_ESIK_DK = 360
 
 # Kaç saat ileriye bakılacağı. 12 saat, bir vardiyayı ve sis için kritik
 # gece/sabah penceresini kapsar; daha uzunu sayfada okunabilirliği bozar.
@@ -281,6 +291,25 @@ def oku(dosya: Path = VARSAYILAN_DOSYA, esik_dk: float = ESIK_DK) -> dict:
         yas_dk = (simdi - zaman).total_seconds() / 60
         sonuc[alan] = deger if yas_dk <= esik_dk else None
     return sonuc
+
+
+def tahmin_yasi_dk(dosya: Path = VARSAYILAN_DOSYA) -> float | None:
+    """Saatlik tahminin KAÇ DAKİKA ÖNCE çekildiği; yoksa None.
+
+    tahmin_oku()'dan ayrı: sayfa, tahmini gösterirken yaşını da
+    yazabilsin diye. Değer gösterilip gösterilmemesi sayfanın kararı;
+    burada yalnızca ölçülür."""
+    ham = _oku_ham(dosya)
+    zaman_str = ham.get("saatlik_tahmin_guncelleme")
+    if not zaman_str:
+        return None
+    try:
+        zaman = datetime.fromisoformat(zaman_str)
+    except ValueError:
+        return None
+    if zaman.tzinfo is None:
+        zaman = zaman.replace(tzinfo=timezone.utc)
+    return (datetime.now(timezone.utc) - zaman).total_seconds() / 60
 
 
 def tahmin_oku(dosya: Path = VARSAYILAN_DOSYA,

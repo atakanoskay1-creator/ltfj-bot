@@ -505,18 +505,192 @@ holdout hiçbirinde açılmaz.
 
 **Ölçülen sonuç — beklenenin TERSİ yönde:**
 
-| ufuk | n | olay | AP | BSS | ROC-AUC |
-|---|---|---|---|---|---|
-| 30dk | 155.634 | 252 | 0.011 | 0.005 | 0.898 |
-| 1h | 155.634 | 256 | 0.021 | 0.010 | 0.901 |
-| 2h | 155.634 | 256 | 0.038 | 0.004 | 0.903 |
-| **3h** | 155.634 | 256 | **0.049** | 0.015 | 0.891 |
+| ufuk | n | poz | olay | taban | AP | AP/taban | BSS | LSS | LSS\|saat | ROC-AUC |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 30dk | 155.634 | 250 | 252 | %0.161 | 0.011 | 6.85 | 0.005 | 0.145 | 0.103 | 0.898 |
+| 1h | 155.634 | 474 | 256 | %0.305 | 0.021 | 6.90 | 0.010 | 0.169 | 0.122 | 0.901 |
+| **2h** | 155.634 | 871 | 256 | %0.560 | 0.038 | 6.79 | 0.004 | **0.194** | **0.145** | 0.903 |
+| 3h | 155.634 | 1238 | 256 | %0.795 | **0.049** | 6.16 | 0.015 | 0.190 | 0.139 | 0.891 |
 
-Performans ufuk **uzadıkça artıyor**, kısaldıkça değil. Fiziksel olarak
-tutarlı: bu modelin yakaladığı sinyal ("koşullar sise elverişli hale
-geliyor") **yavaş** bir eğilim — spread'in saatler içindeki düşüşü. 30
-dakikalık bir pencerede bu eğilimin olaya dönüşmesi için yeterli zaman
-genelde yok; 3 saat bu yavaş sinyale "gerçekleşme şansı" tanıyor.
+#### LSS eklendikten sonra bu tablo YENİDEN OKUNDU
+
+`LSS` (log-olabilirlik beceri skoru) ve saate koşullu referans sonradan
+eklendi (bkz. `degerlendir.log_skill` / `kosullu_iklim`); gerekçe Jewson
+(2004) ve Benedetti (2009): olay olasılığı çok küçükken Brier Score
+çözünürlüğünü kaybeder. Bu projenin taban oranı %0.8'in altında.
+
+**Eklenmesi üç şeyi değiştirdi:**
+
+**1. BSS'in bu tabloda gürültü ölçtüğü doğrulandı.** BSS 2 saatte (0.004)
+hem 1 saatten (0.010) hem 30 dakikadan (0.005) *düşük* çıkıyor — AP
+monoton artarken. LSS'te böyle bir kırılma yok: 0.145 → 0.169 → 0.194 →
+0.190. Tahmin edilen kusur, tahmin edildiği yerde çıktı.
+
+**2. Olasılık kalitesi 2 saatte tepe yapıyor, 3 saatte değil.** AP (sıralama
+gücü) 3 saate kadar artmaya devam ediyor ama LSS (olasılığın kendi
+kalitesi) 2 saatte tepe yapıp düşüyor. İkisi farklı soru soruyor:
+"satırları riske göre sıralayabiliyor mu" ile "ürettiği olasılık sayısı
+doğru mu".
+
+**3. AP'nin ufukla artması büyük ölçüde PREVALANS YAN ETKİSİ.** Rastgele
+bir sınıflandırıcının AP'si taban orana eşittir; ufuk genişledikçe olay
+sıklaşıyor (%0.161 → %0.795), dolayısıyla AP doğal olarak yükseliyor.
+Taban orana bölündüğünde (`AP/taban`) sıralama gücü 30dk–2h arasında
+**düz** (~6.8) ve 3 saatte 6.16'ya *düşüyor*.
+
+> **Bu, yukarıdaki "performans ufuk uzadıkça artıyor" ifadesini
+> düzeltir.** Ham AP artıyordu; taban orana göre normalize edilmiş
+> sıralama gücü artmıyor.
+
+#### Eşli bootstrap: hangi fark gerçek? — `--bootstrap 200`
+
+Yukarıdaki nokta tahminleri tek başına yeterli değildi. Ufuklar **aynı
+günlerin havasını** paylaştığı için (dt kümeleri birebir aynı) gün-blok
+**eşli** bootstrap yapıldı: her replikada dört ufuk da aynı gün örneği
+üzerinde hesaplanıyor, fark doğrudan ölçülüyor. İki marjinal aralığın
+örtüşmesi "fark yok" demek değildir — bu koşu bunun ders kitabı örneğini
+de verdi (aşağıya bkz.).
+
+```
+python -m sis_modeli.ufuk_deneyi --bootstrap 200
+```
+
+**LSS** (%5–%95, 200 tekrar):
+
+| ufuk | LSS | aralık | | fark (a−b) | medyan | aralık | karar |
+|---|---|---|---|---|---|---|---|
+| 30dk | 0.145 | [0.125, 0.165] | | 30dk−1h | −0.023 | [−0.031, −0.016] | **ayırt edilir** |
+| 1h | 0.169 | [0.153, 0.186] | | 30dk−2h | −0.048 | [−0.076, −0.016] | **ayırt edilir** |
+| 2h | 0.194 | [0.167, 0.220] | | 30dk−3h | −0.045 | [−0.072, −0.016] | **ayırt edilir** |
+| 3h | 0.190 | [0.162, 0.214] | | 1h−2h | −0.025 | [−0.050, 0.004] | belirsiz |
+| | | | | 1h−3h | −0.021 | [−0.044, 0.005] | belirsiz |
+| | | | | **2h−3h** | **0.004** | **[−0.004, 0.010]** | **belirsiz** |
+
+**AP/taban** (%5–%95, 200 tekrar):
+
+| ufuk | AP/taban | aralık | | fark (a−b) | medyan | aralık | karar |
+|---|---|---|---|---|---|---|---|
+| 30dk | 7.136 | [6.155, 8.556] | | 30dk−1h | 0.285 | [−0.087, 0.815] | belirsiz |
+| 1h | 6.876 | [5.979, 8.188] | | 30dk−2h | 0.320 | [−1.240, 2.266] | belirsiz |
+| 2h | 6.858 | [6.067, 8.163] | | 1h−2h | 0.041 | [−1.464, 1.581] | belirsiz |
+| 3h | 6.195 | [5.496, 7.317] | | 1h−3h | 0.715 | [−0.738, 2.297] | belirsiz |
+| | | | | **2h−3h** | **0.636** | **[0.374, 1.038]** | **ayırt edilir** |
+
+**Ne çözüldü, ne çözülmedi:**
+
+1. **30 dakika kesin olarak en zayıf ufuk.** LSS'te üç kıyasın üçü de
+   0'ı dışlıyor, replikaların %0.0'ında 30dk öne geçmiyor. Yukarıdaki
+   yavaş-eğilim açıklaması **doğrulandı**.
+
+2. **LSS, 1h / 2h / 3h arasını AYIRT EDEMİYOR.** Nokta tahmini 2 saatte
+   tepe yapıyor ama 2h−3h farkı [−0.004, 0.010], yani sıfırı içeriyor
+   (replikaların %78.5'i 2h lehine — zayıf). *Bu, bu bölümün ilk
+   yazımındaki "LSS ve AP/taban birlikte 2 saati işaret ediyor"
+   ifadesini ÇÜRÜTÜR: LSS bu konuda sessiz.*
+
+3. **AP/taban'da 2h > 3h GERÇEK.** Fark 0.636, aralık [0.374, 1.038],
+   replikaların %100'ü aynı yönde. 3 saatteki sıralama gücü düşüşü
+   gürültü değil.
+
+4. **Eşli bootstrap'in neden gerekli olduğunun kanıtı bu tabloda:**
+   AP/taban'ın marjinal aralıkları neredeyse tamamen örtüşüyor
+   (30dk [6.155, 8.556] ile 3h [5.496, 7.317]), ama eşli 2h−3h farkı dar
+   ve sıfırı dışlıyor. Marjinal aralıklara bakıp "hiçbir fark yok"
+   denseydi gerçek bir etki kaçırılacaktı.
+
+**Toparlarsak:** "3 saat en iyi ufuk" iddiası desteklenmiyor — 3 saat,
+sıralama gücünde 2 saatten ölçülebilir biçimde *kötü*. "2 saat en iyi"
+iddiası ise yalnızca AP/taban'a dayanıyor; LSS onu doğrulamıyor. En
+savunulabilir okuma: **anlamlı ufuk 1–3 saat aralığı, 30 dakika değil;
+bu aralık içinde 2 saat lehine tek yönlü bir kanıt var.**
+
+**Beceri ne kadarı sadece günlük döngü?** `LSS|saat` sütunu, referansın
+saati bildiği (dolayısıyla günlük döngüyü referansa devrettiği) durumu
+ölçer. Modelin değişkenleri arasında `saat` de var, bu yüzden düz taban
+orana göre ölçülen becerinin bir kısmı "model günlük döngüyü öğrendi"
+demek. Fark her ufukta **%25–29**. Geriye kalan (~0.14) günlük döngünün
+ÖTESİNDE, gerçekten atmosferik olan beceri — mütevazı ama açıkça pozitif.
+
+### Katmanlı model: TEK mi, mevsim/saate göre AYRI mı? — `katmanli_deney.py`
+
+Yabra ve ark. (2026) veriyi sis olasılığı yüksek/düşük aylara ve saatlere
+bölüp ayrı modeller eğitmenin tek genel modeli geçtiğini buldu — ama
+**yalnızca 2 saat ve üzeri ufuklarda** (2 saatte %20'ye varan kazanç);
+1 saatte geçmedi, çünkü orada süreklilik baskın ve bölme sadece örnek
+sayısını düşürüyor. Aynı deney bu projenin verisiyle tekrarlandı.
+
+Türetilen katmanlar (yalnızca eğitim verisinden, her fold'da yeniden)
+fiziksel olarak anlamlı: **mevsim** = Ocak/Şubat/Mart, **saat** = 21–04
+UTC (00:00–07:00 yerel, radyasyon sisi penceresi). Hiçbir fold'da havuza
+geri düşülmedi.
+
+```
+python -m sis_modeli.katmanli_deney --bootstrap 200
+```
+
+| ufuk | katman | LSS | AP/taban | | LSS farkı (katmanlı−tek) | AP/taban farkı |
+|---|---|---|---|---|---|---|
+| 1h | tek | 0.169 | 6.88 | | — | — |
+| 1h | mevsim | 0.101 | 10.07 | | **−0.070** [−0.091, −0.048] | +2.781 [−1.322, 8.454] |
+| 1h | **saat** | **0.191** | **10.93** | | **+0.023** [0.003, 0.046] | **+4.295** [2.529, 6.470] |
+| 2h | tek | 0.194 | 6.86 | | — | — |
+| 2h | mevsim | 0.145 | 6.08 | | **−0.049** [−0.085, −0.017] | −0.777 [−1.792, 0.283] |
+| 2h | saat | 0.164 | 7.11 | | **−0.029** [−0.046, −0.011] | +0.315 [−0.584, 1.490] |
+| 3h | tek | 0.190 | 6.19 | | — | — |
+| 3h | mevsim | 0.170 | 8.00 | | −0.020 [−0.050, 0.006] | **+1.688** [0.128, 4.504] |
+| 3h | saat | 0.174 | 6.58 | | −0.016 [−0.033, 0.002] | +0.414 [−0.028, 0.983] |
+
+(Kalın = eşli gün-blok bootstrap'te aralık 0'ı dışlıyor.)
+
+**SONUÇ: makalenin bulgusu tekrarlanmadı, TERSİNE DÖNDÜ.**
+
+Tek açık kazanç **1 saatlik ufukta saate göre katmanlamada** ve iki
+metrikte birden görülüyor (LSS +0.023, replikaların %97'si; AP/taban
++4.295, %100'ü). 2 saatte saat katmanlaması LSS'te açıkça *kötüleşiyor*;
+3 saatte her iki katmanlama da belirsiz.
+
+**Neden ters?** Ezeiza modellerinin en güçlü kestiricisi başlangıç
+anındaki sisti — yani 1 saatte süreklilik her şeyi taşıyordu ve ek yapı
+bir işe yaramıyordu. Bu projenin Model B'sinde süreklilik YOK (onset-only,
+görüşsüz). Dolayısıyla 1 saat burada "sürekliliğin çözdüğü" bir ufuk
+değil; tam tersine, **günlük zamanlamanın en keskin ayırt edici olduğu**
+ufuk. "Saat 03:00 ve sis penceresindeyiz" bilgisi, önümüzdeki 1 saatte
+sis oluşup oluşmayacağı için güçlü; 2–3 saate yayıldıkça pencere bulanıyor
+ve saat etiketi keskinliğini yitiriyor.
+
+`saat` zaten bir model değişkeni olduğu için, saate göre katmanlama
+pratikte "her günlük rejim için ayrı WoE tablosu" demek — yani bir
+etkileşim etkisi. 1 saatte bunun bedeli (örnek bölünmesi) getirisinden
+küçük, 2 saatten sonra büyük.
+
+**Mevsim katmanlaması zararlı.** 1 ve 2 saatte LSS'te açıkça kötüleşiyor.
+1 saatte dikkat çekici bir ayrışma var: AP/taban 6.88'den 10.07'ye
+çıkarken LSS 0.169'dan 0.101'e *düşüyor* — yani sıralama iyileşiyor ama
+olasılıklar bozuluyor. Beklenen bir şey: "düşük sezon" modeli çok az
+pozitif görüyor, stratum içinde sıralamayı yapabiliyor ama kalibrasyonu
+bozuk kalıyor. Kalibrasyon bu sayfada olasılık gösterdiğimiz için birincil
+metrik (bkz. `degerlendir` modül başlığı), dolayısıyla bu bir kazanç
+değil.
+
+**Çoklu kıyas uyarısı.** 12 kıyas yapıldı (2 metrik × 3 ufuk × 2
+katmanlama), %90 aralıkla. Şansa bağlı ~1 yanlış pozitif beklenir.
+1h/saat sonucu İKİ metrikte birden ve yüksek replika oranıyla ayırt
+ediliyor — en sağlam bulgu bu. Buna karşılık 3h/mevsim'in AP/taban
+kazancı (+1.688) tek metrikte ve kendi LSS'i ters işaretli; bunu kazanç
+saymıyorum.
+
+**Yapılmayanlar:** bu bir geliştirme dönemi bulgusudur, **holdout
+açılmadı**. Ayrıca "1 saat katmanlı" ile "2 saat tek" doğrudan
+kıyaslanmadı — farklı hedefleri tahmin ettikleri için o kıyas anlamlı
+değil; tabloda yan yana durmaları bir sıralama iddiası taşımaz.
+
+**Dış kıyas.** Yabra ve ark. (2026, ön baskı) Ezeiza'da 1 saatte ~%70,
+6 saatte ~%32 LSS bildiriyor. **Bu sayılar bu tabloyla kıyaslanamaz:**
+(1) onların sis tanımı görüş <5000 m (pus dahil), taban oran %4 — burada
+ICAO tanımı (<1000 m) ve %0.76; (2) kendi ifadeleriyle modellerinin en
+güçlü kestiricisi *başlangıç anındaki sis*, yani skorun büyük kısmı
+süreklilik. Bu proje `hedef.onset_adaylari` ile sis zaten varken olan
+satırları dışarıda bırakıyor — yalnızca oluşum tahmin ediliyor.
 
 **Event-level tespit oranı (olay başına TEK temsilci tahmin, eşiği geçen
 olay yüzdesi) daha da açık konuşuyor:**
@@ -930,6 +1104,8 @@ python -m sis_modeli.tavan_dis_kaynak_tarama
 python -m sis_modeli.olusum_egit                     # tarama + walk-forward
 python -m sis_modeli.olusum_egit --dahil-gorus        # görüş-ablasyon karşılaştırması
 python -m sis_modeli.ufuk_deneyi                      # 30dk/1h/2h/3h lead-time
+python -m sis_modeli.ufuk_deneyi --bootstrap 200      # + eşli gün-blok güven aralıkları
+python -m sis_modeli.katmanli_deney --bootstrap 200   # tek model mi, mevsim/saat katmanlı mı
 python -m sis_modeli.olusum_holdout_degerlendir       # TEK ATIŞ
 
 # Tavan: görüşsüz süreklilik (A) + oluşum (B) modelleri

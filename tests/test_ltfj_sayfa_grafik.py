@@ -126,11 +126,22 @@ def _en_son_yok_gecmisi():
     ]
 
 
+def _grafik_basi(html: str, baslik: str) -> int:
+    """Grafigin BASLIK MARKUP'ini bulur, metni ilk gectigi yeri degil.
+
+    Duz html.index("Bulut tavani") kirilgandi: sayfaya ayni metni tasiyan
+    bir title="..." eklenince (ust ozet seridi) bu testler grafigi degil
+    o seridi buluyordu."""
+    im = f'<div class="grafik-baslik"><span>{baslik}</span>'
+    i = html.index(im)
+    return i
+
+
 def test_son_kayitta_deger_yoksa_raporlanmiyor_etiketi_cikar(tmp_path):
     hedef = tmp_path / "index.html"
     s.sayfa_yaz([METAR], _en_son_yok_gecmisi(), hedef, {}, "")
     html = hedef.read_text(encoding="utf-8")
-    i = html.index("Bulut tavanı")
+    i = _grafik_basi(html, "Bulut tavanı")
     blok = html[i:i + 700]
     assert 'class="grafik-son grafik-son-yok">raporlanmıyor<' in blok
     assert "3000 ft" not in blok.split("grafik-durum-notu")[0]  # baslikta DEGIL
@@ -148,7 +159,7 @@ def test_son_kayitta_deger_yoksa_son_nokta_ici_bos_cizilir(tmp_path):
     hedef = tmp_path / "index.html"
     s.sayfa_yaz([METAR], _en_son_yok_gecmisi(), hedef, {}, "")
     html = hedef.read_text(encoding="utf-8")
-    i = html.index("Bulut tavanı")
+    i = _grafik_basi(html, "Bulut tavanı")
     svg = html[i:html.index("</svg>", i)]
     assert 'fill="none" stroke="#22c55e" stroke-width="2"/>' in svg  # ici bos daire
     assert "stroke-dasharray" in svg
@@ -173,7 +184,7 @@ def test_son_kayitta_deger_yoksa_eksen_ucu_eski_olcumde_takili_kalmiyor(tmp_path
     s.sayfa_yaz([METAR], _en_son_yok_gecmisi(), hedef, {}, "")
     html = hedef.read_text(encoding="utf-8")
 
-    i = html.index("Bulut tavanı")
+    i = _grafik_basi(html, "Bulut tavanı")
     blok = html[i:html.index("grafik-durum-notu", i)]
     eksen_son = blok.rsplit('<span>', 1)[-1].split("</span>")[0]
 
@@ -189,7 +200,7 @@ def test_son_kayitta_deger_yoksa_kesikli_cizgi_sag_kenara_kadar_uzaniyor(tmp_pat
     hedef = tmp_path / "index.html"
     s.sayfa_yaz([METAR], _en_son_yok_gecmisi(), hedef, {}, "")
     html = hedef.read_text(encoding="utf-8")
-    i = html.index("Bulut tavanı")
+    i = _grafik_basi(html, "Bulut tavanı")
     svg = html[i:html.index("</svg>", i)]
 
     j = svg.index("stroke-dasharray")

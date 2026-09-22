@@ -48,6 +48,51 @@ GRAFIKLER = (
     ("sicaklik", "Sıcaklık", "°C", "#ef4444"),
 )
 
+# --------------------------------------------------------------- yazı tipi
+# IBM Plex Sans/Mono, GitHub Pages'ten KENDİ deposundan servis edilir -
+# fonts.googleapis.com'a istek YOK. Sebep: sayfa havalimanı ağından
+# açılıyor; üçüncü taraf CDN engellenirse yazı tipi sessizce sistem
+# fontuna düşerdi. Dosyalar yazitipi/ klasöründe (toplam ~130 KB) ve
+# bot tarafından YENIDEN URETILMEZ, depoda statik dururlar.
+#
+# Sans DEGISKEN (400..700): sayfada 20 yerde geçen font-weight:650 gibi
+# ara ağırlıklar tam olarak o ağırlıkta çizilir, yuvarlanmaz.
+# Mono statiktir (400/600) - IBM Plex Mono'nun değişken sürümü Google
+# Fonts'ta yok; 650 isteyen iki yer 600'e yuvarlanır, fark edilmez.
+#
+# Türkçe latin alt kümesine SIGMAZ: ğ/ş/İ latin-ext'te, ı latin'de.
+# İkisi de gömülü. Δ/▶/⟳ ve emoji hiçbirinde yok, tarayıcı onları
+# karakter bazında sistem fontuna düşürür - beklenen davranış.
+YAZITIPI_KLASORU = "yazitipi"
+_LATIN = ("U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, "
+          "U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, "
+          "U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD")
+_LATIN_EXT = ("U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, "
+              "U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, "
+              "U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, "
+              "U+2113, U+2C60-2C7F, U+A720-A7FF")
+
+# (aile adı, dosya adı, font-weight, unicode-range)
+YAZITIPI_DOSYALARI = (
+    ("IBM Plex Sans", "plex-sans-latin-400-700.woff2", "400 700", _LATIN),
+    ("IBM Plex Sans", "plex-sans-latin-ext-400-700.woff2", "400 700", _LATIN_EXT),
+    ("IBM Plex Mono", "plex-mono-latin-400.woff2", "400", _LATIN),
+    ("IBM Plex Mono", "plex-mono-latin-ext-400.woff2", "400", _LATIN_EXT),
+    ("IBM Plex Mono", "plex-mono-latin-600.woff2", "600", _LATIN),
+    ("IBM Plex Mono", "plex-mono-latin-ext-600.woff2", "600", _LATIN_EXT),
+)
+
+# font-display:swap - yazı tipi inene kadar sayfa BOŞ beklemez, sistem
+# fontuyla çizilir sonra değişir. Operasyonel bir sayfada "yazı yok"
+# hali "yazı biraz sonra değişti" halinden çok daha kötü.
+YAZITIPI_CSS = "\n".join(
+    f'  @font-face {{ font-family:"{aile}"; font-style:normal;\n'
+    f'    font-weight:{agirlik}; font-display:swap;\n'
+    f'    src:url("{YAZITIPI_KLASORU}/{dosya}") format("woff2");\n'
+    f"    unicode-range:{aralik}; }}"
+    for aile, dosya, agirlik, aralik in YAZITIPI_DOSYALARI)
+
+
 SABLON = """<!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -56,7 +101,11 @@ SABLON = """<!DOCTYPE html>
 <title>{icao} · Hava Durumu</title>
 <meta name="description" content="{icao} anlık METAR ve TAF">
 <style>
+{yazitipi_css}
   :root {{
+    /* Mono yigini eskiden 6 ayri yerde KOPYALANMISTI - biri guncellenip
+       otekiler unutulabilirdi. Tek kaynak. */
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
     --bg:#f8fafc; --kart:#ffffff; --metin:#0f172a; --soluk:#64748b;
     --cizgi:#e2e8f0; --vurgu:#0f172a; --kod-bg:#f1f5f9;
   }}
@@ -73,7 +122,11 @@ SABLON = """<!DOCTYPE html>
   * {{ box-sizing:border-box; }}
   body {{
     margin:0; background:var(--bg); color:var(--metin);
-    font:16px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    /* 1.55 -> 1.62: sayfadaki uzun Turkce uyari paragraflari icin
+       gozu dinlendiren asil degisiklik satir araligi. */
+    font:16px/1.62 "IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,
+         "Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
     padding:24px 16px 48px;
   }}
   .sar {{ max-width:680px; margin:0 auto; }}
@@ -97,6 +150,31 @@ SABLON = """<!DOCTYPE html>
     .header-metin {{ flex:1 1 100%; }}
     .header-butonlar {{ flex:1 1 100%; justify-content:flex-end; }}
     button.yenile {{ padding:8px 10px; font-size:.78rem; }}
+  }}
+  /* Yapiskan tek satir ozet: "su an bir sikinti var mi?" sorusunu
+     kaydirmadan yanitlar. Kartlar katlandiktan sonra sayfa kisaldi ama
+     kaydirinca ustteki METAR karti ekrandan cikiyordu; bu satir kalir.
+     z-index kasitli olarak 40: sayfa icerigiNIN ustunde, ama sabit
+     kapli katmanlarin (VFR sekmesi 58, ATC modali 65) ALTINDA. */
+  .ozet-serit {{
+    position:sticky; top:0; z-index:40;
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    margin:0 0 16px; padding:9px 12px;
+    background:var(--kart); border:1px solid var(--cizgi); border-radius:12px;
+    font-size:.85rem; font-variant-numeric:tabular-nums;
+  }}
+  /* Renk kodu rozeti kart rozetiyle AYNI gorunsun (.rozet ile ayni
+     yazi rengi) - iki farkli gorsel dil ayni seyi anlatmasin. */
+  .ozet-renk {{
+    padding:2px 8px; border-radius:999px; color:#fff;
+    font-weight:700; font-size:.75rem; letter-spacing:.02em;
+  }}
+  .ozet-oge {{ color:var(--metin); white-space:nowrap; }}
+  /* Ayirici nokta: ogeler arasinda, ilkinden once DEGIL. */
+  .ozet-oge + .ozet-oge::before {{ content:"·"; color:var(--soluk); margin-right:8px; }}
+  @media (max-width:480px) {{
+    .ozet-serit {{ font-size:.8rem; gap:6px; padding:8px 10px; }}
+    .ozet-oge + .ozet-oge::before {{ margin-right:6px; }}
   }}
   .kart {{
     background:var(--kart); border:1px solid var(--cizgi); border-radius:14px;
@@ -128,7 +206,7 @@ SABLON = """<!DOCTYPE html>
   pre {{
     background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:10px;
     padding:12px; overflow-x:auto; font-size:.8rem; line-height:1.5;
-    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; margin:12px 0 0;
+    font-family:var(--mono); margin:12px 0 0;
     white-space:pre-wrap; word-break:break-word;
   }}
   footer {{ color:var(--soluk); font-size:.8rem; text-align:center; margin-top:28px; }}
@@ -224,7 +302,7 @@ SABLON = """<!DOCTYPE html>
   .kat[open] > summary::after {{ transform:rotate(90deg); }}
   .kat > summary:hover {{ color:var(--metin); }}
   .kat-rozet {{
-    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.75rem;
+    font-family:var(--mono); font-size:.75rem;
     color:var(--metin); font-weight:600; margin-left:8px;
   }}
   /* Kart basligi olarak kullanilan katlanabilir summary - .basrow ile ayni
@@ -244,6 +322,13 @@ SABLON = """<!DOCTYPE html>
     background:rgba(234,179,8,.12); border:1px solid rgba(234,179,8,.4);
     border-radius:10px; padding:8px 10px; margin:8px 0 12px; font-size:.8rem;
   }}
+  /* Tahminin yasi - sadece TAHMIN_YAS_UYARI_DK'yi gecince cizilir.
+     Uyari rengi DEGIL: bayat tahmin bir hata degil, sadece bir baglam. */
+  .tahmin-yas {{
+    margin-left:auto; font-size:.72rem; color:var(--soluk);
+    border:1px solid var(--cizgi); border-radius:999px; padding:2px 8px;
+    white-space:nowrap;
+  }}
   .tahmin-serit {{
     display:flex; gap:6px; overflow-x:auto; padding-bottom:6px;
     -webkit-overflow-scrolling:touch;
@@ -254,7 +339,7 @@ SABLON = """<!DOCTYPE html>
   }}
   .tahmin-saat {{
     font-size:.78rem; font-weight:650; margin-bottom:4px;
-    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-family:var(--mono);
   }}
   .tahmin-spread {{ font-size:1.05rem; font-weight:700; margin-bottom:4px; }}
   /* Modelin sis kodu verdigi saat - kart kenarligi ve kucuk bir etiketle
@@ -282,7 +367,7 @@ SABLON = """<!DOCTYPE html>
   .notam-kart:last-child {{ border-bottom:none; }}
   .notam-ust {{ display:flex; align-items:center; gap:8px; flex-wrap:wrap;
                 margin-bottom:6px; }}
-  .notam-no {{ font-weight:650; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }}
+  .notam-no {{ font-weight:650; font-family:var(--mono); }}
   .notam-etiket {{
     padding:2px 8px; border-radius:999px; font-size:.72rem; font-weight:600;
     background:var(--kod-bg); border:1px solid var(--cizgi); color:var(--soluk);
@@ -312,7 +397,7 @@ SABLON = """<!DOCTYPE html>
   .notam-metin {{
     background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:8px;
     padding:10px; font-size:.78rem; line-height:1.5; margin-top:6px;
-    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; white-space:pre-wrap;
+    font-family:var(--mono); white-space:pre-wrap;
     word-break:break-word;
   }}
   .notam-kaynak {{ font-size:.72rem; color:var(--soluk); margin-top:6px; }}
@@ -355,7 +440,7 @@ SABLON = """<!DOCTYPE html>
     border-bottom:1px solid var(--cizgi);
   }}
   .lvo-esik-satir:last-child {{ border-bottom:none; }}
-  .lvo-esik-deger {{ font-weight:650; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }}
+  .lvo-esik-deger {{ font-weight:650; font-family:var(--mono); }}
   .lvo-not-listesi {{ font-size:.78rem; color:var(--soluk); margin:8px 0 0; padding-left:18px; }}
   .lvo-not-listesi li {{ margin-bottom:4px; }}
   .lvo-awos-grid {{ display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; }}
@@ -517,6 +602,7 @@ SABLON = """<!DOCTYPE html>
     <button type="button" class="yenile" id="sayfa-yenile-btn">⟳ Yenile</button>
   </div>
 </header>
+{ozet_serit_html}
 {govde}
 {beklenti_html}
 
@@ -2331,7 +2417,13 @@ def _kart(rapor: dict, yorum_onbellegi: dict | None = None) -> str:
     return "".join(p)
 
 
-def _saatlik_tahmin_html(satirlar: list) -> str:
+# Bundan eski bir tahminde yaş satırda AÇIKÇA yazılır. Altındaki yaşlar
+# için yazmıyoruz: önbellek zaten sık sık bu aralıkta ve her seferinde
+# "18 dk önce" yazmak bilgi değil gürültü olurdu.
+TAHMIN_YAS_UYARI_DK = 90
+
+
+def _saatlik_tahmin_html(satirlar: list, yas_dk: float | None = None) -> str:
     """Önümüzdeki saatlerin MODEL tahmini (Open-Meteo) - TAF DEĞİLDİR.
 
     Bilinçli olarak yorum/uyarı üretmiyor, sadece ham eğilimi gösteriyor:
@@ -2340,7 +2432,11 @@ def _saatlik_tahmin_html(satirlar: list) -> str:
     sinyali türetmek sayfanın geri kalanındaki disipline aykırı olurdu.
 
     Spread (sıcaklık - çiy noktası) başa konuyor: bu projedeki tüm
-    tavan/sis çalışmalarında en güçlü öncü gösterge oydu."""
+    tavan/sis çalışmalarında en güçlü öncü gösterge oydu.
+
+    yas_dk: tahminin kaç dakika önce çekildiği (bkz.
+    ltfj_dis_kaynak_cache.tahmin_yasi_dk). Verilmezse yaş yazılmaz -
+    eski çağrılar aynen çalışır."""
     if not satirlar:
         return ""
 
@@ -2355,6 +2451,18 @@ def _saatlik_tahmin_html(satirlar: list) -> str:
         if deger is None:
             return "—"
         return f"{deger:.{basamak}f}{birim}"
+
+    # Yaş neden gösteriliyor: GitHub zamanlanmış koşuları düşürdüğü için
+    # önbellek bazen saatlerce yenilenmiyor. Şeridi gizlemek yerine (eskiden
+    # öyleydi, "bazen var bazen yok" şikâyetine yol açtı) kaç saatlik bir
+    # model çıktısına bakıldığı yazılıyor - karar okuyanın.
+    yas_rozeti = ""
+    if yas_dk is not None and yas_dk >= TAHMIN_YAS_UYARI_DK:
+        if yas_dk < 120:
+            metin = f"{yas_dk / 60:.1f} saat önceki model çıktısı"
+        else:
+            metin = f"{yas_dk / 60:.0f} saat önceki model çıktısı"
+        yas_rozeti = f'<span class="tahmin-yas">{html.escape(metin)}</span>'
 
     hucreler = []
     for s in satirlar:
@@ -2395,7 +2503,7 @@ def _saatlik_tahmin_html(satirlar: list) -> str:
     return (
         '<div class="alt-bolum">'
         '<div class="basrow"><span class="tip">Önümüzdeki saatler</span>'
-        '<span class="zaman">Open-Meteo model tahmini</span></div>'
+        '<span class="zaman">Open-Meteo model tahmini</span>' + yas_rozeti + '</div>'
         '<div class="tahmin-uyari">Bu bir <strong>model tahminidir, TAF değildir</strong> — '
         "resmî havacılık tahmini yerine geçmez, operasyonel karar için TAF ve "
         "resmî kaynaklar esastır. Eğilimi görmek için konulmuştur.</div>"
@@ -2406,6 +2514,56 @@ def _saatlik_tahmin_html(satirlar: list) -> str:
         "(alçaldıkça radyasyon sisine elverişli). 🌫 işareti, modelin o saat "
         "için sis kodu (WMO 45/48) verdiğini gösterir.</div>"
         "</div>")
+
+
+def _ozet_serit_html(cozum: dict | None, notlar: dict | None) -> str:
+    """Sayfanın üstünde YAPIŞKAN duran tek satırlık durum özeti.
+
+    Amaç: "şu an bir sıkıntı var mı?" sorusunu SIFIR kaydırmayla
+    yanıtlamak. Kartlar katlandıktan sonra sayfa 2.4 ekrana indi ama
+    bu satır kaydırırken de görünür kaldığı için cevap her an elde.
+
+    Değerler ham METAR'dan gelir - yorum/tahmin YOK. Eksik alan "—"
+    olur; satır hiç çizilmemektense eksik çizilir, çünkü yokluğu da
+    bilgidir (ör. tavan bildirilmiyor)."""
+    if not cozum:
+        return ""
+
+    def _gorus(m):
+        if m is None:
+            return "—"
+        return "10+ km" if m >= 9999 else (f"{m / 1000:g} km" if m >= 1000 else f"{m} m")
+
+    tavan = cozum.get("tavan")
+    yon, hiz = cozum.get("ruzgar_yon"), cozum.get("ruzgar_hiz")
+    hamle = cozum.get("ruzgar_hamle")
+    if hiz is None:
+        ruzgar = "—"
+    else:
+        ruzgar = ("VRB" if yon is None else f"{yon:03d}°") + f"/{hiz}"
+        if hamle:
+            ruzgar += f"G{hamle}"
+    sic, cig = cozum.get("sicaklik"), cozum.get("cig_noktasi")
+    spread = "—" if sic is None or cig is None else f"Δ{sic - cig}°"
+
+    rozet = ""
+    if notlar and notlar.get("renk"):
+        kod, _ = notlar["renk"]
+        rozet = (f'<span class="ozet-renk" style="background:'
+                 f'{RENK_KODU.get(kod, "#64748b")}">{html.escape(kod)}</span>')
+
+    # (deger, tooltip) - serit kisa olmak zorunda, ne olduklari
+    # title'da duruyor; ekran okuyucu da bunu okur.
+    ogeler = [
+        (_gorus(cozum.get("gorus")), "Görüş"),
+        ("tavan yok" if tavan is None else f"{tavan} ft", "Bulut tavanı"),
+        (ruzgar, "Rüzgâr (yön/hız, G=hamle)"),
+        (spread, "Spread (sıcaklık - çiy noktası)"),
+    ]
+    return ('<div class="ozet-serit" id="ozet-serit">' + rozet
+            + "".join(f'<span class="ozet-oge" title="{html.escape(t)}">'
+                      f"{html.escape(d)}</span>" for d, t in ogeler)
+            + "</div>")
 
 
 def _beklenti_html(tahmin_html: str, sis_html: str, sis_yuzde: str = "") -> str:
@@ -2426,7 +2584,8 @@ def _beklenti_html(tahmin_html: str, sis_html: str, sis_yuzde: str = "") -> str:
 
 def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict | None = None,
               atc_notes_db_url: str = "", push_vapid_public_key: str = "",
-              saatlik_tahmin: list | None = None):
+              saatlik_tahmin: list | None = None,
+              tahmin_yas_dk: float | None = None):
     """yorum_onbellegi: state["yorum_onbellegi"] (ham rapor metni -> Claude
     yorumu/cevirisi) - Telegram ile PAYLASILAN onbellek, burada okunur,
     YENIDEN hesaplanmaz. Verilmezse (ornegin eski cagiran kod) kartlar
@@ -2462,20 +2621,30 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
 
     guncel_rapor = next((r for r in sirali if r["tip"] in ("METAR", "SPECI")), None)
     guncel_cozum = metar_coz(guncel_rapor["metin"]) if guncel_rapor else None
+    # Ust seritteki renk rozeti kartlarla AYNI hesaptan gelsin diye
+    # havacilik_notlari burada bir kez daha cagriliyor (saf fonksiyon,
+    # ag/dosya erisimi yok); rozetin karttakinden sessizce sapmamasi icin.
+    guncel_notlar = (havacilik_notlari(guncel_cozum, guncel_rapor["metin"],
+                                       guncel_rapor.get("zaman"))
+                     if guncel_cozum else None)
     guncel_taf_rapor = next((r for r in sirali if r["tip"] == "TAF"), None)
     taf_tavan = (farkindalik.taf_en_dusuk_tavan_ft(guncel_taf_rapor["metin"])
                  if guncel_taf_rapor else None)
 
     hedef.write_text(
         SABLON.format(icao=html.escape(icao), govde=govde,
+                      yazitipi_css=YAZITIPI_CSS,
                       guncelleme=f"{simdi:%d.%m.%Y %H:%M} yerel",
                       atc_notes_db_url=json.dumps(atc_notes_db_url or ""),
                       push_vapid_public_key=json.dumps(push_vapid_public_key or ""),
+                      ozet_serit_html=_ozet_serit_html(
+                          guncel_cozum, guncel_notlar),
                       lvo_referans_html=_lvo_dokuman_referans_html(),
                       lvo_farkindalik_html=_lvo_farkindalik_html(
                           guncel_cozum, taf_tavan, gecmis, simdi),
                       beklenti_html=_beklenti_html(
-                          _saatlik_tahmin_html(saatlik_tahmin or []),
+                          _saatlik_tahmin_html(saatlik_tahmin or [],
+                                               yas_dk=tahmin_yas_dk),
                           _sis_olasiligi_html(guncel_cozum, gecmis, simdi),
                           _sis_olasilik_rozeti(guncel_cozum, gecmis, simdi)),
                       rvr_esikleri_json=json.dumps(lvo.RVR_ESIKLERI, ensure_ascii=False),

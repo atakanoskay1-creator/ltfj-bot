@@ -142,3 +142,58 @@ def test_aciklama_sis_isaretini_ve_blh_yi_anlatiyor():
     html = s._saatlik_tahmin_html(_sisli_satir())
     assert "WMO 45/48" in html
     assert "sınır tabakası" in html
+
+
+# ============================================ bayatlik: gizleme yerine etiket
+# GERCEK KUSUR (kullanici bildirdi: "bazen goruluyor bazen gorulmuyor"):
+# onbellek cron'u ":3,23,43" (20 dk) ayarliydi ama GitHub zamanlanmis
+# kosulari dusuruyor - 26 saatte 78 yerine 6 planli kosu gerceklesti,
+# araliklar 2-6 saat (HEPSI BASARILI; cekme kodu saglam). 180 dk'lik
+# bayatlik esigi bu gercek kadansin ALTINDA oldugu icin serit zamanin
+# onemli kismnda kayboluyordu.
+def test_esik_gercek_cron_kadansinin_ustunde():
+    """Esik, olculen yenilenme araligindan (2-6 saat) kisa olmamali."""
+    import ltfj_dis_kaynak_cache as dkc
+    assert dkc.TAHMIN_ESIK_DK >= 360
+
+
+def test_yas_verilmezse_rozet_yok():
+    """Geriye uyumluluk: yas parametresi olmayan eski cagrilar aynen
+    calismali ve fazladan bir sey basmamali."""
+    html = s._saatlik_tahmin_html(_satirlar())
+    assert "tahmin-yas" not in html
+
+
+def test_taze_tahminde_yas_yazilmiyor():
+    """Her seferinde "18 dk once" yazmak bilgi degil gurultu olurdu."""
+    assert "tahmin-yas" not in s._saatlik_tahmin_html(_satirlar(), yas_dk=20)
+
+
+def test_bayat_tahminde_yas_aciklca_yaziliyor():
+    html = s._saatlik_tahmin_html(_satirlar(), yas_dk=300)
+    assert "tahmin-yas" in html
+    assert "5 saat önceki model çıktısı" in html
+
+
+def test_yas_esigin_hemen_ustunde_ondalikli_yaziliyor():
+    """1.6 saat'i "2 saat" diye yuvarlamak olmayan bir bayatligi ima eder."""
+    html = s._saatlik_tahmin_html(_satirlar(), yas_dk=95)
+    assert "1.6 saat önceki model çıktısı" in html
+
+
+def test_bayat_tahmin_yine_de_GOSTERILIYOR():
+    """EN KRITIK TEST: eski davranis bayat tahmini tamamen gizliyordu.
+    Artik gosteriliyor, yalnizca yasi etiketleniyor - "bazen var bazen
+    yok" davranisinin kaynagi buydu."""
+    html = s._saatlik_tahmin_html(_satirlar(n=4), yas_dk=300)
+    assert html.count('class="tahmin-hucre') == 4
+
+
+def test_yas_sinir_sabiti_tek_yerde():
+    assert s.TAHMIN_YAS_UYARI_DK > 0
+
+
+def test_sayfaya_yas_ile_gomulunce_gorunuyor(tmp_path):
+    hedef = tmp_path / "index.html"
+    s.sayfa_yaz([], [], hedef, saatlik_tahmin=_satirlar(), tahmin_yas_dk=250)
+    assert "4 saat önceki model çıktısı" in hedef.read_text(encoding="utf-8")

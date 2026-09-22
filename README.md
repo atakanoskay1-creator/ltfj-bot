@@ -93,6 +93,32 @@ Panelin başında, **Farkındalık Notları** adında gayri resmi bir alt bölü
 
 Sayfanın sağ kenarında küçük bir "VFR" sekmesi bulunur. Bu sekme, en son METAR/SPECI'nin görüş ve bulut tabanı (tavan) değerlerini ICAO Annex 2 (Rules of the Air) Table 3-1'in FL100 altı satırıyla (görüş ≥ 5 km, tavan ≥ 1.500 ft — Sabiha Gökçen CTR'si sürekli kontrollü hava sahası olduğu için tüm irtifalarda aynı eşik) karşılaştırır ve şartlar sağlanıyorsa yeşil, sağlanmıyorsa kırmızı yanar. Kırmızıyken/tıklandığında açılan panelde hangi eşiğin (görüş ve/veya tavan) sağlanmadığı yazar. Bu, projedeki diğer METAR-tabanlı göstergelerle (ör. sis riski) aynı mantıkla çalışan, tamamen statik/deterministik bir hesaplamadır — ek kurulum, Firebase veya harici veri kaynağı gerektirmez; hiçbir zaman "LVO/CAT II" gibi operasyonel bir karar iddiasında bulunmaz, sadece görüş/tavan-VFR eşiği karşılaştırmasıdır.
 
+### 8. Yazı Tipi (yazitipi/)
+
+Sayfa **IBM Plex Sans** (gövde) ve **IBM Plex Mono** (ham METAR/TAF/NOTAM kod
+blokları) kullanır. Yazı tipleri `yazitipi/` klasöründen, yani **kendi
+deposundan** servis edilir; `fonts.googleapis.com`'a istek gitmez. Sebep: sayfa
+havalimanı ağından açılıyor ve üçüncü taraf bir CDN engellenirse yazı tipi hata
+vermeden sessizce sistem fontuna düşerdi.
+
+`yazitipi/` içindeki 6 woff2 dosyası (toplam ~130 KB) **statiktir, bot
+tarafından yeniden üretilmez** — silinirlerse sayfa çalışmaya devam eder ama
+yedek sistem fontuyla çizilir. `tests/test_ltfj_sayfa_yazitipi.py` hem
+dosyaların varlığını hem de geçerli woff2 olduklarını doğrular.
+
+Neden bu ikisi:
+
+- **Plex Mono'nun sıfırı eğik çizgilidir** (`0` ≠ `O`). METAR/NOTAM kodlarında
+  (`06004KT`, `Q1015`, `NOSIG`) bu ayrım işlevseldir.
+- Türkçe `latin` alt kümesine sığmaz: `ğ/ş/İ` `latin-ext`'te, `ı` `latin`'de.
+  İkisi de gömülüdür. `Δ`, `▶`, `⟳` ve emoji hiçbir alt kümede yoktur; tarayıcı
+  onları karakter bazında sistem fontuna düşürür — beklenen davranıştır.
+- Sans **değişken** fonttur (400..700), sayfadaki `font-weight:650` gibi ara
+  ağırlıklar yuvarlanmadan çizilir.
+
+Yazı tipleri [SIL Open Font License 1.1](https://github.com/IBM/plex/blob/master/LICENSE.txt)
+ile lisanslıdır.
+
 ## ⚠️ Yasal Uyarı
 
 Bu yazılım tamamen **eğitim, simülasyon ve hobi amaçlı** olarak geliştirilmiştir. Havacılıkta hava durumu verileri hayati önem taşır. Bu botun sağladığı veriler gecikmeli, eksik veya hatalı olabilir. **Gerçek uçuş planlamaları veya gerçek havacılık operasyonları için kesinlikle KULLANILAMAZ.** Gerçek uçuş operasyonları için sadece yetkili ve resmi meteoroloji servis sağlayıcılarını kullanınız.
