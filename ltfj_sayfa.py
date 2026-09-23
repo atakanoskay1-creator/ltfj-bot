@@ -415,6 +415,42 @@ SABLON = """<!DOCTYPE html>
     .veri-kaynak {{ margin-left:0; flex-basis:100%; }}
   }}
 
+  /* ---- MEVCUT KOSULLAR (hero) ----
+     Telefonda 2x2, >=560px'te tek sirada dort. 1px bosluklar arka plan
+     renginden geliyor - ayrik kenarlik yerine tek izgara cizgisi. */
+  .hero {{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:1px;
+    background:var(--cizgi); border:1px solid var(--cizgi);
+    border-radius:var(--r1); overflow:hidden; margin:10px 0 12px;
+  }}
+  @media (min-width:560px) {{ .hero {{ grid-template-columns:repeat(4,1fr); }} }}
+  .hero-oge {{ background:var(--kart); padding:10px 12px 8px; color:var(--soluk); }}
+  .hero-etiket {{
+    font-size:.62rem; font-weight:700; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--sessiz);
+  }}
+  .hero-deger {{
+    font-size:1.7rem; font-weight:650; line-height:1.15; margin-top:2px;
+    font-variant-numeric:tabular-nums; color:var(--metin);
+  }}
+  .hero-birim {{
+    font-size:.72rem; font-weight:500; color:var(--soluk); margin-left:3px;
+  }}
+  /* currentColor: kivilcim .hero-oge'nin soluk rengini alir, yani her
+     temada kendiliginden dogru tonda cizilir. */
+  .hero-kivilcim {{ display:block; margin-top:4px; height:20px; width:100%; }}
+  .hero-yok {{
+    margin-top:4px; height:20px; font-size:.62rem; color:var(--sessiz);
+    display:flex; align-items:center;
+  }}
+  .ozet-ikincil {{ font-size:.84rem; color:var(--soluk); margin:0 0 10px; }}
+  /* Durum rengi kartin sol kenarinda - liste taranirken once goze carpar. */
+  .kart.kart-durum {{ border-left:3px solid var(--durum-renk, var(--cizgi)); }}
+  @media (max-width:480px) {{
+    .hero-deger {{ font-size:1.5rem; }}
+    .hero-oge {{ padding:9px 10px 7px; }}
+  }}
+
   .js .sekme-panel {{ display:none; }}
   .js[data-sekme="durum"]      #panel-durum,
   .js[data-sekme="beklenti"]   #panel-beklenti,
@@ -2802,7 +2838,86 @@ def _yorum_html(yorum: str) -> str:
     return "<br>".join(satirlar)
 
 
-def _kart(rapor: dict, yorum_onbellegi: dict | None = None) -> str:
+# --------------------------------------------------- mevcut kosullar karti
+# Once bu dort deger duz gri bir CUMLEYE gomuluydu:
+#   "Rüzgâr 060° 5kt · görüş 400 m · tavan 200 ft · sis · 13°C · QNH 1019"
+# Orada GORUS 400 m (havalimanini kapatan sayi) ile QNH 1019 (rutin bilgi)
+# ayni punto ve ayni gri tondaydi. Kontrolor once bu dorde bakiyor.
+HERO_ALANLAR = (
+    ("GÖRÜŞ",  "gorus",   "m",  "gorus"),
+    ("TAVAN",  "tavan",   "ft", "tavan"),
+    ("RÜZGÂR", "_ruzgar", "kt", "ruzgar_hiz"),
+    ("SPREAD", "_spread", "°C", "_spread"),
+)
+
+
+def _kivilcim(gecmis: list, alan: str, simdi: datetime) -> str:
+    """Metrik altindaki kucuk egilim cizgisi.
+
+    Veri yoksa BOS doner - uydurmaz. gorus alani olcum_gecmisi'ne yeni
+    eklendi, o yuzden pencere dolana kadar gorus cizgisi bos kalir."""
+    if not alan or not gecmis:
+        return ""
+    if alan == "_spread":
+        gecmis = [dict(g, _spread=round(g["sicaklik"] - g["cig_noktasi"], 1))
+                  for g in gecmis
+                  if g.get("sicaklik") is not None and g.get("cig_noktasi") is not None]
+    noktalar = _grafik_verisi(gecmis, alan, simdi)
+    if len(noktalar) < GRAFIK_MIN_NOKTA:
+        return ""
+    sonuc = _svg_cizgi(noktalar, "currentColor", genislik=100, yukseklik=20)
+    if not sonuc:
+        return ""
+    svg = sonuc[0] if isinstance(sonuc, tuple) else sonuc
+    return svg.replace("<svg ", '<svg class="hero-kivilcim" aria-hidden="true" ', 1)
+
+
+def _hero_deger(cozum: dict, anahtar: str) -> str:
+    if anahtar == "_ruzgar":
+        yon, hiz = cozum.get("ruzgar_yon"), cozum.get("ruzgar_hiz")
+        if hiz is None:
+            return "—"
+        return f"{yon:03d}°/{hiz}" if yon is not None else f"VRB/{hiz}"
+    if anahtar == "_spread":
+        t, c = cozum.get("sicaklik"), cozum.get("cig_noktasi")
+        return "—" if None in (t, c) else f"{t - c:.1f}"
+    v = cozum.get(anahtar)
+    return "—" if v is None else f"{v:g}"
+
+
+def _hero_html(cozum: dict, gecmis: list, simdi: datetime) -> str:
+    hucreler = []
+    for etiket, anahtar, birim, trend in HERO_ALANLAR:
+        deger = _hero_deger(cozum, anahtar)
+        kiv = _kivilcim(gecmis, trend, simdi)
+        hucreler.append(
+            f'<div class="hero-oge"><div class="hero-etiket">{etiket}</div>'
+            f'<div class="hero-deger">{html.escape(deger)}'
+            f'<span class="hero-birim">{birim}</span></div>'
+            + (kiv or '<div class="hero-yok">eğilim verisi yok</div>') + "</div>")
+    return '<div class="hero">' + "".join(hucreler) + "</div>"
+
+
+def _ikincil_satir(cozum: dict) -> str:
+    """Hero'da OLMAYAN alanlar: hava kodu, sicaklik/ciy, QNH.
+
+    ozet_satiri() CAGRILMIYOR cunku o TELEGRAM'in ozeti ve gorus/tavan/
+    ruzgari da iceriyor - burada hero zaten onlari buyuk buyuk gosteriyor,
+    ayni sayiyi 100 piksel arayla iki kez yazmak dagiciklik olurdu.
+    ozet_satiri'na DOKUNULMADI; Telegram'da aynen kaliyor."""
+    p = []
+    if cozum.get("hava"):
+        p.append(" ".join(cozum["hava"]))
+    t, c = cozum.get("sicaklik"), cozum.get("cig_noktasi")
+    if t is not None:
+        p.append(f"{t}°C" + (f" / çiy {c}°C" if c is not None else ""))
+    if cozum.get("qnh"):
+        p.append(f'QNH {cozum["qnh"]}')
+    return " · ".join(p)
+
+
+def _kart(rapor: dict, yorum_onbellegi: dict | None = None,
+          gecmis: list | None = None, simdi: datetime | None = None) -> str:
     tip = rapor["tip"]
     cozum = metar_coz(rapor["metin"]) if tip in ("METAR", "SPECI") else None
     notlar = (havacilik_notlari(cozum, rapor["metin"], rapor.get("zaman"))
@@ -2835,7 +2950,13 @@ def _kart(rapor: dict, yorum_onbellegi: dict | None = None) -> str:
                  f'{ikon("nokta", "ikon rozet-nokta")}{kod} · '
                  f'{html.escape(aciklama)}</span>')
 
-    p = [f'<div class="kart"><div class="basrow">'
+    # Sol kenarda durum rengi: rozet kaliyor ama kart listesini taramak
+    # anliklasiyor. Renk TEK BASINA anlam tasimiyor - rozet metni de var.
+    kenar = ""
+    if notlar and notlar["renk"]:
+        kenar = (f' kart-durum" style="--durum-renk:'
+                 f'{RENK_KODU.get(notlar["renk"][0], "#64748b")}')
+    p = [f'<div class="kart{kenar}"><div class="basrow">'
          f'<span class="tip">{html.escape(ad)}</span>'
          f'<span class="zaman">{html.escape(zaman)}</span>{rozet}</div>']
 
@@ -2858,7 +2979,11 @@ def _kart(rapor: dict, yorum_onbellegi: dict | None = None) -> str:
             p.append(f'<div class="dikkat"><b>Dikkat</b> · '
                      f'{html.escape(" · ".join(dikkat))}</div>')
 
-        p.append(f'<div class="ozet">{html.escape(ozet_satiri(cozum))}</div>')
+        p.append(_hero_html(cozum, gecmis or [],
+                            simdi or datetime.now(timezone.utc)))
+        ikincil = _ikincil_satir(cozum)
+        if ikincil:
+            p.append(f'<div class="ozet-ikincil">{html.escape(ikincil)}</div>')
 
         satirlar = []
         ham_pistler = notlar["pistler"]
@@ -3221,7 +3346,7 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
         r["tip"] == "TAF",
         -(r["zaman"].timestamp() if r.get("zaman") else 0)))
     govde = (_trend_bolumu(gecmis)
-             + ("".join(_kart(r, yorum_onbellegi) for r in sirali)
+             + ("".join(_kart(r, yorum_onbellegi, gecmis, simdi) for r in sirali)
                 or "<div class='kart'>Rapor yok.</div>"))
     icao = raporlar[0].get("icao", "LTFJ") if raporlar else "LTFJ"
 

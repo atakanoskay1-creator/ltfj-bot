@@ -222,6 +222,12 @@ def olcum_gecmisini_guncelle(state: dict, raporlar: list):
         d = metar_coz(r["metin"])
         yeni.append({
             "zaman": z,
+            # GORUS eklendi: sayfadaki "Mevcut Kosullar" kartinda her
+            # metrigin altinda kucuk bir egilim cizgisi var ve gorus TAM DA
+            # en kritik olani. Bu alan yokken orada "trend verisi yok"
+            # yaziyordu. GERIYE DONUK DOLDURMA YOK - pencere (6 saat)
+            # dolana kadar cizgi bos kalir, sonra kendiliginden belirir.
+            "gorus": d["gorus"],
             "ruzgar_hiz": d["ruzgar_hiz"],
             "tavan": d["tavan"],
             "qnh": d["qnh"],

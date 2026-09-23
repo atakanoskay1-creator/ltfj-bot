@@ -176,7 +176,38 @@ tarafı da AST ile doğruluyor.
 kapasitede (326/326px); ikon eklemek NOTAM sekmesini keserdi. DOM'da duruyor ama
 `display:none`, rayda (140px) açılıyor.
 
-### 10. Yazı Tipi (yazitipi/)
+### 10. Mevcut Koşullar Kartı (hero)
+
+Dört ölçüm — **GÖRÜŞ · TAVAN · RÜZGÂR · SPREAD** — her biri kendi eğilim
+çizgisiyle. Öncesinde bu değerler düz gri bir **cümleye** gömülüydü:
+
+```
+Rüzgâr 060° 5kt · görüş 400 m · tavan 200 ft · sis · 13°C · QNH 1019
+```
+
+Orada **görüş 400 m** (havalimanını kapatan sayı) ile **QNH 1019** (rutin bilgi)
+aynı puntoda ve aynı gri tondaydı. Kontrolör önce bu dörde bakıyor.
+
+**Aynı sayı iki kez yazılmıyor.** Hero'nun altındaki ikincil satır yalnızca
+hero'da **olmayanları** taşır: hava kodu, çiy noktası, QNH. Bu satır
+`ozet_satiri()` çağırmaz — o **Telegram'ın özeti** ve görüş/tavan/rüzgârı da
+içeriyor. `ozet_satiri()`'na dokunulmadı; Telegram'da aynen kalıyor.
+
+**Eğilim uydurulmaz.** Veri yoksa çizgi çizilmez, "eğilim verisi yok" yazar.
+Çizgiler `currentColor` kullanır, yani her temada doğru tonda çizilir.
+
+**`gorus` artık `olcum_gecmisi`'nde saklanıyor.** Önceden yalnızca
+zaman/rüzgâr/tavan/QNH/sıcaklık/çiy vardı — yani en kritik metriğin eğilimi
+çizilemiyordu. **Geriye dönük doldurma yok:** 6 saatlik pencere dolana kadar
+görüş çizgisi boş kalır, sonra kendiliğinden belirir.
+
+**Durum rengi kartın sol kenarında** (3px şerit) — kart listesini taramak
+anlıklaşıyor. Renk tek başına anlam taşımıyor: rozet metni (BLU/RED) kartta
+kalıyor.
+
+Telefonda 2×2, ≥560px'te tek sırada dört.
+
+### 11. Yazı Tipi (yazitipi/)
 
 Sayfa **IBM Plex Sans** (gövde) ve **IBM Plex Mono** (ham METAR/TAF/NOTAM kod
 blokları) kullanır. Yazı tipleri `yazitipi/` klasöründen, yani **kendi
@@ -202,7 +233,7 @@ Neden bu ikisi:
 Yazı tipleri [SIL Open Font License 1.1](https://github.com/IBM/plex/blob/master/LICENSE.txt)
 ile lisanslıdır.
 
-### 11. Sayfa Düzeni: Sekmeler
+### 12. Sayfa Düzeni: Sekmeler
 
 Sayfa **beş yatay sekmeye** bölündü: **Durum · Beklenti · İstatistik · LVO ·
 NOTAM**. Öncesinde hepsi alt alta katlanır başlıklardı ve sayfa gereksiz
@@ -267,7 +298,7 @@ Bölümler sekme içinde **ayrıca katlanmaz** — sekmeye basıp bir de başlı
 açmak iki tıklama olurdu. LVO'nun eski elle yazılmış aç/kapa mekanizması bu
 yüzden kaldırıldı.
 
-### 11.1. "İstatistik" Sekmesinin İçeriği
+### 12.1. "İstatistik" Sekmesinin İçeriği
 
 Arşivden öğrenilmiş her şey **tek katlanır başlık** altında toplandı:
 
@@ -281,7 +312,7 @@ her yerde koruyor ama istatistikler üç ayrı yere dağılmıştı. LVO panelin
 mı) — onlar ölçüm. "Beklenti" başlığında **kalan** tek şey Open-Meteo model
 tahmini.
 
-### 12. Cron Güvenilirliği (ÖNEMLİ)
+### 13. Cron Güvenilirliği (ÖNEMLİ)
 
 **GitHub zamanlanmış koşuları düşürür.** Bu depoda ölçüldü: dış kaynak
 önbelleği `:3,23,43` (20 dakikada bir) ayarlıyken 26 saatte **78 yerine 6**
@@ -325,7 +356,7 @@ curl -X POST -H "Accept: application/vnd.github+json" \
 PAT'in `repo` yetkisi olmalı. Bu isteği herhangi bir güvenilir zamanlayıcı
 (kendi sunucun, ücretsiz bir cron servisi, bir Raspberry Pi) atabilir.
 
-### 13. SPECI Boşluğu ve `gozlem_arsivi.csv`
+### 14. SPECI Boşluğu ve `gozlem_arsivi.csv`
 
 **Sorun.** Sis geçiş sürelerini (`sis_modeli/gorus_gecis.py`) hesapladığımız
 eğitim arşivi IEM ASOS'tan geliyor ve **SPECI içermiyor**. Ölçüldü: 274.907
