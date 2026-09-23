@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:52825787",
   "id:52837102",
   "id:52842280",
   "id:52850628",
@@ -199,23 +198,16 @@
   "id:53882165",
   "id:53884187",
   "id:53890649",
-  "id:53895944"
+  "id:53895944",
+  "id:53906512"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 231750Z 07008KT 9999 FEW030 SCT080 13/11 Q1020 NOSIG RMK RWY24R 04005KT 020V090 RWY06R 04009KT RWY24L 06005KT",
+ "son_metar": "METAR LTFJ 231820Z VRB02KT 9999 FEW030 SCT080 12/10 Q1020 NOSIG RMK RWY24R VRB01KT RWY06R 03003KT 350V100 RWY24L 00000KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-23T17:50:00+00:00",
+ "son_veri_zamani": "2026-09-23T18:20:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-17T21:20:00+00:00",
-   "ruzgar_hiz": 6,
-   "tavan": 9000,
-   "qnh": 1014,
-   "sicaklik": 18,
-   "cig_noktasi": 16
-  },
   {
    "zaman": "2026-09-17T21:50:00+00:00",
    "ruzgar_hiz": 7,
@@ -2607,13 +2599,21 @@
    "qnh": 1020,
    "sicaklik": 13,
    "cig_noktasi": 11
+  },
+  {
+   "zaman": "2026-09-23T18:20:00+00:00",
+   "ruzgar_hiz": 2,
+   "tavan": null,
+   "qnh": 1020,
+   "sicaklik": 12,
+   "cig_noktasi": 10
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 231650Z VRB02KT 9999 FEW035 BKN100 14/12 Q1020 NOSIG RMK RWY24R 20003KT 100V230 RWY06R VRB02KT RWY24L 21002KT": "**Rüzgâr:** Rüzgâr değişken yönden 2 knot (çok hafif) esiyor.\n\n**Görüş:** 10 kilometre ve daha fazla görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Yaklaşık 1050 metre yükseklikte az bulutlu, 3000 metre yükseklikte çok bulutlu, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava olayı da yok; veride operasyonel engel görülmüyor.",
   "TAF LTFJ 231640Z 2318/2418 VRB02KT 9999 SCT030 BECMG 2321/2324 CAVOK PROB30 TEMPO 2401/2405 2000 PRFG SCT002 BECMG 2405/2407 SCT030 BECMG 2407/2410 24012KT PROB30 TEMPO 2409/2413 -SHRA FEW018CB BKN030 BECMG 2413/2415 VRB02KT BECMG 2415/2418 CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken rüzgâr ve kısmi bulutluluk beklenmektedir; gece saatlerinde geçici olarak görüş mesafesi azalabilir ve sağanak yağış olabilir.\n\n- **2318/2321 UTC:** Değişken 2 knot rüzgâr, 9999 metre görüş, 3000 feet'te parçalı bulut.\n- **2321/2324 UTC:** Kademeli geçişle CAVOK (tam görüş ve açık hava).\n- **2401/2405 UTC:** %30 ihtimalle geçici olarak 2000 metre görüş, hafif sis, 200 feet'te parçalı bulut.\n- **2405/2418 UTC:** Kademeli geçişlerle 3000 feet'te parçalı bulut, 24012 knot rüzgâr; %30 ihtimalle 2409/2413 UTC'de hafif sağanak ve gök gürültülü bulut.",
   "METAR LTFJ 231720Z VRB02KT 9999 FEW035 BKN100 14/12 Q1020 NOSIG RMK RWY24R VRB03KT RWY06R 11002KT RWY24L 03005KT": "**Rüzgâr:** Rüzgâr değişken yönden 2 knot (çok hafif) esiyor.\n\n**Görüş:** 10 kilometre ve daha fazla görüş var, uçuşa uygun.\n\n**Gökyüzü:** Az bulutlu başlayıp 1000 metre yükseklikte yoğunlaşıyor, 3000 metre üstünde çok bulutlu; yağış yok.\n\n**Uçuşa etkisi:** Hafif rüzgâr ve iyi görüş koşulları var, kısıtlayıcı unsur bulunmuyor.",
-  "METAR LTFJ 231750Z 07008KT 9999 FEW030 SCT080 13/11 Q1020 NOSIG RMK RWY24R 04005KT 020V090 RWY06R 04009KT RWY24L 06005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 8 knot (yaklaşık 15 km/saat) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Gökyüzünün çoğu açık, 3000 metre civarında az bulut, 8000 metre civarında daha fazla bulut var; yağış yok.\n\n**Uçuşa etkisi:** Gözlenen veriler içinde uçuşu kısıtlayan rüzgâr, görüş veya hava olayı yoktur."
+  "METAR LTFJ 231750Z 07008KT 9999 FEW030 SCT080 13/11 Q1020 NOSIG RMK RWY24R 04005KT 020V090 RWY06R 04009KT RWY24L 06005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 8 knot (yaklaşık 15 km/saat) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Gökyüzünün çoğu açık, 3000 metre civarında az bulut, 8000 metre civarında daha fazla bulut var; yağış yok.\n\n**Uçuşa etkisi:** Gözlenen veriler içinde uçuşu kısıtlayan rüzgâr, görüş veya hava olayı yoktur.",
+  "METAR LTFJ 231820Z VRB02KT 9999 FEW030 SCT080 12/10 Q1020 NOSIG RMK RWY24R VRB01KT RWY06R 03003KT 350V100 RWY24L 00000KT": "**Rüzgâr:** Rüzgâr değişken yönde ve çok hafif, 2 knot (yaklaşık 4 km/s) şiddettedir.\n\n**Görüş:** Ufuk çizgisine kadar 10 kilometre ve daha fazla mesafede net görüş vardır.\n\n**Gökyüzü:** Gökyüzü az bulutlu, 3000 feet (yaklaşık 900 metre) yükseklikte az bulut ve 8000 feet (yaklaşık 2400 metre) yükseklikte parçalı bulut vardır; yağış beklenmemektedir.\n\n**Uçuşa etkisi:** Raporlanan veriler içinde uçuşu kısıtlayan rüzgâr, görüş veya hava olayı yoktur."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3055,13 +3055,13 @@
   }
  },
  "notam_son_senkron": "2026-09-23T14:10:59+00:00",
- "guncelleme": "2026-09-23T18:20:56+00:00",
+ "guncelleme": "2026-09-23T18:31:13+00:00",
  "push_gonderilen": [
-  "id:53779657",
-  "id:53805643",
-  "id:53884187",
+  "id:53838148",
   "id:53817387",
   "id:53800165",
-  "id:53838148"
+  "id:53805643",
+  "id:53884187",
+  "id:53779657"
  ]
 }
