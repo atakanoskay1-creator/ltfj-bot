@@ -31,40 +31,65 @@ def _sayfa(tmp_path, metin=METAR_SISLI) -> str:
     return hedef.read_text(encoding="utf-8")
 
 
-def _bolum(html: str, baslik: str) -> str:
-    return html.split(baslik)[1].split("</details>")[0]
+def _panel(html: str, anahtar: str) -> str:
+    """Bir sekme panelinin gövdesi.
+
+    Bölümler artık katlanır <details> değil SEKME PANELİ; sınır da
+    </details> değil bir sonraki panelin açılışı."""
+    govde = html.split(f'id="panel-{anahtar}"')[1]
+    return govde.split('class="sekme-panel"')[0]
+
+
+def _bolum(html: str, baslik: str) -> str:      # geriye uyumluluk
+    return _panel(html, "istatistik")
 
 
 # ------------------------------------------------------------ bölüm var
 def test_istatistik_basligi_var(tmp_path):
-    assert "İstatistik · arşivden" in _sayfa(tmp_path)
-
-
-def test_istatistik_katlanir_ve_KAPALI_basliyor(tmp_path):
     html = _sayfa(tmp_path)
-    blok = html[html.index("İstatistik · arşivden") - 120:
-                html.index("İstatistik · arşivden")]
-    assert "<details" in blok
-    assert "open" not in blok
+    assert "İstatistik" in _panel(html, "istatistik")
+    assert "arşivden" in _panel(html, "istatistik")
 
 
-def test_rozet_kapaliyken_de_olasiligi_gosteriyor(tmp_path):
-    """Bölüm unutulmasın diye başlıkta sis yüzdesi duruyor."""
+def test_istatistik_KENDI_sekmesinde(tmp_path):
+    """Eskiden katlanır bir başlıktı. Sekme paneli içinde AYRICA katlanır
+    olmamalı - sekmeye basıp bir de başlığı açmak iki tıklama olurdu."""
     html = _sayfa(tmp_path)
-    assert 'class="kat-rozet">sis %' in html
+    assert 'id="sekme-istatistik"' in html
+    assert "<details" not in _panel(html, "istatistik")
+
+
+def test_rozet_SEKME_dugmesinde_ve_olasiligi_gosteriyor(tmp_path):
+    """Panel gizliyken bir şeyin değiştiğini fark etmenin tek yolu çubuk.
+    Rozet başlıktan SEKMEYE taşındı - başlık artık görünmüyor."""
+    import re
+    html = _sayfa(tmp_path)
+    dugme = re.search(r'<button[^>]*id="sekme-istatistik".*?</button>', html, re.S)
+    assert dugme is not None
+    assert re.search(r'class="sekme-rozet">%\d', dugme.group(0)), dugme.group(0)
+
+
+def test_rozet_TAM_SAYI_sahte_hassasiyet_yok(tmp_path):
+    """Sekme rozeti "bakmalı mıyım?" sorusunu yanıtlar; kesin değeri
+    panelin kendisi verir. "%27.8" hem sahte hassasiyet hem de 360px'te
+    çubuğu taşırıp NOTAM sekmesini kesiyordu."""
+    import re
+    html = _sayfa(tmp_path)
+    dugme = re.search(r'<button[^>]*id="sekme-istatistik".*?</button>', html, re.S).group(0)
+    assert not re.search(r'sekme-rozet">%[\d]+\.', dugme), dugme
 
 
 # ------------------------------------------------- taşınanlar geldi mi
 def test_sis_olasiligi_ISTATISTIK_altinda(tmp_path):
     html = _sayfa(tmp_path)
-    assert "İstatistiksel sis olasılığı" in _bolum(html, "İstatistik · arşivden")
+    assert "İstatistiksel sis olasılığı" in _panel(html, "istatistik")
 
 
 def test_tavan_istatistik_notu_ISTATISTIK_altinda(tmp_path):
     """LVO farkındalık notlarından TAŞINDI - "kat daha sık" ifadesi
     arşivden öğrenilmiş göreli bir orandır, eşik karşılaştırması değil."""
     html = _sayfa(tmp_path)
-    ist = _bolum(html, "İstatistik · arşivden")
+    ist = _panel(html, "istatistik")
     assert "Tavan istatistiği" in ist
     assert "kat daha sık" in ist
 
@@ -88,7 +113,7 @@ def test_LVO_esik_notlari_YERINDE_kaldi(tmp_path):
 # ------------------------------------------------------ geçiş tablosu
 def test_gecis_tablosu_var(tmp_path):
     html = _sayfa(tmp_path)
-    ist = _bolum(html, "İstatistik · arşivden")
+    ist = _panel(html, "istatistik")
     assert "Görüş geçiş süreleri" in ist
     assert 'class="gecis-tablo"' in ist
 
@@ -115,7 +140,7 @@ def test_tablo_medyani_ve_hizli_kuyrugu_BIRLIKTE_gosteriyor(tmp_path):
     """Medyanı tek başına göstermek yanıltıcı: olayların önemli bir
     kısmında geçiş çok daha hızlı."""
     html = _sayfa(tmp_path)
-    ist = _bolum(html, "İstatistik · arşivden")
+    ist = _panel(html, "istatistik")
     for s_ in ("%10", "%25", "medyan", "%75"):
         assert s_ in ist, s_
 

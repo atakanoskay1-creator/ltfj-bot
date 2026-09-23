@@ -115,19 +115,39 @@ def test_serit_header_ile_govde_ARASINDA(tmp_path):
 
 
 def test_yapiskan_ve_opak(tmp_path):
-    """position:sticky + OPAK arka plan - saydam olsaydi altindan
-    kayan yazi seridin uzerine binerdi."""
+    """Serit kaydirinca ekranda KALMALI ve arkasi OPAK olmali - saydam
+    olsaydi altindan kayan yazi seridin uzerine binerdi.
+
+    Yapiskanlik artik seridin KENDISINDE degil, onu ve sekme cubugunu
+    saran .yapiskan-ust blogunda; ikisi tek parca halinde yapisiyor.
+    Test o yuzden sarmala bakiyor - iddia ayni: kaydirinca kalir."""
     html = _sayfa(tmp_path, [_rapor(METAR)])
-    css = html.split(".ozet-serit {")[1].split("}")[0]
+    css = html.split(".yapiskan-ust {")[1].split("}")[0]
     assert "position:sticky" in css
     assert "top:0" in css
-    assert "background:var(--kart)" in css
+    assert "background:var(--bg)" in css      # sarmal sayfa zeminini tasir
+    # Seridin kendi kutusu da opak kalmali, yoksa sarmalin zemini uzerinden
+    # kart gorunumu kaybolur.
+    serit = html.split(".ozet-serit {")[1].split("}")[0]
+    assert "background:var(--kart)" in serit
+
+
+def test_serit_ve_sekme_TEK_yapiskan_blokta(tmp_path):
+    """Ikisini ayri ayri yapiskan yapmak, sekme cubuguna "serit ne kadar
+    yuksek?" diye sabit bir top: degeri uydurmayi gerektirirdi; serit dar
+    ekranda satir kaydirdigi icin o sayi SABIT DEGIL."""
+    html = _sayfa(tmp_path, [_rapor(METAR)])
+    blok = html.split('<div class="yapiskan-ust">')[1].split("</div>\n\n")[0]
+    assert 'class="ozet-serit"' in blok
+    assert 'class="sekme-cubugu"' in blok
+    # Serit kendi basina yapismamali - iki ayri sticky katman olusurdu.
+    assert "position:sticky" not in html.split(".ozet-serit {")[1].split("}")[0]
 
 
 def test_sabit_katmanlarin_ALTINDA_kaliyor(tmp_path):
-    """VFR sekmesi (58) ve ATC modali (65) sabit; serit onlarin ustune
-    cikarsa modal acikken uzerinde bir cubuk asili kalir."""
+    """VFR sekmesi (58) ve ATC modali (65) sabit; yapiskan ust onlarin
+    ustune cikarsa modal acikken uzerinde bir cubuk asili kalir."""
     html = _sayfa(tmp_path, [_rapor(METAR)])
-    css = html.split(".ozet-serit {")[1].split("}")[0]
+    css = html.split(".yapiskan-ust {")[1].split("}")[0]
     z = int(css.split("z-index:")[1].split(";")[0])
     assert 1 < z < 55

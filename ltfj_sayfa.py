@@ -152,15 +152,20 @@ SABLON = """<!DOCTYPE html>
     .header-butonlar {{ flex:1 1 100%; justify-content:flex-end; }}
     button.yenile {{ padding:8px 10px; font-size:.78rem; }}
   }}
-  /* Yapiskan tek satir ozet: "su an bir sikinti var mi?" sorusunu
-     kaydirmadan yanitlar. Kartlar katlandiktan sonra sayfa kisaldi ama
-     kaydirinca ustteki METAR karti ekrandan cikiyordu; bu satir kalir.
+  /* YAPISKAN UST = ozet serit + sekme cubugu, TEK sticky blok.
+     Ikisini ayri ayri yapiskan yapmak, sekme cubuguna "serit ne kadar
+     yuksek?" diye bir top: degeri uydurmayi gerektirirdi; serit dar
+     ekranda satir kaydirdigi icin o sayi sabit DEGIL. Tek sarmal bu
+     sorunu tamamen ortadan kaldiriyor.
      z-index kasitli olarak 40: sayfa icerigiNIN ustunde, ama sabit
      kapli katmanlarin (VFR sekmesi 58, ATC modali 65) ALTINDA. */
-  .ozet-serit {{
+  .yapiskan-ust {{
     position:sticky; top:0; z-index:40;
+    background:var(--bg); margin:0 0 16px; padding-top:2px;
+  }}
+  .ozet-serit {{
     display:flex; align-items:center; gap:8px; flex-wrap:wrap;
-    margin:0 0 16px; padding:9px 12px;
+    margin:0; padding:9px 12px;
     background:var(--kart); border:1px solid var(--cizgi); border-radius:12px;
     font-size:.85rem; font-variant-numeric:tabular-nums;
   }}
@@ -177,6 +182,61 @@ SABLON = """<!DOCTYPE html>
     .ozet-serit {{ font-size:.8rem; gap:6px; padding:8px 10px; }}
     .ozet-oge + .ozet-oge::before {{ margin-right:6px; }}
   }}
+
+  /* ---- SEKME CUBUGU ----------------------------------------------------
+     Bolumler (Durum/Beklenti/Istatistik/LVO/NOTAM) eskiden alt alta
+     katlanir basliklardi; sayfa cok uzuyordu. YATAY sekme secildi, dikey
+     ray DEGIL: icerik sutunu telefonda ~360px ve soldaki bir ray yatay
+     genisligi KALICI olarak yerdi (~%25). Yatay cubuk dikey yerden bir
+     kez odun verir, yataydan hic.
+
+     ROZET SART: sekme icerigi GIZLIYOR. NOTAM sayfadayken kaydirirken
+     goz ucuyla goruluyordu; sekmenin arkasina girince yeni NOTAM'i fark
+     etmenin tek yolu cubuktaki rozet kalir. */
+  .sekme-cubugu {{
+    display:none;                      /* JS yoksa hic cizilmez - asagi bak */
+    gap:2px; margin-top:8px; padding:3px;
+    background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:12px;
+    overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+  }}
+  .sekme-cubugu::-webkit-scrollbar {{ display:none; }}
+  .js .sekme-cubugu {{ display:flex; }}
+  .sekme {{
+    flex:1 0 auto; min-height:40px; padding:7px 12px;
+    background:none; border:0; border-radius:9px; cursor:pointer;
+    color:var(--soluk); font:inherit; font-size:.82rem; font-weight:600;
+    white-space:nowrap; display:flex; align-items:center; gap:6px;
+    justify-content:center;
+  }}
+  .sekme[aria-selected="true"] {{
+    background:var(--kart); color:var(--metin);
+    box-shadow:0 1px 3px rgba(0,0,0,.12);
+  }}
+  .sekme:focus-visible {{ outline:2px solid var(--metin); outline-offset:-2px; }}
+  /* Sekme rozeti: kart rozetiyle AYNI gorsel dil, daha kucuk. */
+  .sekme-rozet {{
+    font-size:.68rem; font-weight:700; padding:1px 6px; border-radius:999px;
+    background:var(--cizgi); color:var(--metin); font-variant-numeric:tabular-nums;
+  }}
+  .sekme-rozet:empty {{ display:none; }}
+  @media (max-width:480px) {{
+    /* 360px'te bes sekme + rozetler cubugu tasiriyordu ve NOTAM kismen
+       kesiliyordu. Yatay dolgu ve rozet en cok yeri yiyen ikisi. */
+    .sekme {{ font-size:.76rem; padding:7px 4px; gap:3px; }}
+    .sekme-rozet {{ font-size:.64rem; padding:1px 4px; }}
+    .sekme-cubugu {{ gap:1px; padding:2px; }}
+  }}
+
+  /* JS YOKSA SAYFA BOZULMAZ: paneller varsayilan olarak GORUNUR ve cubuk
+     cizilmez, yani sayfa eski "hepsi alt alta" haline duser. Gizleme
+     yalnizca .js sinifi varken devreye girer; o sinifi <head>'deki satir
+     ici betik body cizilmeden once ekledigi icin acilista titreme olmaz. */
+  .js .sekme-panel {{ display:none; }}
+  .js[data-sekme="durum"]      #panel-durum,
+  .js[data-sekme="beklenti"]   #panel-beklenti,
+  .js[data-sekme="istatistik"] #panel-istatistik,
+  .js[data-sekme="lvo"]        #panel-lvo,
+  .js[data-sekme="notam"]      #panel-notam {{ display:block; }}
   .kart {{
     background:var(--kart); border:1px solid var(--cizgi); border-radius:14px;
     padding:18px; margin-bottom:16px;
@@ -615,6 +675,23 @@ SABLON = """<!DOCTYPE html>
   .vfr-panel ul {{ margin:10px 0 0; padding-left:18px; font-size:.85rem; }}
   .vfr-panel .vfr-esik {{ color:var(--soluk); font-size:.72rem; margin-top:10px; }}
 </style>
+<script>
+  /* SATIR ICI ve GOVDE CIZILMEDEN ONCE olmak ZORUNDA: paneller varsayilan
+     gorunur durumda cizilir (JS'siz tarayici icin). .js sinifini burada
+     eklemezsek acilista tum paneller bir kare gorunup sonra kaybolur.
+     Kayitli sekme de burada okunur ki dogru panel ILK karede acik olsun. */
+  (function () {{
+    var k = document.documentElement;
+    k.className += " js";
+    var gecerli = ["durum", "beklenti", "istatistik", "lvo", "notam"];
+    var s = "durum";
+    try {{
+      var v = localStorage.getItem("ltfj-sekme");
+      if (gecerli.indexOf(v) !== -1) {{ s = v; }}
+    }} catch (e) {{}}          /* gizli sekmede localStorage atabilir */
+    k.setAttribute("data-sekme", s);
+  }})();
+</script>
 </head>
 <body>
 <div class="sar">
@@ -628,18 +705,30 @@ SABLON = """<!DOCTYPE html>
     <button type="button" class="yenile" id="sayfa-yenile-btn">⟳ Yenile</button>
   </div>
 </header>
+<div class="yapiskan-ust">
 {ozet_serit_html}
-{govde}
-{beklenti_html}
-{istatistik_html}
+{sekme_cubugu_html}
+</div>
 
+<div class="sekme-panel" id="panel-durum" role="tabpanel"
+     aria-labelledby="sekme-durum">
+{govde}
+</div>
+
+<div class="sekme-panel" id="panel-beklenti" role="tabpanel"
+     aria-labelledby="sekme-beklenti">
+{beklenti_html}
+</div>
+
+<div class="sekme-panel" id="panel-istatistik" role="tabpanel"
+     aria-labelledby="sekme-istatistik">
+{istatistik_html}
+</div>
+
+<div class="sekme-panel" id="panel-lvo" role="tabpanel"
+     aria-labelledby="sekme-lvo">
 <div class="kart">
-  <div class="basrow notam-aktif-baslik" id="lvo-baslik" role="button" tabindex="0"
-       aria-expanded="false">
-    <span class="tip">LVO REFERENCE</span>
-    <span class="notam-ok" id="lvo-ok">▶</span>
-  </div>
-  <div id="lvo-govde" hidden>
+  <div id="lvo-govde">
     <div class="notam-uyari">
       ⚠️ Bilgi amaçlıdır. Operasyonel karar yerine geçmez. Güncel AIP, ATIS, AWOS
       ve resmî yayınlar kontrol edilmelidir.
@@ -681,18 +770,21 @@ SABLON = """<!DOCTYPE html>
     <div id="lvo-notam-liste"><div class="notam-bos">Yükleniyor…</div></div>
   </div>
 </div>
+</div>
 
-
-<!-- TEK "NOTAM" basligi: aktif liste + gecmis aramasi + kaynak uyarisi.
-     Eskiden ucu de ayri ayri sayfada duruyordu (bolum basligi + sari uyari
-     kutusu + iki kart). Uyari EN ALTTA: her acilista once okunan degil,
-     gerektiginde basvurulan bir not. -->
+<!-- NOTAM: aktif liste + gecmis aramasi + kaynak uyarisi. Uyari EN ALTTA:
+     her acilista once okunan degil, gerektiginde basvurulan bir not.
+     Disindaki <details> KALDIRILDI - artik bir sekme paneli; sekmeye
+     basip bir de basligi acmak iki tiklama olurdu. Aktif sayi rozeti
+     sekme dugmesine TASINDI (ayni id), cunku panel kapaliyken yeni
+     NOTAM'i fark etmenin tek yolu o. -->
+<div class="sekme-panel" id="panel-notam" role="tabpanel"
+     aria-labelledby="sekme-notam">
 <div class="kart">
-  <details class="kat kat-kart">
-  <summary>NOTAM
-    <span class="kat-rozet" id="notam-aktif-sayi"></span>
+  <div class="basrow">
+    <span class="tip">NOTAM</span>
     <span class="zaman" id="notam-senkron-zamani"></span>
-  </summary>
+  </div>
 
   <div class="alt-bolum">
     <div class="basrow"><span class="tip">Aktif NOTAM'lar</span></div>
@@ -734,7 +826,7 @@ SABLON = """<!DOCTYPE html>
     resmî bir Türk/EUROCONTROL NOTAM kaynağı değildir. Bu bölüm hiçbir operasyonel
     öneri üretmez; sayfadaki meteorolojik analiz bu veriden bağımsızdır.
   </div>
-  </details>
+</div>
 </div>
 
 <!-- ATC Notes artik sayfa akisinda degil - sag altta sabit FAB'la acilan
@@ -792,6 +884,59 @@ SABLON = """<!DOCTYPE html>
 </footer>
 </div>
 <script>
+// ---- SEKME GECISI --------------------------------------------------------
+// Gorunurlugu CSS yapiyor (html[data-sekme=...]), JS degil. Sebep: acilista
+// dogru panelin ILK karede acik olmasi gerekiyor ve bunu <head>'deki satir
+// ici betik hallediyor. Burada yalnizca durumu DEGISTIRIYORUZ; iki yerde
+// iki ayri gizleme mantigi olsaydi biri otekinden sapardi.
+(function () {{
+  var cubuk = document.querySelector(".sekme-cubugu");
+  if (!cubuk) {{ return; }}
+  var dugmeler = Array.prototype.slice.call(cubuk.querySelectorAll(".sekme"));
+
+  function sec(anahtar, odakla) {{
+    document.documentElement.setAttribute("data-sekme", anahtar);
+    dugmeler.forEach(function (d) {{
+      var bu = d.getAttribute("data-sekme") === anahtar;
+      d.setAttribute("aria-selected", String(bu));
+      // Klavyeyle gezinirken Tab tek seferde cubugu gecsin diye secili
+      // olmayanlar sekme sirasindan cikarilir (WAI-ARIA tablist deseni).
+      d.tabIndex = bu ? 0 : -1;
+      if (bu && odakla) {{ d.focus(); }}
+      // Cubuk tasiyorsa secili sekme gorunur olsun: NOTAM'dayken sayfayi
+      // yeniden acinca o sekme cubugun disinda kalabiliyordu.
+      // scrollIntoView DEGIL - o, yapiskan cubugu tasidigi icin SAYFAYI da
+      // kaydiriyor; yalnizca cubugun kendi scrollLeft'ini oynatiyoruz.
+      if (bu) {{
+        var sol = d.offsetLeft, sag = sol + d.offsetWidth;
+        if (sol < cubuk.scrollLeft) {{ cubuk.scrollLeft = sol - 4; }}
+        else if (sag > cubuk.scrollLeft + cubuk.clientWidth) {{
+          cubuk.scrollLeft = sag - cubuk.clientWidth + 4;
+        }}
+      }}
+    }});
+    try {{ localStorage.setItem("ltfj-sekme", anahtar); }} catch (e) {{}}
+  }}
+
+  dugmeler.forEach(function (d, i) {{
+    d.addEventListener("click", function () {{
+      sec(d.getAttribute("data-sekme"), false);
+    }});
+    d.addEventListener("keydown", function (e) {{
+      var yon = e.key === "ArrowRight" ? 1 : (e.key === "ArrowLeft" ? -1 : 0);
+      if (!yon) {{ return; }}
+      e.preventDefault();
+      var j = (i + yon + dugmeler.length) % dugmeler.length;
+      sec(dugmeler[j].getAttribute("data-sekme"), true);
+    }});
+  }});
+
+  // <head> betiginin sectigi sekmeyi dugme durumlariyla hizala: o betik
+  // yalnizca data-sekme yaziyor, aria-selected hep "durum"da kaliyordu.
+  var acik = document.documentElement.getAttribute("data-sekme") || "durum";
+  sec(acik, false);
+}})();
+
 // NOTAM'in SU ANKI gecerliligi - HEM "Aktif NOTAM'lar"/arama bolumu HEM DE
 // LVO panelindeki NOTAM listesi bunu kullanir. TEK yerde durmasinin sebebi
 // somut: ayni "aktif mi?" karari iki ayri script'te kopyalanmisti ve
@@ -1152,24 +1297,11 @@ window.ltfjKalanSure = function (ms) {{
   var awosKaydetBtn = document.getElementById("lvo-awos-kaydet");
   var sonAwosGonderim = 0;
 
-  var lvoBaslikEl = document.getElementById("lvo-baslik");
-  var lvoGovdeEl = document.getElementById("lvo-govde");
-  var lvoOkEl = document.getElementById("lvo-ok");
+  // LVO ac/kapa mantigi KALDIRILDI: panel artik bir sekme paneli, gorunur
+  // olup olmadigini sekme cubugu belirliyor. Ayri bir ac/kapa, sekmeye
+  // bastiktan sonra bir de basliga basmak demekti.
   var farkRvrListeEl = document.getElementById("lvo-fark-rvr-liste");
   var farkBosEl = document.getElementById("lvo-fark-bos");
-  var lvoAcikMi = false;
-
-  function lvoPaneliAcKapat() {{
-    lvoAcikMi = !lvoAcikMi;
-    lvoGovdeEl.hidden = !lvoAcikMi;
-    lvoBaslikEl.setAttribute("aria-expanded", String(lvoAcikMi));
-    lvoOkEl.textContent = lvoAcikMi ? "▼" : "▶";
-    lvoOkEl.classList.toggle("acik", lvoAcikMi);
-  }}
-  lvoBaslikEl.addEventListener("click", lvoPaneliAcKapat);
-  lvoBaslikEl.addEventListener("keydown", function (e) {{
-    if (e.key === "Enter" || e.key === " ") {{ e.preventDefault(); lvoPaneliAcKapat(); }}
-  }});
 
   function tabanUrl(yol) {{
     var taban = DB_URL;
@@ -2199,10 +2331,15 @@ def _sis_olasiligi_hesapla(guncel_cozum: dict | None, gecmis: list,
 
 def _sis_olasilik_rozeti(guncel_cozum: dict | None, gecmis: list,
                          simdi: datetime) -> str:
-    """Katlanmış "Beklenti" başlığında görünen kısa olasılık rozeti -
-    kartın kendisiyle AYNI hesabı kullanır (ayrı bir sayı üretmez)."""
+    """Sekme çubuğundaki kısa olasılık rozeti - kartın kendisiyle AYNI
+    hesabı kullanır (ayrı bir sayı üretmez).
+
+    TAM SAYIYA yuvarlanır, kart ise ondalığı gösterir. Sebep iki yönlü:
+    (1) bir sekme rozetinde "%27.8" sahte hassasiyettir - rozet "bakmalı
+    mıyım?" sorusunu yanıtlar, kesin değeri panel verir; (2) ondalık
+    basamak 360px'te çubuğu taşırıyor ve NOTAM sekmesini kesiyordu."""
     p = _sis_olasiligi_hesapla(guncel_cozum, gecmis, simdi)
-    return "" if p is None else f"{p * 100:.1f}"
+    return "" if p is None else f"{p * 100:.0f}"
 
 
 def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
@@ -2581,6 +2718,39 @@ def _saatlik_tahmin_html(satirlar: list, yas_dk: float | None = None) -> str:
         "</div>")
 
 
+SEKMELER = (
+    ("durum",      "Durum",      ""),
+    ("beklenti",   "Beklenti",   ""),
+    ("istatistik", "İstatistik", ""),
+    ("lvo",        "LVO",        ""),
+    # NOTAM rozeti SUNUCUDA doldurulamaz: aktif sayi Firebase'den istemci
+    # tarafinda geliyor. Bos <span> birakiliyor, mevcut JS ayni id'yi
+    # (notam-aktif-sayi) bulup yaziyor - boylece rozet mantigi tek yerde
+    # kaliyor. :empty CSS kurali dolana kadar onu gizler.
+    ("notam",      "NOTAM",      '<span class="sekme-rozet" id="notam-aktif-sayi"></span>'),
+)
+
+
+def _sekme_cubugu_html(sis_yuzde: str = "") -> str:
+    """Yatay sekme çubuğu.
+
+    ROZETLER BURADA, çünkü sekme içeriği GİZLİYOR: panel kapalıyken bir
+    şeyin değiştiğini (yeni NOTAM, yüksek sis olasılığı) fark etmenin tek
+    yolu çubuğun kendisi. Eskiden bu bilgi katlanır başlığın üstündeydi ve
+    kaydırırken göz ucuyla görülüyordu."""
+    parcalar = []
+    for anahtar, etiket, rozet in SEKMELER:
+        if anahtar == "istatistik" and sis_yuzde:
+            rozet = (f'<span class="sekme-rozet">%{html.escape(sis_yuzde)}</span>')
+        secili = "true" if anahtar == "durum" else "false"
+        parcalar.append(
+            f'<button type="button" class="sekme" role="tab" id="sekme-{anahtar}"'
+            f' data-sekme="{anahtar}" aria-controls="panel-{anahtar}"'
+            f' aria-selected="{secili}">{etiket}{rozet}</button>')
+    return ('<nav class="sekme-cubugu" role="tablist" '
+            'aria-label="Sayfa bölümleri">' + "".join(parcalar) + "</nav>")
+
+
 def _ozet_serit_html(cozum: dict | None, notlar: dict | None) -> str:
     """Sayfanın üstünde YAPIŞKAN duran tek satırlık durum özeti.
 
@@ -2641,9 +2811,12 @@ def _beklenti_html(tahmin_html: str) -> str:
     mi" ayrımını her yerde titizlikle koruyor."""
     if not tahmin_html:
         return ""
-    return ('<div class="kart"><details class="kat kat-kart">'
-            '<summary>Beklenti · önümüzdeki saatler</summary>'
-            f"{tahmin_html}</details></div>")
+    # <details> SARMALI YOK: bu artik bir sekme paneli. Sekmeye basip bir
+    # de basligi acmak iki tiklama olurdu.
+    return ('<div class="kart">'
+            '<div class="basrow"><span class="tip">Beklenti</span>'
+            '<span class="zaman">önümüzdeki saatler</span></div>'
+            f"{tahmin_html}</div>")
 
 
 def _gecis_tablosu_html() -> str:
@@ -2706,7 +2879,7 @@ def _tavan_istatistik_notlari(guncel_cozum: dict | None, gecmis: list,
                             guncel_cozum, sis_p, saat_utc)) if n]
 
 
-def _istatistik_html(sis_html: str, notlar: list, sis_yuzde: str = "") -> str:
+def _istatistik_html(sis_html: str, notlar: list) -> str:
     """ARŞİVDEN ÖĞRENİLMİŞ her şey TEK başlık altında.
 
     Neden ayrı bir bölüm: sayfa "bu ölçüm mü, tahmin mi, istatistik mi"
@@ -2722,16 +2895,17 @@ def _istatistik_html(sis_html: str, notlar: list, sis_yuzde: str = "") -> str:
                 if notlar else "")
     if not (sis_html or gecis_html or not_html):
         return ""
-    rozet = (f'<span class="kat-rozet">sis %{html.escape(sis_yuzde)}</span>'
-             if sis_yuzde else "")
     tavan_bolumu = (
         '<div class="alt-bolum"><div class="basrow">'
         '<span class="tip">Tavan istatistiği</span></div>'
         f'<ul class="lvo-not-listesi">{not_html}</ul></div>') if not_html else ""
-    return ('<div class="kart"><details class="kat kat-kart">'
-            f'<summary>İstatistik · arşivden {rozet}</summary>'
+    # Rozet (sis %) artik SEKME DUGMESINDE (bkz. _sekme_cubugu_html):
+    # panel kapaliyken gorulmesi gereken tek sey o.
+    return ('<div class="kart">'
+            '<div class="basrow"><span class="tip">İstatistik</span>'
+            '<span class="zaman">arşivden</span></div>'
             f"{sis_html}{tavan_bolumu}{gecis_html}"
-            "</details></div>")
+            "</div>")
 
 
 def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict | None = None,
@@ -2799,7 +2973,8 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
                                                yas_dk=tahmin_yas_dk)),
                       istatistik_html=_istatistik_html(
                           _sis_olasiligi_html(guncel_cozum, gecmis, simdi),
-                          _tavan_istatistik_notlari(guncel_cozum, gecmis, simdi),
+                          _tavan_istatistik_notlari(guncel_cozum, gecmis, simdi)),
+                      sekme_cubugu_html=_sekme_cubugu_html(
                           _sis_olasilik_rozeti(guncel_cozum, gecmis, simdi)),
                       rvr_esikleri_json=json.dumps(lvo.RVR_ESIKLERI, ensure_ascii=False),
                       vfr_html=_vfr_sekmesi_html(guncel_cozum)),
