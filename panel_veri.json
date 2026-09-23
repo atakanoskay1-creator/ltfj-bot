@@ -1,18 +1,18 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-23T06:50:57+00:00",
+ "uretildi": "2026-09-23T07:01:21+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-23T06:20:00+00:00",
-  "metin": "METAR LTFJ 230620Z 27005KT 250V310 9999 -SHRA FEW019TCU BKN025 BKN070 16/12 Q1016 NOSIG RMK RWY24R 30006KT 240V340 RWY06R 28005KT 230V310 RWY24L 31006KT 250V350",
+  "zaman": "2026-09-23T06:50:00+00:00",
+  "metin": "METAR LTFJ 230650Z 33006KT 280V020 9999 -SHRA FEW019TCU BKN025 BKN070 16/12 Q1016 NOSIG RMK RWY24R 31009KT 280V340 RWY06R 31006KT 260V340 RWY24L 32007KT 290V360",
   "ruzgar": {
-   "yon": 270,
-   "hiz": 5,
+   "yon": 330,
+   "hiz": 6,
    "hamle": null,
    "degisken": [
-    250,
-    310
+    280,
+    20
    ]
   },
   "gorus": 9999,
@@ -35,8 +35,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": -4.5,
-    "yan": 2.2,
+    "bas": -0.4,
+    "yan": 6.0,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -48,8 +48,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": -4.1,
-    "yan": 2.9,
+    "bas": -2.4,
+    "yan": 5.5,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -61,8 +61,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": 2.5,
-    "yan": 5.5,
+    "bas": 1.7,
+    "yan": 6.8,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -74,8 +74,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": 3.4,
-    "yan": 5.0,
+    "bas": 3.7,
+    "yan": 8.2,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -93,20 +93,13 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 270° 5kt (değişken 250°–310°) · görüş 10+ km · tavan 2500 ft · hafif sağanak yağmur · 16°C · QNH 1016"
+  "ozet": "Rüzgâr 330° 6kt (değişken 280°–020°) · görüş 10+ km · tavan 2500 ft · hafif sağanak yağmur · 16°C · QNH 1016"
  },
  "taf": {
   "zaman": "2026-09-23T04:40:00+00:00",
   "metin": "TAF LTFJ 230440Z 2306/2406 35010KT 9999 -SHRA SCT012 BKN030 BKN080 TEMPO 2306/2309 35015G25KT -TSRA FEW018CB BKN025 PROB40 TEMPO 2309/2313 35015G25KT 4000 TSRA FEW018CB BKN025 BECMG 2313/2316 17006KT SCT030 BKN080 PROB30 TEMPO 2402/2406 4000 SHRA SCT004 FEW018CB BKN022"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-17T08:20:00+00:00",
-   "ruzgar_hiz": 7,
-   "tavan": 8000,
-   "qnh": 1016,
-   "sicaklik": 21
-  },
   {
    "zaman": "2026-09-17T08:50:00+00:00",
    "ruzgar_hiz": 10,
@@ -2477,6 +2470,14 @@
   {
    "zaman": "2026-09-23T06:20:00+00:00",
    "ruzgar_hiz": 5,
+   "tavan": 2500,
+   "qnh": 1016,
+   "sicaklik": 16,
+   "cig_noktasi": 12
+  },
+  {
+   "zaman": "2026-09-23T06:50:00+00:00",
+   "ruzgar_hiz": 6,
    "tavan": 2500,
    "qnh": 1016,
    "sicaklik": 16,
