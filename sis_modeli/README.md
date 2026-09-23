@@ -611,6 +611,61 @@ orana göre ölçülen becerinin bir kısmı "model günlük döngüyü öğrend
 demek. Fark her ufukta **%25–29**. Geriye kalan (~0.14) günlük döngünün
 ÖTESİNDE, gerçekten atmosferik olan beceri — mütevazı ama açıkça pozitif.
 
+### Görüş geçiş süreleri — `gorus_gecis.py`
+
+Misawa, Nishi & Sugawara (SOLA 2026) Tablo 1/2'nin **LTFJ karşılığı**.
+Makalenin Japonya sayıları kopyalanmadı; metodoloji alındı, sayı kendi
+arşivimizden hesaplandı.
+
+**Bu bir model değil, tarihsel iklimbilim.** Tahmin üretmiyor, geçmişte ne
+olduğunu sayıyor — sızıntı kavramı geçerli değil, holdout'a dokunulmadı.
+
+Olay tanımı Tardif & Rasmussen (2007): görüş <2 km kesintisiz ≥3 saat,
+içinde <1 km ≥1 saat, kar yok. **2011–2026 arasında 64 bağımsız olay**
+(2003 ve 2010 seyrek veri nedeniyle kapsam dışı — arşivde 2003'ten tek
+kayıt var).
+
+```
+python -m sis_modeli.gorus_gecis
+```
+
+| geçiş | n | %10 | %25 | **medyan** | %75 | en yavaş |
+|---|---|---|---|---|---|---|
+| **Düşme** 5000 m → 1500 m | 61 | 0.5 sa | 1.0 sa | **1.5 sa** | 2.5 sa | 10 sa |
+| **Toparlanma** 1000 m → 5000 m | 62 | 1.0 sa | 1.5 sa | **2.0 sa** | 3.0 sa | 8 sa |
+
+Medyanların gün-blok bootstrap %5–%95 aralığı: düşme [1.5, 2.0], toparlanma
+[2.0, 2.8].
+
+**Operasyonel olarak en önemli sayı medyan değil, hızlı kuyruk:**
+
+- Olayların **%36'sında görüş 5000 m'den 1500 m'ye bir saat veya daha kısa
+  sürede indi** (61 olayın 22'si). 7 olayda bu süre 30 dakika.
+- Toparlanma daha yavaş: yalnızca %16'sı bir saat içinde VMC'ye döndü.
+- **Asimetri:** sis geldiğinden daha yavaş dağılıyor.
+
+> **30 dakikalık taban yapay.** Arşiv 30 dk ızgarada (SPECI pratikte yok,
+> bkz. ana README "Cron Güvenilirliği" değil — veri bölümü). "30 dakikada
+> indi" aslında "**≤30 dakikada** indi" demek; gerçek hızlı kuyruk bu
+> veriyle görülemeyecek kadar hızlı olabilir. Makalenin SPECI vurgusu tam
+> bu yüzden.
+
+**Yağış ayrımı LTFJ'de işe yaramıyor:** 64 olayın yalnızca **1'i** oluşumdan
+önceki 3 saatte yağış görmüş. Makalede yağış sisi en yavaş geçişi üretiyordu
+(medyan 4.1 sa) ama burada örneklem yok. Bu bir eksiklik değil, LTFJ hakkında
+bir **bulgu**: Sabiha Gökçen'in yoğun sis olayları neredeyse tamamen
+yağışsız.
+
+Makaleyle kıyas (dikkat: farklı coğrafya, farklı dönem, farklı çözünürlük):
+LTFJ'nin 1.5 sa düşme / 2.0 sa toparlanma değerleri, Japonya'daki
+**radyasyon sisi** profiline (2.0 / 2.0 sa) yakın; yağış sisinden (4.1 / 3.6
+sa) belirgin biçimde hızlı. 64 olayın 63'ünün yağışsız olmasıyla tutarlı.
+
+**Sınırlar:** 64 olay küçük bir örneklem; yüzdelikler, özellikle %10, birkaç
+olaya dayanıyor. Sis tipi (adveksiyon/radyasyon) ayrımı YAPILMADI — makale
+bu ayrımın kendisinin zor olduğunu söylüyor ve sınıflandırıcısını ayrıca
+test ediyor; doğrulayamayacağım bir sınıflandırıcı uydurulmadı.
+
 ### Katmanlı model: TEK mi, mevsim/saate göre AYRI mı? — `katmanli_deney.py`
 
 Yabra ve ark. (2026) veriyi sis olasılığı yüksek/düşük aylara ve saatlere
@@ -1106,6 +1161,7 @@ python -m sis_modeli.olusum_egit --dahil-gorus        # görüş-ablasyon karş�
 python -m sis_modeli.ufuk_deneyi                      # 30dk/1h/2h/3h lead-time
 python -m sis_modeli.ufuk_deneyi --bootstrap 200      # + eşli gün-blok güven aralıkları
 python -m sis_modeli.katmanli_deney --bootstrap 200   # tek model mi, mevsim/saat katmanlı mı
+python -m sis_modeli.gorus_gecis                      # görüş geçiş süreleri (iklimbilim)
 python -m sis_modeli.olusum_holdout_degerlendir       # TEK ATIŞ
 
 # Tavan: görüşsüz süreklilik (A) + oluşum (B) modelleri
