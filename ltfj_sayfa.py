@@ -75,6 +75,7 @@ IKONLAR = {
     "not":    '<path d="M9 3h6a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V4'
               'a1 1 0 0 1 1-1z"/><path d="M16 4h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6'
               'a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M8 11h8M8 15h5"/>',
+    "sis":    '<path d="M3 8h13M6 12h15M3 16h11M8 20h11"/>',
     "nokta":  '<circle cx="12" cy="12" r="5"/>',
 }
 
@@ -1964,7 +1965,8 @@ window.ltfjKalanSure = function (ms) {{
     var kalanSaat = Math.max(0, Math.round(kalanMs / 3600000));
     var kalan = document.createElement("div");
     kalan.className = "atc-not-kalan";
-    kalan.textContent = "⏳ yaklaşık " + kalanSaat + " saat sonra otomatik silinecek";
+    // Emoji DEGIL duz metin: burasi textContent, SVG konulamaz.
+    kalan.textContent = "yaklaşık " + kalanSaat + " saat sonra otomatik silinecek";
     kart.appendChild(kalan);
 
     return kart;
@@ -3089,7 +3091,8 @@ def _saatlik_tahmin_html(satirlar: list, yas_dk: float | None = None) -> str:
         # HOURLY_DENEYSEL). Yoklugunda hucre eskisi gibi cizilir.
         sisli = s.get("weather_code") in SIS_KODLARI
         sis_isareti = ('<div class="tahmin-sis" title="Model bu saatte sis '
-                       'bekliyor (WMO kodu)">🌫 sis</div>') if sisli else ""
+                       'bekliyor (WMO kodu)">' + ikon("sis") + ' sis</div>'
+                       ) if sisli else ""
         blh = s.get("boundary_layer_height")
         blh_satiri = ("" if blh is None else
                       f'<div class="tahmin-satir" title="Sınır tabakası '
@@ -3117,7 +3120,7 @@ def _saatlik_tahmin_html(satirlar: list, yas_dk: float | None = None) -> str:
         '<div class="tahmin-aciklama">Satırlar: saat (yerel) · '
         "<strong>spread</strong> (sıcaklık − çiy noktası, düştükçe sis riski artar) · "
         "görüş · rüzgâr · düşük bulut oranı · sınır tabakası yüksekliği "
-        "(alçaldıkça radyasyon sisine elverişli). 🌫 işareti, modelin o saat "
+        "(alçaldıkça radyasyon sisine elverişli). \"sis\" işareti, modelin o saat "
         "için sis kodu (WMO 45/48) verdiğini gösterir.</div>"
         "</div>")
 
