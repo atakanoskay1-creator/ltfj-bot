@@ -1,30 +1,5 @@
 {
  "gonderilen": [
-  "id:52556860",
-  "id:52559624",
-  "id:52568091",
-  "id:52572723",
-  "id:52581115",
-  "id:52583863",
-  "id:52585769",
-  "id:52592576",
-  "id:52597962",
-  "id:52608684",
-  "id:52615201",
-  "id:52623535",
-  "id:52626641",
-  "id:52635214",
-  "id:52637941",
-  "id:52646465",
-  "id:52650694",
-  "id:52659042",
-  "id:52661659",
-  "id:52663664",
-  "id:52670285",
-  "id:52675447",
-  "id:52685858",
-  "id:52691905",
-  "id:52700316",
   "id:52702915",
   "id:52711089",
   "id:52713828",
@@ -199,183 +174,40 @@
   "id:53650394",
   "id:53652136",
   "id:53659690",
-  "id:53661956"
+  "id:53661956",
+  "id:53664006",
+  "id:53674775",
+  "id:53680119",
+  "id:53680706",
+  "id:53688933",
+  "id:53691711",
+  "id:53691851",
+  "id:53700056",
+  "id:53702828",
+  "id:53710482",
+  "id:53711852",
+  "id:53715712",
+  "id:53724210",
+  "id:53726805",
+  "id:53728583",
+  "id:53736089",
+  "id:53740813",
+  "id:53751798",
+  "id:53757757",
+  "id:53766177",
+  "id:53768690",
+  "id:53777049",
+  "id:53779657",
+  "id:53779855",
+  "id:53788051"
  ],
  "ilk_calisma": false,
- "son_metar": "SPECI LTFJ 222331Z 35015KT 9999 -SHRA SCT013 BKN025 BKN070 16/13 Q1012 NOSIG RMK RWY24R 34017G27KT RWY06R 34017KT RWY24L 35013KT",
+ "son_metar": "METAR LTFJ 230920Z 33006KT 240V010 9999 BKN022 BKN080 17/12 Q1017 RESHRA NOSIG RMK RWY24R 35009KT 310V020 RWY06R 33006KT 290V010 RWY24L 34008KT 300V360",
  "son_uyari": null,
- "son_renk": "BLU",
+ "son_renk": "WHT",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-22T23:31:00+00:00",
+ "son_veri_zamani": "2026-09-23T09:20:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-16T23:50:00+00:00",
-   "ruzgar_hiz": 5,
-   "tavan": 8000,
-   "qnh": 1016,
-   "sicaklik": 16
-  },
-  {
-   "zaman": "2026-09-17T00:20:00+00:00",
-   "ruzgar_hiz": 6,
-   "tavan": 8000,
-   "qnh": 1015,
-   "sicaklik": 15
-  },
-  {
-   "zaman": "2026-09-17T00:50:00+00:00",
-   "ruzgar_hiz": 5,
-   "tavan": 8000,
-   "qnh": 1015,
-   "sicaklik": 15
-  },
-  {
-   "zaman": "2026-09-17T01:20:00+00:00",
-   "ruzgar_hiz": 5,
-   "tavan": 8000,
-   "qnh": 1015,
-   "sicaklik": 15
-  },
-  {
-   "zaman": "2026-09-17T01:50:00+00:00",
-   "ruzgar_hiz": 4,
-   "tavan": null,
-   "qnh": 1015,
-   "sicaklik": 15
-  },
-  {
-   "zaman": "2026-09-17T02:20:00+00:00",
-   "ruzgar_hiz": 5,
-   "tavan": null,
-   "qnh": 1015,
-   "sicaklik": 15
-  },
-  {
-   "zaman": "2026-09-17T02:50:00+00:00",
-   "ruzgar_hiz": 5,
-   "tavan": 7000,
-   "qnh": 1015,
-   "sicaklik": 16
-  },
-  {
-   "zaman": "2026-09-17T03:20:00+00:00",
-   "ruzgar_hiz": 5,
-   "tavan": 7000,
-   "qnh": 1015,
-   "sicaklik": 16
-  },
-  {
-   "zaman": "2026-09-17T03:50:00+00:00",
-   "ruzgar_hiz": 6,
-   "tavan": 7000,
-   "qnh": 1015,
-   "sicaklik": 16
-  },
-  {
-   "zaman": "2026-09-17T04:20:00+00:00",
-   "ruzgar_hiz": 6,
-   "tavan": 7000,
-   "qnh": 1015,
-   "sicaklik": 16
-  },
-  {
-   "zaman": "2026-09-17T04:50:00+00:00",
-   "ruzgar_hiz": 6,
-   "tavan": 7000,
-   "qnh": 1015,
-   "sicaklik": 17
-  },
-  {
-   "zaman": "2026-09-17T05:20:00+00:00",
-   "ruzgar_hiz": 6,
-   "tavan": 9000,
-   "qnh": 1015,
-   "sicaklik": 17
-  },
-  {
-   "zaman": "2026-09-17T05:50:00+00:00",
-   "ruzgar_hiz": 6,
-   "tavan": 9000,
-   "qnh": 1015,
-   "sicaklik": 18
-  },
-  {
-   "zaman": "2026-09-17T06:20:00+00:00",
-   "ruzgar_hiz": 8,
-   "tavan": 9000,
-   "qnh": 1015,
-   "sicaklik": 19
-  },
-  {
-   "zaman": "2026-09-17T06:50:00+00:00",
-   "ruzgar_hiz": 5,
-   "tavan": 9000,
-   "qnh": 1016,
-   "sicaklik": 19
-  },
-  {
-   "zaman": "2026-09-17T07:20:00+00:00",
-   "ruzgar_hiz": 7,
-   "tavan": 9000,
-   "qnh": 1016,
-   "sicaklik": 20
-  },
-  {
-   "zaman": "2026-09-17T07:50:00+00:00",
-   "ruzgar_hiz": 7,
-   "tavan": 9000,
-   "qnh": 1016,
-   "sicaklik": 21
-  },
-  {
-   "zaman": "2026-09-17T08:20:00+00:00",
-   "ruzgar_hiz": 7,
-   "tavan": 8000,
-   "qnh": 1016,
-   "sicaklik": 21
-  },
-  {
-   "zaman": "2026-09-17T08:50:00+00:00",
-   "ruzgar_hiz": 10,
-   "tavan": 8000,
-   "qnh": 1016,
-   "sicaklik": 23
-  },
-  {
-   "zaman": "2026-09-17T09:20:00+00:00",
-   "ruzgar_hiz": 6,
-   "tavan": 8000,
-   "qnh": 1016,
-   "sicaklik": 23
-  },
-  {
-   "zaman": "2026-09-17T09:50:00+00:00",
-   "ruzgar_hiz": 8,
-   "tavan": 8000,
-   "qnh": 1015,
-   "sicaklik": 23
-  },
-  {
-   "zaman": "2026-09-17T10:20:00+00:00",
-   "ruzgar_hiz": 7,
-   "tavan": 8000,
-   "qnh": 1015,
-   "sicaklik": 23
-  },
-  {
-   "zaman": "2026-09-17T10:50:00+00:00",
-   "ruzgar_hiz": 10,
-   "tavan": 8000,
-   "qnh": 1015,
-   "sicaklik": 25
-  },
-  {
-   "zaman": "2026-09-17T11:20:00+00:00",
-   "ruzgar_hiz": 9,
-   "tavan": 8000,
-   "qnh": 1015,
-   "sicaklik": 25
-  },
   {
    "zaman": "2026-09-17T11:50:00+00:00",
    "ruzgar_hiz": 10,
@@ -2572,13 +2404,205 @@
    "qnh": 1012,
    "sicaklik": 16,
    "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-22T23:50:00+00:00",
+   "ruzgar_hiz": 17,
+   "tavan": 2500,
+   "qnh": 1013,
+   "sicaklik": 15,
+   "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-23T00:20:00+00:00",
+   "ruzgar_hiz": 16,
+   "tavan": 2500,
+   "qnh": 1013,
+   "sicaklik": 15,
+   "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-23T00:42:00+00:00",
+   "ruzgar_hiz": 19,
+   "tavan": 2500,
+   "qnh": 1012,
+   "sicaklik": 15,
+   "cig_noktasi": 12
+  },
+  {
+   "zaman": "2026-09-23T00:50:00+00:00",
+   "ruzgar_hiz": 22,
+   "tavan": 2500,
+   "qnh": 1012,
+   "sicaklik": 15,
+   "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-23T01:20:00+00:00",
+   "ruzgar_hiz": 19,
+   "tavan": 2500,
+   "qnh": 1012,
+   "sicaklik": 15,
+   "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-23T01:46:00+00:00",
+   "ruzgar_hiz": 16,
+   "tavan": 2500,
+   "qnh": 1013,
+   "sicaklik": 15,
+   "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-23T01:50:00+00:00",
+   "ruzgar_hiz": 16,
+   "tavan": 2500,
+   "qnh": 1013,
+   "sicaklik": 15,
+   "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-23T02:20:00+00:00",
+   "ruzgar_hiz": 11,
+   "tavan": 2500,
+   "qnh": 1013,
+   "sicaklik": 16,
+   "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-23T02:50:00+00:00",
+   "ruzgar_hiz": 5,
+   "tavan": 2500,
+   "qnh": 1014,
+   "sicaklik": 16,
+   "cig_noktasi": 12
+  },
+  {
+   "zaman": "2026-09-23T03:14:00+00:00",
+   "ruzgar_hiz": 2,
+   "tavan": 2500,
+   "qnh": 1014,
+   "sicaklik": 16,
+   "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-23T03:20:00+00:00",
+   "ruzgar_hiz": 2,
+   "tavan": 2500,
+   "qnh": 1014,
+   "sicaklik": 16,
+   "cig_noktasi": 12
+  },
+  {
+   "zaman": "2026-09-23T03:50:00+00:00",
+   "ruzgar_hiz": 5,
+   "tavan": 2500,
+   "qnh": 1015,
+   "sicaklik": 16,
+   "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-23T04:20:00+00:00",
+   "ruzgar_hiz": 6,
+   "tavan": 2500,
+   "qnh": 1015,
+   "sicaklik": 15,
+   "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-23T04:50:00+00:00",
+   "ruzgar_hiz": 7,
+   "tavan": 2500,
+   "qnh": 1015,
+   "sicaklik": 15,
+   "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-23T05:20:00+00:00",
+   "ruzgar_hiz": 5,
+   "tavan": 2500,
+   "qnh": 1015,
+   "sicaklik": 15,
+   "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-23T05:50:00+00:00",
+   "ruzgar_hiz": 6,
+   "tavan": 2500,
+   "qnh": 1016,
+   "sicaklik": 16,
+   "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-23T06:20:00+00:00",
+   "ruzgar_hiz": 5,
+   "tavan": 2500,
+   "qnh": 1016,
+   "sicaklik": 16,
+   "cig_noktasi": 12
+  },
+  {
+   "zaman": "2026-09-23T06:50:00+00:00",
+   "ruzgar_hiz": 6,
+   "tavan": 2500,
+   "qnh": 1016,
+   "sicaklik": 16,
+   "cig_noktasi": 12
+  },
+  {
+   "zaman": "2026-09-23T07:20:00+00:00",
+   "ruzgar_hiz": 9,
+   "tavan": 2500,
+   "qnh": 1017,
+   "sicaklik": 16,
+   "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-23T07:50:00+00:00",
+   "ruzgar_hiz": 8,
+   "tavan": 2500,
+   "qnh": 1017,
+   "sicaklik": 17,
+   "cig_noktasi": 12
+  },
+  {
+   "zaman": "2026-09-23T08:20:00+00:00",
+   "ruzgar_hiz": 8,
+   "tavan": 3000,
+   "qnh": 1017,
+   "sicaklik": 17,
+   "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-23T08:46:00+00:00",
+   "ruzgar_hiz": 8,
+   "tavan": 2500,
+   "qnh": 1017,
+   "sicaklik": 17,
+   "cig_noktasi": 12
+  },
+  {
+   "zaman": "2026-09-23T08:50:00+00:00",
+   "ruzgar_hiz": 7,
+   "tavan": 3000,
+   "qnh": 1017,
+   "sicaklik": 17,
+   "cig_noktasi": 12
+  },
+  {
+   "zaman": "2026-09-23T09:20:00+00:00",
+   "ruzgar_hiz": 6,
+   "tavan": 2200,
+   "qnh": 1017,
+   "sicaklik": 17,
+   "cig_noktasi": 12
   }
  ],
  "yorum_onbellegi": {
-  "SPECI CCALTFJ 222228Z 01009KT 350V050 9999 -SHRA FEW007 SCT018TCU BKN022 15/14 Q1012 RESHRA NOSIG RMK RWY24R 35011KT RWY06R 35011KT RWY24L 36008KT": "**Rüzgâr:** Kuzey-kuzeybatı yönünden 9 knot hızla esiyorsa da yönü 350 ile 50 derece arasında değişiyor; yan rüzgâr bileşeni 7 knot civarında.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için rahat.\n\n**Gökyüzü:** Başlangıçta az bulut (yaklaşık 700 metre), sonra gelişen kule bulutlarla parçalı bulutluluk (1800 metre), en üstte çok bulutlu tabaka (2200 metre); hafif sağanak yağmur düşüyor.\n\n**Uçuşa etkisi:** Çok yüksek nem ve gelişen bulutlar dikkat gerektiriyor; görüş ve rüzgâr şu anda sınırlayıcı değil.",
-  "TAF LTFJ 221640Z 2218/2318 VRB02KT 9999 BKN035 BKN080 BECMG 2218/2220 01013KT -SHRA FEW017 BKN025 TEMPO 2220/2223 4000 SHRA FEW018TCU BKN022 TEMPO 2223/2302 35016G26KT 4000 SHRA BECMG 2302/2305 VRB02KT BECMG 2305/2308 01012KT TEMPO 2308/2312 35016G26KT 4000 TSRA FEW016CB BKN025": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 22/18 UTC ile 23/18 UTC arasında değişken rüzgar ve bulutlu hava beklenmektedir.\n\n- **22/18–22/20 UTC:** Kademeli geçişle 010° yönünden 13 knot rüzgar, hafif sağanak, az bulutlu (1700 ft) ve parçalı bulutlu (2500 ft).\n\n- **22/20–23/02 UTC:** Geçici olarak 4000 m görüş, sağanak, az bulutlu (1800 ft) gümüş bulut ve parçalı bulutlu (2200 ft); ardından 350° yönünden 16 knot rüzgar, 26 knot hızlı, 4000 m görüş, sağanak.\n\n- **23/02–23/18 UTC:** Kademeli geçişle değişken rüzgar, sonra 010° yönünden 12 knot; geçici olarak 350° yönünden 16 knot rüzgar, 26 knot hızlı, 4000 m görüş, gök gürültülü sağanak, az bulutlu (1600 ft) kümülonimbus ve parçalı bulutlu (2500 ft).",
-  "METAR LTFJ 222250Z 01013KT 340V040 9999 -SHRA FEW007 SCT018TCU BKN022 15/14 Q1012 RESHRA NOSIG RMK RWY24R 35013KT RWY06R 35011KT 310V010 RWY24L 35011KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 13 knot hızla esen rüzgâr, yönü 340 ile 40 derece arasında değişiyor ve yan rüzgâr bileşeni 11 knot.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için görüş açısından rahat koşullar.\n\n**Gökyüzü:** Başlangıçta az bulut (700 metre), sonra gelişen kule bulutlarla parçalı bulutluluk (1800 metre), en üstte çok bulutlu tabaka (2200 metre) ve hafif sağanak yağmur gözleniyor.\n\n**Uçuşa etkisi:** Yüksek nem ve gelişen kule bulutları ile hafif sağanak yağmur dikkat gerektiriyor, ancak görüş ve rüzgâr şiddeti operasyonel sınırlamaya neden olmuyordu.",
-  "TAF LTFJ 222240Z 2300/2324 01015KT 9999 -SHRA SCT013 BKN025 BKN070 TEMPO 2300/2303 35018G28KT 4000 SHRA BECMG 2304/2306 01005KT TEMPO 2306/2309 35015G25KT -TSRA FEW016CB BKN025 TEMPO 2309/2313 35018G28KT 4000 TSRA FEW016CB BKN025": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken rüzgar ve sağanak yağış beklenmektedir.\n\n- **2300/2303 UTC:** Kuzey rüzgarı 15 knot, görüş 9999 metre, hafif sağanak, 1300 ft parçalı, 2500 ft kapalı, 7000 ft kapalı. Geçici olarak rüzgar kuzeydoğudan 18 knot esen, 28 knot hızlı, görüş 4000 metre, sağanak.\n\n- **2304/2306 UTC:** Kuzey rüzgarı 5 knota kademeli geçiş.\n\n- **2306/2309 UTC:** Geçici olarak kuzeydoğu rüzgarı 15 knot, 25 knot hızlı, hafif gök gürültülü sağanak, 1600 ft gök gürültü bulutları az, 2500 ft kapalı.\n\n- **2309/2313 UTC:** Geçici olarak kuzeydoğu rüzgarı 18 knot, 28 knot hızlı, görüş 4000 metre, gök gürültülü sağanak, 1600 ft gök gürültü bulutları az, 2500 ft kapalı."
+  "METAR LTFJ 230220Z 02011KT 9999 BKN025 BKN070 16/13 Q1013 NOSIG RMK RWY24R 01010KT RWY06R 01010KT RWY24L 01010KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 11 düğüm hızında rüzgâr esiyor, hafif yan bileşen var.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi, uçuş için rahat koşullar.\n\n**Gökyüzü:** 2500 metre yükseklikte çok bulutlu, 7000 metrede de bulutlu, yağış yok.\n\n**Uçuşa etkisi:** Düşük görüş, kuvvetli rüzgâr veya fırtına yoktur; hava koşulları kısıtlayıcı değildir.",
+  "METAR LTFJ 230250Z 01005KT 280V050 9999 BKN025 BKN070 16/12 Q1014 NOSIG RMK RWY24R 01007KT RWY06R 01005KT 310V050 RWY24L 01007KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/s) hafif rüzgâr esiyor, yönü 280 ile 50 derece arasında değişiyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** 2500 feet (yaklaşık 760 metre) yükseklikte çok bulutlu, 7000 feet'te de (yaklaşık 2100 metre) çok bulutlu, yağış yok.\n\n**Uçuşa etkisi:** Düşük görüş, kuvvetli rüzgâr veya fırtına gibi kısıtlayıcı unsur bulunmuyor; hava durumu önümüzdeki 2 saatte önemli değişiklik göstermeyecek.",
+  "TAF LTFJ 230440Z 2306/2406 35010KT 9999 -SHRA SCT012 BKN030 BKN080 TEMPO 2306/2309 35015G25KT -TSRA FEW018CB BKN025 PROB40 TEMPO 2309/2313 35015G25KT 4000 TSRA FEW018CB BKN025 BECMG 2313/2316 17006KT SCT030 BKN080 PROB30 TEMPO 2402/2406 4000 SHRA SCT004 FEW018CB BKN022": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken bulutluluk ve hafif yağış beklenmektedir.\n\n- **2306/2309 UTC:** Rüzgar 35 knottan 15-25 knota geçici olarak artacak, gök gürültülü sağanak yağış, az bulut 18 bin feet'te, 25 bin feet'te kırık bulut.\n\n- **2309/2313 UTC:** %40 ihtimalle geçici olarak 4000 metre görüş, gök gürültülü sağanak yağış, az bulut 18 bin feet'te, 25 bin feet'te kırık bulut.\n\n- **2313/2316 UTC:** Kademeli geçişle rüzgar 170 dereceden 6 knot, 30 bin feet'te dağınık bulut, 80 bin feet'te kırık bulut; **2402/2406 UTC:** %30 ihtimalle geçici olarak 4000 metre görüş, hafif sağanak yağış, 4 bin feet'te dağınık bulut, 18 bin feet'te az bulut, 22 bin feet'te kırık bulut.",
+  "METAR LTFJ 230850Z 33007KT 9999 -SHRA FEW019TCU BKN030 BKN080 17/12 Q1017 NOSIG RMK RWY24R 31009KT 270V360 RWY06R 31008KT 270V340 RWY24L 33008KT": "**Rüzgâr:** Kuzey-kuzeybatıdan 7 knot hızında hafif rüzgâr esiyor, yan bileşen 7 knot seviyesinde.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede görüş sağlanıyor, uçuş için rahat bir durum.\n\n**Gökyüzü:** Yaklaşık 580 metrede az bulutlu, 920 metrede gelişen kule bulut, 3000 metrede çok bulutlu, 8000 metrede de çok bulutlu; hafif sağanak yağmur gözleniyor.\n\n**Uçuşa etkisi:** Hafif sağanak ve gelişen kule bulutlar dikkat gerektiriyor, ancak görüş ve rüzgâr şiddeti operasyonel kısıtlama oluşturmuyor."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -2610,8 +2634,8 @@
    "reading_long": "Runway 06L/24R has surface irregularities that reduce driving quality, from 28 Aug 2026 07:11 to 2 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-22T19:51:04+00:00",
-   "last_active": "2026-09-22T19:51:04+00:00"
+   "last_seen": "2026-09-23T08:01:24+00:00",
+   "last_active": "2026-09-23T08:01:24+00:00"
   },
   "8f9209b8-706f-48bd-9ddd-cd1af0f77ddc": {
    "id": "8f9209b8-706f-48bd-9ddd-cd1af0f77ddc",
@@ -2643,8 +2667,8 @@
    "reading_long": "Runway 06L/24R is temporarily closed to departing and arriving traffic due to runway maintenance during scheduled times between 29 March and 24 October 2026. Departing pilots must request start-up and push-back clearance at least 25 minutes before the runway closure time.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-22T19:51:04+00:00",
-   "last_active": "2026-09-22T19:51:04+00:00"
+   "last_seen": "2026-09-23T08:01:24+00:00",
+   "last_active": "2026-09-23T08:01:24+00:00"
   },
   "463c68a0-9237-48a4-b175-e0b31bc25f9a": {
    "id": "463c68a0-9237-48a4-b175-e0b31bc25f9a",
@@ -2669,8 +2693,8 @@
    "reading_long": "The aeronautical information supplement 06/13 for this aerodrome is cancelled.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-22T19:51:04+00:00",
-   "last_active": "2026-09-22T19:51:04+00:00"
+   "last_seen": "2026-09-23T08:01:24+00:00",
+   "last_active": "2026-09-23T08:01:24+00:00"
   },
   "1c3eee71-187e-4f92-9105-d08f243b9880": {
    "id": "1c3eee71-187e-4f92-9105-d08f243b9880",
@@ -2702,8 +2726,8 @@
    "reading_long": "Taxiway R2 is closed to traffic due to construction works from 26 Aug 2026 14:10 to 28 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-22T19:51:04+00:00",
-   "last_active": "2026-09-22T19:51:04+00:00"
+   "last_seen": "2026-09-23T08:01:24+00:00",
+   "last_active": "2026-09-23T08:01:24+00:00"
   },
   "a3796b51-d1d2-49bd-987c-eb54c2ff8775": {
    "id": "a3796b51-d1d2-49bd-987c-eb54c2ff8775",
@@ -2729,8 +2753,8 @@
    "reading_long": "Taxiway A1 is closed to traffic from 12 Aug 2026 15:08 to 28 Oct 2026 16:00 UTC. Follow air traffic control instructions.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-22T19:51:04+00:00",
-   "last_active": "2026-09-22T19:51:04+00:00"
+   "last_seen": "2026-09-23T08:01:24+00:00",
+   "last_active": "2026-09-23T08:01:24+00:00"
   },
   "f9db43bf-d607-4f29-bcd5-254720849fe3": {
    "id": "f9db43bf-d607-4f29-bcd5-254720849fe3",
@@ -2756,8 +2780,8 @@
    "reading_long": "Taxiway R1 is open for towing only, from 28 Aug 2026 07:10 to 2 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-22T19:51:04+00:00",
-   "last_active": "2026-09-22T19:51:04+00:00"
+   "last_seen": "2026-09-23T08:01:24+00:00",
+   "last_active": "2026-09-23T08:01:24+00:00"
   },
   "d2bdf929-01c8-4c19-a9dc-9bed024e0bb1": {
    "id": "d2bdf929-01c8-4c19-a9dc-9bed024e0bb1",
@@ -2781,8 +2805,8 @@
    "reading_long": "The RNAV (GNSS) standard instrument departures and arrivals at this aerodrome are mandatory for P-RNAV approved aircraft. Arriving aircraft must include waypoints TETSA, PAZAR, OTSAN, ELVON, DEKEK, TURKO, GELBU or ATVEP as the last element of their flight plan. Departing aircraft must include waypoints MARMA, GOLDO, VADEN, IBLAL, MAKOL, MOPIN, PIMAV or EDASA as the first element.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-22T19:51:04+00:00",
-   "last_active": "2026-09-22T19:51:04+00:00"
+   "last_seen": "2026-09-23T08:01:24+00:00",
+   "last_active": "2026-09-23T08:01:24+00:00"
   },
   "d249e29b-245c-49c8-ae22-90e8d6e0ebb4": {
    "id": "d249e29b-245c-49c8-ae22-90e8d6e0ebb4",
@@ -2812,8 +2836,8 @@
    "reading_long": "The sequenced flashing lights on runway 24L are unserviceable between 690 and 900 metres from the threshold, due to an electrical failure, from 26 Aug 2026 13:51 to 26 Sep 2026 14:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-22T19:51:04+00:00",
-   "last_active": "2026-09-22T19:51:04+00:00"
+   "last_seen": "2026-09-23T08:01:24+00:00",
+   "last_active": "2026-09-23T08:01:24+00:00"
   },
   "dbd0d4b7-eb26-4faf-9e00-83682f67d5a1": {
    "id": "dbd0d4b7-eb26-4faf-9e00-83682f67d5a1",
@@ -2839,8 +2863,8 @@
    "reading_long": "A four-point area on apron 9 is closed to traffic from 12 Aug 2026 15:17 to 28 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-22T19:51:04+00:00",
-   "last_active": "2026-09-22T19:51:04+00:00"
+   "last_seen": "2026-09-23T08:01:24+00:00",
+   "last_active": "2026-09-23T08:01:24+00:00"
   },
   "6937a0ed-1f72-46d5-a9c3-b6d038516467": {
    "id": "6937a0ed-1f72-46d5-a9c3-b6d038516467",
@@ -2868,8 +2892,8 @@
    "reading_long": "De-icing apron 2 is closed to traffic due to construction from 12 Aug 2026 15:15 to 28 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-22T19:51:04+00:00",
-   "last_active": "2026-09-22T19:51:04+00:00"
+   "last_seen": "2026-09-23T08:01:24+00:00",
+   "last_active": "2026-09-23T08:01:24+00:00"
   },
   "10758841-dfdb-4546-b1cf-a7f42fc2b3a5": {
    "id": "10758841-dfdb-4546-b1cf-a7f42fc2b3a5",
@@ -2895,8 +2919,8 @@
    "reading_long": "An area on apron 9 is designated for irregular parking due to construction work, from 12 Aug 2026 08:00 to 27 Oct 2026 14:00 UTC. The area is a four-point polygon.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-22T19:51:04+00:00",
-   "last_active": "2026-09-22T19:51:04+00:00"
+   "last_seen": "2026-09-23T08:01:24+00:00",
+   "last_active": "2026-09-23T08:01:24+00:00"
   },
   "a35454ab-ad65-4084-a747-9f78d51c128f": {
    "id": "a35454ab-ad65-4084-a747-9f78d51c128f",
@@ -2926,8 +2950,8 @@
    "reading_long": "Grass cutting works are taking place along the edge of runway 06L/24R and the edges of all taxiways. Follow aerodrome control tower instructions.",
    "source": "NOTAC",
    "first_seen": "2026-09-17T12:01:55+00:00",
-   "last_seen": "2026-09-22T19:51:04+00:00",
-   "last_active": "2026-09-22T19:51:04+00:00"
+   "last_seen": "2026-09-23T08:01:24+00:00",
+   "last_active": "2026-09-23T08:01:24+00:00"
   },
   "c087b78d-a787-43ef-92cd-c95fe20ccf83": {
    "id": "c087b78d-a787-43ef-92cd-c95fe20ccf83",
@@ -3015,10 +3039,13 @@
    "reading_long": "Grass cutting is taking place at the edges of all taxiways connected to runways 06R and 24L. Follow air traffic control instructions.",
    "source": "NOTAC",
    "first_seen": "2026-09-21T13:31:08+00:00",
-   "last_seen": "2026-09-22T19:51:04+00:00",
-   "last_active": "2026-09-22T19:51:04+00:00"
+   "last_seen": "2026-09-23T08:01:24+00:00",
+   "last_active": "2026-09-23T08:01:24+00:00"
   }
  },
- "notam_son_senkron": "2026-09-22T19:51:04+00:00",
- "guncelleme": "2026-09-22T23:50:53+00:00"
+ "notam_son_senkron": "2026-09-23T08:01:24+00:00",
+ "guncelleme": "2026-09-23T09:50:54+00:00",
+ "push_gonderilen": [
+  "id:53779657"
+ ]
 }
