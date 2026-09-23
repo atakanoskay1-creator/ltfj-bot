@@ -119,6 +119,20 @@ Neden bu ikisi:
 Yazı tipleri [SIL Open Font License 1.1](https://github.com/IBM/plex/blob/master/LICENSE.txt)
 ile lisanslıdır.
 
+### 10. Sayfadaki "İstatistik" Bölümü
+
+Arşivden öğrenilmiş her şey **tek katlanır başlık** altında toplandı:
+
+- **İstatistiksel sis olasılığı** (önceden "Beklenti" altındaydı)
+- **Tavan istatistiği** — göreli oranlar (önceden LVO Farkındalık Notları'ndaydı)
+- **Görüş geçiş süreleri** — yeni; bkz. `sis_modeli/README.md`
+
+**Ayrımın gerekçesi:** sayfa "bu ölçüm mü, tahmin mi, istatistik mi" ayrımını
+her yerde koruyor ama istatistikler üç ayrı yere dağılmıştı. LVO panelinde
+**kalan** notlar eşik karşılaştırmasıdır (METAR/TAF değeri şu eşiğin altında
+mı) — onlar ölçüm. "Beklenti" başlığında **kalan** tek şey Open-Meteo model
+tahmini.
+
 ### 9. Cron Güvenilirliği (ÖNEMLİ)
 
 **GitHub zamanlanmış koşuları düşürür.** Bu depoda ölçüldü: dış kaynak

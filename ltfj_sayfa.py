@@ -14,6 +14,7 @@ from pathlib import Path
 
 import ltfj_lvo_farkindalik as farkindalik
 import ltfj_lvo_referans as lvo
+import ltfj_gorus_gecis_tablo as gecis_tablo
 import ltfj_sis_olasilik as sis_olasilik
 import ltfj_sis_olasilik_b as sis_olasilik_b
 import ltfj_vfr as vfr
@@ -270,6 +271,19 @@ SABLON = """<!DOCTYPE html>
   .sis-olasilik-bant.dusuk {{ background:#22c55e26; color:#16a34a; }}
   .sis-olasilik-bant.orta {{ background:#f9731626; color:#ea580c; }}
   .sis-olasilik-bant.yuksek {{ background:#ef444426; color:#dc2626; }}
+  .gecis-tablo {{ width:100%; border-collapse:collapse; font-size:.82rem;
+                  margin-top:8px; font-variant-numeric:tabular-nums; }}
+  .gecis-tablo th, .gecis-tablo td {{ padding:6px 4px; text-align:right;
+                                      border-bottom:1px solid var(--cizgi); }}
+  .gecis-tablo thead th {{ color:var(--soluk); font-weight:650; font-size:.74rem; }}
+  /* Satir basligi SOLA yasli - sayilar saga, etiket sola; karisik
+     hizalama tabloyu okunmaz yapardi. */
+  .gecis-tablo tbody th {{ text-align:left; font-weight:600; }}
+  .gecis-n {{ color:var(--soluk); }}
+  .gecis-caption {{ caption-side:top; text-align:left; color:var(--soluk);
+                    font-size:.72rem; padding-bottom:2px; }}
+  .gecis-esik {{ display:block; font-weight:400; font-size:.72rem;
+                 color:var(--soluk); }}
   .sis-olasilik-alt {{ font-size:.85rem; color:var(--soluk); }}
   .sis-olasilik-kiyas {{ font-size:.8rem; color:var(--soluk); margin-top:6px; }}
   .sis-olasilik-ek {{
@@ -617,6 +631,7 @@ SABLON = """<!DOCTYPE html>
 {ozet_serit_html}
 {govde}
 {beklenti_html}
+{istatistik_html}
 
 <div class="kart">
   <div class="basrow notam-aktif-baslik" id="lvo-baslik" role="button" tabindex="0"
@@ -2287,6 +2302,9 @@ def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
 
 def _lvo_farkindalik_html(guncel_cozum: dict | None, taf_tavan: int | None,
                           gecmis: list, simdi: datetime) -> str:
+    # gecmis/simdi artik KULLANILMIYOR (istatistik notlari tasindi) ama
+    # imza korunuyor: cagiran taraf tek yerde ve degistirmek bu PR'in
+    # kapsamini gereksiz genisletirdi.
     """LVO REFERENCE panelinin basindaki 'Farkindalik Notlari' alt bolumu -
     METAR (guncel_cozum) ve TAF'in (taf_tavan) KENDI gorus/tavan degerlerini
     ltfj_lvo_farkindalik ile GAYRI RESMI, hedge'li notlara cevirir. AWOS RVR
@@ -2301,13 +2319,14 @@ def _lvo_farkindalik_html(guncel_cozum: dict | None, taf_tavan: int | None,
     destekli (holdout'ta dogrulanmis) modelden gelir - gecmis/simdi, sis
     olasiligini (sis kartiyla AYNI hesap - bkz. _sis_olasiligi_hesapla)
     turetmek icin gerekli."""
-    sis_p = _sis_olasiligi_hesapla(guncel_cozum, gecmis, simdi)
-    saat_utc = simdi.astimezone(timezone.utc).hour
+    # ISTATISTIK NOTLARI BURADAN TASINDI (bkz. _istatistik_html):
+    # tavan_istatistik_notu ve tavan_dis_kaynak_notu arsivden ogrenilmis
+    # GORELI oranlar; bu panel ise ESIK KARSILASTIRMASI yapiyor (METAR/TAF
+    # degeri su esigin altinda mi). Iki farkli soru ayni listede durunca
+    # "bu bir olcum mu, istatistik mi" ayrimi kayboluyordu. Artik tum
+    # arsiv-tabanli istatistik tek bir "İstatistik" basligi altinda.
     notlar = [n for n in (farkindalik.metar_tavan_notu(guncel_cozum),
-                          farkindalik.taf_tavan_notu(taf_tavan),
-                          farkindalik.tavan_istatistik_notu(guncel_cozum),
-                          farkindalik.tavan_dis_kaynak_notu(
-                              guncel_cozum, sis_p, saat_utc)) if n]
+                          farkindalik.taf_tavan_notu(taf_tavan)) if n]
     sabit_html = "".join(f"<li>{html.escape(n)}</li>" for n in notlar)
     return (
         f'<ul class="lvo-not-listesi" id="lvo-fark-metar-taf">{sabit_html}</ul>'
@@ -2612,19 +2631,106 @@ def _ozet_serit_html(cozum: dict | None, notlar: dict | None) -> str:
             + "</div>")
 
 
-def _beklenti_html(tahmin_html: str, sis_html: str, sis_yuzde: str = "") -> str:
-    """"Önümüzdeki saatler" ve "İstatistiksel sis olasılığı" TEK katlanır
-    başlık altında - ikisi de "birazdan ne olacak" sorusunu yanıtlıyor,
-    ayrı iki kart olarak durmaları sayfayı gereksiz böluyordu.
+def _beklenti_html(tahmin_html: str) -> str:
+    """Open-Meteo saatlik tahmin şeridi.
 
-    Rozet kapalıyken de olasılığı gösterir; bölüm unutulmasın diye."""
-    if not tahmin_html and not sis_html:
+    İSTATİSTİKSEL SİS OLASILIĞI BURADAN TAŞINDI (bkz. _istatistik_html):
+    ikisi de "birazdan ne olacak" sorusuna bakıyordu ama biri MODEL
+    TAHMİNİ, öteki ARŞİV İSTATİSTİĞİ. Aynı başlık altında durunca
+    kaynakları karışıyordu; sayfa zaten "bu tahmin mi, ölçüm mü, istatistik
+    mi" ayrımını her yerde titizlikle koruyor."""
+    if not tahmin_html:
+        return ""
+    return ('<div class="kart"><details class="kat kat-kart">'
+            '<summary>Beklenti · önümüzdeki saatler</summary>'
+            f"{tahmin_html}</details></div>")
+
+
+def _gecis_tablosu_html() -> str:
+    """Arşivden öğrenilmiş görüş geçiş süreleri (DONDURULMUŞ tablo).
+
+    Operasyonel soru: "görüş 5000'in altına düştü, eşiğe ne kadar var?"
+    Bu bir TAHMİN DEĞİL - geçmişte ne olduğunun sayımı.
+
+    En önemli sayı medyan değil HIZLI KUYRUK: olayların önemli bir
+    kısmında geçiş bir saatten kısa sürmüş. Medyanı tek başına göstermek
+    yanıltıcı olurdu, o yüzden %10/%25/medyan birlikte veriliyor."""
+    t = gecis_tablo
+    if not t.DUSME["n"]:
+        return ""
+
+    # Birim HER HUCREDE degil BASLIKTA: 390px'te "0.5 sa" iki satira
+    # kiriliyordu ve tablo okunmaz hale geliyordu. Esik de ikinci satira
+    # alindi, yoksa ilk sutun tabloyu eziyor.
+    def _satir(ad, esik, o, aciklama):
+        return (f'<tr><th scope="row" title="{html.escape(aciklama)}">{ad}'
+                f'<span class="gecis-esik">{esik}</span></th>'
+                f'<td>{o["p10"]:g}</td><td>{o["p25"]:g}</td>'
+                f'<td><b>{o["medyan"]:g}</b></td><td>{o["p75"]:g}</td>'
+                f'<td class="gecis-n">{o["n"]}</td></tr>')
+
+    return (
+        '<div class="alt-bolum">'
+        '<div class="basrow"><span class="tip">Görüş geçiş süreleri</span>'
+        f'<span class="zaman">{t.KAPSAM_ILK_YIL}–{t.KAPSAM_SON_YIL} arşivi · '
+        f'{t.OLAY_SAYISI} sis olayı</span></div>'
+        '<table class="gecis-tablo">'
+        '<caption class="gecis-caption">süreler <b>saat</b> cinsinden</caption>'
+        '<thead><tr><th></th>'
+        '<th title="olayların %10&apos;unda bu kadar veya daha kısa">%10</th>'
+        '<th>%25</th><th>medyan</th><th>%75</th><th>n</th></tr></thead><tbody>'
+        + _satir("Düşme", f"{t.ESIK_VMC_M}→{t.ESIK_SVFR_M} m",
+                 t.DUSME, "Görüşün VMC eşiğinden özel VFR alt sınırına inme süresi")
+        + _satir("Toparlanma", f"{t.ESIK_SIS_M}→{t.ESIK_VMC_M} m",
+                 t.TOPARLANMA, "Sis eşiğinden VMC'ye dönme süresi")
+        + '</tbody></table>'
+        '<div class="sis-olasilik-not">Geçmiş sis olaylarının SAYIMIDIR, '
+        'tahmin değildir. Süreler 30 dakikalık gözlem ızgarasına yuvarlıdır '
+        '— <b>"0.5 sa" aslında "yarım saat veya daha kısa"</b> demektir, '
+        'gerçek en hızlı geçişler bu veriyle görülemeyecek kadar hızlı '
+        'olabilir. Olay tanımı Tardif &amp; Rasmussen (2007).</div>'
+        "</div>")
+
+
+def _tavan_istatistik_notlari(guncel_cozum: dict | None, gecmis: list,
+                              simdi: datetime) -> list:
+    """LVO farkındalık panelinden TAŞINAN iki istatistik notu.
+
+    İkisi de eşik karşılaştırması değil, arşivden öğrenilmiş GÖRELİ oran
+    ("ortalamaya göre kaç kat"). Hesap aynen korundu - yalnızca sayfadaki
+    yeri değişti."""
+    saat_utc = simdi.astimezone(timezone.utc).hour
+    sis_p = _sis_olasiligi_hesapla(guncel_cozum, gecmis, simdi)
+    return [n for n in (farkindalik.tavan_istatistik_notu(guncel_cozum),
+                        farkindalik.tavan_dis_kaynak_notu(
+                            guncel_cozum, sis_p, saat_utc)) if n]
+
+
+def _istatistik_html(sis_html: str, notlar: list, sis_yuzde: str = "") -> str:
+    """ARŞİVDEN ÖĞRENİLMİŞ her şey TEK başlık altında.
+
+    Neden ayrı bir bölüm: sayfa "bu ölçüm mü, tahmin mi, istatistik mi"
+    ayrımını her yerde koruyor ama istatistikler üç ayrı yere dağılmıştı -
+    sis olasılığı "Beklenti"de, tavan oranları LVO farkındalık notlarında,
+    geçiş süreleri hiç yoktu. Üçü de aynı cinsten (arşivden öğrenilmiş,
+    göreli, resmî tahmin değil) ve artık aynı yerde.
+
+    LVO panelinde KALAN notlar eşik karşılaştırmasıdır (METAR/TAF değeri
+    şu eşiğin altında mı) - onlar ölçüm, bunlar istatistik."""
+    gecis_html = _gecis_tablosu_html()
+    not_html = ("".join(f"<li>{html.escape(n)}</li>" for n in notlar)
+                if notlar else "")
+    if not (sis_html or gecis_html or not_html):
         return ""
     rozet = (f'<span class="kat-rozet">sis %{html.escape(sis_yuzde)}</span>'
              if sis_yuzde else "")
+    tavan_bolumu = (
+        '<div class="alt-bolum"><div class="basrow">'
+        '<span class="tip">Tavan istatistiği</span></div>'
+        f'<ul class="lvo-not-listesi">{not_html}</ul></div>') if not_html else ""
     return ('<div class="kart"><details class="kat kat-kart">'
-            f'<summary>Beklenti · önümüzdeki saatler {rozet}</summary>'
-            f"{tahmin_html}{sis_html}"
+            f'<summary>İstatistik · arşivden {rozet}</summary>'
+            f"{sis_html}{tavan_bolumu}{gecis_html}"
             "</details></div>")
 
 
@@ -2690,8 +2796,10 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
                           guncel_cozum, taf_tavan, gecmis, simdi),
                       beklenti_html=_beklenti_html(
                           _saatlik_tahmin_html(saatlik_tahmin or [],
-                                               yas_dk=tahmin_yas_dk),
+                                               yas_dk=tahmin_yas_dk)),
+                      istatistik_html=_istatistik_html(
                           _sis_olasiligi_html(guncel_cozum, gecmis, simdi),
+                          _tavan_istatistik_notlari(guncel_cozum, gecmis, simdi),
                           _sis_olasilik_rozeti(guncel_cozum, gecmis, simdi)),
                       rvr_esikleri_json=json.dumps(lvo.RVR_ESIKLERI, ensure_ascii=False),
                       vfr_html=_vfr_sekmesi_html(guncel_cozum)),

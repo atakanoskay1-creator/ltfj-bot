@@ -124,7 +124,13 @@ def test_atc_panel_linki_kaldirildi(tmp_path):
     assert 'href="panel.html"' not in _sayfa(tmp_path)
 
 
-def test_tahmin_ve_sis_tek_baslik_altinda(tmp_path):
+def test_beklenti_YALNIZCA_tahmin_iceriyor(tmp_path):
+    """KARAR DEGISTI: eskiden tahmin + istatistiksel sis olasiligi AYNI
+    "Beklenti" basligi altindaydi. Kullanici istatistikleri ayirmak
+    istedi ve gerekce saglam: biri MODEL TAHMINI (Open-Meteo), oteki
+    ARSIV ISTATISTIGI. Sayfa "bu olcum mu, tahmin mi, istatistik mi"
+    ayrimini her yerde koruyor; bu ikisi ayni baslikta durunca kaynak
+    karisiyordu."""
     from datetime import timedelta
     ilk = (datetime.now(timezone.utc) + timedelta(hours=1)).replace(
         minute=0, second=0, microsecond=0)
@@ -133,10 +139,9 @@ def test_tahmin_ve_sis_tek_baslik_altinda(tmp_path):
                "cloud_cover_low": 40}]
     html = _sayfa(tmp_path, saatlik_tahmin=tahmin)
     assert "Beklenti · önümüzdeki saatler" in html
-    # Ikisi de AYNI katlanir bolumun icinde - artik ayri kart degiller.
     beklenti = html.split("Beklenti · önümüzdeki saatler")[1].split("</details>")[0]
-    assert "Önümüzdeki saatler" in beklenti
-    assert "İstatistiksel sis olasılığı" in beklenti
+    assert 'class="tahmin-serit"' in beklenti
+    assert "İstatistiksel sis olasılığı" not in beklenti
 
 
 def test_notam_tek_baslik_altinda_ve_uyari_en_altta(tmp_path):
