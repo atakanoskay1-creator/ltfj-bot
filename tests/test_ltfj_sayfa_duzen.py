@@ -80,19 +80,45 @@ def test_notam_gecmis_sayisi_js_ile_dolduruluyor(tmp_path):
 
 
 # ------------------------------------------------------------- 3) Trend
-def test_trend_katlanabilir_ve_rozetli(tmp_path):
+def test_gecmis_egilim_katlanabilir_ve_rozetli(tmp_path):
+    """Capa MARKUP, duz metin DEGIL: bu testin onceki surumu
+    "Trend · son 6 saat" dizesini sayfanin TAMAMINDA ariyordu ve baslik
+    degistikten sonra da yesil kaldi - cunku ayni ifade bir CSS
+    YORUMUNDA geciyordu. Yani test, olmayan bir basligi dogruluyordu."""
     html = _sayfa(tmp_path)
-    assert "Trend · son 6 saat" in html
-    assert 'class="kat-rozet"' in html
+    # ILK <summary> ARTIK BU DEGIL: trend, METAR kartinin altina indi ve
+    # ilk sirayi yapay zeka ozeti aldi. Konuma degil ICERIGE gore
+    # buluyoruz - sira yine degisebilir.
+    ilgili = [s for s in re.findall(r"<summary>(.*?)</summary>", html, re.S)
+              if "son 6 saat" in s]
+    assert ilgili, "geçmiş eğilim başlığı yok"
+    assert 'class="kat-rozet"' in ilgili[0]
 
 
-def test_trend_rozeti_guncel_degerleri_gosteriyor(tmp_path):
-    """Kapalıyken de bölüm unutulmasın diye son değerler başlıkta."""
+def test_gecmis_rozeti_GUNCEL_SANILACAK_sayi_TASIMIYOR(tmp_path):
+    """KARAR DEGISTI. Rozet eskiden son olcumleri yaziyordu
+    ("1kt · 1020hPa · 13°C") ve bu bolum METAR kartinin USTUNDEYDI.
+    Kotu havada ust satir alttakiyle celisiyordu:
+
+        Geçmiş eğilim  1kt · 1020hPa · 13°C   <- 6 SAATLIK GECMIS
+        METAR          090°/12G22 · Q1008     <- SU AN
+
+    Artik rozet yalnizca SAYIM veriyor; guncel deger sanilabilecek
+    birimli bir sayi icermiyor."""
     html = _sayfa(tmp_path)
-    rozet = re.search(r'Trend · son 6 saat\s*<span class="kat-rozet">([^<]*)</span>', html)
-    assert rozet, "Trend rozeti bulunamadı"
-    assert "8000ft" in rozet.group(1)
-    assert "1013hPa" in rozet.group(1)
+    rozet = re.search(r'<span class="kat-rozet">([^<]*)</span>', html)
+    assert rozet, "rozet yok"
+    metin = rozet.group(1)
+    assert "ölçüm" in metin, metin
+    for birim in ("kt", "hPa", "°C", "ft", "km"):
+        assert birim not in metin, f"rozet hala birimli sayi tasiyor: {metin}"
+
+
+def test_gecmis_egilim_GUNCEL_RAPORUN_ALTINDA(tmp_path):
+    """6 saatlik gecmis, su anki gozlemden ONCE okunmamali."""
+    html = _sayfa(tmp_path)
+    panel = html.split('id="panel-durum"')[1].split('class="sekme-panel"')[0]
+    assert panel.index("<summary>") > panel.index('class="kart kart-durum"')
 
 
 def test_trend_grafikleri_SILINMEDI(tmp_path):

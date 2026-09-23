@@ -51,10 +51,26 @@ def _govde(html: str) -> str:
 
 
 def _hero(html: str) -> dict:
+    """Hero hucrelerini (etiket -> deger) cikarir.
+
+    BIRIM ARTIK ZORUNLU DEGIL: "bildirilmedi" gibi degerlerin birimi yok
+    ve <span class="hero-birim"> hic basilmiyor. Bu yardimcinin ilk
+    surumu <span> bekliyordu, o yuzden birimsiz hucreler sessizce
+    SOZLUKTEN DUSUYORDU - test KeyError ile degil, eksik veriyle
+    yaniliyordu."""
     blok = html.split('<div class="hero">')[1].split("</div></div>")[0]
-    return dict(re.findall(
-        r'<div class="hero-etiket">([^<]+)</div>'
-        r'<div class="hero-deger">([^<]*)<span', blok))
+    # Birim <span>'i DISARIDA birakiliyor: testler ciplak degeri
+    # karsilastiriyor ("400", "400m" degil).
+    # SINIF LISTESI ARTIK DEGISKEN: esik asiminda "hero-deger hero-uyari",
+    # birimsiz degerde "hero-deger hero-deger-metin" oluyor. Sabit
+    # class="hero-deger" bekleyen surum, tam da vurgulanan hucreleri
+    # sessizce atliyordu.
+    # Etikette de band isareti ("eşik altı") olabilir - o da ayiklaniyor.
+    return {re.sub(r"<[^>]+>.*", "", etiket).strip():
+            deger.split("<span")[0].strip()
+            for etiket, deger in re.findall(
+                r'<div class="hero-etiket">(.*?)</div>'
+                r'<div class="hero-deger[^"]*">(.*?)</div>', blok, re.S)}
 
 
 # ------------------------------------------- 1) aynı sayı iki kez değil
@@ -135,14 +151,18 @@ def test_degisken_ruzgar_VRB_yaziliyor(tmp_path):
     assert h["RÜZGÂR"] == "VRB/3"
 
 
-def test_eksik_alan_TIRE_oluyor_cokmuyor(tmp_path):
+def test_eksik_alan_BILDIRILMEDI_oluyor_cokmuyor(tmp_path):
+    """KARAR DEGISTI: eskiden "—" basiliyordu. 24px w650'de tire KALIN
+    YATAY BIR CUBUK olarak ciziliyor ve "ustu cizilmis deger" ya da eksi
+    isareti gibi okunuyordu - yani "bilgi yok" ile "deger sifir/negatif"
+    gorsel olarak ayirt edilemiyordu. Serit zaten "tavan yok" diyordu."""
     h = _hero(_sayfa(tmp_path, metin="LTFJ 231420Z /////KT //// // Q////"))
-    assert "—" in h.values()
+    assert "bildirilmedi" in h.values(), h
 
 
-def test_tavan_yoksa_tire(tmp_path):
+def test_tavan_yoksa_BILDIRILMEDI(tmp_path):
     h = _hero(_sayfa(tmp_path, metin="LTFJ 231420Z 06005KT 9999 15/10 Q1019"))
-    assert h["TAVAN"] == "—"
+    assert h["TAVAN"] == "bildirilmedi"
 
 
 # ------------------------------------------- görsel sözleşme
@@ -174,7 +194,10 @@ def test_durum_rengi_TEK_BASINA_anlam_tasimiyor(tmp_path):
 
 def test_telefonda_2x2_genis_ekranda_4lu(tmp_path):
     html = _sayfa(tmp_path)
-    taban = html.split(".hero {")[1].split("}")[0]
+    # Capa TAM KURAL: ".hero {" artik ".su-an .hero {" kuralina da
+    # uyuyor ve testin ilk surumu onun govdesini okuyordu. Bu projede
+    # bu tuzaga birkac kez dusuldu - kural: capayi benzersiz yap.
+    taban = html.split("\n  .hero {")[1].split("}")[0]
     assert "repeat(2,1fr)" in taban
     genis = html.split("@media (min-width:560px)")[1].split("}")[0]
     assert "repeat(4,1fr)" in genis

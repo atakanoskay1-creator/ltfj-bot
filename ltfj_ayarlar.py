@@ -33,6 +33,15 @@ SESSIZLIK_SAAT = 6
 # kacirmak degil. Ayni "2x kadans" mantigi NOTAM_BAYAT_MS'te de kullanildi.
 GOZLEM_TAZE_DK = 70
 
+# "TAM ZAMANINDA" esigi. LTFJ METAR kadansi :20/:50 (30 dk) + MGM'in
+# ~5 dakikalik yayin gecikmesi; yani NORMAL calisan bir sistemde en
+# yasli gozlem ~35 dakikaliktir. 35-70 dk arasi "bir gozlem kacti"
+# demektir ve bu aralik eskiden "CANLI" kutusunun icindeydi - olcum
+# aninda METAR 49 dakikaliktir ve rozet CANLI diyordu.
+# GOZLEM_TAZE_DK (70) bunun IKI KATI olarak duruyor: 70'i de asmak
+# "iki gozlem kacti" demek ve orasi GECIKMELI.
+GOZLEM_BEKLENEN_DK = 35
+
 # LTFJ pist ekseni GERCEK yonleri (AIP AD 2.12, AIRAC AMDT 07/26). Hem
 # ltfj_analiz.py (yan_ruzgar - Telegram ozet mesajindaki crosswind) hem de
 # ltfj_pist.py (PISTLER - pist basi bazinda bas/kuyruk/yan bilesenleri) bu
