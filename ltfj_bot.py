@@ -852,6 +852,21 @@ def main():
     except AyiklamaHatasi as e:
         sys.exit(f"KRİTİK: veri ayıklanamadı, parser güncellenmeli.\n{e}")
 
+    # SPECI DAHIL gozlem arsivi - state["olcum_gecmisi"]'nden AYRI:
+    # o kayan bir pencere (300 kayit, ~6 gun) ve GORUS tasimiyor. Burada
+    # gorus dahil her sey ekleme-yalnizca birikiyor, cunku sis gecis
+    # surelerinin gercek hizi ancak SPECI'lerle olculebilir (bkz.
+    # ltfj_gozlem_arsivi modul aciklamasi).
+    #
+    # FAIL-OPEN: arsiv yazilamazsa METAR/TAF/bildirim akisi ETKILENMEZ.
+    try:
+        import ltfj_gozlem_arsivi
+        n = ltfj_gozlem_arsivi.ekle(raporlar, metar_coz, KLASOR / "gozlem_arsivi.csv")
+        if n:
+            print(f"  gözlem arşivine {n} yeni kayıt eklendi.")
+    except Exception as e:
+        print(f"[uyarı] Gözlem arşivi güncellenemedi: {e}", file=sys.stderr)
+
     sessizlik_kontrol(state, raporlar, token, chat_id)
 
     if not raporlar:

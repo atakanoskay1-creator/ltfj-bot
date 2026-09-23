@@ -119,7 +119,7 @@ Neden bu ikisi:
 Yazı tipleri [SIL Open Font License 1.1](https://github.com/IBM/plex/blob/master/LICENSE.txt)
 ile lisanslıdır.
 
-### 10. Sayfadaki "İstatistik" Bölümü
+### 9. Sayfadaki "İstatistik" Bölümü
 
 Arşivden öğrenilmiş her şey **tek katlanır başlık** altında toplandı:
 
@@ -133,7 +133,7 @@ her yerde koruyor ama istatistikler üç ayrı yere dağılmıştı. LVO panelin
 mı) — onlar ölçüm. "Beklenti" başlığında **kalan** tek şey Open-Meteo model
 tahmini.
 
-### 9. Cron Güvenilirliği (ÖNEMLİ)
+### 10. Cron Güvenilirliği (ÖNEMLİ)
 
 **GitHub zamanlanmış koşuları düşürür.** Bu depoda ölçüldü: dış kaynak
 önbelleği `:3,23,43` (20 dakikada bir) ayarlıyken 26 saatte **78 yerine 6**
@@ -176,6 +176,61 @@ curl -X POST -H "Accept: application/vnd.github+json" \
 
 PAT'in `repo` yetkisi olmalı. Bu isteği herhangi bir güvenilir zamanlayıcı
 (kendi sunucun, ücretsiz bir cron servisi, bir Raspberry Pi) atabilir.
+
+### 11. SPECI Boşluğu ve `gozlem_arsivi.csv`
+
+**Sorun.** Sis geçiş sürelerini (`sis_modeli/gorus_gecis.py`) hesapladığımız
+eğitim arşivi IEM ASOS'tan geliyor ve **SPECI içermiyor**. Ölçüldü: 274.907
+satırın 274.901'i `:20`/`:50` dakikasında — yani düpedüz rutin METAR kadansı;
+ızgara dışı toplam **6 satır (%0,002)**.
+
+Bu ciddi bir kısıt, çünkü **SPECI tam da geçiş anlarında** yayımlanır. Görüş
+30 dakikalık ızgarada örneklendiği için raporladığımız en hızlı düşüş "0,5
+saat" görünür; gerçekte o **"≤0,5 saat"**tir. Misawa ve ark. (2026) dakika
+çözünürlüğüne SPECI sayesinde çıkabiliyor.
+
+**Canlı yol SPECI'yi yakalıyor.** MGM'den okuyan `ltfj_rasat.py` ızgara dışı
+raporları görüyor: aynı ölçümde `state["olcum_gecmisi"]`'ndeki son 300 kaydın
+**16'sı (%5,3)** `:20`/`:50` dışındaydı. Yani boşluk bizim hattımızda değil,
+**IEM arşivinde**.
+
+**Neden `olcum_gecmisi` yetmiyor.** İki nedenle:
+
+- `OLCUM_GECMIS_LIMIT = 300` — kayan pencere (~6 gün), arşiv değil; sayfadaki
+  trend grafikleri için boyutlandırılmış.
+- **Görüş alanını hiç saklamıyor** (zaman/rüzgâr/tavan/QNH/sıcaklık/çiy). Tam
+  da en çok ihtiyaç duyulan alan atılıyor.
+
+Bu yapıyı büyütmek yanlış olurdu: `ltfj_state.json` her koşuda commit ediliyor,
+sınırsız büyümesi state dosyasını şişirirdi.
+
+**Çözüm: ayrı, ekleme-yalnızca bir dosya.** `ltfj_gozlem_arsivi.py` her koşuda
+yeni METAR **ve SPECI**'leri görüş dahil `gozlem_arsivi.csv`'ye ekliyor.
+
+| Karar | Gerekçe |
+|---|---|
+| Düz CSV, gzip değil | Dosya her koşuda git'e yazılıyor. Ekleme-yalnızca düz metinde git yalnızca **delta** saklar ve satır bazlı birleşir; gzip her commit'te yeni bir ikili blob olur ve birleştirilemez. |
+| Tekillik anahtarı `(zaman, tip)` | Aynı dakikada hem METAR hem SPECI olabilir; yalnız zaman anahtarı biri diğerini ezerdi. |
+| Zaman damgası UTC, saniye hassasiyetinde | Yerel saatli bir damga arşivi 3 saat kaydırırdı. |
+| Yazarken sırala | Geciken bir SPECI dosyayı sırasızlaştırır, git diff'lerini de gereksiz büyütürdü. |
+| `--birlestir` CLI'ı | İki koşu üst üste bindiğinde workflow `git reset --hard` yapıyor; ekleme-yalnızca bir dosyada bu, araya giren koşunun eklediklerini **kaybettirir**. `state_birlestir.py`'nin gözlem arşivi karşılığı. |
+| Bot tarafında fail-open | Arşiv yazılamazsa METAR/TAF/bildirim akışı **etkilenmez** — ama hata `stderr`'e yazılır, sessizce yutulmaz. |
+
+`sis_modeli/gorus_gecis.py` artık düz CSV'yi de okuyabiliyor, yani yeterli olay
+biriktiğinde aynı analiz doğrudan bu dosyadan çalıştırılabilir:
+
+```bash
+python -m sis_modeli.gorus_gecis --veri gozlem_arsivi.csv
+```
+
+**Dürüst sınır — geriye dönük doldurma YOK.** Bu dosya **bugünden itibaren**
+birikir. Mevcut "0,5 saat" tabanını geçmişe dönük düzeltmez; tablodaki
+`p10 = 0,5 sa` değeri bugün de "≤0,5 sa" olarak okunmalıdır. Geçmiş SPECI'ler
+ancak SPECI taşıyan başka bir arşiv kaynağı bulunursa gelir (IEM'in
+`report_type=4` parametresi istekte zaten gönderiliyor — dönen veride karşılığı
+çıkmadı; ayrıca araştırılmalı).
+
+Boyut: ~50 gözlem/gün → ~18 bin satır/yıl, satır başı ~90 bayt = **yılda ~1,6 MB**.
 
 ## ⚠️ Yasal Uyarı
 

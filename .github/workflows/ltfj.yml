@@ -84,9 +84,30 @@ jobs:
         run: |
           set -u
           DAL="${GITHUB_REF_NAME}"
-          DOSYALAR="ltfj_state.json index.html panel_veri.json notam_veri.json"
+          DOSYALAR="ltfj_state.json index.html panel_veri.json notam_veri.json gozlem_arsivi.csv"
 
-          if [ -z "$(git status --porcelain ${DOSYALAR})" ]; then
+          # `git add` OLMAYAN bir yol icin "fatal: pathspec did not match"
+          # verip (Actions run adimlari `bash -e` ile calisir) TUM adimi
+          # dusurur. gozlem_arsivi.csv ilk kosuda henuz yoktur; botun
+          # fail-open dali devreye girerse hic olusmayabilir de. Bu yuzden
+          # listeyi her seferinde "diskte var YA DA git'te izlenen"
+          # yollara indiriyoruz - silinmis izlenen dosya da yakalansin.
+          mevcut_dosyalar() {
+            local liste="" d
+            for d in ${DOSYALAR}; do
+              if [ -e "$d" ] || git ls-files --error-unmatch "$d" >/dev/null 2>&1; then
+                liste="${liste} $d"
+              fi
+            done
+            echo "${liste}"
+          }
+
+          if [ -z "$(mevcut_dosyalar)" ]; then
+            echo "Yazilacak dosya yok."
+            exit 0
+          fi
+
+          if [ -z "$(git status --porcelain $(mevcut_dosyalar))" ]; then
             echo "Degisiklik yok, commit yok."
             exit 0
           fi
@@ -95,7 +116,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           for deneme in 1 2 3; do
-            git add ${DOSYALAR}
+            git add $(mevcut_dosyalar)
             if ! git diff --cached --quiet; then
               git commit -m "durum guncellendi [skip ci]"
             fi
@@ -113,12 +134,20 @@ jobs:
             # yeniden uretildigi icin birlestirme gerektirmez - bizimki daha
             # yenidir, oldugu gibi geri yazilir.
             cp ltfj_state.json /tmp/bizim_state.json
+            cp gozlem_arsivi.csv /tmp/bizim_arsiv.csv 2>/dev/null || true
             cp index.html /tmp/bizim_index.html 2>/dev/null || true
             cp panel_veri.json /tmp/bizim_panel_veri.json 2>/dev/null || true
             cp notam_veri.json /tmp/bizim_notam_veri.json 2>/dev/null || true
             git fetch origin "${DAL}"
             git reset --hard "origin/${DAL}"
             python state_birlestir.py ltfj_state.json /tmp/bizim_state.json
+            # Gozlem arsivi EKLEME-YALNIZCA: reset sonrasi uzaktakiyle
+            # bizimkini BIRLESTIR, yoksa araya giren kosunun ekledigi
+            # SPECI'ler kaybolur.
+            if [ -f /tmp/bizim_arsiv.csv ]; then
+              python -m ltfj_gozlem_arsivi --birlestir gozlem_arsivi.csv \
+                /tmp/bizim_arsiv.csv --dosya gozlem_arsivi.csv || true
+            fi
             cp /tmp/bizim_index.html index.html 2>/dev/null || true
             cp /tmp/bizim_panel_veri.json panel_veri.json 2>/dev/null || true
             cp /tmp/bizim_notam_veri.json notam_veri.json 2>/dev/null || true
