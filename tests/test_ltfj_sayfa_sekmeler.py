@@ -183,3 +183,55 @@ def test_bolumler_sekme_ICINDE_ayrica_katlanmiyor(tmp_path):
 def test_seritte_ve_cubukta_TEK_yapiskan_katman(tmp_path):
     html = _sayfa(tmp_path)
     assert html.index('class="yapiskan-ust"') < html.index('class="sekme-cubugu"')
+
+
+# ------------------------------------------- geniş ekranda SOL RAY
+# KARAR (kullanıcı): "keşke solda olsaydı". İlk itiraz telefon içindi ve
+# geçerliydi; geniş ekranda ise içerik sütunu 680px'te ORTALANIYOR ve solda
+# 172-380px ZATEN BOŞ alan kalıyor (ölçüldü). Ray oraya konunca sütun hiç
+# daralmıyor - yani telefondaki bedel geniş ekranda YOK.
+def test_genis_ekranda_ray_DIKEY(tmp_path):
+    html = _sayfa(tmp_path)
+    assert "@media (min-width:1024px)" in html
+    genis = html.split("@media (min-width:1024px)")[1].split("\n  }")[0]
+    assert "flex-direction:column" in genis
+    assert "position:fixed" in genis
+
+
+def test_telefonda_ray_YATAY_kaliyor(tmp_path):
+    """Dikeyleştirme YALNIZCA geniş ekran sorgusunun içinde olmalı."""
+    html = _sayfa(tmp_path)
+    once = html.split("@media (min-width:1024px)")[0]
+    assert "flex-direction:column" not in once
+
+
+def test_ray_icerik_sutununa_GIRMIYOR(tmp_path):
+    """Asıl kazancın kendisi bu: ray boş kenarda durmalı, sütunun üstüne
+    binmemeli. Sayılar CSS'ten OKUNUYOR - biri .sar genişliğini ya da ray
+    genişliğini değiştirirse bu test çakışmayı yakalar, çünkü üçü
+    birbirine bağlı (left = sar/2 + boşluk + ray)."""
+    html = _sayfa(tmp_path)
+    sar = int(re.search(r"\.sar \{ max-width:(\d+)px", html).group(1))
+    genis = html.split("@media (min-width:1024px)")[1].split("\n  }")[0]
+    ray = int(re.search(r"width:(\d+)px", genis).group(1))
+    sol = int(re.search(r"left:calc\(50% - (\d+)px\)", genis).group(1))
+
+    # Rayin SAG kenari: 50% - sol + ray.  Sutunun SOL kenari: 50% - sar/2.
+    # Cakismamasi icin:  sol - ray  >=  sar/2
+    assert sol - ray >= sar // 2, (
+        f"ray sütuna giriyor: sol={sol} ray={ray} sar/2={sar // 2}")
+
+
+def test_ray_1024px_te_ekran_disina_TASMIYOR(tmp_path):
+    """left:calc(50% - Npx) dar tarafta negatife düşerse ray ekranın
+    solundan taşar ve kısmen görünmez olur."""
+    html = _sayfa(tmp_path)
+    genis = html.split("@media (min-width:1024px)")[1].split("\n  }")[0]
+    sol = int(re.search(r"left:calc\(50% - (\d+)px\)", genis).group(1))
+    assert 1024 // 2 - sol >= 0, f"1024px'te ray {1024 // 2 - sol}px ekran dışında"
+
+
+def test_rozet_rayda_sona_yaslaniyor(tmp_path):
+    """Dikeyde etiketler farklı uzunlukta; rozetler hizasız dururdu."""
+    genis = _sayfa(tmp_path).split("@media (min-width:1024px)")[1].split("\n  }")[0]
+    assert "margin-left:auto" in genis

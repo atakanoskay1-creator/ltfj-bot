@@ -135,6 +135,26 @@ sekmesiyle meşgul. Yatay çubuk dikey yerden **bir kez** ödün verir.
 36px taşıyor — orada yatay kaydırma devrede ve seçili sekme otomatik görünür
 yapılıyor.
 
+**Geniş ekranda ise SOL RAY.** İtiraz telefona aitti; masaüstünde durum tersine
+döner. İçerik sütunu 680px'te **ortalanıyor**, yani solda zaten boş alan var:
+
+| Ekran | İçerik sütunu | Soldaki boş alan |
+|---|---|---|
+| 390px | 358px | 16px |
+| 768px | 680px | 44px |
+| 1024px | 680px | **172px** |
+| 1280px | 680px | **300px** |
+| 1440px | 680px | **380px** |
+
+`≥1024px`'te ray o boşluğa yerleşir (`position:fixed`, 140px) ve **içerik sütunu
+hiç daralmaz** — telefondaki bedel burada yok. HTML aynı kalır; yalnızca CSS
+`flex-direction`'ı değiştirir.
+
+Konum `left:calc(50% - 496px)` ile hesaplanır: `496 = 340 (sütunun yarısı) + 16
+(boşluk) + 140 (ray)`. Üçü birbirine bağlı, o yüzden bir test bu aritmetiği
+**CSS'ten okuyarak** doğruluyor — `.sar` genişliği ya da ray genişliği
+değişirse çakışma anında yakalanır.
+
 **Rozetler çubukta, çünkü sekme içeriği gizliyor.** NOTAM sayfadayken
 kaydırırken göz ucuyla görülüyordu; sekmenin arkasına girince yeni NOTAM'ı
 fark etmenin tek yolu çubuktaki rozet kalır. Aynısı sis olasılığı için de

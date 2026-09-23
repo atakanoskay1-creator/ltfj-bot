@@ -231,6 +231,34 @@ SABLON = """<!DOCTYPE html>
      cizilmez, yani sayfa eski "hepsi alt alta" haline duser. Gizleme
      yalnizca .js sinifi varken devreye girer; o sinifi <head>'deki satir
      ici betik body cizilmeden once ekledigi icin acilista titreme olmaz. */
+  /* ---- GENIS EKRANDA SOL RAY -------------------------------------------
+     Icerik sutunu 680px'te ortalanir; 1024px ustunde SOLDA 172-380px
+     ZATEN BOS alan kalir (olculdu). Ray oraya konunca icerik sutunu
+     HIC DARALMAZ - telefonda ray yatay genisligi yerdi, burada yemiyor.
+     Bu yuzden ayni <nav> HTML'i, yalnizca CSS ile dikeye donuyor.
+
+     left hesabi: sutunun sol kenari 50% - 340px. Ray onun 16px soluna,
+     genisligi 140px -> 50% - 340 - 16 - 140 = 50% - 496px. 1024px'te
+     ekranin solunda 16px bosluk kalir, daha genisinde acilir. */
+  @media (min-width:1024px) {{
+    .js .sekme-cubugu {{
+      position:fixed; top:104px; left:calc(50% - 496px);
+      width:140px; z-index:40; margin-top:0;   /* top: ne diyorsa o olsun */
+      flex-direction:column; gap:2px; padding:4px;
+      overflow:visible;          /* dikeyde bes oge hep sigar */
+    }}
+    .sekme {{
+      flex:0 0 auto; justify-content:flex-start; text-align:left;
+      padding:9px 10px;
+    }}
+    /* Rozet satirin SONUNA yaslansin - etiketler farkli uzunlukta ve
+       rozetler hizasiz dururdu. */
+    .sekme-rozet {{ margin-left:auto; }}
+    /* Ray akistan ciktigi icin yapiskan blokta yalnizca ozet serit kalir;
+       altindaki bosluk artik gereksiz. */
+    .yapiskan-ust {{ padding-bottom:0; }}
+  }}
+
   .js .sekme-panel {{ display:none; }}
   .js[data-sekme="durum"]      #panel-durum,
   .js[data-sekme="beklenti"]   #panel-beklenti,
