@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-23T03:20:59+00:00",
+ "uretildi": "2026-09-23T03:31:06+00:00",
  "metar": {
-  "tip": "SPECI",
+  "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-23T03:14:00+00:00",
-  "metin": "SPECI LTFJ 230314Z VRB02KT 9999 -SHRA BKN025 BKN070 16/13 Q1014 NOSIG RMK RWY24R 34003KT 260V060 RWY06R 18004KT RWY24L 30004KT 260V360",
+  "zaman": "2026-09-23T03:20:00+00:00",
+  "metin": "METAR LTFJ 230320Z VRB02KT 9999 -SHRA BKN025 BKN070 16/12 Q1014 NOSIG RMK RWY24R VRB02KT RWY06R 17004KT RWY24L 28004KT 240V310",
   "ruzgar": {
    "yon": null,
    "hiz": 2,
@@ -19,7 +19,7 @@
    "-SHRA"
   ],
   "sicaklik": 16,
-  "cig_noktasi": 13,
+  "cig_noktasi": 12,
   "qnh": 1014,
   "nosig": true,
   "renk": [
@@ -32,8 +32,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": -1.7,
-    "yan": 3.6,
+    "bas": -1.1,
+    "yan": 3.8,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -45,27 +45,14 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": 2.2,
-    "yan": 3.3,
+    "bas": 3.2,
+    "yan": 2.3,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
     "degisken": true,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": false,
-    "kuyruk_asildi": false
-   },
-   {
-    "pist": "24R",
-    "yon_gercek": 244.12,
-    "bas": -0.3,
-    "yan": 3.0,
-    "yan_taraf": "sağdan",
-    "bas_hamle": null,
-    "yan_hamle": null,
-    "degisken": true,
-    "kaynak": "AD 2.15 anemometreleri",
-    "kuyruk": true,
     "kuyruk_asildi": false
    }
   ],
@@ -76,7 +63,7 @@
   "prs": [],
   "gorus_op": [],
   "trend": null,
-  "sis_riski": "Sis oluşum göstergesi: orta (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 3°C, rüzgâr 2 kt, gece şartları",
+  "sis_riski": null,
   "ozet": "Rüzgâr değişken 2kt · görüş 10+ km · tavan 2500 ft · hafif sağanak yağmur · 16°C · QNH 1014"
  },
  "taf": {
@@ -84,13 +71,6 @@
   "metin": "TAF LTFJ 222240Z 2300/2324 01015KT 9999 -SHRA SCT013 BKN025 BKN070 TEMPO 2300/2303 35018G28KT 4000 SHRA BECMG 2304/2306 01005KT TEMPO 2306/2309 35015G25KT -TSRA FEW016CB BKN025 TEMPO 2309/2313 35018G28KT 4000 TSRA FEW016CB BKN025"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-17T04:50:00+00:00",
-   "ruzgar_hiz": 6,
-   "tavan": 7000,
-   "qnh": 1015,
-   "sicaklik": 17
-  },
   {
    "zaman": "2026-09-17T05:20:00+00:00",
    "ruzgar_hiz": 6,
@@ -2458,6 +2438,14 @@
    "qnh": 1014,
    "sicaklik": 16,
    "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-23T03:20:00+00:00",
+   "ruzgar_hiz": 2,
+   "tavan": 2500,
+   "qnh": 1014,
+   "sicaklik": 16,
+   "cig_noktasi": 12
   }
  ]
 }
