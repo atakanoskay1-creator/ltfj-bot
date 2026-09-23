@@ -75,6 +75,7 @@ IKONLAR = {
     "not":    '<path d="M9 3h6a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V4'
               'a1 1 0 0 1 1-1z"/><path d="M16 4h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6'
               'a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M8 11h8M8 15h5"/>',
+    "sis":    '<path d="M3 8h13M6 12h15M3 16h11M8 20h11"/>',
     "nokta":  '<circle cx="12" cy="12" r="5"/>',
 }
 
@@ -966,11 +967,13 @@ SABLON = """<!DOCTYPE html>
       ve resmî yayınlar kontrol edilmelidir.
     </div>
 
-    <div class="lvo-alt-baslik">Farkındalık Notları
+    <!-- SIRA OPERASYONELDEN REFERANSA. Olculdu: statik dokuman referansi
+         3838 bayt, farkindalik notlari 198 bayt - yani referans 19 KAT
+         buyuk ve operasyonel olani asagi itiyordu (panel 1556px). Simdi
+         once "su an ne oluyor", sonra "kural neydi". -->
+    <div class="lvo-alt-baslik">A) Farkındalık Notları
       <span class="lvo-provenance">METAR/TAF/AWOS</span></div>
 {lvo_farkindalik_html}
-
-{lvo_referans_html}
 
     <div class="lvo-alt-baslik">B) AWOS RVR
       <span class="lvo-provenance">MANUAL AWOS</span></div>
@@ -1000,6 +1003,8 @@ SABLON = """<!DOCTYPE html>
     <div class="lvo-alt-baslik">C) LVO Related NOTAM
       <span class="lvo-provenance">NOTAM</span></div>
     <div id="lvo-notam-liste"><div class="notam-bos">Yükleniyor…</div></div>
+
+{lvo_referans_html}
   </div>
 </div>
 </div>
@@ -1964,7 +1969,8 @@ window.ltfjKalanSure = function (ms) {{
     var kalanSaat = Math.max(0, Math.round(kalanMs / 3600000));
     var kalan = document.createElement("div");
     kalan.className = "atc-not-kalan";
-    kalan.textContent = "⏳ yaklaşık " + kalanSaat + " saat sonra otomatik silinecek";
+    // Emoji DEGIL duz metin: burasi textContent, SVG konulamaz.
+    kalan.textContent = "yaklaşık " + kalanSaat + " saat sonra otomatik silinecek";
     kart.appendChild(kalan);
 
     return kart;
@@ -2564,8 +2570,20 @@ def _lvo_dokuman_referans_html() -> str:
     not_maddeleri = "".join(f"<li>{html.escape(n)}</li>" for n in lvo.UYARI_NOTLARI)
 
     return (
-        '<div class="lvo-alt-baslik">A) Document Reference '
-        f'<span class="lvo-provenance">{html.escape(lvo.DOKUMAN["etiket"])}</span></div>'
+        # KATLANIR, VARSAYILAN KAPALI. Bu 3838 baytlik STATIK bir
+        # dokuman ozeti - her acilista okunan degil, gerektiginde
+        # basvurulan bir sey. Acikken panelin %90'ini kapliyor ve
+        # operasyonel kisimlari (farkindalik notlari, AWOS durumu)
+        # ekrandan itiyordu.
+        #
+        # BU, #67'DE KALDIRILAN AC/KAPA'NIN GERI DONUSU DEGIL: o,
+        # LVO panelinin TAMAMINI gizliyordu ve sekmeyle mukerrerdi.
+        # Buradaki yalnizca panelin ICINDEKI statik referansi katliyor -
+        # sekme "LVO'yu goster", bu "kural metnini goster".
+        '<details class="kat kat-lvo-referans"><summary>'
+        'D) Doküman Referansı '
+        f'<span class="lvo-provenance">{html.escape(lvo.DOKUMAN["etiket"])}</span>'
+        '</summary>'
         f'<div style="font-size:.85rem;">{html.escape(lvo.DOKUMAN["baslik"])}<br>'
         f'<b>{html.escape(lvo.DOKUMAN["dok_no"])} {html.escape(lvo.DOKUMAN["rev_no"])} — '
         f'{html.escape(lvo.DOKUMAN["rev_tarihi"])}</b></div>'
@@ -2582,6 +2600,7 @@ def _lvo_dokuman_referans_html() -> str:
         f'<div class="lvo-esik-liste">{bulut_satirlari}</div>'
         f'<div style="font-size:.8rem;margin-top:.4rem;">{html.escape(lvo.BULUT_PILOT_RAPORU_ISTISNASI)}</div>'
         f'<ul class="lvo-not-listesi">{not_maddeleri}</ul>'
+        "</details>"
     )
 
 
@@ -3089,7 +3108,8 @@ def _saatlik_tahmin_html(satirlar: list, yas_dk: float | None = None) -> str:
         # HOURLY_DENEYSEL). Yoklugunda hucre eskisi gibi cizilir.
         sisli = s.get("weather_code") in SIS_KODLARI
         sis_isareti = ('<div class="tahmin-sis" title="Model bu saatte sis '
-                       'bekliyor (WMO kodu)">🌫 sis</div>') if sisli else ""
+                       'bekliyor (WMO kodu)">' + ikon("sis") + ' sis</div>'
+                       ) if sisli else ""
         blh = s.get("boundary_layer_height")
         blh_satiri = ("" if blh is None else
                       f'<div class="tahmin-satir" title="Sınır tabakası '
@@ -3117,7 +3137,7 @@ def _saatlik_tahmin_html(satirlar: list, yas_dk: float | None = None) -> str:
         '<div class="tahmin-aciklama">Satırlar: saat (yerel) · '
         "<strong>spread</strong> (sıcaklık − çiy noktası, düştükçe sis riski artar) · "
         "görüş · rüzgâr · düşük bulut oranı · sınır tabakası yüksekliği "
-        "(alçaldıkça radyasyon sisine elverişli). 🌫 işareti, modelin o saat "
+        "(alçaldıkça radyasyon sisine elverişli). \"sis\" işareti, modelin o saat "
         "için sis kodu (WMO 45/48) verdiğini gösterir.</div>"
         "</div>")
 
@@ -3214,14 +3234,22 @@ def _beklenti_html(tahmin_html: str) -> str:
     TAHMİNİ, öteki ARŞİV İSTATİSTİĞİ. Aynı başlık altında durunca
     kaynakları karışıyordu; sayfa zaten "bu tahmin mi, ölçüm mü, istatistik
     mi" ayrımını her yerde titizlikle koruyor."""
-    if not tahmin_html:
-        return ""
     # <details> SARMALI YOK: bu artik bir sekme paneli. Sekmeye basip bir
     # de basligi acmak iki tiklama olurdu.
+    #
+    # TAHMIN YOKSA BOS DONMUYORUZ. Bu bolum KATLANIR bir baslikken bos
+    # donmek dogruydu - baslik hic cizilmezdi. Sekme olunca ayni davranis
+    # BOS BIR SEKME uretti: kullanici "Beklenti"ye basiyor ve hicbir sey
+    # gormuyor, aciklama da yok. Sekme cubukta duruyor cunku sekme listesi
+    # sabit; o yuzden panel NEDEN bos oldugunu SOYLEMELI.
+    govde = tahmin_html or (
+        '<div class="notam-bos">Model tahmini şu an yok. Dış kaynak '
+        'önbelleği (Open-Meteo) güncellenmemiş olabilir; bot bir sonraki '
+        'koşuda yeniden dener.</div>')
     return ('<div class="kart">'
             '<div class="basrow"><span class="tip">Beklenti</span>'
             '<span class="zaman">önümüzdeki saatler</span></div>'
-            f"{tahmin_html}</div>")
+            f"{govde}</div>")
 
 
 def _gecis_tablosu_html() -> str:

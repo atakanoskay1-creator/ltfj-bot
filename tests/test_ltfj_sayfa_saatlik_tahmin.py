@@ -105,17 +105,17 @@ def _sisli_satir(kod=45, blh=120.0):
 
 def test_sis_kodunda_isaret_ve_kenarlik_var():
     html = s._saatlik_tahmin_html(_sisli_satir(kod=45))
-    assert "🌫 sis" in html
+    assert '<div class="tahmin-sis"' in html
     assert "tahmin-hucre-sis" in html
 
 
 def test_kiragili_sis_kodu_48_de_isaretleniyor():
-    assert "🌫 sis" in s._saatlik_tahmin_html(_sisli_satir(kod=48))
+    assert '<div class="tahmin-sis"' in s._saatlik_tahmin_html(_sisli_satir(kod=48))
 
 
 def test_sissiz_kodda_isaret_yok():
     html = s._saatlik_tahmin_html(_sisli_satir(kod=3))
-    assert "🌫 sis" not in html
+    assert '<div class="tahmin-sis"' not in html
     assert "tahmin-hucre-sis" not in html
 
 
@@ -128,7 +128,7 @@ def test_deneysel_alanlar_yoksa_serit_yine_ciziliyor():
     kaybolmamalı, sadece işaret/satır çıkmamalı."""
     html = s._saatlik_tahmin_html(_satirlar(n=3))   # weather_code/blh YOK
     assert html.count('class="tahmin-hucre') == 3
-    assert "🌫 sis" not in html
+    assert '<div class="tahmin-sis"' not in html
 
 
 def test_sis_kodlari_tek_yerde_tanimli():

@@ -91,17 +91,48 @@ def test_tazelik_esigi_METAR_kadansindan_BUYUK(tmp_path):
 
 # ------------------------------------------- 3) emoji yok, SVG var
 EMOJI_ARALIGI = re.compile(
-    r"[\U0001F000-\U0001FAFF\u2600-\u26FF\u2700-\u27BF\u2B00-\u2BFF]")
+    # U+2300-23FF DE DAHIL: ilk surum bu blogu atlamis ve canli
+    # sayfadaki "\u23f3" (kum saati) gozden kacmisti. Tipografik
+    # oklar (U+2192) ve eksi (U+2212) EMOJI DEGIL, disarida.
+    r"[\U0001F000-\U0001FAFF\u2300-\u23FF\u2600-\u26FF"
+    r"\u2700-\u27BF\u2B00-\u2BFF\uFE0F]")
+
+
+def _emoji_bul(html: str) -> set:
+    govde = html.split("</style>")[1]
+    govde = re.sub(r"<!--.*?-->", "", govde, flags=re.S)
+    return set(EMOJI_ARALIGI.findall(govde))
 
 
 def test_sayfada_EMOJI_yok(tmp_path):
     """Emoji platforma göre bambaşka çizilir, boyu yazı tipiyle uyuşmaz
     ve ekran okuyucu onları yüksek sesle okur."""
-    html = _sayfa(tmp_path)
-    govde = html.split("</style>")[1]
-    govde = re.sub(r"<!--.*?-->", "", govde, flags=re.S)
-    bulunan = set(EMOJI_ARALIGI.findall(govde))
-    assert not bulunan, f"sayfada emoji kaldı: {bulunan}"
+    assert not _emoji_bul(_sayfa(tmp_path))
+
+
+def test_SIS_TAHMINI_yolunda_da_emoji_yok(tmp_path):
+    """KAPSAMA BOŞLUĞU KAPATILDI: ilk sürüm yalnızca varsayılan fikstürün
+    ürettiğini tarıyordu. Tahmin şeridindeki sis işareti (WMO 45/48) o
+    yolda çiziliyor ve canlı sayfada emoji olarak kalmıştı - testler
+    yeşilken. Artık o dal da taranıyor."""
+    from datetime import datetime as dt
+    hedef = tmp_path / "i.html"
+    ilk = (datetime.now(timezone.utc) + timedelta(hours=1)).replace(
+        minute=0, second=0, microsecond=0)
+    tahmin = [{"saat": ilk.strftime("%Y-%m-%dT%H:%M"), "temperature_2m": 8,
+               "dew_point_2m": 8, "visibility": 300, "wind_speed_10m": 2,
+               "cloud_cover_low": 95, "weather_code": 45,
+               "boundary_layer_height": 120}]
+    s.sayfa_yaz([{"tip": "METAR", "zaman": datetime.now(timezone.utc),
+                  "icao": "LTFJ",
+                  "metin": "LTFJ 231420Z 00000KT 0300 FG VV001 08/08 Q1019"}],
+                [], hedef, saatlik_tahmin=tahmin, tahmin_yas_dk=10)
+    html = hedef.read_text(encoding="utf-8")
+    # ETIKETI arıyoruz, sınıf adını değil: ".tahmin-sis" ayrıca CSS
+    # kuralında geçiyor ve bu guard'ın ilk sürümü ona takılıyordu -
+    # yani işaret hiç çizilmese bile test boşa yeşil dönerdi.
+    assert '<div class="tahmin-sis"' in html, "sis işareti çizilmemiş"
+    assert not _emoji_bul(html)
 
 
 def test_RENK_SIMGE_TELEGRAM_tarafinda_KALIYOR():
