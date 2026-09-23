@@ -21,6 +21,18 @@ DOSYA = KLASOR / "ayarlar.json"
 # kayabilir. Tum modul bu SABIT uzerinden "yerel" hesaplasin diye burada.
 YEREL_TZ = ZoneInfo("Europe/Istanbul")
 
+# Veri akisinin KESILDIGI sayilan sure. ltfj_bot bununla Telegram alarmi
+# atiyor, ltfj_sayfa ayni esikle basliktaki durum gostergesini kirmiziya
+# cekiyor - BURADA duruyor ki ikisi sessizce ayrismasin (sayfa "canli"
+# derken Telegram "kesinti" diyemesin).
+SESSIZLIK_SAAT = 6
+
+# Bir GOZLEMIN tazeligi. METAR :20/:50'de yayinlanir (30 dk kadans) ve
+# rasat.mgm.gov.tr'ye ortalama 5 dk icinde duser -> beklenen azami yas
+# ~35 dk. Esik bunun IKI KATI: bir raporu kacirmak normal, ikisini
+# kacirmak degil. Ayni "2x kadans" mantigi NOTAM_BAYAT_MS'te de kullanildi.
+GOZLEM_TAZE_DK = 70
+
 # LTFJ pist ekseni GERCEK yonleri (AIP AD 2.12, AIRAC AMDT 07/26). Hem
 # ltfj_analiz.py (yan_ruzgar - Telegram ozet mesajindaki crosswind) hem de
 # ltfj_pist.py (PISTLER - pist basi bazinda bas/kuyruk/yan bilesenleri) bu

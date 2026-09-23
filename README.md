@@ -93,7 +93,121 @@ Panelin başında, **Farkındalık Notları** adında gayri resmi bir alt bölü
 
 Sayfanın sağ kenarında küçük bir "VFR" sekmesi bulunur. Bu sekme, en son METAR/SPECI'nin görüş ve bulut tabanı (tavan) değerlerini ICAO Annex 2 (Rules of the Air) Table 3-1'in FL100 altı satırıyla (görüş ≥ 5 km, tavan ≥ 1.500 ft — Sabiha Gökçen CTR'si sürekli kontrollü hava sahası olduğu için tüm irtifalarda aynı eşik) karşılaştırır ve şartlar sağlanıyorsa yeşil, sağlanmıyorsa kırmızı yanar. Kırmızıyken/tıklandığında açılan panelde hangi eşiğin (görüş ve/veya tavan) sağlanmadığı yazar. Bu, projedeki diğer METAR-tabanlı göstergelerle (ör. sis riski) aynı mantıkla çalışan, tamamen statik/deterministik bir hesaplamadır — ek kurulum, Firebase veya harici veri kaynağı gerektirmez; hiçbir zaman "LVO/CAT II" gibi operasyonel bir karar iddiasında bulunmaz, sadece görüş/tavan-VFR eşiği karşılaştırmasıdır.
 
-### 8. Yazı Tipi (yazitipi/)
+### 8. Tasarım Sistemi (renk/yüzey token'ları)
+
+Her anlamsal renk eskiden sayfaya **dağılmış sabit hex** olarak duruyordu.
+"Dikkat" tonu (`#b45309` açık / `#fbbf24` koyu) **üç ayrı kuralda**, her biri
+ayrıca **iki koyu tema bloğunda** tekrarlanmıştı — dokuz yer. Birini
+güncelleyip ötekileri unutmak an meselesiydi.
+
+**Yüzey katmanları:** `--bg` → `--panel` → `--kart` → `--etkilesim`. Her katman
+bir üstünden ayrışır; koyu temada saf siyah ve aşırı kontrast yok.
+
+**Anlamsal renkler** durum anlatır, dekorasyon değildir:
+
+| Token | Kullanım |
+|---|---|
+| `--iyi` / `--iyi-zemin` / `--iyi-dolu` | metin / rozet arka planı / dolu yüzey |
+| `--dikkat` / `--dikkat-zemin` / `--dikkat-dolu` | bayat veri, sis saati uyarısı |
+| `--uyari` / `--uyari-zemin` / `--uyari-metin` | hata, kritik eşik |
+| `--bilgi` / `--bilgi-zemin` | bilgilendirme |
+
+**`RENK_KODU` BU SİSTEME DAHİL DEĞİL.** BLU/WHT/GRN/YLO/AMB/RED bir **havacılık
+durum kodu**, arayüz rengi değil; Telegram tarafıyla aynı kavramı paylaşıyor ve
+tema değiştirince RED'in kırmızılığı değişmemeli. Bir test bunu koruyor.
+
+#### Kontrast ölçüldü, iddia edilmedi
+
+Token tonları WCAG AA (4.5:1) eşiğine karşı **hesaplanarak** seçildi. Yarı
+saydam rozet zeminleri kart rengiyle harmanlanıp ölçüldü:
+
+| Tema | Öğe | Önce | Sonra |
+|---|---|---|---|
+| açık | sis bandı düşük | 2.89:1 ❌ | **6.26:1** ✅ |
+| açık | sis bandı yüksek | 3.97:1 ❌ | **5.32:1** ✅ |
+| koyu | sis bandı düşük | 4.10:1 ❌ | **7.75:1** ✅ |
+| koyu | sis bandı yüksek | 3.14:1 ❌ | **5.48:1** ✅ |
+
+Açık temadaki iki başarısızlık **mevcut bir kusurdu** — token'laştırma sırasında
+ölçünce ortaya çıktı. Hesap testin içinde yaşıyor: token değerleri CSS'ten
+okunup yeniden hesaplanıyor, yani bir sonraki renk değişikliğinde sessizce
+kaybolamaz.
+
+**Hareket azaltma** (`prefers-reduced-motion`) desteği eklendi; sayfa işlevini
+kaybetmez, geçişler anlık olur.
+
+#### Görsel doğrulama
+
+Token'laştırma **saf bir yeniden düzenleme**: 2 tema × 5 sekme = 10 durumun
+**8'i piksel bazında aynı**. Değişen yalnızca İstatistik sekmesi — tam da
+kontrastı düzeltilen yer.
+
+### 9. Uygulama Kabuğu (başlık + ikonlar)
+
+**Başlıkta durum göstergesi:** `CANLI` / `GECİKMELİ` / `VERİ KESİNTİSİ`,
+yanında canlı UTC saati ve METAR/TAF/NOTAM yaşları.
+
+**Durum SUNUCUDA değil İSTEMCİDE hesaplanır.** Sayfa bir vardiya boyunca açık
+kalabiliyor; sunucuda yazılan "CANLI" bir saat sonra yalan olurdu. HTML yalnızca
+gözlem zaman damgasını taşır (`data-gozlem`), etiketi JS 15 saniyede bir
+tazeler. Zaman bilinmiyorsa boş dize gider ve "VERİ YOK" yazılır — uydurma bir
+damga yazmaktansa bilinmediğini söylemek doğru.
+
+**Eşikler tek kaynaktan** (`ltfj_ayarlar.py`):
+
+| Sabit | Değer | Gerekçe |
+|---|---|---|
+| `GOZLEM_TAZE_DK` | 70 | METAR 30 dk kadans + ~5 dk MGM gecikmesi = ~35 dk beklenen azami yaş; eşik bunun **iki katı**. Bir raporu kaçırmak normal, ikisini kaçırmak değil. |
+| `SESSIZLIK_SAAT` | 6 | **Botun Telegram alarmıyla aynı sabit.** `ltfj_bot.py`'den buraya taşındı ki sayfa "canlı" derken Telegram "kesinti" diyemesin. |
+
+#### İkon sistemi
+
+Arayüzde **emoji yok**. Emoji platforma göre bambaşka çizilir, boyu yazı tipiyle
+uyuşmaz ve ekran okuyucu onları yüksek sesle okur. Tümü **satır içi SVG**
+(`IKONLAR` + `ikon()`); ikon fontu ya da sprite dosyası havalimanı ağında
+engellenebilirdi. İkonlar `currentColor` kullanır, yani her temada ve her durum
+renginde kendiliğinden doğru çizilir.
+
+**`RENK_SIMGE` Telegram tarafında KALDI.** Telegram'da SVG yok — orada emoji
+doğru ortam. Yalnızca web kullanımı SVG noktaya çevrildi. Bir test her iki
+tarafı da AST ile doğruluyor.
+
+**Sekme ikonları yalnızca geniş ekran rayında.** Ölçüldü: çubuk 360px'te tam
+kapasitede (326/326px); ikon eklemek NOTAM sekmesini keserdi. DOM'da duruyor ama
+`display:none`, rayda (140px) açılıyor.
+
+### 10. Mevcut Koşullar Kartı (hero)
+
+Dört ölçüm — **GÖRÜŞ · TAVAN · RÜZGÂR · SPREAD** — her biri kendi eğilim
+çizgisiyle. Öncesinde bu değerler düz gri bir **cümleye** gömülüydü:
+
+```
+Rüzgâr 060° 5kt · görüş 400 m · tavan 200 ft · sis · 13°C · QNH 1019
+```
+
+Orada **görüş 400 m** (havalimanını kapatan sayı) ile **QNH 1019** (rutin bilgi)
+aynı puntoda ve aynı gri tondaydı. Kontrolör önce bu dörde bakıyor.
+
+**Aynı sayı iki kez yazılmıyor.** Hero'nun altındaki ikincil satır yalnızca
+hero'da **olmayanları** taşır: hava kodu, çiy noktası, QNH. Bu satır
+`ozet_satiri()` çağırmaz — o **Telegram'ın özeti** ve görüş/tavan/rüzgârı da
+içeriyor. `ozet_satiri()`'na dokunulmadı; Telegram'da aynen kalıyor.
+
+**Eğilim uydurulmaz.** Veri yoksa çizgi çizilmez, "eğilim verisi yok" yazar.
+Çizgiler `currentColor` kullanır, yani her temada doğru tonda çizilir.
+
+**`gorus` artık `olcum_gecmisi`'nde saklanıyor.** Önceden yalnızca
+zaman/rüzgâr/tavan/QNH/sıcaklık/çiy vardı — yani en kritik metriğin eğilimi
+çizilemiyordu. **Geriye dönük doldurma yok:** 6 saatlik pencere dolana kadar
+görüş çizgisi boş kalır, sonra kendiliğinden belirir.
+
+**Durum rengi kartın sol kenarında** (3px şerit) — kart listesini taramak
+anlıklaşıyor. Renk tek başına anlam taşımıyor: rozet metni (BLU/RED) kartta
+kalıyor.
+
+Telefonda 2×2, ≥560px'te tek sırada dört.
+
+### 11. Yazı Tipi (yazitipi/)
 
 Sayfa **IBM Plex Sans** (gövde) ve **IBM Plex Mono** (ham METAR/TAF/NOTAM kod
 blokları) kullanır. Yazı tipleri `yazitipi/` klasöründen, yani **kendi
@@ -119,7 +233,7 @@ Neden bu ikisi:
 Yazı tipleri [SIL Open Font License 1.1](https://github.com/IBM/plex/blob/master/LICENSE.txt)
 ile lisanslıdır.
 
-### 9. Sayfa Düzeni: Sekmeler
+### 12. Sayfa Düzeni: Sekmeler
 
 Sayfa **beş yatay sekmeye** bölündü: **Durum · Beklenti · İstatistik · LVO ·
 NOTAM**. Öncesinde hepsi alt alta katlanır başlıklardı ve sayfa gereksiz
@@ -184,7 +298,7 @@ Bölümler sekme içinde **ayrıca katlanmaz** — sekmeye basıp bir de başlı
 açmak iki tıklama olurdu. LVO'nun eski elle yazılmış aç/kapa mekanizması bu
 yüzden kaldırıldı.
 
-### 9.1. "İstatistik" Sekmesinin İçeriği
+### 12.1. "İstatistik" Sekmesinin İçeriği
 
 Arşivden öğrenilmiş her şey **tek katlanır başlık** altında toplandı:
 
@@ -198,7 +312,7 @@ her yerde koruyor ama istatistikler üç ayrı yere dağılmıştı. LVO panelin
 mı) — onlar ölçüm. "Beklenti" başlığında **kalan** tek şey Open-Meteo model
 tahmini.
 
-### 10. Cron Güvenilirliği (ÖNEMLİ)
+### 13. Cron Güvenilirliği (ÖNEMLİ)
 
 **GitHub zamanlanmış koşuları düşürür.** Bu depoda ölçüldü: dış kaynak
 önbelleği `:3,23,43` (20 dakikada bir) ayarlıyken 26 saatte **78 yerine 6**
@@ -242,7 +356,7 @@ curl -X POST -H "Accept: application/vnd.github+json" \
 PAT'in `repo` yetkisi olmalı. Bu isteği herhangi bir güvenilir zamanlayıcı
 (kendi sunucun, ücretsiz bir cron servisi, bir Raspberry Pi) atabilir.
 
-### 11. SPECI Boşluğu ve `gozlem_arsivi.csv`
+### 14. SPECI Boşluğu ve `gozlem_arsivi.csv`
 
 **Sorun.** Sis geçiş sürelerini (`sis_modeli/gorus_gecis.py`) hesapladığımız
 eğitim arşivi IEM ASOS'tan geliyor ve **SPECI içermiyor**. Ölçüldü: 274.907
