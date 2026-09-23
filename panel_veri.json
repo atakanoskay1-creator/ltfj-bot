@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-23T20:20:57+00:00",
+ "uretildi": "2026-09-23T20:31:06+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-23T19:50:00+00:00",
-  "metin": "METAR LTFJ 231950Z 00000KT CAVOK 13/10 Q1020 NOSIG RMK RWY24R VRB02KT RWY06R VRB02KT RWY24L 07002KT",
+  "zaman": "2026-09-23T20:20:00+00:00",
+  "metin": "METAR LTFJ 232020Z 00000KT CAVOK 13/10 Q1020 NOSIG RMK RWY24R VRB01KT RWY06R VRB02KT RWY24L 02002KT",
   "ruzgar": {
    "yon": 0,
    "hiz": 0,
@@ -43,9 +43,9 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -2.0,
-    "yan": 0.2,
-    "yan_taraf": "soldan",
+    "bas": -1.4,
+    "yan": 1.4,
+    "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
     "degisken": false,
@@ -69,14 +69,6 @@
   "metin": "TAF LTFJ 231640Z 2318/2418 VRB02KT 9999 SCT030 BECMG 2321/2324 CAVOK PROB30 TEMPO 2401/2405 2000 PRFG SCT002 BECMG 2405/2407 SCT030 BECMG 2407/2410 24012KT PROB30 TEMPO 2409/2413 -SHRA FEW018CB BKN030 BECMG 2413/2415 VRB02KT BECMG 2415/2418 CAVOK"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-17T23:20:00+00:00",
-   "ruzgar_hiz": 4,
-   "tavan": 9000,
-   "qnh": 1014,
-   "sicaklik": 17,
-   "cig_noktasi": 16
-  },
   {
    "zaman": "2026-09-17T23:50:00+00:00",
    "ruzgar_hiz": 3,
@@ -2465,6 +2457,15 @@
   },
   {
    "zaman": "2026-09-23T19:50:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 0,
+   "tavan": null,
+   "qnh": 1020,
+   "sicaklik": 13,
+   "cig_noktasi": 10
+  },
+  {
+   "zaman": "2026-09-23T20:20:00+00:00",
    "gorus": 10000,
    "ruzgar_hiz": 0,
    "tavan": null,
