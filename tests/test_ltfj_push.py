@@ -112,7 +112,7 @@ def test_gonder_tum_abonelere_basariyla_gonderir(monkeypatch, sahte_firebase, sa
 
     sonuc = push.gonder("Başlık", "Gövde", "mailto:x@x.com")
 
-    assert sonuc == {"abone": 2, "gonderildi": 2, "silindi": 0, "hata": 0}
+    assert {k: sonuc[k] for k in ("abone", "gonderildi", "silindi", "hata")} == {"abone": 2, "gonderildi": 2, "silindi": 0, "hata": 0}
     assert sahte_pywebpush.webpush.call_count == 2
 
 
@@ -123,7 +123,7 @@ def test_gonder_404_donen_abonelik_silinir(monkeypatch, sahte_firebase, sahte_py
 
     sonuc = push.gonder("Başlık", "Gövde", "mailto:x@x.com")
 
-    assert sonuc == {"abone": 1, "gonderildi": 0, "silindi": 1, "hata": 0}
+    assert {k: sonuc[k] for k in ("abone", "gonderildi", "silindi", "hata")} == {"abone": 1, "gonderildi": 0, "silindi": 1, "hata": 0}
     sahte_firebase.child.assert_called_once_with("a1")
     sahte_firebase.child.return_value.delete.assert_called_once()
 
@@ -147,7 +147,7 @@ def test_gonder_gecici_hata_silmez_sadece_sayar(monkeypatch, sahte_firebase, sah
 
     sonuc = push.gonder("Başlık", "Gövde", "mailto:x@x.com")
 
-    assert sonuc == {"abone": 1, "gonderildi": 0, "silindi": 0, "hata": 1}
+    assert {k: sonuc[k] for k in ("abone", "gonderildi", "silindi", "hata")} == {"abone": 1, "gonderildi": 0, "silindi": 0, "hata": 1}
     sahte_firebase.child.assert_not_called()
 
 
@@ -160,7 +160,7 @@ def test_gonder_bir_abone_basarisiz_digerlerini_engellemiyor(monkeypatch, sahte_
 
     sonuc = push.gonder("Başlık", "Gövde", "mailto:x@x.com")
 
-    assert sonuc == {"abone": 2, "gonderildi": 1, "silindi": 0, "hata": 1}
+    assert {k: sonuc[k] for k in ("abone", "gonderildi", "silindi", "hata")} == {"abone": 2, "gonderildi": 1, "silindi": 0, "hata": 1}
 
 
 def test_gonder_bozuk_kayit_atlanir_crash_etmez(monkeypatch, sahte_firebase, sahte_pywebpush):
@@ -173,14 +173,16 @@ def test_gonder_bozuk_kayit_atlanir_crash_etmez(monkeypatch, sahte_firebase, sah
 
     sonuc = push.gonder("Başlık", "Gövde", "mailto:x@x.com")
 
-    assert sonuc == {"abone": 3, "gonderildi": 1, "silindi": 0, "hata": 0}
+    assert {k: sonuc[k] for k in ("abone", "gonderildi", "silindi", "hata")} == {"abone": 3, "gonderildi": 1, "silindi": 0, "hata": 0}
 
 
 def test_gonder_bos_abonelik_listesinde_crash_etmez(monkeypatch, sahte_firebase, sahte_pywebpush):
     _ortam_ayarla(monkeypatch)
     sahte_firebase.get.return_value = None
 
-    assert push.gonder("Başlık", "Gövde", "mailto:x@x.com") == {"abone": 0, "gonderildi": 0, "silindi": 0, "hata": 0}
+    sonuc = push.gonder("Başlık", "Gövde", "mailto:x@x.com")
+    assert {k: sonuc[k] for k in ("abone", "gonderildi", "silindi", "hata")} == {
+        "abone": 0, "gonderildi": 0, "silindi": 0, "hata": 0}
 
 
 def test_gonder_okuma_hatasinda_ozel_exception_firlatir(monkeypatch, sahte_firebase, sahte_pywebpush):
@@ -188,3 +190,75 @@ def test_gonder_okuma_hatasinda_ozel_exception_firlatir(monkeypatch, sahte_fireb
     sahte_firebase.get.side_effect = RuntimeError("bağlantı koptu")
     with pytest.raises(push.PushGonderimHatasi):
         push.gonder("Başlık", "Gövde", "mailto:x@x.com")
+
+
+# ================================================== hata SEBEPLERI yuzeye cikar
+# KUSUR: eskiden yalnizca hata SAYISI donuyordu. "2 abone, 0 gonderildi,
+# 2 hata" logu VAPID anahtari yanlis mi, ag mi cokmus, abonelik mi bayat
+# ayirt ettirmiyordu - bu oturumda bir sessiz push hatasini teshis etmek
+# tam da bu yuzden uzun surmustu.
+def test_basarili_gonderimde_sebep_listesi_bos(monkeypatch, sahte_firebase, sahte_pywebpush):
+    _ortam_ayarla(monkeypatch)
+    sahte_firebase.get.return_value = {"a1": ABONELIK, "a2": ABONELIK}
+    assert push.gonder("Başlık", "Gövde", "mailto:x@x.com")["sebepler"] == []
+
+
+def test_hata_sebebi_metniyle_birlikte_donuyor(monkeypatch, sahte_firebase, sahte_pywebpush):
+    _ortam_ayarla(monkeypatch)
+    sahte_firebase.get.return_value = {"a1": ABONELIK}
+    sahte_pywebpush.webpush.side_effect = RuntimeError("ag kopuk")
+
+    sonuc = push.gonder("Başlık", "Gövde", "mailto:x@x.com")
+
+    assert sonuc["hata"] == 1
+    assert len(sonuc["sebepler"]) == 1
+    assert "ag kopuk" in sonuc["sebepler"][0]
+    assert "RuntimeError" in sonuc["sebepler"][0]
+
+
+def test_webpush_hatasinda_HTTP_KODU_sebepte_geciyor(monkeypatch, sahte_firebase, sahte_pywebpush):
+    """Kod olmadan "WebPush hatasi" demek teshis ettirmiyor - 500 mu,
+    403 mu (VAPID yanlis) ayirt edilebilmeli."""
+    _ortam_ayarla(monkeypatch)
+    sahte_firebase.get.return_value = {"a1": ABONELIK}
+    sahte_pywebpush.webpush.side_effect = _SahteWebPushException(response=_SahteYanit(403))
+
+    sonuc = push.gonder("Başlık", "Gövde", "mailto:x@x.com")
+
+    assert sonuc["hata"] == 1
+    assert "403" in sonuc["sebepler"][0]
+
+
+def test_ayni_sebep_TEKRARLANMIYOR(monkeypatch, sahte_firebase, sahte_pywebpush):
+    """500 abonenin hepsi ayni sebepten duserse log 500 satir olmamali."""
+    _ortam_ayarla(monkeypatch)
+    sahte_firebase.get.return_value = {"a1": ABONELIK, "a2": ABONELIK, "a3": ABONELIK}
+    sahte_pywebpush.webpush.side_effect = RuntimeError("ayni sebep")
+
+    sonuc = push.gonder("Başlık", "Gövde", "mailto:x@x.com")
+
+    assert sonuc["hata"] == 3
+    assert len(sonuc["sebepler"]) == 1
+
+
+def test_farkli_sebepler_ayri_ayri_toplaniyor(monkeypatch, sahte_firebase, sahte_pywebpush):
+    _ortam_ayarla(monkeypatch)
+    sahte_firebase.get.return_value = {"a1": ABONELIK, "a2": ABONELIK}
+    sahte_pywebpush.webpush.side_effect = [RuntimeError("birinci"), ValueError("ikinci")]
+
+    sonuc = push.gonder("Başlık", "Gövde", "mailto:x@x.com")
+
+    assert len(sonuc["sebepler"]) == 2
+
+
+def test_silinen_abonelik_sebep_uretmiyor(monkeypatch, sahte_firebase, sahte_pywebpush):
+    """404/410 bir HATA degil, beklenen temizlik - sebep listesini
+    kirletmemeli."""
+    _ortam_ayarla(monkeypatch)
+    sahte_firebase.get.return_value = {"a1": ABONELIK}
+    sahte_pywebpush.webpush.side_effect = _SahteWebPushException(response=_SahteYanit(410))
+
+    sonuc = push.gonder("Başlık", "Gövde", "mailto:x@x.com")
+
+    assert sonuc["silindi"] == 1
+    assert sonuc["sebepler"] == []

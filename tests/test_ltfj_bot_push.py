@@ -161,3 +161,88 @@ def test_push_kapaliysa_sebebi_loga_yaziliyor(capsys, monkeypatch, sahte_ltfj_pu
     cikti = capsys.readouterr().out
     assert "atlandı" in cikti and "aktif" in cikti
     sahte_ltfj_push.gonder.assert_not_called()
+
+
+# ============================== Telegram çökünce push ATLANMAMALI (regresyon)
+# GERCEK KUSUR: Telegram hatasi 'continue' ile donguyu atliyordu ve push da
+# onunla birlikte atlaniyordu - yani push'un EN COK gerektigi anda (Telegram
+# cokmus, geriye tek kanal kalmis) hic denenmiyordu. Koddaki aciklama
+# "Telegram basarisiz olsa da dener" deyip parantez icinde kendi kendini
+# yalanliyordu.
+#
+# NOT: bu testler AST ile yazildi, metin aramasiyla DEGIL. Ilk yazilislarinda
+# duz metin arayan surum, ACIKLAMA SATIRINDA gecen kelimeyi kodla karistirdi
+# (bu oturumda ucuncu kez ayni tuzak).
+import ast
+import inspect
+
+import ltfj_bot
+
+
+def _main_agaci():
+    return ast.parse(inspect.getsource(ltfj_bot.main))
+
+
+def _satir(agac, kosul) -> int:
+    for n in ast.walk(agac):
+        if kosul(n):
+            return n.lineno
+    return -1
+
+
+def test_telegram_HATA_BLOGUNDA_continue_YOK():
+    """EN KRITIK REGRESYON TESTI: iki bildirim kanali bagimsiz olmali.
+
+    Dogru kosul, "push'tan sonra bir continue var mi" DEGIL (bu her zaman
+    dogru, cunku yeniden deneme continue'su zaten orada duruyor) - ilk
+    yazilisim tam da bu yuzden kusuru geri koydugumda YESIL kaldi.
+    Asil kosul: Telegram'in except blogunun ICINDE continue olmamali,
+    cunku oradaki bir continue push'u da atlatir."""
+    for n in ast.walk(_main_agaci()):
+        if not isinstance(n, ast.ExceptHandler):
+            continue
+        govde = ast.dump(ast.Module(body=n.body, type_ignores=[]))
+        if "GÖNDERİLEMEDİ" not in govde:
+            continue
+        assert "Continue" not in govde, (
+            "Telegram hata blogunda 'continue' var - push da atlanir, "
+            "yani push'un EN COK gerektigi anda (Telegram cokmus) "
+            "hic denenmez. Kusur geri gelmis.")
+        return
+    raise AssertionError("Telegram hata blogu bulunamadi - test guncellenmeli")
+
+
+def test_push_cagrisi_gercekten_var():
+    """Yukaridaki test tek basina, push cagrisi SILINSE de yesil kalirdi."""
+    assert any(isinstance(n, ast.Call)
+               and getattr(n.func, "id", "") == "push_bildirimi_gonder"
+               for n in ast.walk(_main_agaci()))
+
+
+def test_yeniden_deneme_semantigi_KORUNUYOR():
+    """Telegram basarisizsa rapor 'gonderilen'e girmemeli ki sonraki
+    kosuda tekrar denensin - 'continue' bu yuzden duruyor."""
+    agac = _main_agaci()
+    devam = [n for n in ast.walk(agac) if isinstance(n, ast.Continue)]
+    assert devam, "'continue' kaldirilmis - yeniden deneme semantigi kaybolur"
+    ekleme = _satir(agac, lambda n: isinstance(n, ast.Call)
+                    and getattr(n.func, "attr", "") == "add"
+                    and getattr(n.func.value, "id", "") == "gorulen")
+    assert ekleme > max(d.lineno for d in devam if d.lineno < ekleme)
+
+
+def test_push_izi_telegramdan_AYRI():
+    """Push 'gonderilen'e baglanmis olsaydi Telegram yeniden denenirken
+    push da ikinci kez giderdi - ayni uyari iki kez."""
+    assert "push_gonderilen" in ltfj_bot.state_oku()
+    ana = inspect.getsource(ltfj_bot.main)
+    assert "push_gonderilen" in ana
+
+
+def test_push_izi_budaniyor():
+    """Liste sonsuza kadar buyumemeli."""
+    agac = _main_agaci()
+    atamalar = [n for n in ast.walk(agac) if isinstance(n, ast.Assign)]
+    hedefler = [ast.unparse(t) for a in atamalar for t in a.targets]
+    assert 'state[\'push_gonderilen\']' in hedefler or \
+           'state["push_gonderilen"]' in hedefler
