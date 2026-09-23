@@ -35,7 +35,10 @@ def test_ham_metar_degerleri_seritte():
     assert "3 km" in html
     assert "800 ft" in html
     assert "060°/4" in html
-    assert "Δ2°" in html
+    # Spread artik BIR ONDALIK: hero ile serit tek kaynaktan
+    # bicimleniyor (_olcu) ve hero zaten .1f kullaniyordu. Sifira yakin
+    # spread'de ondalik anlamli - 0.0 ile 0.5 ayri seyler.
+    assert "Δ2.0°" in html
 
 
 def test_hamle_varsa_G_ile_yaziliyor():
@@ -122,13 +125,15 @@ def test_yapiskan_ve_opak(tmp_path):
     saran .yapiskan-ust blogunda; ikisi tek parca halinde yapisiyor.
     Test o yuzden sarmala bakiyor - iddia ayni: kaydirinca kalir."""
     html = _sayfa(tmp_path, [_rapor(METAR)])
-    css = html.split(".yapiskan-ust {")[1].split("}")[0]
+    # Capa TAM KURAL: ".yapiskan-ust {" artik
+    # ".js .yapiskan-ust.serit-acik ..." kuralina da uyuyor.
+    css = html.split("\n  .yapiskan-ust {")[1].split("}")[0]
     assert "position:sticky" in css
     assert "top:0" in css
     assert "background:var(--bg)" in css      # sarmal sayfa zeminini tasir
     # Seridin kendi kutusu da opak kalmali, yoksa sarmalin zemini uzerinden
     # kart gorunumu kaybolur.
-    serit = html.split(".ozet-serit {")[1].split("}")[0]
+    serit = html.split("\n  .ozet-serit {")[1].split("}")[0]
     assert "background:var(--kart)" in serit
 
 
@@ -141,13 +146,15 @@ def test_serit_ve_sekme_TEK_yapiskan_blokta(tmp_path):
     assert 'class="ozet-serit"' in blok
     assert 'class="sekme-cubugu"' in blok
     # Serit kendi basina yapismamali - iki ayri sticky katman olusurdu.
-    assert "position:sticky" not in html.split(".ozet-serit {")[1].split("}")[0]
+    assert "position:sticky" not in html.split("\n  .ozet-serit {")[1].split("}")[0]
 
 
 def test_sabit_katmanlarin_ALTINDA_kaliyor(tmp_path):
     """VFR sekmesi (58) ve ATC modali (65) sabit; yapiskan ust onlarin
     ustune cikarsa modal acikken uzerinde bir cubuk asili kalir."""
     html = _sayfa(tmp_path, [_rapor(METAR)])
-    css = html.split(".yapiskan-ust {")[1].split("}")[0]
+    # Capa TAM KURAL: ".yapiskan-ust {" artik
+    # ".js .yapiskan-ust.serit-acik ..." kuralina da uyuyor.
+    css = html.split("\n  .yapiskan-ust {")[1].split("}")[0]
     z = int(css.split("z-index:")[1].split(";")[0])
     assert 1 < z < 55

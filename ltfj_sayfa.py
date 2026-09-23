@@ -24,7 +24,9 @@ from ltfj_analiz import metar_coz, ozet_satiri, uyarilar
 # tasidi, tekrarlamayalim. ltfj_rasat zaten import edildigi icin ek bir
 # agir bagimlilik gelmiyor.
 from ltfj_dis_kaynak_cache import SIS_KODLARI
-from ltfj_ayarlar import GOZLEM_TAZE_DK, SESSIZLIK_SAAT, YEREL_TZ
+from ltfj_ayarlar import (GOZLEM_BEKLENEN_DK, GOZLEM_TAZE_DK,
+                          SESSIZLIK_SAAT, YEREL_TZ)
+import ltfj_pist as pist
 from ltfj_pist import havacilik_notlari
 from ltfj_rasat import taf_bicimle
 
@@ -38,6 +40,24 @@ RENK_KODU = {
     "BLU": "#3b82f6", "WHT": "#94a3b8", "GRN": "#22c55e",
     "YLO": "#eab308", "AMB": "#f97316", "RED": "#ef4444",
 }
+
+def _zaman_metni(an: datetime, tarihli: bool = False) -> str:
+    """TEK ZAMAN KURALI: UTC esas, yerel parantez icinde.
+
+    Olculdu: sayfada BES ayri bicim vardi -
+        19:20Z · 23.09 19:20Z · 23.09.2026 23:07 · 23:07 yerel · 231920Z
+    ve dordu ayni ilk ekranda goruluyordu. Havacilikta zaman UTC
+    konusulur; yerel saat gerekli ama ikincil ve her seferinde farkli
+    yazilinca okuyucu her defasinda yeniden yorumluyor.
+
+    HAM METAR DAMGASINA (231920Z) DOKUNULMUYOR - o rapor metninin
+    kendisi, bizim bicimimiz degil.
+    """
+    utc = an.astimezone(timezone.utc)
+    yerel = an.astimezone(YEREL_TZ)
+    on = f"{utc:%d.%m} " if tarihli else ""
+    return f"{on}{utc:%H:%M}Z ({yerel:%H:%M} yerel)"
+
 
 # ---------------------------------------------------------------- ikonlar
 # Brief: arayuzde emoji YOK. Emoji platforma gore bambaska cizilir, boyu
@@ -180,10 +200,31 @@ SABLON = """<!DOCTYPE html>
     /* Metin tonlari OLCULEREK secildi - WCAG AA (4.5:1), kendi "-zemin"
        tonlarinin uzerinde. Onceki degerler (#16a34a / #dc2626) acik temada
        2.89:1 ve 3.97:1 veriyordu, yani AA'nin altindaydi. */
+    /* FAB yuzeyi: acik temada koyu disk, koyu temada YUKSELTILMIS
+       YUZEY. Tek kural (--vurgu/--bg) kullanilinca koyu temada FAB
+       neredeyse beyaz oluyordu (olculen bagil parlaklik 0.853, hero
+       0.023 - 37 kat). Gece karartilmis bir kulede ekranin en parlak
+       nesnesi "not ekle" dugmesi olmamali. */
+    --fab-zemin:#0f172a; --fab-metin:#f8fafc; --fab-cizgi:transparent;
     --iyi:#166534;    --iyi-zemin:#22c55e26;    --iyi-dolu:#22c55e;
     --dikkat:#b45309; --dikkat-zemin:#f59e0b26; --dikkat-dolu:#f59e0b;
     --uyari:#ef4444;  --uyari-zemin:#ef444426;  --uyari-metin:#b91c1c;
     --bilgi:#2563eb;  --bilgi-zemin:#3b82f626;
+    /* TIPOGRAFI OLCEGI - 6 ADIM.
+       Olculdu: tek telefon ekraninda 17 FARKLI punto vardi ve 11'i
+       9.9-14.1px arasina sikismisti; o araliktaki farki goz zaten
+       ayirt etmiyor, yani 11 ayri karar sifir hiyerarsi kazanci
+       veriyordu. Asil sorun ustteki bosluktu: 16.8px ile 24px arasinda
+       HICBIR SEY yoktu, yani sayfada sadece uc gercek katman vardi -
+       "hero", "baslik" ve "geri kalan her sey". Ikincil ama onemli bir
+       seyi (hamle, QNH, pist ruzgari) vurgulamak icin elde arac yoktu.
+       f4/f5 tam o boslugu dolduruyor. */
+    --f1:.6875rem;   /* 11px - birim, etiket, dipnot           */
+    --f2:.8125rem;   /* 13px - ikincil govde, tablo, rozet     */
+    --f3:.9375rem;   /* 15px - govde                           */
+    --f4:1.125rem;   /* 18px - bolum basligi, h1               */
+    --f5:1.375rem;   /* 22px - vurgu (dar ekranda hero)        */
+    --f6:1.75rem;    /* 28px - hero                            */
     /* olcek */
     --r1:8px; --r2:12px; --r3:16px;
   }}
@@ -197,6 +238,7 @@ SABLON = """<!DOCTYPE html>
       --metin:#e8eefc; --soluk:#8fa0bf; --sessiz:#64748b; --vurgu:#e8eefc;
       --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
       --bilgi:#60a5fa;
+      --fab-zemin:#1e2a44; --fab-metin:#e8eefc; --fab-cizgi:#31405f;
     }}
   }}
   :root[data-theme="dark"] {{
@@ -205,6 +247,7 @@ SABLON = """<!DOCTYPE html>
     --metin:#e8eefc; --soluk:#8fa0bf; --sessiz:#64748b; --vurgu:#e8eefc;
     --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
     --bilgi:#60a5fa;
+    --fab-zemin:#1e2a44; --fab-metin:#e8eefc; --fab-cizgi:#31405f;
   }}
   /* Hareket azaltma tercihi: isletim sisteminde acan kullanici icin tum
      gecis ve animasyonlar durur. Sayfa islevini KAYBETMEZ - donen ok yine
@@ -220,7 +263,11 @@ SABLON = """<!DOCTYPE html>
     margin:0; background:var(--bg); color:var(--metin);
     /* 1.55 -> 1.62: sayfadaki uzun Turkce uyari paragraflari icin
        gozu dinlendiren asil degisiklik satir araligi. */
-    font:16px/1.62 "IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,
+    /* Govde punto'su da OLCEKTEN. 16px birakilinca acikca boyut
+       verilmeyen ogeler olcek disina dusuyordu (olculdu: 2 oge). rem
+       koke gore hesaplandigi icin bunu degistirmek --fN degerlerini
+       ETKILEMEZ, yalnizca mirasla gelen metni hizalar. */
+    font:var(--f3)/1.62 "IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,
          "Segoe UI",Roboto,sans-serif;
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
     padding:24px 16px 48px;
@@ -231,12 +278,16 @@ SABLON = """<!DOCTYPE html>
     justify-content:space-between; gap:12px;
   }}
   .header-metin {{ min-width:0; }}
-  h1 {{ font-size:1.5rem; margin:0 0 4px; letter-spacing:-.02em; }}
-  .alt {{ color:var(--soluk); font-size:.875rem; }}
+  /* Ö4: 1.5rem (24px) iken hero sayilariyla (24px w650) AYNI boydaydi.
+     Istasyon kodu SABIT bilgi - ilk saniyeden sonra sifir bilgi tasir;
+     dort olcumle ayni gorsel agirlikta olmasi icin sebep yok. 18px
+     teyit icin fazlasiyla yeterli ve olcegin (Ö5) bir adimi. */
+  h1 {{ font-size:var(--f4); margin:0 0 4px; letter-spacing:-.01em; }}
+  .alt {{ color:var(--soluk); font-size:var(--f3); }}
   button.yenile {{
     flex-shrink:0; background:var(--kod-bg); border:1px solid var(--cizgi);
     color:var(--soluk); border-radius:8px; padding:8px 12px; font:inherit;
-    font-size:.82rem; font-weight:650; cursor:pointer; white-space:nowrap;
+    font-size:var(--f2); font-weight:650; cursor:pointer; white-space:nowrap;
   }}
   button.yenile:hover {{ color:var(--metin); border-color:var(--vurgu); }}
   button.yenile:disabled {{ opacity:.6; cursor:default; }}
@@ -244,8 +295,18 @@ SABLON = """<!DOCTYPE html>
   @media (max-width:480px) {{
     header {{ flex-wrap:wrap; }}
     .header-metin {{ flex:1 1 100%; }}
-    .header-butonlar {{ flex:1 1 100%; justify-content:flex-end; }}
-    button.yenile {{ padding:8px 10px; font-size:.78rem; }}
+    /* VFR SEKMESININ OLUGUNU AYIR. Sekme position:fixed, sag kenarda
+       ve 29px genis; bu kirilimin altinda dugmeler ikinci satira inip
+       tam sekmenin dikey bandina (96-144px) denk geliyordu. Olculdu:
+       390px'te "Yenile"nin sag 13px'i sekmenin altinda kaliyordu -
+       yani dugmenin o seridine basan parmak Yenile'yi degil VFR
+       panelini aciyordu. 481px ve ustunde dugmeler ust satirda kaldigi
+       icin (y=24-63) dikey ortusme zaten yok; bu yuzden dolgu SADECE
+       burada. */
+    .header-butonlar {{
+      flex:1 1 100%; justify-content:flex-end; padding-right:34px;
+    }}
+    button.yenile {{ padding:8px 10px; font-size:var(--f2); }}
   }}
   /* YAPISKAN UST = ozet serit + sekme cubugu, TEK sticky blok.
      Ikisini ayri ayri yapiskan yapmak, sekme cubuguna "serit ne kadar
@@ -254,6 +315,16 @@ SABLON = """<!DOCTYPE html>
      sorunu tamamen ortadan kaldiriyor.
      z-index kasitli olarak 40: sayfa icerigiNIN ustunde, ama sabit
      kapli katmanlarin (VFR sekmesi 58, ATC modali 65) ALTINDA. */
+  /* SU AN blogu - hero'nun yeni evi. Kart icinde degil, sayfanin
+     tepesinde; kenarlik kartlarla ayni dilde ama baslik satiri yok
+     (sekme cubugu ve baslik zaten baglami veriyor). */
+  .su-an {{ margin:10px 0 0; }}
+  .su-an .hero {{ margin:0; }}
+  /* Serit, hero gorunurken GIZLI. .js sinifi <head>'de ekleniyor, yani
+     JS varsa serit hic cizilmeden basliyor - acilista yanip sonme yok.
+     JS yoksa kural hic uygulanmaz ve ikisi de gorunur kalir. */
+  .js .ozet-serit {{ display:none; }}
+  .js .yapiskan-ust.serit-acik .ozet-serit {{ display:flex; }}
   .yapiskan-ust {{
     position:sticky; top:0; z-index:40;
     background:var(--bg); margin:0 0 16px; padding-top:2px;
@@ -262,19 +333,19 @@ SABLON = """<!DOCTYPE html>
     display:flex; align-items:center; gap:8px; flex-wrap:wrap;
     margin:0; padding:9px 12px;
     background:var(--kart); border:1px solid var(--cizgi); border-radius:12px;
-    font-size:.85rem; font-variant-numeric:tabular-nums;
+    font-size:var(--f2); font-variant-numeric:tabular-nums;
   }}
   /* Renk kodu rozeti kart rozetiyle AYNI gorunsun (.rozet ile ayni
      yazi rengi) - iki farkli gorsel dil ayni seyi anlatmasin. */
   .ozet-renk {{
     padding:2px 8px; border-radius:999px; color:#fff;
-    font-weight:700; font-size:.75rem; letter-spacing:.02em;
+    font-weight:700; font-size:var(--f2); letter-spacing:.02em;
   }}
   .ozet-oge {{ color:var(--metin); white-space:nowrap; }}
   /* Ayirici nokta: ogeler arasinda, ilkinden once DEGIL. */
   .ozet-oge + .ozet-oge::before {{ content:"·"; color:var(--soluk); margin-right:8px; }}
   @media (max-width:480px) {{
-    .ozet-serit {{ font-size:.8rem; gap:6px; padding:8px 10px; }}
+    .ozet-serit {{ font-size:var(--f2); gap:6px; padding:8px 10px; }}
     .ozet-oge + .ozet-oge::before {{ margin-right:6px; }}
   }}
 
@@ -299,7 +370,7 @@ SABLON = """<!DOCTYPE html>
   .sekme {{
     flex:1 0 auto; min-height:40px; padding:7px 12px;
     background:none; border:0; border-radius:9px; cursor:pointer;
-    color:var(--soluk); font:inherit; font-size:.82rem; font-weight:600;
+    color:var(--soluk); font:inherit; font-size:var(--f2); font-weight:600;
     white-space:nowrap; display:flex; align-items:center; gap:6px;
     justify-content:center;
   }}
@@ -310,7 +381,7 @@ SABLON = """<!DOCTYPE html>
   .sekme:focus-visible {{ outline:2px solid var(--metin); outline-offset:-2px; }}
   /* Sekme rozeti: kart rozetiyle AYNI gorsel dil, daha kucuk. */
   .sekme-rozet {{
-    font-size:.68rem; font-weight:700; padding:1px 6px; border-radius:999px;
+    font-size:var(--f1); font-weight:700; padding:1px 6px; border-radius:999px;
     background:var(--cizgi); color:var(--metin); font-variant-numeric:tabular-nums;
   }}
   .sekme-rozet:empty {{ display:none; }}
@@ -326,8 +397,8 @@ SABLON = """<!DOCTYPE html>
   @media (max-width:480px) {{
     /* 360px'te bes sekme + rozetler cubugu tasiriyordu ve NOTAM kismen
        kesiliyordu. Yatay dolgu ve rozet en cok yeri yiyen ikisi. */
-    .sekme {{ font-size:.76rem; padding:7px 4px; gap:3px; }}
-    .sekme-rozet {{ font-size:.64rem; padding:1px 4px; }}
+    .sekme {{ font-size:var(--f2); padding:7px 4px; gap:3px; }}
+    .sekme-rozet {{ font-size:var(--f1); padding:1px 4px; }}
     .sekme-cubugu {{ gap:1px; padding:2px; }}
   }}
 
@@ -382,11 +453,11 @@ SABLON = """<!DOCTYPE html>
   /* ---- UYGULAMA BASLIGI ---- */
   h1 {{ display:flex; align-items:baseline; gap:9px; flex-wrap:wrap; }}
   .ust-kod {{ font-weight:700; letter-spacing:.03em; }}
-  .ust-ad {{ font-size:.66em; font-weight:500; color:var(--soluk); }}
+  .ust-ad {{ font-size:.72em; font-weight:500; color:var(--soluk); }}
   .ust-durum-sat {{ display:flex; align-items:center; gap:12px; margin-top:5px; }}
   .ust-durum {{
     display:inline-flex; align-items:center; gap:6px;
-    font-size:.7rem; font-weight:700; letter-spacing:.09em; color:var(--soluk);
+    font-size:var(--f1); font-weight:700; letter-spacing:.09em; color:var(--soluk);
   }}
   .ust-durum .ikon {{ width:.72em; height:.72em; stroke-width:0; fill:currentColor; }}
   .ust-durum.taze {{ color:var(--iyi); }}
@@ -398,7 +469,7 @@ SABLON = """<!DOCTYPE html>
   .ust-durum.taze .ikon {{ animation:ltfj-nabiz 2.6s ease-in-out infinite; }}
   @keyframes ltfj-nabiz {{ 0%,100% {{ opacity:1; }} 50% {{ opacity:.35; }} }}
   .ust-saat {{
-    font-family:var(--mono); font-size:.82rem; color:var(--metin);
+    font-family:var(--mono); font-size:var(--f2); color:var(--metin);
     font-variant-numeric:tabular-nums;
   }}
   .ust-saat:empty {{ display:none; }}
@@ -407,7 +478,7 @@ SABLON = """<!DOCTYPE html>
   .veri-serit {{
     display:flex; flex-wrap:wrap; gap:6px 16px; margin:0 0 16px;
     padding:8px 12px; background:var(--panel); border:1px solid var(--cizgi);
-    border-radius:var(--r1); font-family:var(--mono); font-size:.72rem;
+    border-radius:var(--r1); font-family:var(--mono); font-size:var(--f1);
     color:var(--sessiz);
   }}
   .veri-oge {{ display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }}
@@ -416,7 +487,7 @@ SABLON = """<!DOCTYPE html>
   .veri-oge.bayat time, .veri-oge.bayat span {{ color:var(--dikkat); }}
   .veri-kaynak {{ margin-left:auto; }}
   @media (max-width:480px) {{
-    .veri-serit {{ font-size:.68rem; gap:4px 12px; }}
+    .veri-serit {{ font-size:var(--f1); gap:4px 12px; }}
     .veri-kaynak {{ margin-left:0; flex-basis:100%; }}
   }}
 
@@ -430,29 +501,47 @@ SABLON = """<!DOCTYPE html>
   }}
   @media (min-width:560px) {{ .hero {{ grid-template-columns:repeat(4,1fr); }} }}
   .hero-oge {{ background:var(--kart); padding:10px 12px 8px; color:var(--soluk); }}
+  /* Ö6: 9.9px + --sessiz = ACIK temada 2.56:1, koyuda 3.64:1 - ikisi de
+     AA'nin (4.5) altinda. Bunlar sayfadaki EN BUYUK dort sayinin ne
+     oldugunu soyleyen etiketler; gunes altinda rakam gorunup etiketi
+     gorunmuyordu. --soluk ile acikta 4.76:1, koyuda 6.56:1. */
   .hero-etiket {{
-    font-size:.62rem; font-weight:700; letter-spacing:.1em;
-    text-transform:uppercase; color:var(--sessiz);
+    font-size:var(--f1); font-weight:700; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--soluk);
   }}
   .hero-deger {{
-    font-size:1.7rem; font-weight:650; line-height:1.15; margin-top:2px;
+    font-size:var(--f6); font-weight:650; line-height:1.15; margin-top:2px;
     font-variant-numeric:tabular-nums; color:var(--metin);
   }}
+  /* Esik asiminda SAYININ KENDISI degisiyor (bkz. _olcu_bandi).
+     Renk TEK BASINA tasiyici degil: yanindaki "sınırlı"/"eşik altı"
+     etiketi ayni bilgiyi metinle de veriyor. */
+  .hero-deger.hero-dikkat {{ color:var(--dikkat); }}
+  .hero-deger.hero-uyari  {{ color:var(--uyari-metin); font-weight:750; }}
+  .hero-band-etiket {{
+    margin-left:6px; font-size:var(--f1); font-weight:700;
+    letter-spacing:.02em; text-transform:none; color:var(--dikkat);
+  }}
+  /* Band sinifi HUCREDE de duruyor; :has() gerekmiyor. */
+  .hero-oge-uyari .hero-band-etiket {{ color:var(--uyari-metin); }}
+  /* "bildirilmedi" bir SAYI degil - hero puntosunda sayfanin en buyuk
+     yazisi oluyor ve yoklugu olculmus bir degerden baskin gosteriyordu. */
+  .hero-deger-metin {{ font-size:var(--f3); font-weight:600; color:var(--soluk); }}
   .hero-birim {{
-    font-size:.72rem; font-weight:500; color:var(--soluk); margin-left:3px;
+    font-size:var(--f1); font-weight:500; color:var(--soluk); margin-left:3px;
   }}
   /* currentColor: kivilcim .hero-oge'nin soluk rengini alir, yani her
      temada kendiliginden dogru tonda cizilir. */
   .hero-kivilcim {{ display:block; margin-top:4px; height:20px; width:100%; }}
   .hero-yok {{
-    margin-top:4px; height:20px; font-size:.62rem; color:var(--sessiz);
+    margin-top:4px; height:20px; font-size:var(--f1); color:var(--sessiz);
     display:flex; align-items:center;
   }}
-  .ozet-ikincil {{ font-size:.84rem; color:var(--soluk); margin:0 0 10px; }}
+  .ozet-ikincil {{ font-size:var(--f2); color:var(--soluk); margin:0 0 10px; }}
   /* Durum rengi kartin sol kenarinda - liste taranirken once goze carpar. */
   .kart.kart-durum {{ border-left:3px solid var(--durum-renk, var(--cizgi)); }}
   @media (max-width:480px) {{
-    .hero-deger {{ font-size:1.5rem; }}
+    .hero-deger {{ font-size:var(--f5); }}
     .hero-oge {{ padding:9px 10px 7px; }}
   }}
 
@@ -468,30 +557,30 @@ SABLON = """<!DOCTYPE html>
   }}
   .basrow {{ display:flex; align-items:center; gap:10px; flex-wrap:wrap;
              margin-bottom:12px; }}
-  .tip {{ font-weight:650; font-size:1.05rem; }}
-  .zaman {{ color:var(--soluk); font-size:.85rem; }}
+  .tip {{ font-weight:650; font-size:var(--f4); }}
+  .zaman {{ color:var(--soluk); font-size:var(--f2); }}
   .rozet {{
     margin-left:auto; padding:3px 10px; border-radius:999px;
-    font-size:.78rem; font-weight:650; color:#fff; white-space:nowrap;
+    font-size:var(--f2); font-weight:650; color:#fff; white-space:nowrap;
   }}
   .dikkat {{
     background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.35);
-    border-radius:10px; padding:10px 12px; margin:12px 0; font-size:.9rem;
+    border-radius:10px; padding:10px 12px; margin:12px 0; font-size:var(--f3);
   }}
-  .ozet {{ color:var(--soluk); font-size:.92rem; margin:10px 0; }}
+  .ozet {{ color:var(--soluk); font-size:var(--f3); margin:10px 0; }}
   .yorum {{
     background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:10px;
-    padding:10px 12px; margin:12px 0; font-size:.88rem; line-height:1.6;
+    padding:10px 12px; margin:12px 0; font-size:var(--f3); line-height:1.6;
   }}
-  .yorum-etiket {{ color:var(--soluk); font-size:.72rem; margin-bottom:4px; }}
-  .pist-kaynak {{ color:var(--soluk); font-size:.78rem; margin-top:6px; }}
-  table {{ width:100%; border-collapse:collapse; font-size:.88rem; margin-top:10px; }}
+  .yorum-etiket {{ color:var(--soluk); font-size:var(--f1); margin-bottom:4px; }}
+  .pist-kaynak {{ color:var(--soluk); font-size:var(--f2); margin-top:6px; }}
+  table {{ width:100%; border-collapse:collapse; font-size:var(--f3); margin-top:10px; }}
   td {{ padding:7px 0; border-bottom:1px solid var(--cizgi); }}
   td:first-child {{ color:var(--soluk); width:42%; }}
   tr:last-child td {{ border-bottom:none; }}
   pre {{
     background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:10px;
-    padding:12px; overflow-x:auto; font-size:.8rem; line-height:1.5;
+    padding:12px; overflow-x:auto; font-size:var(--f2); line-height:1.5;
     font-family:var(--mono); margin:12px 0 0;
     white-space:pre-wrap; word-break:break-word;
   }}
@@ -502,26 +591,26 @@ SABLON = """<!DOCTYPE html>
      degil. (Sayfadaki tek diger text-align:center, tahmin seridindeki
      tek kelimelik hucreler - orada dogru tercih.) */
   footer {{
-    color:var(--soluk); font-size:.8rem; margin-top:28px;
+    color:var(--soluk); font-size:var(--f2); margin-top:28px;
     text-align:left; text-wrap:pretty;
   }}
   a {{ color:inherit; }}
   .panel-link {{
     display:inline-block; margin-top:12px; padding:7px 14px; border-radius:8px;
     background:var(--vurgu); color:var(--bg); text-decoration:none;
-    font-size:.82rem; font-weight:650;
+    font-size:var(--f2); font-weight:650;
   }}
-  .grafik-ust {{ font-weight:650; margin-bottom:12px; font-size:.95rem; }}
+  .grafik-ust {{ font-weight:650; margin-bottom:12px; font-size:var(--f3); }}
   .grafik-grid {{ display:grid; grid-template-columns:1fr 1fr; gap:18px 20px; }}
   @media (max-width:480px) {{ .grafik-grid {{ grid-template-columns:1fr; }} }}
   .grafik-baslik {{ display:flex; justify-content:space-between; align-items:baseline;
-                     font-size:.85rem; color:var(--soluk); margin-bottom:4px; }}
+                     font-size:var(--f2); color:var(--soluk); margin-bottom:4px; }}
   .grafik-son {{ color:var(--metin); font-weight:650; }}
   .grafik-son-yok {{ color:var(--soluk); font-weight:600; font-style:italic; }}
   .grafik {{ width:100%; height:64px; display:block; }}
   .grafik-eksen {{ display:flex; justify-content:space-between;
-                    font-size:.72rem; color:var(--soluk); margin-top:2px; }}
-  .grafik-durum-notu {{ font-size:.72rem; color:var(--soluk); margin-top:4px;
+                    font-size:var(--f1); color:var(--soluk); margin-top:2px; }}
+  .grafik-durum-notu {{ font-size:var(--f1); color:var(--soluk); margin-top:4px;
                           font-style:italic; }}
   /* Imlec/parmak altindaki noktanin saat+degerini gosteren balon. Dokunmatik
      cihazda dikey sayfa kaydirma bozulmasin diye touch-action:pan-y - yatay
@@ -539,7 +628,7 @@ SABLON = """<!DOCTYPE html>
   .grafik-balon {{
     position:absolute; top:0;
     background:var(--kart); border:1px solid var(--cizgi); border-radius:7px;
-    padding:3px 8px; font-size:.74rem; font-weight:600; white-space:nowrap;
+    padding:3px 8px; font-size:var(--f2); font-weight:600; white-space:nowrap;
     color:var(--metin); pointer-events:none; z-index:3;
     box-shadow:0 2px 10px rgba(0,0,0,.35);
   }}
@@ -547,20 +636,20 @@ SABLON = """<!DOCTYPE html>
 
   .sis-olasilik-ust {{ display:flex; align-items:baseline; gap:10px; margin:6px 0 2px; }}
   .sis-olasilik-deger {{
-    font-size:2.2rem; font-weight:700; line-height:1.1;
+    font-size:var(--f6); font-weight:700; line-height:1.1;
   }}
   .sis-olasilik-bant {{
-    font-size:.74rem; font-weight:650; padding:2px 9px; border-radius:999px;
+    font-size:var(--f2); font-weight:650; padding:2px 9px; border-radius:999px;
     text-transform:uppercase; letter-spacing:.03em;
   }}
   .sis-olasilik-bant.dusuk {{ background:var(--iyi-zemin); color:var(--iyi); }}
   .sis-olasilik-bant.orta {{ background:#f9731626; color:#ea580c; }}
   .sis-olasilik-bant.yuksek {{ background:var(--uyari-zemin); color:var(--uyari-metin); }}
-  .gecis-tablo {{ width:100%; border-collapse:collapse; font-size:.82rem;
+  .gecis-tablo {{ width:100%; border-collapse:collapse; font-size:var(--f2);
                   margin-top:8px; font-variant-numeric:tabular-nums; }}
   .gecis-tablo th, .gecis-tablo td {{ padding:6px 4px; text-align:right;
                                       border-bottom:1px solid var(--cizgi); }}
-  .gecis-tablo thead th {{ color:var(--soluk); font-weight:650; font-size:.74rem; }}
+  .gecis-tablo thead th {{ color:var(--soluk); font-weight:650; font-size:var(--f2); }}
   /* Satir basligi SOLA yasli - sayilar saga, etiket sola; karisik
      hizalama tabloyu okunmaz yapardi. */
   .gecis-tablo tbody th {{ text-align:left; font-weight:600; }}
@@ -572,24 +661,24 @@ SABLON = """<!DOCTYPE html>
   .gecis-tablo tbody tr:last-child td {{ border-bottom:0; }}
   .gecis-n {{ color:var(--soluk); }}
   .gecis-caption {{ caption-side:top; text-align:left; color:var(--soluk);
-                    font-size:.72rem; padding-bottom:2px; }}
-  .gecis-esik {{ display:block; font-weight:400; font-size:.72rem;
+                    font-size:var(--f1); padding-bottom:2px; }}
+  .gecis-esik {{ display:block; font-weight:400; font-size:var(--f1);
                  color:var(--soluk); }}
-  .sis-olasilik-alt {{ font-size:.85rem; color:var(--soluk); }}
-  .sis-olasilik-kiyas {{ font-size:.8rem; color:var(--soluk); margin-top:6px; }}
+  .sis-olasilik-alt {{ font-size:var(--f2); color:var(--soluk); }}
+  .sis-olasilik-kiyas {{ font-size:var(--f2); color:var(--soluk); margin-top:6px; }}
   .sis-olasilik-ek {{
-    font-size:.8rem; color:var(--soluk); margin-top:10px; padding-top:8px;
+    font-size:var(--f2); color:var(--soluk); margin-top:10px; padding-top:8px;
     border-top:1px dashed var(--cizgi);
   }}
   .sis-olasilik-ek .sis-olasilik-bant {{ margin-left:4px; }}
-  .sis-olasilik-ek-not {{ font-size:.72rem; color:var(--soluk); margin-top:4px; }}
+  .sis-olasilik-ek-not {{ font-size:var(--f1); color:var(--soluk); margin-top:4px; }}
   .sis-olasilik-not {{
-    font-size:.74rem; color:var(--soluk); margin-top:10px; line-height:1.5;
+    font-size:var(--f2); color:var(--soluk); margin-top:10px; line-height:1.5;
     border-top:1px solid var(--cizgi); padding-top:8px;
   }}
   .sis-olasilik-diyagram-btn {{
     margin-top:10px; background:none; border:1px solid var(--cizgi);
-    color:var(--vurgu); font-size:.78rem; font-weight:650; padding:6px 12px;
+    color:var(--vurgu); font-size:var(--f2); font-weight:650; padding:6px 12px;
     border-radius:8px; cursor:pointer;
   }}
   .sis-olasilik-diyagram-btn:hover {{ background:var(--kod-bg); }}
@@ -601,45 +690,45 @@ SABLON = """<!DOCTYPE html>
      dokunusla aciliyor. */
   .kat {{ margin-top:10px; }}
   /* Flex DEGIL: baslik metni uzun rozetle yan yana gelince flex ogesi
-     daralip "Trend · son 6 saat" uc satira kiriliyordu. Normal akis +
+     daralip baslik uc satira kiriliyordu. Normal akis +
      mutlak konumlu ok, metnin dogal sarmasina izin verir. */
   .kat > summary {{
     cursor:pointer; user-select:none; list-style:none;
     position:relative; padding-right:20px;
-    font-size:.82rem; color:var(--soluk);
+    font-size:var(--f2); color:var(--soluk);
   }}
   .kat > summary::-webkit-details-marker {{ display:none; }}
   .kat > summary::after {{
-    content:"▶"; font-size:.7rem; position:absolute; right:0; top:.2em;
+    content:"▶"; font-size:var(--f1); position:absolute; right:0; top:.2em;
     transition:transform .15s ease; display:inline-block;
   }}
   .kat[open] > summary::after {{ transform:rotate(90deg); }}
   .kat > summary:hover {{ color:var(--metin); }}
   .kat-rozet {{
-    font-family:var(--mono); font-size:.75rem;
+    font-family:var(--mono); font-size:var(--f2);
     color:var(--metin); font-weight:600; margin-left:8px;
   }}
   /* Kart basligi olarak kullanilan katlanabilir summary - .basrow ile ayni
      tipografi (Trend / NOTAM Geçmişi gibi bolum basliklari icin). */
-  .kat-kart > summary {{ font-size:1rem; color:var(--metin); font-weight:650; }}
+  .kat-kart > summary {{ font-size:var(--f4); color:var(--metin); font-weight:650; }}
   /* Bir katlanir kartin icindeki alt bolumler - araya ince cizgi girsin ki
      saatlik tahmin ile olasilik karti ayri ayri okunabilsin (eskiden ayri
      kartlardi). Bolum adlari burada YAZILMIYOR: testler bu adlarin sayfada
      bulunup bulunmadigina bakiyor, CSS yorumu yanlis pozitif uretirdi. */
   .alt-bolum {{ padding-top:12px; }}
   .alt-bolum + .alt-bolum {{ margin-top:12px; border-top:1px solid var(--cizgi); }}
-  .kat-kart > summary::after {{ font-size:.7rem; color:var(--soluk); }}
+  .kat-kart > summary::after {{ font-size:var(--f1); color:var(--soluk); }}
 
   /* Önümüzdeki saatler şeridi - dar ekranda yatay kaydirilir, dikey
      kaydirmayi bolmesin diye sabit yukseklikli hucreler. */
   .tahmin-uyari {{
     background:rgba(234,179,8,.12); border:1px solid rgba(234,179,8,.4);
-    border-radius:10px; padding:8px 10px; margin:8px 0 12px; font-size:.8rem;
+    border-radius:10px; padding:8px 10px; margin:8px 0 12px; font-size:var(--f2);
   }}
   /* Tahminin yasi - sadece TAHMIN_YAS_UYARI_DK'yi gecince cizilir.
      Uyari rengi DEGIL: bayat tahmin bir hata degil, sadece bir baglam. */
   .tahmin-yas {{
-    margin-left:auto; font-size:.72rem; color:var(--soluk);
+    margin-left:auto; font-size:var(--f1); color:var(--soluk);
     border:1px solid var(--cizgi); border-radius:999px; padding:2px 8px;
     white-space:nowrap;
   }}
@@ -678,7 +767,7 @@ SABLON = """<!DOCTYPE html>
      neydi" bilgisi ekrandan cikmasin. Kolon 12 saat uzunlugunda. */
   .tahmin-tablo th[scope="row"] {{
     position:sticky; left:0; z-index:1; background:var(--kart);
-    text-align:left; font-weight:600; font-size:.76rem; color:var(--soluk);
+    text-align:left; font-weight:600; font-size:var(--f2); color:var(--soluk);
     border-right:1px solid var(--cizgi);
     /* width:1% -> tarayici bu sutunu ICERIGE gore daraltir. Olmadan
        min-width:100%'ten artan bosluğun tamamini ilk sutun yutuyor ve
@@ -687,31 +776,31 @@ SABLON = """<!DOCTYPE html>
   }}
   .tahmin-birim {{
     display:inline-block; margin-left:5px; font-weight:400;
-    font-size:.68rem; opacity:.75;
+    font-size:var(--f1); opacity:.75;
   }}
-  .tahmin-saat {{ font-size:.76rem; font-weight:650; font-family:var(--mono); }}
+  .tahmin-saat {{ font-size:var(--f2); font-weight:650; font-family:var(--mono); }}
   /* Spread en guclu onculer gostergeydi (bkz. sis_modeli/README.md) -
      tabloda da one cikiyor. */
-  .tahmin-vurgu td {{ font-size:1rem; font-weight:700; color:var(--metin); }}
-  .tahmin-tablo td {{ font-size:.8rem; color:var(--metin); }}
+  .tahmin-vurgu td {{ font-size:var(--f3); font-weight:700; color:var(--metin); }}
+  .tahmin-tablo td {{ font-size:var(--f2); color:var(--metin); }}
   /* Modelin sis kodu verdigi saat: TUM kolon hafifce boyanir, basligina
      simge+metin gelir. Renk TEK BASINA tasiyici degil - renk korlugunde
      ve tek renkli baskida da "sis" yazisi okunur. */
   .tahmin-sisli {{ background:rgba(234,179,8,.12); }}
   .tahmin-sis {{
-    font-size:.66rem; font-weight:700; color:var(--dikkat);
+    font-size:var(--f1); font-weight:700; color:var(--dikkat);
     margin-top:2px; display:flex; align-items:center; gap:3px;
     justify-content:center;
   }}
-  .tahmin-aciklama {{ font-size:.72rem; color:var(--soluk); margin-top:8px; }}
+  .tahmin-aciklama {{ font-size:var(--f1); color:var(--soluk); margin-top:8px; }}
 
-  .bolum-baslik {{ font-weight:650; font-size:1.05rem; margin:28px 0 12px; }}
+  .bolum-baslik {{ font-weight:650; font-size:var(--f4); margin:28px 0 12px; }}
   /* Bayat senkron uyarisi - kirmizi DEGIL: liste hala dogru olabilir,
      sadece dogrulanmamis. Kirmizi "yanlis" ima ederdi. */
   .notam-senkron-bayat {{ color:var(--dikkat); font-weight:650; }}
   .notam-uyari {{
     background:rgba(234,179,8,.12); border:1px solid rgba(234,179,8,.4);
-    border-radius:10px; padding:10px 12px; margin-bottom:14px; font-size:.85rem;
+    border-radius:10px; padding:10px 12px; margin-bottom:14px; font-size:var(--f2);
   }}
   .notam-kart {{
     border-bottom:1px solid var(--cizgi); padding:12px 0;
@@ -721,10 +810,10 @@ SABLON = """<!DOCTYPE html>
                 margin-bottom:6px; }}
   .notam-no {{ font-weight:650; font-family:var(--mono); }}
   .notam-etiket {{
-    padding:2px 8px; border-radius:999px; font-size:.72rem; font-weight:600;
+    padding:2px 8px; border-radius:999px; font-size:var(--f1); font-weight:600;
     background:var(--kod-bg); border:1px solid var(--cizgi); color:var(--soluk);
   }}
-  .notam-durum {{ font-size:.75rem; color:var(--soluk); margin-left:auto; }}
+  .notam-durum {{ font-size:var(--f2); color:var(--soluk); margin-left:auto; }}
   /* Suresi dolmus / henuz baslamamis NOTAM'in durum etiketi - soluk griden
      ayrilsin ki arama sonuclarinda yururlukte olanla karistirilmasin. */
   .notam-durum-gecmis {{ color:var(--dikkat); font-weight:600; }}
@@ -734,29 +823,29 @@ SABLON = """<!DOCTYPE html>
   }}
   .notam-aktif-baslik {{ cursor:pointer; user-select:none; }}
   .notam-aktif-sayi {{
-    color:var(--soluk); font-size:.82rem; margin-left:auto; margin-right:4px;
+    color:var(--soluk); font-size:var(--f2); margin-left:auto; margin-right:4px;
   }}
   .notam-ok {{
-    font-size:.7rem; color:var(--soluk); transition:transform .15s ease;
+    font-size:var(--f1); color:var(--soluk); transition:transform .15s ease;
     display:inline-block;
   }}
   .notam-ok.acik {{ transform:rotate(90deg); }}
-  .notam-ozet {{ font-size:.88rem; margin:4px 0; }}
+  .notam-ozet {{ font-size:var(--f3); margin:4px 0; }}
   .notam-metin {{
     background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:8px;
-    padding:10px; font-size:.78rem; line-height:1.5; margin-top:6px;
+    padding:10px; font-size:var(--f2); line-height:1.5; margin-top:6px;
     font-family:var(--mono); white-space:pre-wrap;
     word-break:break-word;
   }}
-  .notam-kaynak {{ font-size:.72rem; color:var(--soluk); margin-top:6px; }}
-  .notam-bos {{ color:var(--soluk); font-size:.88rem; padding:8px 0; }}
+  .notam-kaynak {{ font-size:var(--f1); color:var(--soluk); margin-top:6px; }}
+  .notam-bos {{ color:var(--soluk); font-size:var(--f3); padding:8px 0; }}
   .notam-arama {{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }}
   .notam-arama input, .notam-arama select {{
     /* min-width:0 olmadan flex ogesi kendi icerik genisliginin altina
        inemez - dar telefonlarda select'in etiketi kirpiliyordu. */
     flex:1 1 140px; min-width:0; padding:8px 10px; border-radius:8px;
     border:1px solid var(--cizgi);
-    background:var(--bg); color:var(--metin); font-size:.85rem;
+    background:var(--bg); color:var(--metin); font-size:var(--f2);
   }}
   /* SESSIZ dugme. Eskiden dolu koyu zeminliydi ve NOTAM panelindeki tek
      dolu dugme oydu - yani gozun ilk gittigi yer "filtreyi temizle"
@@ -766,58 +855,58 @@ SABLON = """<!DOCTYPE html>
   .notam-arama button {{
     padding:8px 14px; border-radius:8px; border:1px solid var(--cizgi);
     background:transparent; color:var(--soluk); font-weight:600;
-    font-size:.85rem; cursor:pointer;
+    font-size:var(--f2); cursor:pointer;
   }}
   .notam-arama button:hover {{ background:var(--etkilesim); color:var(--metin); }}
-  .notam-arama-not {{ color:var(--soluk); font-size:.78rem; margin:-8px 0 12px; }}
+  .notam-arama-not {{ color:var(--soluk); font-size:var(--f2); margin:-8px 0 12px; }}
 
   /* LVO REFERENCE - METAR/NOTAM/ATC Notes'tan gorsel olarak ayri, saf
      bilgi/referans paneli. Hicbir karar uretmez (bkz. ltfj_lvo_referans.py). */
   .lvo-alt-baslik {{
-    font-weight:650; font-size:.92rem; margin:18px 0 8px; display:flex;
+    font-weight:650; font-size:var(--f3); margin:18px 0 8px; display:flex;
     align-items:center; gap:8px;
   }}
   .lvo-alt-baslik:first-child {{ margin-top:0; }}
   .lvo-provenance {{
-    display:inline-block; padding:2px 8px; border-radius:999px; font-size:.68rem;
+    display:inline-block; padding:2px 8px; border-radius:999px; font-size:var(--f1);
     font-weight:700; letter-spacing:.02em; background:var(--kod-bg);
     border:1px solid var(--cizgi); color:var(--soluk);
   }}
-  .lvo-tablo {{ width:100%; border-collapse:collapse; font-size:.82rem; margin:6px 0 10px; }}
+  .lvo-tablo {{ width:100%; border-collapse:collapse; font-size:var(--f2); margin:6px 0 10px; }}
   .lvo-tablo th, .lvo-tablo td {{
     padding:6px 8px; border-bottom:1px solid var(--cizgi); text-align:left;
     width:auto;
   }}
-  .lvo-tablo th {{ color:var(--soluk); font-weight:600; font-size:.72rem; }}
-  .lvo-esik-liste {{ font-size:.85rem; margin:4px 0 12px; }}
+  .lvo-tablo th {{ color:var(--soluk); font-weight:600; font-size:var(--f1); }}
+  .lvo-esik-liste {{ font-size:var(--f2); margin:4px 0 12px; }}
   .lvo-esik-satir {{
     display:flex; justify-content:space-between; gap:10px; padding:6px 0;
     border-bottom:1px solid var(--cizgi);
   }}
   .lvo-esik-satir:last-child {{ border-bottom:none; }}
   .lvo-esik-deger {{ font-weight:650; font-family:var(--mono); }}
-  .lvo-not-listesi {{ font-size:.78rem; color:var(--soluk); margin:8px 0 0; padding-left:18px; }}
+  .lvo-not-listesi {{ font-size:var(--f2); color:var(--soluk); margin:8px 0 0; padding-left:18px; }}
   .lvo-not-listesi li {{ margin-bottom:4px; }}
   .lvo-awos-grid {{ display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; }}
   .lvo-awos-kart {{
     border:1px solid var(--cizgi); border-radius:10px; padding:10px 12px; background:var(--kod-bg);
   }}
   .lvo-awos-pist {{ font-weight:650; margin-bottom:6px; }}
-  .lvo-awos-deger {{ display:flex; justify-content:space-between; font-size:.85rem; padding:3px 0; }}
-  .lvo-awos-alt {{ font-size:.72rem; color:var(--soluk); margin-top:6px; }}
+  .lvo-awos-deger {{ display:flex; justify-content:space-between; font-size:var(--f2); padding:3px 0; }}
+  .lvo-awos-alt {{ font-size:var(--f1); color:var(--soluk); margin-top:6px; }}
   .lvo-stale {{
     color:var(--uyari); font-weight:700; margin-left:6px;
   }}
   .lvo-form {{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; align-items:flex-end; }}
-  .lvo-form label {{ display:block; font-size:.72rem; color:var(--soluk); margin-bottom:3px; }}
+  .lvo-form label {{ display:block; font-size:var(--f1); color:var(--soluk); margin-bottom:3px; }}
   .lvo-form input, .lvo-form select {{
     padding:8px 10px; border-radius:8px; border:1px solid var(--cizgi);
-    background:var(--bg); color:var(--metin); font-size:.85rem; width:100%; box-sizing:border-box;
+    background:var(--bg); color:var(--metin); font-size:var(--f2); width:100%; box-sizing:border-box;
   }}
   .lvo-form-alan {{ flex:1 1 100px; }}
   .lvo-form button {{
     padding:8px 14px; border-radius:8px; border:none; background:var(--vurgu);
-    color:var(--bg); font-weight:650; font-size:.85rem; cursor:pointer; flex-shrink:0;
+    color:var(--bg); font-weight:650; font-size:var(--f2); cursor:pointer; flex-shrink:0;
   }}
   /* Temizleme YIKICI ve PAYLASILAN veriyi siler - kaydet butonuyla ayni
      agirlikta durmasin diye ikincil (cerceveli) gorunum. */
@@ -825,15 +914,15 @@ SABLON = """<!DOCTYPE html>
     background:transparent; color:var(--soluk); border:1px solid var(--cizgi);
   }}
   .lvo-form button.lvo-awos-temizle:hover {{ color:var(--uyari); border-color:var(--uyari); }}
-  .lvo-hata {{ color:var(--uyari); font-size:.8rem; margin-top:6px; min-height:1.1em; }}
-  .lvo-esik-kaynak {{ font-size:.72rem; color:var(--soluk); display:block; margin-top:2px; }}
+  .lvo-hata {{ color:var(--uyari); font-size:var(--f2); margin-top:6px; min-height:1.1em; }}
+  .lvo-esik-kaynak {{ font-size:var(--f1); color:var(--soluk); display:block; margin-top:2px; }}
 
   .atc-not-ekle-btn {{
     margin-left:auto; padding:6px 12px; border-radius:8px; border:none;
-    background:var(--vurgu); color:var(--bg); font-weight:650; font-size:.82rem;
+    background:var(--vurgu); color:var(--bg); font-weight:650; font-size:var(--f2);
     cursor:pointer;
   }}
-  .atc-not-kalan {{ color:var(--soluk); font-size:.72rem; margin-top:6px; }}
+  .atc-not-kalan {{ color:var(--soluk); font-size:var(--f1); margin-top:6px; }}
 
   /* ATC Notes artik sayfa akisinda degil - sag altta sabit duran bir
      dugmeyle (FAB) acilan yuzen bir panel. Telefonda alttan yukari kayan
@@ -841,15 +930,19 @@ SABLON = """<!DOCTYPE html>
   .atc-fab {{
     position:fixed; right:16px;
     bottom:calc(16px + env(safe-area-inset-bottom, 0px));
-    width:56px; height:56px; border-radius:999px; border:none;
-    background:var(--vurgu); color:var(--bg); font-size:1.4rem;
+    width:56px; height:56px; border-radius:999px;
+    /* Dokunma hedefi 56px KALIYOR - degisen yalnizca yuzey. Koyu temada
+       kenarlik veriliyor cunku zemin artik sayfayla yakin degerde ve
+       dugmenin sinirinin gorunmesi gerekiyor. */
+    border:1px solid var(--fab-cizgi);
+    background:var(--fab-zemin); color:var(--fab-metin); font-size:var(--f5);
     box-shadow:0 4px 16px rgba(0,0,0,.3); cursor:pointer; z-index:60;
     display:flex; align-items:center; justify-content:center;
   }}
   .atc-fab-rozet {{
     position:absolute; top:-2px; right:-2px; min-width:20px; height:20px;
     padding:0 5px; border-radius:999px; background:var(--uyari); color:#fff;
-    font-size:.68rem; font-weight:700; display:flex; align-items:center;
+    font-size:var(--f1); font-weight:700; display:flex; align-items:center;
     justify-content:center; border:2px solid var(--bg);
   }}
   .atc-fab-rozet[hidden] {{ display:none; }}
@@ -868,10 +961,10 @@ SABLON = """<!DOCTYPE html>
     display:flex; align-items:center; gap:10px; padding:16px 16px 10px;
     border-bottom:1px solid var(--cizgi); flex-shrink:0;
   }}
-  .atc-panel-ust .tip {{ font-weight:650; font-size:1.05rem; }}
+  .atc-panel-ust .tip {{ font-weight:650; font-size:var(--f4); }}
   .atc-panel-kapat {{
     width:32px; height:32px; border-radius:999px; border:none; flex-shrink:0;
-    background:var(--kod-bg); color:var(--metin); font-size:1.1rem; cursor:pointer;
+    background:var(--kod-bg); color:var(--metin); font-size:var(--f4); cursor:pointer;
     display:flex; align-items:center; justify-content:center;
   }}
   .atc-panel-govde {{ overflow-y:auto; padding:14px 16px 20px; -webkit-overflow-scrolling:touch; }}
@@ -895,17 +988,17 @@ SABLON = """<!DOCTYPE html>
   }}
   .modal-kutu-genis {{ max-width:820px; max-height:90vh; overflow:auto; }}
   .modal-kutu-genis img {{ width:100%; height:auto; border-radius:8px; display:block; }}
-  .modal-kutu h3 {{ margin:0 0 4px; font-size:1.05rem; }}
-  .modal-kutu label {{ display:block; font-size:.82rem; color:var(--soluk); margin:12px 0 4px; }}
+  .modal-kutu h3 {{ margin:0 0 4px; font-size:var(--f4); }}
+  .modal-kutu label {{ display:block; font-size:var(--f2); color:var(--soluk); margin:12px 0 4px; }}
   .modal-kutu input, .modal-kutu textarea {{
     width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--cizgi);
-    background:var(--bg); color:var(--metin); font-size:.9rem; font-family:inherit;
+    background:var(--bg); color:var(--metin); font-size:var(--f3); font-family:inherit;
     box-sizing:border-box; resize:vertical;
   }}
-  .modal-hata {{ color:var(--uyari); font-size:.8rem; margin-top:8px; min-height:1.1em; }}
+  .modal-hata {{ color:var(--uyari); font-size:var(--f2); margin-top:8px; min-height:1.1em; }}
   .modal-butonlar {{ display:flex; gap:8px; justify-content:flex-end; margin-top:14px; }}
   .modal-butonlar button {{
-    padding:8px 16px; border-radius:8px; border:none; font-weight:650; font-size:.85rem;
+    padding:8px 16px; border-radius:8px; border:none; font-weight:650; font-size:var(--f2);
     cursor:pointer;
   }}
   #atc-not-kaydet {{ background:var(--vurgu); color:var(--bg); }}
@@ -918,13 +1011,21 @@ SABLON = """<!DOCTYPE html>
   .vfr-sekme {{
     position:fixed; top:96px; right:0; z-index:58; border:none;
     padding:10px 7px; border-radius:10px 0 0 10px; color:#fff;
-    font-weight:700; font-size:.8rem; letter-spacing:.05em; cursor:pointer;
+    font-weight:700; font-size:var(--f2); letter-spacing:.05em; cursor:pointer;
     writing-mode:vertical-rl; text-orientation:mixed;
     box-shadow:0 2px 10px rgba(0,0,0,.3);
   }}
-  .vfr-sekme.vfr-yesil {{ background:#22c55e; }}
-  .vfr-sekme.vfr-kirmizi {{ background:#ef4444; }}
-  .vfr-sekme.vfr-bilinmiyor {{ background:#64748b; }}
+  /* Zeminler KOYULASTIRILDI. Olculen: beyaz yazi uzerinde
+     #22c55e = 2.28:1 (sayfadaki EN DUSUK kontrast, hem de emniyetle
+     en ilgili gostergede), #ef4444 = 3.76:1. Ikisi de AA'nin (4.5)
+     altindaydi. Ton korundu, yalnizca deger dusuruldu:
+       #15803d = 5.02:1   #b91c1c = 6.47:1   #475569 = 7.58:1
+     .vfr-nokta renkleri DEGISMEDI: onlar kart zemininde duran kucuk
+     daireler, uzerlerinde yazi yok - metin kontrasti kurali onlara
+     uygulanmaz. */
+  .vfr-sekme.vfr-yesil {{ background:#15803d; }}
+  .vfr-sekme.vfr-kirmizi {{ background:#b91c1c; }}
+  .vfr-sekme.vfr-bilinmiyor {{ background:#475569; }}
   .vfr-panel-ortu {{
     position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:62;
     display:flex; align-items:flex-start; justify-content:flex-end; padding:16px;
@@ -936,13 +1037,13 @@ SABLON = """<!DOCTYPE html>
     box-shadow:0 8px 32px rgba(0,0,0,.35);
   }}
   .vfr-panel-ust {{ display:flex; align-items:center; gap:10px; }}
-  .vfr-panel-ust h3 {{ margin:0; font-size:1rem; display:flex; align-items:center; gap:8px; flex:1; }}
+  .vfr-panel-ust h3 {{ margin:0; font-size:var(--f4); display:flex; align-items:center; gap:8px; flex:1; }}
   .vfr-nokta {{ width:10px; height:10px; border-radius:999px; display:inline-block; flex-shrink:0; }}
   .vfr-nokta.yesil {{ background:#22c55e; }}
   .vfr-nokta.kirmizi {{ background:#ef4444; }}
   .vfr-nokta.bilinmiyor {{ background:#64748b; }}
-  .vfr-panel ul {{ margin:10px 0 0; padding-left:18px; font-size:.85rem; }}
-  .vfr-panel .vfr-esik {{ color:var(--soluk); font-size:.72rem; margin-top:10px; }}
+  .vfr-panel ul {{ margin:10px 0 0; padding-left:18px; font-size:var(--f2); }}
+  .vfr-panel .vfr-esik {{ color:var(--soluk); font-size:var(--f1); margin-top:10px; }}
 </style>
 <script>
   /* SATIR ICI ve GOVDE CIZILMEDEN ONCE olmak ZORUNDA: paneller varsayilan
@@ -996,6 +1097,15 @@ SABLON = """<!DOCTYPE html>
   <span class="veri-oge"><b>NOTAM</b><span id="veri-notam">—</span></span>
   <span class="veri-oge veri-kaynak">MGM · sayfa {guncelleme}</span>
 </div>
+<!-- SU AN blogu: dort ana olcu, sayfanin tepesinde ve KART DISINDA.
+     Ayni dort olcu eskiden hem burada (serit) hem de METAR kartinin
+     icinde (hero) vardi - ikisi ayni ekranda, farkli bicimlerde. Artik
+     tek yerde ve tek bicimde (bkz. _olcu). Serit KALDIRILMADI: hero
+     kaydirinca ekrandan cikiyor, serit yapiskan. Ikisi ayni anda
+     gorunmesin diye serit yalnizca hero ekrandan CIKINCA aciliyor
+     (asagidaki IntersectionObserver). JS yoksa ikisi de gorunur -
+     eski davranis, bilgi kaybi yok. -->
+<div class="su-an" id="su-an">{hero_html}</div>
 <div class="yapiskan-ust">
 {ozet_serit_html}
 {sekme_cubugu_html}
@@ -1187,6 +1297,26 @@ SABLON = """<!DOCTYPE html>
 //
 // GORECELI yaziyoruz cunku sayfadaki saatler yerel, veri UTC: "16:00'da"
 // hangi saat dilimi oldugu soylenmeden yaniltici, "6 sa once" degil.
+// SU AN blogu ekrandan cikinca yapiskan seridi ac. Ikisi ayni dort
+// olcuyu gosteriyor; ayni anda ikisini birden cizmek, ayni sayiyi
+// 374 piksel arayla iki kez yazmak demekti (bkz. _olcu).
+// IntersectionObserver yoksa (cok eski tarayici) serit HEP acik kalir -
+// bilgi kaybi degil, yalnizca tekrar.
+(function () {{
+  var suAn = document.getElementById("su-an");
+  var sarmal = document.querySelector(".yapiskan-ust");
+  if (!sarmal) return;
+  if (!suAn || !("IntersectionObserver" in window)) {{
+    sarmal.classList.add("serit-acik");
+    return;
+  }}
+  new IntersectionObserver(function (girisler) {{
+    girisler.forEach(function (g) {{
+      sarmal.classList.toggle("serit-acik", !g.isIntersecting);
+    }});
+  }}, {{threshold: 0}}).observe(suAn);
+}})();
+
 window.ltfjGecenSure = function (ms) {{
   if (ms == null || isNaN(ms) || ms < 0) return "az önce";
   var dk = Math.floor(ms / 60000);
@@ -1206,6 +1336,7 @@ window.ltfjGecenSure = function (ms) {{
 // SESSIZLIK_SAAT. Ikincisini bot Telegram alarmi icin de kullaniyor -
 // sayfa "canli" derken Telegram "kesinti" diyemesin.
 (function () {{
+  var BEKLENEN_DK = {gozlem_beklenen_dk};
   var TAZE_DK = {gozlem_taze_dk};
   var KESINTI_DK = {sessizlik_saat} * 60;
   var durumEl = document.getElementById("ust-durum");
@@ -1233,7 +1364,13 @@ window.ltfjGecenSure = function (ms) {{
     var dk = yasDk(durumEl.getAttribute("data-gozlem"));
     var sinif, metin;
     if (dk === null) {{ sinif = "kesinti"; metin = "VERİ YOK"; }}
-    else if (dk <= TAZE_DK) {{ sinif = "taze"; metin = "CANLI"; }}
+    else if (dk <= BEKLENEN_DK) {{ sinif = "taze"; metin = "CANLI"; }}
+    // BESINCI DURUM. Dort durum varken 35-70 dk arasi "CANLI" kutusunun
+    // icindeydi: METAR 49 dakikalikken rozet CANLI diyordu. Oysa kadans
+    // 30 dk + ~5 dk gecikme, yani o aralik "bir gozlem kacti" demek.
+    // Kacirilmis bir gozlem hata degil (MGM gecikebilir) ama CANLI da
+    // degil - okuyanin bilmesi gereken bir sey.
+    else if (dk <= TAZE_DK) {{ sinif = "gecikmeli"; metin = "1 GÖZLEM KAÇTI"; }}
     else if (dk <= KESINTI_DK) {{ sinif = "gecikmeli"; metin = "GECİKMELİ"; }}
     else {{ sinif = "kesinti"; metin = "VERİ KESİNTİSİ"; }}
     durumEl.className = "ust-durum " + sinif;
@@ -1409,7 +1546,7 @@ window.ltfjKalanSure = function (ms) {{
     }}).join("");
     var ozet = n.reading_short
       ? '<div class="notam-ozet">' + esc(n.reading_short) +
-        ' <span style="color:var(--soluk); font-size:.75rem;">(NOTAC otomatik özeti — hata içerebilir)</span></div>'
+        ' <span style="color:var(--soluk); font-size:var(--f2);">(NOTAC otomatik özeti — hata içerebilir)</span></div>'
       : "";
     var g = gecerlilik(n);
     // Yesil nokta SADECE su anda gercekten yururlukte olan NOTAM'a konur.
@@ -1423,7 +1560,7 @@ window.ltfjKalanSure = function (ms) {{
       '<span class="notam-durum' + (g.vurgula ? " notam-durum-gecmis" : "") + '">' +
       esc(g.etiket) + "</span></div>" +
       ozet +
-      "<details><summary style=\\"cursor:pointer; font-size:.82rem; color:var(--soluk);\\">Ham NOTAM metni</summary>" +
+      "<details><summary style=\\"cursor:pointer; font-size:var(--f2); color:var(--soluk);\\">Ham NOTAM metni</summary>" +
       '<div class="notam-metin">' + esc(n.text || "") + "</div></details>" +
       '<div class="notam-kaynak">Kaynak: NOTAC · geçerlilik: ' +
       esc(n.effective_start || "—") + " → " + esc(n.effective_end || "—") + "</div>" +
@@ -2521,7 +2658,6 @@ def _grafik_blogu(alan: str, baslik: str, birim: str, renk: str,
         return ""
     svg, oranlar = cizim
     son_deger = noktalar[-1][1]
-    son_zaman_yerel = noktalar[-1][0].astimezone(YEREL_TZ)
     baslangic = noktalar[0][0].astimezone(YEREL_TZ)
     # raporlanmiyor iken eksenin sag ucu SON GERCEK olcume degil, en son
     # METAR/SPECI'nin zamanina (guncel_zaman) kadar uzatilir - aksi halde
@@ -2544,7 +2680,7 @@ def _grafik_blogu(alan: str, baslik: str, birim: str, renk: str,
         son_etiket = '<span class="grafik-son grafik-son-yok">raporlanmıyor</span>'
         durum_notu = (
             f'<div class="grafik-durum-notu">Son ölçüm: {son_deger:.0f} '
-            f'{html.escape(birim)} · {son_zaman_yerel:%H:%M} yerel — o zamandan '
+            f'{html.escape(birim)} · {_zaman_metni(noktalar[-1][0])} — o zamandan '
             f'beri raporlanmıyor.</div>'
         )
     else:
@@ -2581,13 +2717,20 @@ def _trend_bolumu(gecmis: list) -> str:
     # Rozet SADECE degerler - basliklari da yazinca uc satira tasiyordu ve
     # ozet rozeti okunabilirligini kaybediyordu. Hemen altindaki grafikler
     # zaten hangi degerin ne oldugunu adiyla yaziyor.
-    ozet = " · ".join(
-        f"{guncel[alan]:g}{birim}"
-        for alan, _, birim, _ in GRAFIKLER
-        if guncel and guncel.get(alan) is not None)
-    rozet = f'<span class="kat-rozet">{html.escape(ozet)}</span>' if ozet else ""
+    # ROZET ARTIK SAYI DEGIL, SAYIM. Eskiden kapali baslik "1kt · 1020hPa
+    # · 13°C" yaziyordu ve bu bolum METAR kartinin USTUNDEYDI. Kotu havada
+    # sonuc su oluyordu:
+    #     Trend · son 6 saat   1kt · 1020hPa · 13°C   <- 6 SAATLIK GECMIS
+    #     METAR                090°/12G22 · Q1008     <- SU AN
+    # Ust satir alttakiyle CELISIYOR ve daha yukarida duruyordu; "Trend"
+    # kelimesi disinda bunun gecmis oldugunu soyleyen hicbir sey yoktu.
+    # Simdi rozet yalnizca kac olcum oldugunu soyluyor - guncel deger
+    # sanilabilecek hicbir sayi yok.
+    n = len([g for g in gecmis if g.get("zaman")])
+    rozet = (f'<span class="kat-rozet">{len(bloklar)} grafik · {n} ölçüm</span>'
+             if n else "")
     return ('<div class="kart"><details class="kat kat-kart">'
-            f'<summary>Trend · son 6 saat {rozet}</summary>'
+            f'<summary>Geçmiş eğilim · son 6 saat {rozet}</summary>'
             f'<div class="grafik-grid">{"".join(bloklar)}</div>'
             "</details></div>")
 
@@ -2642,7 +2785,7 @@ def _lvo_dokuman_referans_html() -> str:
         'D) Doküman Referansı '
         f'<span class="lvo-provenance">{html.escape(lvo.DOKUMAN["etiket"])}</span>'
         '</summary>'
-        f'<div style="font-size:.85rem;">{html.escape(lvo.DOKUMAN["baslik"])}<br>'
+        f'<div style="font-size:var(--f2);">{html.escape(lvo.DOKUMAN["baslik"])}<br>'
         f'<b>{html.escape(lvo.DOKUMAN["dok_no"])} {html.escape(lvo.DOKUMAN["rev_no"])} — '
         f'{html.escape(lvo.DOKUMAN["rev_tarihi"])}</b></div>'
         '<table class="lvo-tablo"><thead><tr><th>Pist</th><th>Kategori</th>'
@@ -2650,13 +2793,13 @@ def _lvo_dokuman_referans_html() -> str:
         f"<tbody>{pist_satirlari}</tbody></table>"
         '<table class="lvo-tablo"><thead><tr><th>Kategori</th><th>RVR</th><th>DH</th></tr></thead>'
         f"<tbody>{kategori_satirlari}</tbody></table>"
-        '<div style="font-size:.8rem;font-weight:600;margin-top:.4rem;">'
+        '<div style="font-size:var(--f2);font-weight:600;margin-top:.4rem;">'
         "RVR eşikleri (madde 6.1.ee)</div>"
         f'<div class="lvo-esik-liste">{esik_satirlari}</div>'
-        '<div style="font-size:.8rem;font-weight:600;margin-top:.4rem;">'
+        '<div style="font-size:var(--f2);font-weight:600;margin-top:.4rem;">'
         "Bulut tabanı (ceiling) eşikleri — RVR'dan bağımsız, paralel tetikleyici</div>"
         f'<div class="lvo-esik-liste">{bulut_satirlari}</div>'
-        f'<div style="font-size:.8rem;margin-top:.4rem;">{html.escape(lvo.BULUT_PILOT_RAPORU_ISTISNASI)}</div>'
+        f'<div style="font-size:var(--f2);margin-top:.4rem;">{html.escape(lvo.BULUT_PILOT_RAPORU_ISTISNASI)}</div>'
         f'<ul class="lvo-not-listesi">{not_maddeleri}</ul>'
         "</details>"
     )
@@ -2920,11 +3063,13 @@ def _yorum_html(yorum: str) -> str:
 #   "Rüzgâr 060° 5kt · görüş 400 m · tavan 200 ft · sis · 13°C · QNH 1019"
 # Orada GORUS 400 m (havalimanini kapatan sayi) ile QNH 1019 (rutin bilgi)
 # ayni punto ve ayni gri tondaydi. Kontrolor once bu dorde bakiyor.
+# Birim artik burada DEGIL _olcu()'de: "10+ km" ile "300 m" ayni alanda
+# farkli birim tasiyor, sabit bir birim dizesi bunu anlatamiyordu.
 HERO_ALANLAR = (
-    ("GÖRÜŞ",  "gorus",   "m",  "gorus"),
-    ("TAVAN",  "tavan",   "ft", "tavan"),
-    ("RÜZGÂR", "_ruzgar", "kt", "ruzgar_hiz"),
-    ("SPREAD", "_spread", "°C", "_spread"),
+    ("GÖRÜŞ",  "gorus",   "gorus"),
+    ("TAVAN",  "tavan",   "tavan"),
+    ("RÜZGÂR", "_ruzgar", "ruzgar_hiz"),
+    ("SPREAD", "_spread", "_spread"),
 )
 
 
@@ -2949,28 +3094,116 @@ def _kivilcim(gecmis: list, alan: str, simdi: datetime) -> str:
     return svg.replace("<svg ", '<svg class="hero-kivilcim" aria-hidden="true" ', 1)
 
 
-def _hero_deger(cozum: dict, anahtar: str) -> str:
+def _olcu(cozum: dict, anahtar: str) -> tuple[str, str]:
+    """Dort ana olcunun (deger, birim) bicimi - TEK KAYNAK.
+
+    NEDEN TEK KAYNAK: hero ile ozet serit ayni dort olcuyu AYRI AYRI
+    biciimlendiriyordu ve ikisi ayni ekranda, 374 piksel arayla,
+    BIRBIRINDEN FARKLI konusuyordu:
+
+        olcu    serit          hero
+        gorus   "10+ km"       "9999 m"
+        tavan   "tavan yok"    "— ft"
+        ruzgar  "VRB/1"        "VRB/1 kt"
+        spread  "Δ3°"          "3.0 °C"
+
+    Hangisinin dogru oldugu okuyucuya birakilmisti. "9999" zaten
+    METAR'in "10 km ve ustu" kodudur; serit onu ceviriyor, hero
+    cevirmeden basiyordu.
+
+    Insan dili SECILDI: ham METAR zaten kartin icinde duruyor, burasi
+    okunmak icin. "—" yerine "bildirilmedi": 24px'lik bir tire kalin
+    yatay bir cubuk olarak ciziliyor ve "ustu cizilmis deger" gibi
+    okunuyordu - yokluk ile sifir ayirt edilemiyordu."""
+    if anahtar == "gorus":
+        m = cozum.get("gorus")
+        if m is None:
+            return "bildirilmedi", ""
+        if m >= 9999:
+            return "10+", "km"
+        return (f"{m / 1000:g}", "km") if m >= 1000 else (f"{m:g}", "m")
+    if anahtar == "tavan":
+        t = cozum.get("tavan")
+        return ("bildirilmedi", "") if t is None else (f"{t:g}", "ft")
     if anahtar == "_ruzgar":
         yon, hiz = cozum.get("ruzgar_yon"), cozum.get("ruzgar_hiz")
         if hiz is None:
-            return "—"
-        return f"{yon:03d}°/{hiz}" if yon is not None else f"VRB/{hiz}"
+            return "bildirilmedi", ""
+        temel = f"{yon:03d}°/{hiz}" if yon is not None else f"VRB/{hiz}"
+        # HAMLE HERO'YA GIRIYOR. Oncesinde yalnizca serit ve ham metin
+        # tasiyordu: METAR "09012G22KT" iken sayfadaki EN BUYUK yazi
+        # "090°/12 kt" diyordu. 12 kt ile 22 kt arasindaki fark bir pist
+        # tercihini degistirebilir; ruzgarin operasyonel olarak daha
+        # belirleyici yarisi en buyuk yazidan dusurulmustu.
+        hamle = cozum.get("ruzgar_hamle")
+        return (temel + (f"G{hamle}" if hamle else ""), "kt")
     if anahtar == "_spread":
         t, c = cozum.get("sicaklik"), cozum.get("cig_noktasi")
-        return "—" if None in (t, c) else f"{t - c:.1f}"
+        return ("bildirilmedi", "") if None in (t, c) else (f"{t - c:.1f}", "°C")
     v = cozum.get(anahtar)
-    return "—" if v is None else f"{v:g}"
+    return ("bildirilmedi", "") if v is None else (f"{v:g}", "")
+
+
+def _hero_deger(cozum: dict, anahtar: str) -> str:
+    """Geriye uyumluluk: eski cagiranlar icin tek dize."""
+    deger, birim = _olcu(cozum, anahtar)
+    return f"{deger} {birim}".strip()
+
+
+def _olcu_bandi(cozum: dict, anahtar: str) -> str:
+    """Tek bir olcunun renk bandi - YENI ESIK UYDURULMUYOR.
+
+    ltfj_pist.RENK_DURUMLARI'nin AYNISI kullaniliyor, yalnizca tek
+    degiskene uygulanarak: gorus icin gorus sutunu, tavan icin tavan
+    sutunu. Yani sayfa "kendi esigini" tanimlamiyor; Telegram'in ve
+    rozetin kullandigi tablonun ayni satirlarina bakiyor.
+
+    NEDEN GEREKLI (olculdu): RED durumunda hero'nun dort sayisi BLU
+    durumuyla birebir ayni biciimde ciziliyordu - 28px, ayni siyah,
+    ayni agirlik. "300 m" ile "9999 m" gorsel olarak ayirt
+    edilemiyordu; sinyalin tamami sayilarin ETRAFINDAKI rozette ve
+    kutudaydi. Goz once rakama gider.
+
+    Doner: "" (vurgu yok) | "dikkat" | "uyari"."""
+    if anahtar == "gorus":
+        v, sutun = cozum.get("gorus"), 2
+    elif anahtar == "tavan":
+        v, sutun = cozum.get("tavan"), 1
+    else:
+        return ""
+    if v is None:
+        return ""
+    # Tablo iyiden kotuye sirali; ilk saglanan bant bu olcunun bandi.
+    for kod, min_tavan, min_gorus in pist.RENK_DURUMLARI:
+        if v >= (min_tavan if sutun == 1 else min_gorus):
+            return "dikkat" if kod in ("YLO", "AMB") else ""
+    return "uyari"      # tablonun en alt satirinin da altinda = RED
 
 
 def _hero_html(cozum: dict, gecmis: list, simdi: datetime) -> str:
     hucreler = []
-    for etiket, anahtar, birim, trend in HERO_ALANLAR:
-        deger = _hero_deger(cozum, anahtar)
+    for etiket, anahtar, trend in HERO_ALANLAR:
+        deger, birim = _olcu(cozum, anahtar)
         kiv = _kivilcim(gecmis, trend, simdi)
+        band = _olcu_bandi(cozum, anahtar)
+        # RENK TEK TASIYICI DEGIL: bandla birlikte etiketin yanina metin
+        # bir isaret de giriyor. Renk korlugunde, tek renkli baskida ve
+        # gunes altinda renk tek basina guvenilmez.
+        band_isareti = ("" if not band else
+                        f'<span class="hero-band-etiket">'
+                        f'{"eşik altı" if band == "uyari" else "sınırlı"}</span>')
+        # "bildirilmedi" bir SAYI DEGIL: 28px'te sayfanin en buyuk yazisi
+        # oluyordu ve yoklugu, olculen bir degerden daha baskin gosteriyordu.
+        sinif = "hero-deger" + (" hero-deger-metin" if not birim else "")
+        if band:
+            sinif += f" hero-{band}"
         hucreler.append(
-            f'<div class="hero-oge"><div class="hero-etiket">{etiket}</div>'
-            f'<div class="hero-deger">{html.escape(deger)}'
-            f'<span class="hero-birim">{birim}</span></div>'
+            f'<div class="hero-oge{" hero-oge-" + band if band else ""}">'
+            f'<div class="hero-etiket">{etiket}'
+            f'{band_isareti}</div>'
+            f'<div class="{sinif}">{html.escape(deger)}'
+            + (f'<span class="hero-birim">{birim}</span>' if birim else "")
+            + '</div>'
             + (kiv or '<div class="hero-yok">eğilim verisi yok</div>') + "</div>")
     return '<div class="hero">' + "".join(hucreler) + "</div>"
 
@@ -3003,8 +3236,7 @@ def _kart(rapor: dict, yorum_onbellegi: dict | None = None,
 
     ad = tip + (f' {rapor["duzeltme"]}' if rapor.get("duzeltme") else "")
     if rapor.get("zaman"):
-        yerel = rapor["zaman"].astimezone(YEREL_TZ)
-        zaman = f'{rapor["zaman"]:%d.%m %H:%M}Z · {yerel:%H:%M} yerel'
+        zaman = _zaman_metni(rapor["zaman"], tarihli=True)
     else:
         zaman = ""
 
@@ -3056,8 +3288,11 @@ def _kart(rapor: dict, yorum_onbellegi: dict | None = None,
             p.append(f'<div class="dikkat"><b>Dikkat</b> · '
                      f'{html.escape(" · ".join(dikkat))}</div>')
 
-        p.append(_hero_html(cozum, gecmis or [],
-                            simdi or datetime.now(timezone.utc)))
+        # HERO ARTIK BURADA DEGIL, SAYFANIN TEPESINDE (bkz. sayfa_yaz).
+        # Olculdu: 390px telefonda hero y=609'da basliyordu - ilk ekranin
+        # %72'si asagida. Ustunde sirasiyla baslik, dugmeler, ozet serit,
+        # sekme cubugu ve kartin kendi basligi/yapay zeka ozeti vardi.
+        # Yani sayfanin EN BUYUK dort sayisi, en gec gorulen seylerdendi.
         ikincil = _ikincil_satir(cozum)
         if ikincil:
             p.append(f'<div class="ozet-ikincil">{html.escape(ikincil)}</div>')
@@ -3308,22 +3543,18 @@ def _ozet_serit_html(cozum: dict | None, notlar: dict | None) -> str:
     if not cozum:
         return ""
 
-    def _gorus(m):
-        if m is None:
-            return "—"
-        return "10+ km" if m >= 9999 else (f"{m / 1000:g} km" if m >= 1000 else f"{m} m")
-
-    tavan = cozum.get("tavan")
-    yon, hiz = cozum.get("ruzgar_yon"), cozum.get("ruzgar_hiz")
-    hamle = cozum.get("ruzgar_hamle")
-    if hiz is None:
-        ruzgar = "—"
-    else:
-        ruzgar = ("VRB" if yon is None else f"{yon:03d}°") + f"/{hiz}"
-        if hamle:
-            ruzgar += f"G{hamle}"
-    sic, cig = cozum.get("sicaklik"), cozum.get("cig_noktasi")
-    spread = "—" if sic is None or cig is None else f"Δ{sic - cig}°"
+    # Degerler _olcu()'den: hero ile serit ayni dort olcuyu ayri ayri
+    # bicimlendirdigi surece ayni ekranda birbirinden farkli konusuyordu
+    # (bkz. _olcu aciklamasi). Artik tek kaynak.
+    def _kisa(anahtar, on=""):
+        deger, birim = _olcu(cozum, anahtar)
+        if deger == "bildirilmedi":
+            return {"tavan": "tavan yok"}.get(anahtar, "—")
+        # Spread'de birim YAZILMIYOR: "Δ" zaten farki anlatiyor ve
+        # serit dar ekranda tek satirda kalmali.
+        if on:
+            return on + deger + "°"
+        return deger + (f" {birim}" if birim else "")
 
     rozet = ""
     if notlar and notlar.get("renk"):
@@ -3334,10 +3565,10 @@ def _ozet_serit_html(cozum: dict | None, notlar: dict | None) -> str:
     # (deger, tooltip) - serit kisa olmak zorunda, ne olduklari
     # title'da duruyor; ekran okuyucu da bunu okur.
     ogeler = [
-        (_gorus(cozum.get("gorus")), "Görüş"),
-        ("tavan yok" if tavan is None else f"{tavan} ft", "Bulut tavanı"),
-        (ruzgar, "Rüzgâr (yön/hız, G=hamle)"),
-        (spread, "Spread (sıcaklık - çiy noktası)"),
+        (_kisa("gorus"), "Görüş"),
+        (_kisa("tavan"), "Bulut tavanı"),
+        (_kisa("_ruzgar"), "Rüzgâr (yön/hız, G=hamle)"),
+        (_kisa("_spread", "Δ"), "Spread (sıcaklık − çiy noktası)"),
     ]
     return ('<div class="ozet-serit" id="ozet-serit">' + rozet
             + "".join(f'<span class="ozet-oge" title="{html.escape(t)}">'
@@ -3497,9 +3728,12 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
     sirali = sorted(raporlar, key=lambda r: (
         r["tip"] == "TAF",
         -(r["zaman"].timestamp() if r.get("zaman") else 0)))
-    govde = (_trend_bolumu(gecmis)
-             + ("".join(_kart(r, yorum_onbellegi, gecmis, simdi) for r in sirali)
-                or "<div class='kart'>Rapor yok.</div>"))
+    # SIRA: once GUNCEL raporlar, sonra GECMIS egilim. Trend bolumu
+    # eskiden en ustteydi, yani 6 saatlik gecmis su anki gozlemden once
+    # okunuyordu.
+    govde = (("".join(_kart(r, yorum_onbellegi, gecmis, simdi) for r in sirali)
+              or "<div class='kart'>Rapor yok.</div>")
+             + _trend_bolumu(gecmis))
     icao = raporlar[0].get("icao", "LTFJ") if raporlar else "LTFJ"
 
     guncel_rapor = next((r for r in sirali if r["tip"] in ("METAR", "SPECI")), None)
@@ -3525,6 +3759,7 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
                       ikon_zil_js=json.dumps(ikon("zil")),
                       ikon_zil_kapali_js=json.dumps(ikon("zil-kapali")),
                       gozlem_taze_dk=GOZLEM_TAZE_DK,
+                      gozlem_beklenen_dk=GOZLEM_BEKLENEN_DK,
                       sessizlik_saat=SESSIZLIK_SAAT,
                       # Basliktaki durum gostergesi ve yas seridi BU iki
                       # damgaya gore ISTEMCIDE hesaplanir. Zaman yoksa bos
@@ -3534,11 +3769,15 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
                                       if guncel_rapor and guncel_rapor.get("zaman") else ""),
                       son_taf_iso=(guncel_taf_rapor["zaman"].isoformat()
                                    if guncel_taf_rapor and guncel_taf_rapor.get("zaman") else ""),
-                      guncelleme=f"{simdi:%d.%m.%Y %H:%M} yerel",
+                      guncelleme=_zaman_metni(simdi, tarihli=True),
                       atc_notes_db_url=json.dumps(atc_notes_db_url or ""),
                       push_vapid_public_key=json.dumps(push_vapid_public_key or ""),
                       ozet_serit_html=_ozet_serit_html(
                           guncel_cozum, guncel_notlar),
+                      # Hero artik kartin degil SAYFANIN ogesi: guncel
+                      # cozumden bir kez uretilip tepeye konuyor.
+                      hero_html=(_hero_html(guncel_cozum, gecmis, simdi)
+                                 if guncel_cozum else ""),
                       lvo_referans_html=_lvo_dokuman_referans_html(),
                       lvo_farkindalik_html=_lvo_farkindalik_html(
                           guncel_cozum, taf_tavan, gecmis, simdi),
