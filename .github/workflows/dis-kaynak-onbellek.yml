@@ -12,6 +12,12 @@ on:
   schedule:
     - cron: "3,23,43 * * * *"     # ltfj.yml'nin 10,25,40,55'inden KASITLI FARKLI
   workflow_dispatch:
+  # Disaridan tetikleme: GitHub zamanlanmis kosulari DUSURUYOR (olculdu:
+  # 26 saatte 78 yerine 6 kosu, araliklar 2-6 saat). Gercekten 20 dakikalik
+  # kadans gerekiyorsa tek guvenilir yol disaridaki bir zamanlayicinin
+  # bu olayi tetiklemesi (bkz. README "Cron guvenilirligi").
+  repository_dispatch:
+    types: [dis-kaynak-onbellek]
 
 permissions:
   contents: write

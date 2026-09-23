@@ -119,6 +119,50 @@ Neden bu ikisi:
 Yazı tipleri [SIL Open Font License 1.1](https://github.com/IBM/plex/blob/master/LICENSE.txt)
 ile lisanslıdır.
 
+### 9. Cron Güvenilirliği (ÖNEMLİ)
+
+**GitHub zamanlanmış koşuları düşürür.** Bu depoda ölçüldü: dış kaynak
+önbelleği `:3,23,43` (20 dakikada bir) ayarlıyken 26 saatte **78 yerine 6**
+planlı koşu gerçekleşti; aralıklar 2–6 saat. Koşuların **hepsi başarılıydı** —
+sorun kodda değil, GitHub'ın `schedule` olayını yüksek yükte geciktirmesi/
+düşürmesi. Ana bot workflow'u da aynı durumda (4×/saat ayarlı, gerçekte 4–5
+saat aralıklarla).
+
+Bunun görünen sonucu: sayfa beklenenden seyrek güncelleniyor ve "Önümüzdeki
+saatler" şeridi bir dönem tamamen kayboluyordu.
+
+**Bu depoda alınan önlemler:**
+
+1. Bayatlık eşiği gerçek kadansa göre ayarlandı (`TAHMIN_ESIK_DK = 360`) ve
+   şerit bayatlayınca gizlenmek yerine **yaşını yazıyor**.
+2. Bot workflow'u, önbellek bayatsa çalıştırmadan önce **bir kez tazelemeyi
+   dener** (`continue-on-error: true`, 2 dakika sınırlı). Botun kodu hâlâ
+   yalnızca yerel dosyayı okur — gevşek bağlılık sözleşmesi korunuyor, sadece
+   tetikleme fırsatı artıyor. Sonuç bilerek commit edilmez; tek yazar
+   `dis-kaynak-onbellek.yml`.
+3. NOTAM listesi 12 saatten eski senkronla gösterilirse sayfada
+   **"⚠ liste eski olabilir"** uyarısı çıkar.
+
+**Gerçekten dakika hassasiyeti gerekiyorsa** tek güvenilir yol dışarıdan
+tetiklemedir. Her iki workflow da `repository_dispatch` kabul eder:
+
+```bash
+# Ana bot
+curl -X POST -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer <PAT>" \
+  https://api.github.com/repos/<kullanici>/ltfj-bot/dispatches \
+  -d '{"event_type":"run-ltfj-bot"}'
+
+# Dış kaynak önbelleği
+curl -X POST -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer <PAT>" \
+  https://api.github.com/repos/<kullanici>/ltfj-bot/dispatches \
+  -d '{"event_type":"dis-kaynak-onbellek"}'
+```
+
+PAT'in `repo` yetkisi olmalı. Bu isteği herhangi bir güvenilir zamanlayıcı
+(kendi sunucun, ücretsiz bir cron servisi, bir Raspberry Pi) atabilir.
+
 ## ⚠️ Yasal Uyarı
 
 Bu yazılım tamamen **eğitim, simülasyon ve hobi amaçlı** olarak geliştirilmiştir. Havacılıkta hava durumu verileri hayati önem taşır. Bu botun sağladığı veriler gecikmeli, eksik veya hatalı olabilir. **Gerçek uçuş planlamaları veya gerçek havacılık operasyonları için kesinlikle KULLANILAMAZ.** Gerçek uçuş operasyonları için sadece yetkili ve resmi meteoroloji servis sağlayıcılarını kullanınız.

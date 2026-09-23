@@ -101,7 +101,14 @@ def state_oku() -> dict:
     bos = {"gonderilen": [], "ilk_calisma": True, "son_metar": "",
            "son_uyari": None, "durum_mesaj_id": None, "son_renk": None,
            "son_veri_zamani": None, "olcum_gecmisi": [], "yorum_onbellegi": {},
-           "notam_gecmisi": {}, "notam_son_senkron": None}
+           "notam_gecmisi": {}, "notam_son_senkron": None,
+           # Push izi Telegram'dan AYRI tutulur: Telegram basarisiz olunca
+           # rapor "gonderilen"e girmez ve sonraki kosuda yeniden denenir -
+           # push da o kosuda YENIDEN gitseydi kullanici ayni uyariyi iki
+           # kez alirdi. Ayri liste, push'un rapor basina EN FAZLA BIR KEZ
+           # gitmesini Telegram'in yeniden deneme dongusunden bagimsiz
+           # olarak garanti eder.
+           "push_gonderilen": []}
     if not STATE.exists():
         return bos
     try:
@@ -559,6 +566,11 @@ def _push_gonder_guvenli(baslik: str, govde: str, etiket: str) -> None:
                  f'{sonuc["gonderildi"]} gönderildi, '
                  f'{sonuc["silindi"]} geçersiz abonelik silindi, '
                  f'{sonuc["hata"]} hata.')
+            # Hata SAYISI teşhis ettirmiyor: VAPID anahtarı mı yanlış, ağ mı
+            # çökmüş, abonelik mi bayat? Sebepler stderr'e yazılır ki Actions
+            # logunda kırmızı görünsün.
+            for sebep in sonuc.get("sebepler", []):
+                print(f"    push hata sebebi: {sebep}", file=sys.stderr)
     except Exception as e:
         print(f"[uyarı] Push bildirimi gönderilemedi ({etiket}): {e}", file=sys.stderr)
 
@@ -850,6 +862,7 @@ def main():
     olcum_gecmisini_guncelle(state, raporlar)
 
     gorulen = set(state["gonderilen"])
+    push_gonderilen = set(state["push_gonderilen"])
     yeniler = [r for r in raporlar if anahtar(r) not in gorulen]
 
     if "--hepsi" in sys.argv:
@@ -886,6 +899,7 @@ def main():
 
         at, sessiz = bildirim_karari(rapor, dikkat, renk_degisti)
 
+        telegram_oldu = True
         if at:
             try:
                 telegram_gonder(token, chat_id,
@@ -894,15 +908,30 @@ def main():
                       f'{rapor["tip"]} {anahtar(rapor)}')
             except Exception as e:
                 print(f'  GÖNDERİLEMEDİ ({rapor["tip"]}): {e}', file=sys.stderr)
-                continue
+                telegram_oldu = False
         else:
             print(f'  rutin, bildirim yok: {rapor["tip"]} {anahtar(rapor)}')
 
-        # Web Push, Telegram'dan TAMAMEN BAGIMSIZ bir kanal - Telegram
-        # basarisiz/gonderilmedi olsa da (yukaridaki 'continue' hic
-        # calismadiysa) SPECI/TAF/duzeltme/renk-kotulesmesi push'u dener.
-        if push_tetiklenmeli_mi(rapor, renk_kotulesti):
+        # Web Push, Telegram'dan TAMAMEN BAGIMSIZ bir kanal ve bu satir
+        # Telegram basarisiz olsa DA calisir.
+        #
+        # KUSUR OYKUSU: eskiden Telegram hatasi 'continue' ile donguyu
+        # atliyordu ve push da onunla birlikte atlanıyordu - yani push'un
+        # EN COK gerektigi anda (Telegram cokmus, geriye tek kanal kalmis)
+        # hic denenmiyordu. Ustteki yorum "Telegram basarisiz olsa da
+        # dener" diyip parantez icinde "(continue hic calismadiysa)"
+        # ekleyerek kendi kendini yalanliyordu.
+        #
+        # Yinelenme push_gonderilen ile engellenir (bkz. state_oku):
+        # Telegram yeniden denenirken push ikinci kez GITMEZ.
+        if (push_tetiklenmeli_mi(rapor, renk_kotulesti)
+                and anahtar(rapor) not in push_gonderilen):
             push_bildirimi_gonder(rapor, cozum, renk_bilgisi)
+            push_gonderilen.add(anahtar(rapor))
+
+        if not telegram_oldu:
+            # 'gorulen'e EKLENMEZ: sonraki kosuda Telegram yeniden denenir.
+            continue
 
         gorulen.add(anahtar(rapor))
         if renk:
@@ -979,6 +1008,11 @@ def main():
     state["son_metar"] = guncel or onceki_metar
     state["gonderilen"] = [k for k in state["gonderilen"] if k in gorulen]
     state["gonderilen"] += [k for k in gorulen if k not in state["gonderilen"]]
+    # Push izi de budanir, yoksa sonsuza kadar buyurdu. Telegram'i basarisiz
+    # olup 'gorulen'e hic girmeyen bir rapor da burada tutulur ki yeniden
+    # denemede push tekrar gitmesin.
+    push_gorunur = gorulen | {anahtar(r) for r in raporlar}
+    state["push_gonderilen"] = [k for k in push_gonderilen if k in push_gorunur]
     state["ilk_calisma"] = False
     state_yaz(state)
 

@@ -48,6 +48,35 @@ jobs:
       - name: Bagimliliklar
         run: pip install --quiet requests firebase-admin pywebpush
 
+      # Onbellek AYRI bir workflow'la tazeleniyor ama GitHub zamanlanmis
+      # kosulari dusuruyor, bu yuzden onbellek bot calistiginda bayat
+      # olabiliyordu ve "Onumuzdeki saatler" seridi kayboluyordu.
+      #
+      # Bu adim SADECE bayatsa ag'a cikar ve HATASI YUTULUR - Open-Meteo
+      # cokerse METAR/TAF akisi etkilenmez. Botun KENDISI hala yalnizca
+      # yerel dosyayi okur; gevsek baglilik sozlesmesi (bkz.
+      # ltfj_dis_kaynak_cache modul acikamasi) kodda aynen duruyor,
+      # burada yalnizca tetikleme firsati artiyor.
+      #
+      # Sonuc BILEREK commit EDILMIYOR: bu kosuda uretilen sayfa zaten
+      # taze tahmini aliyor (asil kazanc bu) ve dosyayi commit etmek iki
+      # workflow arasinda yeni bir push yarisi acardi. Tek yazar hala
+      # dis-kaynak-onbellek.yml.
+      - name: Onbellek bayatsa tazele (hata yutulur)
+        continue-on-error: true
+        timeout-minutes: 2
+        run: |
+          python - <<'PY'
+          import subprocess, sys
+          import ltfj_dis_kaynak_cache as c
+          yas = c.tahmin_yasi_dk()
+          if yas is not None and yas <= c.TAHMIN_ESIK_DK:
+              print(f"önbellek taze ({yas:.0f} dk), tazeleme atlandı.")
+              sys.exit(0)
+          print(f"önbellek bayat ({'yok' if yas is None else f'{yas:.0f} dk'}), tazeleniyor...")
+          subprocess.run([sys.executable, "-m", "ltfj_dis_kaynak_cache"], check=False)
+          PY
+
       - name: Botu calistir
         run: python ltfj_bot.py
 

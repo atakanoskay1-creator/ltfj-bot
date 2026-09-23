@@ -112,7 +112,18 @@ def gonder(baslik: str, govde: str, vapid_subject: str,
     vapid_private_key = os.environ["VAPID_PRIVATE_KEY"].strip()
     payload = govde_kur(baslik, govde, etiket, url)
 
-    sonuc = {"abone": len(abonelikler), "gonderildi": 0, "silindi": 0, "hata": 0}
+    # "sebepler": hata SAYISI tek basina teshis ettirmiyordu - VAPID anahtari
+    # yanlis mi, ag mi cokmus, abonelik mi bayat, ayirt edilemiyordu. Artik
+    # her ayri hata metni bir kez toplanip cagirana veriliyor (bkz.
+    # ltfj_bot._push_gonder_guvenli'nin log satiri). Metinler TEKILLESTIRILIR:
+    # 500 abonenin hepsi ayni sebepten duserse log 500 satir olmamali.
+    sonuc = {"abone": len(abonelikler), "gonderildi": 0, "silindi": 0,
+             "hata": 0, "sebepler": []}
+
+    def _sebep(metin: str) -> None:
+        metin = metin.strip() or "bilinmeyen hata"
+        if metin not in sonuc["sebepler"]:
+            sonuc["sebepler"].append(metin)
     for abonelik_id, abonelik in abonelikler.items():
         if not isinstance(abonelik, dict) or "endpoint" not in abonelik or "keys" not in abonelik:
             continue
@@ -130,10 +141,13 @@ def gonder(baslik: str, govde: str, vapid_subject: str,
                 try:
                     ref.child(abonelik_id).delete()
                     sonuc["silindi"] += 1
-                except Exception:
+                except Exception as silme_hatasi:
                     sonuc["hata"] += 1
+                    _sebep(f"bayat abonelik silinemedi: {silme_hatasi}")
             else:
                 sonuc["hata"] += 1
-        except Exception:
+                _sebep(f"WebPush HTTP {durum}: {e}")
+        except Exception as e:
             sonuc["hata"] += 1
+            _sebep(f"{type(e).__name__}: {e}")
     return sonuc
