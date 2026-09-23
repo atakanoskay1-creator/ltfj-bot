@@ -137,7 +137,16 @@
     font-family:var(--mono); margin:12px 0 0;
     white-space:pre-wrap; word-break:break-word;
   }
-  footer { color:var(--soluk); font-size:.8rem; text-align:center; margin-top:28px; }
+  /* SOLA YASLI, ortalanmis DEGIL: buradaki yasal uyari telefonda 15+
+     satir suruyor ve ortalanmis uzun metinde her satirin sol kenari
+     farkli yerden basliyor - goz her satirbasi icin yeniden hizalanmak
+     zorunda kaliyor. Kisa bir imza satiri ortalanabilirdi; bu paragraf
+     degil. (Sayfadaki tek diger text-align:center, tahmin seridindeki
+     tek kelimelik hucreler - orada dogru tercih.) */
+  footer {
+    color:var(--soluk); font-size:.8rem; margin-top:28px;
+    text-align:left; text-wrap:pretty;
+  }
   a { color:inherit; }
   .panel-link {
     display:inline-block; margin-top:12px; padding:7px 14px; border-radius:8px;
@@ -285,6 +294,9 @@
   .tahmin-aciklama { font-size:.72rem; color:var(--soluk); margin-top:8px; }
 
   .bolum-baslik { font-weight:650; font-size:1.05rem; margin:28px 0 12px; }
+  /* Bayat senkron uyarisi - kirmizi DEGIL: liste hala dogru olabilir,
+     sadece dogrulanmamis. Kirmizi "yanlis" ima ederdi. */
+  .notam-senkron-bayat { color:#b45309; font-weight:650; }
   .notam-uyari {
     background:rgba(234,179,8,.12); border:1px solid rgba(234,179,8,.4);
     border-radius:10px; padding:10px 12px; margin-bottom:14px; font-size:.85rem;
@@ -523,7 +535,7 @@
 <header>
   <div class="header-metin">
     <h1>LTFJ · İstanbul Sabiha Gökçen</h1>
-    <div class="alt">Kaynak: MGM/METAR · Son güncelleme 23.09.2026 10:31 yerel</div>
+    <div class="alt">Kaynak: MGM/METAR · Son güncelleme 23.09.2026 10:41 yerel</div>
   </div>
   <div class="header-butonlar">
     <button type="button" class="yenile" id="bildirim-izin-btn" hidden>🔔 Bildirimler</button>
@@ -745,6 +757,22 @@ window.ltfjNotamGecerlilik = function (n) {
 // yerine GORECELI sure yaziyoruz: sayfada saatler yerel, NOTAM verisi UTC -
 // "16:00'da bitiyor" hangi saat dilimi oldugu belirtilmeden yaniltici olur,
 // "6 sa kaldı" ise saat diliminden bagimsiz dogru.
+// Senkron araligi ayarlarda 6 saat (notam.senkron_araligi_saat). Iki
+// katini gecmisse bir senkron kacmis demektir - bayat sayiyoruz.
+var NOTAM_BAYAT_MS = 12 * 3600 * 1000;
+
+// ltfjKalanSure'un ikizi: o GELECEGE, bu GECMISE bakar. Ikisi de
+// GORECELI yazar cunku sayfadaki saatler yerel, veri UTC.
+window.ltfjGecenSure = function (ms) {
+  if (ms == null || isNaN(ms) || ms < 0) return "az önce";
+  var dk = Math.floor(ms / 60000);
+  if (dk < 1) return "az önce";
+  if (dk < 60) return dk + " dk önce";
+  var sa = Math.floor(dk / 60);
+  if (sa < 24) return sa + " sa önce";
+  return Math.floor(sa / 24) + " gün önce";
+};
+
 window.ltfjKalanSure = function (ms) {
   "use strict";
   var dk = Math.floor(ms / 60000);
@@ -844,9 +872,27 @@ window.ltfjKalanSure = function (ms) {
 
   function aktifGoster() {
     if (!veri) return;
-    senkronEl.textContent = veri.son_senkron
-      ? "son senkron " + veri.son_senkron.replace("T", " ").slice(0, 16)
-      : "henüz senkronize edilmedi";
+    // Ham UTC damgasi ("2026-09-22 19:51") GOSTERILMIYOR: sayfadaki diger
+    // saatler YEREL, bu ise UTC idi ve etiketsizdi - hangi saat dilimi
+    // oldugu belirtilmeden yaniltici. Ayni gerekce NOTAM kalan suresinde
+    // de goreceli bicimi sectirmisti (bkz. window.ltfjKalanSure).
+    //
+    // Ayrica bayatlik artik GORUNUR: NOTAC gunlerce erisilemezse liste
+    // sessizce eskiyordu, kucuk gri bir tarihten bunu cikarmak
+    // kullanicinin isi degil.
+    senkronEl.classList.remove("notam-senkron-bayat");
+    if (!veri.son_senkron) {
+      senkronEl.textContent = "henüz senkronize edilmedi";
+    } else {
+      var yasMs = Date.now() - new Date(veri.son_senkron).getTime();
+      senkronEl.textContent = isNaN(yasMs)
+        ? "senkron zamanı okunamadı"
+        : window.ltfjGecenSure(yasMs) + " senkronize edildi";
+      if (yasMs > NOTAM_BAYAT_MS) {
+        senkronEl.classList.add("notam-senkron-bayat");
+        senkronEl.textContent += " ⚠ liste eski olabilir";
+      }
+    }
 
     if (!veri.son_senkron) {
       aktifSayiEl.textContent = "";
