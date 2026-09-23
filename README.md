@@ -142,7 +142,41 @@ Token'laştırma **saf bir yeniden düzenleme**: 2 tema × 5 sekme = 10 durumun
 **8'i piksel bazında aynı**. Değişen yalnızca İstatistik sekmesi — tam da
 kontrastı düzeltilen yer.
 
-### 9. Yazı Tipi (yazitipi/)
+### 9. Uygulama Kabuğu (başlık + ikonlar)
+
+**Başlıkta durum göstergesi:** `CANLI` / `GECİKMELİ` / `VERİ KESİNTİSİ`,
+yanında canlı UTC saati ve METAR/TAF/NOTAM yaşları.
+
+**Durum SUNUCUDA değil İSTEMCİDE hesaplanır.** Sayfa bir vardiya boyunca açık
+kalabiliyor; sunucuda yazılan "CANLI" bir saat sonra yalan olurdu. HTML yalnızca
+gözlem zaman damgasını taşır (`data-gozlem`), etiketi JS 15 saniyede bir
+tazeler. Zaman bilinmiyorsa boş dize gider ve "VERİ YOK" yazılır — uydurma bir
+damga yazmaktansa bilinmediğini söylemek doğru.
+
+**Eşikler tek kaynaktan** (`ltfj_ayarlar.py`):
+
+| Sabit | Değer | Gerekçe |
+|---|---|---|
+| `GOZLEM_TAZE_DK` | 70 | METAR 30 dk kadans + ~5 dk MGM gecikmesi = ~35 dk beklenen azami yaş; eşik bunun **iki katı**. Bir raporu kaçırmak normal, ikisini kaçırmak değil. |
+| `SESSIZLIK_SAAT` | 6 | **Botun Telegram alarmıyla aynı sabit.** `ltfj_bot.py`'den buraya taşındı ki sayfa "canlı" derken Telegram "kesinti" diyemesin. |
+
+#### İkon sistemi
+
+Arayüzde **emoji yok**. Emoji platforma göre bambaşka çizilir, boyu yazı tipiyle
+uyuşmaz ve ekran okuyucu onları yüksek sesle okur. Tümü **satır içi SVG**
+(`IKONLAR` + `ikon()`); ikon fontu ya da sprite dosyası havalimanı ağında
+engellenebilirdi. İkonlar `currentColor` kullanır, yani her temada ve her durum
+renginde kendiliğinden doğru çizilir.
+
+**`RENK_SIMGE` Telegram tarafında KALDI.** Telegram'da SVG yok — orada emoji
+doğru ortam. Yalnızca web kullanımı SVG noktaya çevrildi. Bir test her iki
+tarafı da AST ile doğruluyor.
+
+**Sekme ikonları yalnızca geniş ekran rayında.** Ölçüldü: çubuk 360px'te tam
+kapasitede (326/326px); ikon eklemek NOTAM sekmesini keserdi. DOM'da duruyor ama
+`display:none`, rayda (140px) açılıyor.
+
+### 10. Yazı Tipi (yazitipi/)
 
 Sayfa **IBM Plex Sans** (gövde) ve **IBM Plex Mono** (ham METAR/TAF/NOTAM kod
 blokları) kullanır. Yazı tipleri `yazitipi/` klasöründen, yani **kendi
@@ -168,7 +202,7 @@ Neden bu ikisi:
 Yazı tipleri [SIL Open Font License 1.1](https://github.com/IBM/plex/blob/master/LICENSE.txt)
 ile lisanslıdır.
 
-### 10. Sayfa Düzeni: Sekmeler
+### 11. Sayfa Düzeni: Sekmeler
 
 Sayfa **beş yatay sekmeye** bölündü: **Durum · Beklenti · İstatistik · LVO ·
 NOTAM**. Öncesinde hepsi alt alta katlanır başlıklardı ve sayfa gereksiz
@@ -233,7 +267,7 @@ Bölümler sekme içinde **ayrıca katlanmaz** — sekmeye basıp bir de başlı
 açmak iki tıklama olurdu. LVO'nun eski elle yazılmış aç/kapa mekanizması bu
 yüzden kaldırıldı.
 
-### 10.1. "İstatistik" Sekmesinin İçeriği
+### 11.1. "İstatistik" Sekmesinin İçeriği
 
 Arşivden öğrenilmiş her şey **tek katlanır başlık** altında toplandı:
 
@@ -247,7 +281,7 @@ her yerde koruyor ama istatistikler üç ayrı yere dağılmıştı. LVO panelin
 mı) — onlar ölçüm. "Beklenti" başlığında **kalan** tek şey Open-Meteo model
 tahmini.
 
-### 11. Cron Güvenilirliği (ÖNEMLİ)
+### 12. Cron Güvenilirliği (ÖNEMLİ)
 
 **GitHub zamanlanmış koşuları düşürür.** Bu depoda ölçüldü: dış kaynak
 önbelleği `:3,23,43` (20 dakikada bir) ayarlıyken 26 saatte **78 yerine 6**
@@ -291,7 +325,7 @@ curl -X POST -H "Accept: application/vnd.github+json" \
 PAT'in `repo` yetkisi olmalı. Bu isteği herhangi bir güvenilir zamanlayıcı
 (kendi sunucun, ücretsiz bir cron servisi, bir Raspberry Pi) atabilir.
 
-### 12. SPECI Boşluğu ve `gozlem_arsivi.csv`
+### 13. SPECI Boşluğu ve `gozlem_arsivi.csv`
 
 **Sorun.** Sis geçiş sürelerini (`sis_modeli/gorus_gecis.py`) hesapladığımız
 eğitim arşivi IEM ASOS'tan geliyor ve **SPECI içermiyor**. Ölçüldü: 274.907

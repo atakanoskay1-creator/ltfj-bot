@@ -38,7 +38,7 @@ import ltfj_atc_notes_cleanup
 import ltfj_notam
 import ltfj_notam_client as notam_client
 from ltfj_analiz import cozum_dokumu, fark_bul, metar_coz, ozet_satiri, uyarilar
-from ltfj_ayarlar import AYARLAR, YEREL_TZ, ayar
+from ltfj_ayarlar import AYARLAR, SESSIZLIK_SAAT, YEREL_TZ, ayar
 from ltfj_pist import RENK_SIMGE, havacilik_notlari
 from ltfj_rasat import AgHatasi, AyiklamaHatasi, raporlari_cek
 
@@ -53,7 +53,6 @@ GECMIS_LIMIT = 200
 OLCUM_GECMIS_LIMIT = 300     # web sayfasindaki trend grafikleri icin (~6 gun)
 NOTAM_GECMIS_LIMIT = 500     # state_birlestir.py::NOTAM_GECMIS_LIMIT ile ayni
 
-SESSIZLIK_SAAT = 6
 UYARI_ARALIGI_SAAT = 12
 
 CLAUDE_MODEL = "claude-haiku-4-5-20251001"
