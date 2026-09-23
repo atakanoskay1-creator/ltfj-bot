@@ -24,10 +24,19 @@ karsiligi. Onlarin olay tanimi Tardif & Rasmussen (2007)'den geliyor:
   3. Olay boyunca kar YOK.
 
 ONEMLI FARK - COZUNURLUK: makale SPECI raporlarini da kullanarak dakika
-cozunurlugune cikiyor. Bu arsiv 30 DAKIKALIK izgarada (LTFJ rutin METAR
-kadansi; SPECI pratikte veride yok - bkz. README). Yani buradaki sureler
-30 dakikaya YUVARLIDIR. Saatler suren geciseler icin medyan anlamli
+cozunurlugune cikiyor. Bu arsiv 30 DAKIKALIK izgarada: 274.907 satirin
+274.901'i :20/:50'de, yani SPECI pratikte YOK (%0.002). Dolayisiyla
+buradaki sureler 30 dakikaya YUVARLIDIR ve raporlanan en hizli gecis
+aslinda "<=0.5 saat"tir. Saatler suren gecisler icin medyan anlamli
 kalir ama "45 dakikada indi" gibi bir ayrinti bu veriyle GORULEMEZ.
+
+Bu boslugu kapatmak icin ltfj_gozlem_arsivi.py BUGUNDEN ITIBAREN
+SPECI'li kendi gozlem arsivimizi biriktiriyor (canli MGM yolu SPECI
+yakaliyor: olculdu, %5.3). veri_oku() o duz CSV'yi de okuyabiliyor,
+yani yeterli olay birikince ayni analiz oradan da calistirilabilir:
+    python -m sis_modeli.gorus_gecis --veri gozlem_arsivi.csv
+Simdilik orneklem kucuktur; --veri ile calistirmak KAPSAM uyarisi
+verecektir (ASGARI_YILLIK_KAYIT).
 
 MAKALENIN SAYILARI BURAYA KOPYALANMAZ: onlarinki Japonya kiyisi,
 1989-2015. Tip paylari cografyayla degisiyor (Japonya'da radyasyon %41,
@@ -84,20 +93,58 @@ YAGIS = re.compile(r"(RA|DZ|SN|SG|PL|GR|GS|IC|UP)")
 KAR = re.compile(r"(SN|SG)")
 
 
+def _ac(dosya: Path):
+    """gzip'li egitim arsivi de, duz CSV gozlem arsivi de okunabilsin.
+
+    Iki dosya AYNI sutun adlarini (zaman/gorus/hava) tasiyor ama farkli
+    bicimde saklaniyor: egitim arsivi (ltfj_ozellik.csv.gz) tek seferde
+    uretilen buyuk bir gzip, gozlem arsivi (gozlem_arsivi.csv) her
+    kosuda git'e commit edilen ekleme-yalnizca duz metin. Bicimi
+    uzantidan secmek, ayni analizi iki kaynak uzerinde de calistirmayi
+    mumkun kiliyor - SPECI'li olan gozlem arsivi."""
+    if dosya.suffix == ".gz":
+        return gzip.open(dosya, "rt", encoding="utf-8")
+    return dosya.open("r", encoding="utf-8", newline="")
+
+
 def veri_oku(dosya: Path) -> list[dict]:
     """(zaman, gorus, hava) uclusu - baska alan OKUNMUYOR."""
-    with gzip.open(dosya, "rt", encoding="utf-8") as f:
+    with _ac(dosya) as f:
         satirlar = []
         for x in csv.DictReader(f):
-            if not x["gorus"]:
+            if not x.get("gorus"):
                 continue
             satirlar.append({
                 "dt": datetime.fromisoformat(x["zaman"]),
                 "gorus": float(x["gorus"]),
-                "hava": x["hava"] or "",
+                "hava": x.get("hava") or "",
             })
     satirlar.sort(key=lambda s: s["dt"])
     return satirlar
+
+
+def cozunurluk_notu(satirlar: list) -> str:
+    """Izgara disi (yani SPECI olma ihtimali yuksek) satirlarin oranini
+    OLCEREK bildirir.
+
+    Sabit "SPECI yok" yazmak, ayni betik SPECI tasiyan gozlem arsivine
+    (gozlem_arsivi.csv) karsi calistirildiginda YANLIS olurdu. Kadansin
+    kendisi veriden okunmali."""
+    n = len(satirlar)
+    if not n:
+        return "Çözünürlük: veri yok."
+    disi = sum(1 for s in satirlar if s["dt"].minute not in (20, 50))
+    oran = 100 * disi / n
+    # "{disi} tanesi": Turkce iyelik eki sayinin son hanesine gore
+    # degisiyor (6'si, 7'si, 9'u, 40'i...). "tanesi" her sayiyla dogru.
+    if oran < 1:
+        return (f"Süreler 30 dakikalık ızgaraya YUVARLIDIR: {n} gözlemden "
+                f"yalnızca {disi} tanesi (%{oran:.3f}) rutin METAR dakikası "
+                f"dışında — arşivde SPECI pratikte YOK, yani \"0,5 saat\" "
+                f"aslında \"≤0,5 saat\" demektir.")
+    return (f"Çözünürlük ızgaradan İNCE: {n} gözlemden {disi} tanesi "
+            f"(%{oran:.1f}) rutin METAR dakikası dışında (SPECI). "
+            f"Süreler 30 dakikaya yuvarlı DEĞİL.")
 
 
 def _bosluksuz_mu(satirlar: list, i: int, j: int) -> bool:
@@ -348,7 +395,7 @@ def main(argv=None) -> int:
     print(f"{len(satirlar)} gözlem, {len(olaylar)} bağımsız sis olayı "
           f"(TR07: <{OLAY_GORUS_M} m ≥{OLAY_SURE_SAAT} sa, içinde "
           f"<{SIS_GORUS_M} m ≥{SIS_SURE_SAAT} sa, kar yok)")
-    print(f"Süreler 30 dakikalık ızgaraya YUVARLIDIR (SPECI yok).\n")
+    print(cozunurluk_notu(satirlar) + "\n")
 
     sonuc = {}
     for baslik, fonk, anahtar in (

@@ -671,6 +671,25 @@ olaya dayanıyor. Sis tipi (adveksiyon/radyasyon) ayrımı YAPILMADI — makale
 bu ayrımın kendisinin zor olduğunu söylüyor ve sınıflandırıcısını ayrıca
 test ediyor; doğrulayamayacağım bir sınıflandırıcı uydurulmadı.
 
+**En büyük sınır — SPECI yok, dolayısıyla süreler `≤` okunmalı.** Bu arşivde
+274.907 satırın 274.901'i `:20`/`:50`'de; ızgara dışı **6 satır (%0,002)**.
+IEM isteğinde `report_type=4` (SPECI) gönderiliyor ama dönen veride karşılığı
+yok. Sonuç: tablodaki `p10 = 0,5 sa` aslında **"≤0,5 sa"**dır; 30 dakikanın
+altındaki bir geçişi bu veriyle **göremeyiz**. Misawa ve ark. dakika
+çözünürlüğüne tam da SPECI sayesinde çıkıyor.
+
+Canlı MGM yolu SPECI'yi yakalıyor (ölçüldü: son 300 kaydın %5,3'ü ızgara
+dışı), bu yüzden `ltfj_gozlem_arsivi.py` **bugünden itibaren** SPECI'li ve
+görüş taşıyan kendi arşivimizi biriktiriyor. `veri_oku()` artık düz CSV'yi de
+okuyor; yeterli olay birikince:
+
+```bash
+python -m sis_modeli.gorus_gecis --veri gozlem_arsivi.csv
+```
+
+Bu **geriye dönük bir düzeltme değildir** — dondurulmuş tablodaki sayılar
+IEM arşivinden gelmeye devam ediyor. Ayrıntı: ana `README.md` §11.
+
 ### Katmanlı model: TEK mi, mevsim/saate göre AYRI mı? — `katmanli_deney.py`
 
 Yabra ve ark. (2026) veriyi sis olasılığı yüksek/düşük aylara ve saatlere

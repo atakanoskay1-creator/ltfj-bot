@@ -148,3 +148,38 @@ def test_seyrek_yillar_kapsam_disi():
 
 def test_asgari_kayit_esigi_tanimli():
     assert g.ASGARI_YILLIK_KAYIT > 0
+
+
+# ------------------------------------------------ cozunurluk notu OLCULUYOR
+def test_cozunurluk_notu_izgara_verisinde_SPECI_YOK_diyor():
+    """IEM arsivi gibi saf :20/:50 veride not 'yuvarli' demeli."""
+    satirlar = [{"dt": datetime(2020, 1, 1, h, m), "gorus": 9999.0, "hava": ""}
+                for h in range(6) for m in (20, 50)]
+    not_ = g.cozunurluk_notu(satirlar)
+    assert "YUVARLIDIR" in not_ and "SPECI pratikte YOK" in not_
+
+
+def test_cozunurluk_notu_SPECI_li_veride_yuvarli_DEGIL_diyor():
+    """Ayni betik gozlem_arsivi.csv'ye karsi calistirilinca 'SPECI yok'
+    demesi YANLIS olurdu - not sabit degil, olculmeli."""
+    satirlar = [{"dt": datetime(2020, 1, 1, 6, m), "gorus": 500.0, "hava": ""}
+                for m in (20, 37, 46, 50)]
+    not_ = g.cozunurluk_notu(satirlar)
+    assert "yuvarlı DEĞİL" in not_ and "%50" in not_
+
+
+def test_cozunurluk_notu_bos_veride_cokmuyor():
+    assert "veri yok" in g.cozunurluk_notu([])
+
+
+def test_veri_oku_DUZ_CSV_de_okuyabiliyor(tmp_path):
+    """gozlem_arsivi.csv gzip degil; bicim uzantidan secilmeli."""
+    yol = tmp_path / "gozlem_arsivi.csv"
+    yol.write_text("zaman,tip,gorus,hava\n"
+                   "2026-01-01T06:20:00+00:00,METAR,5000,BR\n"
+                   "2026-01-01T06:37:00+00:00,SPECI,800,FG\n"
+                   "2026-01-01T06:50:00+00:00,METAR,,\n",   # gorussuz satir atlanir
+                   encoding="utf-8")
+    satirlar = g.veri_oku(yol)
+    assert [s["gorus"] for s in satirlar] == [5000.0, 800.0]
+    assert satirlar[1]["dt"].minute == 37
