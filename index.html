@@ -59,10 +59,31 @@
     /* Metin tonlari OLCULEREK secildi - WCAG AA (4.5:1), kendi "-zemin"
        tonlarinin uzerinde. Onceki degerler (#16a34a / #dc2626) acik temada
        2.89:1 ve 3.97:1 veriyordu, yani AA'nin altindaydi. */
+    /* FAB yuzeyi: acik temada koyu disk, koyu temada YUKSELTILMIS
+       YUZEY. Tek kural (--vurgu/--bg) kullanilinca koyu temada FAB
+       neredeyse beyaz oluyordu (olculen bagil parlaklik 0.853, hero
+       0.023 - 37 kat). Gece karartilmis bir kulede ekranin en parlak
+       nesnesi "not ekle" dugmesi olmamali. */
+    --fab-zemin:#0f172a; --fab-metin:#f8fafc; --fab-cizgi:transparent;
     --iyi:#166534;    --iyi-zemin:#22c55e26;    --iyi-dolu:#22c55e;
     --dikkat:#b45309; --dikkat-zemin:#f59e0b26; --dikkat-dolu:#f59e0b;
     --uyari:#ef4444;  --uyari-zemin:#ef444426;  --uyari-metin:#b91c1c;
     --bilgi:#2563eb;  --bilgi-zemin:#3b82f626;
+    /* TIPOGRAFI OLCEGI - 6 ADIM.
+       Olculdu: tek telefon ekraninda 17 FARKLI punto vardi ve 11'i
+       9.9-14.1px arasina sikismisti; o araliktaki farki goz zaten
+       ayirt etmiyor, yani 11 ayri karar sifir hiyerarsi kazanci
+       veriyordu. Asil sorun ustteki bosluktu: 16.8px ile 24px arasinda
+       HICBIR SEY yoktu, yani sayfada sadece uc gercek katman vardi -
+       "hero", "baslik" ve "geri kalan her sey". Ikincil ama onemli bir
+       seyi (hamle, QNH, pist ruzgari) vurgulamak icin elde arac yoktu.
+       f4/f5 tam o boslugu dolduruyor. */
+    --f1:.6875rem;   /* 11px - birim, etiket, dipnot           */
+    --f2:.8125rem;   /* 13px - ikincil govde, tablo, rozet     */
+    --f3:.9375rem;   /* 15px - govde                           */
+    --f4:1.125rem;   /* 18px - bolum basligi, h1               */
+    --f5:1.375rem;   /* 22px - vurgu (dar ekranda hero)        */
+    --f6:1.75rem;    /* 28px - hero                            */
     /* olcek */
     --r1:8px; --r2:12px; --r3:16px;
   }
@@ -76,6 +97,7 @@
       --metin:#e8eefc; --soluk:#8fa0bf; --sessiz:#64748b; --vurgu:#e8eefc;
       --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
       --bilgi:#60a5fa;
+      --fab-zemin:#1e2a44; --fab-metin:#e8eefc; --fab-cizgi:#31405f;
     }
   }
   :root[data-theme="dark"] {
@@ -84,6 +106,7 @@
     --metin:#e8eefc; --soluk:#8fa0bf; --sessiz:#64748b; --vurgu:#e8eefc;
     --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
     --bilgi:#60a5fa;
+    --fab-zemin:#1e2a44; --fab-metin:#e8eefc; --fab-cizgi:#31405f;
   }
   /* Hareket azaltma tercihi: isletim sisteminde acan kullanici icin tum
      gecis ve animasyonlar durur. Sayfa islevini KAYBETMEZ - donen ok yine
@@ -99,7 +122,11 @@
     margin:0; background:var(--bg); color:var(--metin);
     /* 1.55 -> 1.62: sayfadaki uzun Turkce uyari paragraflari icin
        gozu dinlendiren asil degisiklik satir araligi. */
-    font:16px/1.62 "IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,
+    /* Govde punto'su da OLCEKTEN. 16px birakilinca acikca boyut
+       verilmeyen ogeler olcek disina dusuyordu (olculdu: 2 oge). rem
+       koke gore hesaplandigi icin bunu degistirmek --fN degerlerini
+       ETKILEMEZ, yalnizca mirasla gelen metni hizalar. */
+    font:var(--f3)/1.62 "IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,
          "Segoe UI",Roboto,sans-serif;
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
     padding:24px 16px 48px;
@@ -110,12 +137,16 @@
     justify-content:space-between; gap:12px;
   }
   .header-metin { min-width:0; }
-  h1 { font-size:1.5rem; margin:0 0 4px; letter-spacing:-.02em; }
-  .alt { color:var(--soluk); font-size:.875rem; }
+  /* Ö4: 1.5rem (24px) iken hero sayilariyla (24px w650) AYNI boydaydi.
+     Istasyon kodu SABIT bilgi - ilk saniyeden sonra sifir bilgi tasir;
+     dort olcumle ayni gorsel agirlikta olmasi icin sebep yok. 18px
+     teyit icin fazlasiyla yeterli ve olcegin (Ö5) bir adimi. */
+  h1 { font-size:var(--f4); margin:0 0 4px; letter-spacing:-.01em; }
+  .alt { color:var(--soluk); font-size:var(--f3); }
   button.yenile {
     flex-shrink:0; background:var(--kod-bg); border:1px solid var(--cizgi);
     color:var(--soluk); border-radius:8px; padding:8px 12px; font:inherit;
-    font-size:.82rem; font-weight:650; cursor:pointer; white-space:nowrap;
+    font-size:var(--f2); font-weight:650; cursor:pointer; white-space:nowrap;
   }
   button.yenile:hover { color:var(--metin); border-color:var(--vurgu); }
   button.yenile:disabled { opacity:.6; cursor:default; }
@@ -123,8 +154,18 @@
   @media (max-width:480px) {
     header { flex-wrap:wrap; }
     .header-metin { flex:1 1 100%; }
-    .header-butonlar { flex:1 1 100%; justify-content:flex-end; }
-    button.yenile { padding:8px 10px; font-size:.78rem; }
+    /* VFR SEKMESININ OLUGUNU AYIR. Sekme position:fixed, sag kenarda
+       ve 29px genis; bu kirilimin altinda dugmeler ikinci satira inip
+       tam sekmenin dikey bandina (96-144px) denk geliyordu. Olculdu:
+       390px'te "Yenile"nin sag 13px'i sekmenin altinda kaliyordu -
+       yani dugmenin o seridine basan parmak Yenile'yi degil VFR
+       panelini aciyordu. 481px ve ustunde dugmeler ust satirda kaldigi
+       icin (y=24-63) dikey ortusme zaten yok; bu yuzden dolgu SADECE
+       burada. */
+    .header-butonlar {
+      flex:1 1 100%; justify-content:flex-end; padding-right:34px;
+    }
+    button.yenile { padding:8px 10px; font-size:var(--f2); }
   }
   /* YAPISKAN UST = ozet serit + sekme cubugu, TEK sticky blok.
      Ikisini ayri ayri yapiskan yapmak, sekme cubuguna "serit ne kadar
@@ -133,6 +174,16 @@
      sorunu tamamen ortadan kaldiriyor.
      z-index kasitli olarak 40: sayfa icerigiNIN ustunde, ama sabit
      kapli katmanlarin (VFR sekmesi 58, ATC modali 65) ALTINDA. */
+  /* SU AN blogu - hero'nun yeni evi. Kart icinde degil, sayfanin
+     tepesinde; kenarlik kartlarla ayni dilde ama baslik satiri yok
+     (sekme cubugu ve baslik zaten baglami veriyor). */
+  .su-an { margin:10px 0 0; }
+  .su-an .hero { margin:0; }
+  /* Serit, hero gorunurken GIZLI. .js sinifi <head>'de ekleniyor, yani
+     JS varsa serit hic cizilmeden basliyor - acilista yanip sonme yok.
+     JS yoksa kural hic uygulanmaz ve ikisi de gorunur kalir. */
+  .js .ozet-serit { display:none; }
+  .js .yapiskan-ust.serit-acik .ozet-serit { display:flex; }
   .yapiskan-ust {
     position:sticky; top:0; z-index:40;
     background:var(--bg); margin:0 0 16px; padding-top:2px;
@@ -141,19 +192,19 @@
     display:flex; align-items:center; gap:8px; flex-wrap:wrap;
     margin:0; padding:9px 12px;
     background:var(--kart); border:1px solid var(--cizgi); border-radius:12px;
-    font-size:.85rem; font-variant-numeric:tabular-nums;
+    font-size:var(--f2); font-variant-numeric:tabular-nums;
   }
   /* Renk kodu rozeti kart rozetiyle AYNI gorunsun (.rozet ile ayni
      yazi rengi) - iki farkli gorsel dil ayni seyi anlatmasin. */
   .ozet-renk {
     padding:2px 8px; border-radius:999px; color:#fff;
-    font-weight:700; font-size:.75rem; letter-spacing:.02em;
+    font-weight:700; font-size:var(--f2); letter-spacing:.02em;
   }
   .ozet-oge { color:var(--metin); white-space:nowrap; }
   /* Ayirici nokta: ogeler arasinda, ilkinden once DEGIL. */
   .ozet-oge + .ozet-oge::before { content:"·"; color:var(--soluk); margin-right:8px; }
   @media (max-width:480px) {
-    .ozet-serit { font-size:.8rem; gap:6px; padding:8px 10px; }
+    .ozet-serit { font-size:var(--f2); gap:6px; padding:8px 10px; }
     .ozet-oge + .ozet-oge::before { margin-right:6px; }
   }
 
@@ -178,7 +229,7 @@
   .sekme {
     flex:1 0 auto; min-height:40px; padding:7px 12px;
     background:none; border:0; border-radius:9px; cursor:pointer;
-    color:var(--soluk); font:inherit; font-size:.82rem; font-weight:600;
+    color:var(--soluk); font:inherit; font-size:var(--f2); font-weight:600;
     white-space:nowrap; display:flex; align-items:center; gap:6px;
     justify-content:center;
   }
@@ -189,7 +240,7 @@
   .sekme:focus-visible { outline:2px solid var(--metin); outline-offset:-2px; }
   /* Sekme rozeti: kart rozetiyle AYNI gorsel dil, daha kucuk. */
   .sekme-rozet {
-    font-size:.68rem; font-weight:700; padding:1px 6px; border-radius:999px;
+    font-size:var(--f1); font-weight:700; padding:1px 6px; border-radius:999px;
     background:var(--cizgi); color:var(--metin); font-variant-numeric:tabular-nums;
   }
   .sekme-rozet:empty { display:none; }
@@ -205,8 +256,8 @@
   @media (max-width:480px) {
     /* 360px'te bes sekme + rozetler cubugu tasiriyordu ve NOTAM kismen
        kesiliyordu. Yatay dolgu ve rozet en cok yeri yiyen ikisi. */
-    .sekme { font-size:.76rem; padding:7px 4px; gap:3px; }
-    .sekme-rozet { font-size:.64rem; padding:1px 4px; }
+    .sekme { font-size:var(--f2); padding:7px 4px; gap:3px; }
+    .sekme-rozet { font-size:var(--f1); padding:1px 4px; }
     .sekme-cubugu { gap:1px; padding:2px; }
   }
 
@@ -261,11 +312,11 @@
   /* ---- UYGULAMA BASLIGI ---- */
   h1 { display:flex; align-items:baseline; gap:9px; flex-wrap:wrap; }
   .ust-kod { font-weight:700; letter-spacing:.03em; }
-  .ust-ad { font-size:.66em; font-weight:500; color:var(--soluk); }
+  .ust-ad { font-size:.72em; font-weight:500; color:var(--soluk); }
   .ust-durum-sat { display:flex; align-items:center; gap:12px; margin-top:5px; }
   .ust-durum {
     display:inline-flex; align-items:center; gap:6px;
-    font-size:.7rem; font-weight:700; letter-spacing:.09em; color:var(--soluk);
+    font-size:var(--f1); font-weight:700; letter-spacing:.09em; color:var(--soluk);
   }
   .ust-durum .ikon { width:.72em; height:.72em; stroke-width:0; fill:currentColor; }
   .ust-durum.taze { color:var(--iyi); }
@@ -277,7 +328,7 @@
   .ust-durum.taze .ikon { animation:ltfj-nabiz 2.6s ease-in-out infinite; }
   @keyframes ltfj-nabiz { 0%,100% { opacity:1; } 50% { opacity:.35; } }
   .ust-saat {
-    font-family:var(--mono); font-size:.82rem; color:var(--metin);
+    font-family:var(--mono); font-size:var(--f2); color:var(--metin);
     font-variant-numeric:tabular-nums;
   }
   .ust-saat:empty { display:none; }
@@ -286,7 +337,7 @@
   .veri-serit {
     display:flex; flex-wrap:wrap; gap:6px 16px; margin:0 0 16px;
     padding:8px 12px; background:var(--panel); border:1px solid var(--cizgi);
-    border-radius:var(--r1); font-family:var(--mono); font-size:.72rem;
+    border-radius:var(--r1); font-family:var(--mono); font-size:var(--f1);
     color:var(--sessiz);
   }
   .veri-oge { display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
@@ -295,7 +346,7 @@
   .veri-oge.bayat time, .veri-oge.bayat span { color:var(--dikkat); }
   .veri-kaynak { margin-left:auto; }
   @media (max-width:480px) {
-    .veri-serit { font-size:.68rem; gap:4px 12px; }
+    .veri-serit { font-size:var(--f1); gap:4px 12px; }
     .veri-kaynak { margin-left:0; flex-basis:100%; }
   }
 
@@ -309,29 +360,47 @@
   }
   @media (min-width:560px) { .hero { grid-template-columns:repeat(4,1fr); } }
   .hero-oge { background:var(--kart); padding:10px 12px 8px; color:var(--soluk); }
+  /* Ö6: 9.9px + --sessiz = ACIK temada 2.56:1, koyuda 3.64:1 - ikisi de
+     AA'nin (4.5) altinda. Bunlar sayfadaki EN BUYUK dort sayinin ne
+     oldugunu soyleyen etiketler; gunes altinda rakam gorunup etiketi
+     gorunmuyordu. --soluk ile acikta 4.76:1, koyuda 6.56:1. */
   .hero-etiket {
-    font-size:.62rem; font-weight:700; letter-spacing:.1em;
-    text-transform:uppercase; color:var(--sessiz);
+    font-size:var(--f1); font-weight:700; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--soluk);
   }
   .hero-deger {
-    font-size:1.7rem; font-weight:650; line-height:1.15; margin-top:2px;
+    font-size:var(--f6); font-weight:650; line-height:1.15; margin-top:2px;
     font-variant-numeric:tabular-nums; color:var(--metin);
   }
+  /* Esik asiminda SAYININ KENDISI degisiyor (bkz. _olcu_bandi).
+     Renk TEK BASINA tasiyici degil: yanindaki "sınırlı"/"eşik altı"
+     etiketi ayni bilgiyi metinle de veriyor. */
+  .hero-deger.hero-dikkat { color:var(--dikkat); }
+  .hero-deger.hero-uyari  { color:var(--uyari-metin); font-weight:750; }
+  .hero-band-etiket {
+    margin-left:6px; font-size:var(--f1); font-weight:700;
+    letter-spacing:.02em; text-transform:none; color:var(--dikkat);
+  }
+  /* Band sinifi HUCREDE de duruyor; :has() gerekmiyor. */
+  .hero-oge-uyari .hero-band-etiket { color:var(--uyari-metin); }
+  /* "bildirilmedi" bir SAYI degil - hero puntosunda sayfanin en buyuk
+     yazisi oluyor ve yoklugu olculmus bir degerden baskin gosteriyordu. */
+  .hero-deger-metin { font-size:var(--f3); font-weight:600; color:var(--soluk); }
   .hero-birim {
-    font-size:.72rem; font-weight:500; color:var(--soluk); margin-left:3px;
+    font-size:var(--f1); font-weight:500; color:var(--soluk); margin-left:3px;
   }
   /* currentColor: kivilcim .hero-oge'nin soluk rengini alir, yani her
      temada kendiliginden dogru tonda cizilir. */
   .hero-kivilcim { display:block; margin-top:4px; height:20px; width:100%; }
   .hero-yok {
-    margin-top:4px; height:20px; font-size:.62rem; color:var(--sessiz);
+    margin-top:4px; height:20px; font-size:var(--f1); color:var(--sessiz);
     display:flex; align-items:center;
   }
-  .ozet-ikincil { font-size:.84rem; color:var(--soluk); margin:0 0 10px; }
+  .ozet-ikincil { font-size:var(--f2); color:var(--soluk); margin:0 0 10px; }
   /* Durum rengi kartin sol kenarinda - liste taranirken once goze carpar. */
   .kart.kart-durum { border-left:3px solid var(--durum-renk, var(--cizgi)); }
   @media (max-width:480px) {
-    .hero-deger { font-size:1.5rem; }
+    .hero-deger { font-size:var(--f5); }
     .hero-oge { padding:9px 10px 7px; }
   }
 
@@ -347,30 +416,30 @@
   }
   .basrow { display:flex; align-items:center; gap:10px; flex-wrap:wrap;
              margin-bottom:12px; }
-  .tip { font-weight:650; font-size:1.05rem; }
-  .zaman { color:var(--soluk); font-size:.85rem; }
+  .tip { font-weight:650; font-size:var(--f4); }
+  .zaman { color:var(--soluk); font-size:var(--f2); }
   .rozet {
     margin-left:auto; padding:3px 10px; border-radius:999px;
-    font-size:.78rem; font-weight:650; color:#fff; white-space:nowrap;
+    font-size:var(--f2); font-weight:650; color:#fff; white-space:nowrap;
   }
   .dikkat {
     background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.35);
-    border-radius:10px; padding:10px 12px; margin:12px 0; font-size:.9rem;
+    border-radius:10px; padding:10px 12px; margin:12px 0; font-size:var(--f3);
   }
-  .ozet { color:var(--soluk); font-size:.92rem; margin:10px 0; }
+  .ozet { color:var(--soluk); font-size:var(--f3); margin:10px 0; }
   .yorum {
     background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:10px;
-    padding:10px 12px; margin:12px 0; font-size:.88rem; line-height:1.6;
+    padding:10px 12px; margin:12px 0; font-size:var(--f3); line-height:1.6;
   }
-  .yorum-etiket { color:var(--soluk); font-size:.72rem; margin-bottom:4px; }
-  .pist-kaynak { color:var(--soluk); font-size:.78rem; margin-top:6px; }
-  table { width:100%; border-collapse:collapse; font-size:.88rem; margin-top:10px; }
+  .yorum-etiket { color:var(--soluk); font-size:var(--f1); margin-bottom:4px; }
+  .pist-kaynak { color:var(--soluk); font-size:var(--f2); margin-top:6px; }
+  table { width:100%; border-collapse:collapse; font-size:var(--f3); margin-top:10px; }
   td { padding:7px 0; border-bottom:1px solid var(--cizgi); }
   td:first-child { color:var(--soluk); width:42%; }
   tr:last-child td { border-bottom:none; }
   pre {
     background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:10px;
-    padding:12px; overflow-x:auto; font-size:.8rem; line-height:1.5;
+    padding:12px; overflow-x:auto; font-size:var(--f2); line-height:1.5;
     font-family:var(--mono); margin:12px 0 0;
     white-space:pre-wrap; word-break:break-word;
   }
@@ -381,26 +450,26 @@
      degil. (Sayfadaki tek diger text-align:center, tahmin seridindeki
      tek kelimelik hucreler - orada dogru tercih.) */
   footer {
-    color:var(--soluk); font-size:.8rem; margin-top:28px;
+    color:var(--soluk); font-size:var(--f2); margin-top:28px;
     text-align:left; text-wrap:pretty;
   }
   a { color:inherit; }
   .panel-link {
     display:inline-block; margin-top:12px; padding:7px 14px; border-radius:8px;
     background:var(--vurgu); color:var(--bg); text-decoration:none;
-    font-size:.82rem; font-weight:650;
+    font-size:var(--f2); font-weight:650;
   }
-  .grafik-ust { font-weight:650; margin-bottom:12px; font-size:.95rem; }
+  .grafik-ust { font-weight:650; margin-bottom:12px; font-size:var(--f3); }
   .grafik-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px 20px; }
   @media (max-width:480px) { .grafik-grid { grid-template-columns:1fr; } }
   .grafik-baslik { display:flex; justify-content:space-between; align-items:baseline;
-                     font-size:.85rem; color:var(--soluk); margin-bottom:4px; }
+                     font-size:var(--f2); color:var(--soluk); margin-bottom:4px; }
   .grafik-son { color:var(--metin); font-weight:650; }
   .grafik-son-yok { color:var(--soluk); font-weight:600; font-style:italic; }
   .grafik { width:100%; height:64px; display:block; }
   .grafik-eksen { display:flex; justify-content:space-between;
-                    font-size:.72rem; color:var(--soluk); margin-top:2px; }
-  .grafik-durum-notu { font-size:.72rem; color:var(--soluk); margin-top:4px;
+                    font-size:var(--f1); color:var(--soluk); margin-top:2px; }
+  .grafik-durum-notu { font-size:var(--f1); color:var(--soluk); margin-top:4px;
                           font-style:italic; }
   /* Imlec/parmak altindaki noktanin saat+degerini gosteren balon. Dokunmatik
      cihazda dikey sayfa kaydirma bozulmasin diye touch-action:pan-y - yatay
@@ -418,7 +487,7 @@
   .grafik-balon {
     position:absolute; top:0;
     background:var(--kart); border:1px solid var(--cizgi); border-radius:7px;
-    padding:3px 8px; font-size:.74rem; font-weight:600; white-space:nowrap;
+    padding:3px 8px; font-size:var(--f2); font-weight:600; white-space:nowrap;
     color:var(--metin); pointer-events:none; z-index:3;
     box-shadow:0 2px 10px rgba(0,0,0,.35);
   }
@@ -426,20 +495,20 @@
 
   .sis-olasilik-ust { display:flex; align-items:baseline; gap:10px; margin:6px 0 2px; }
   .sis-olasilik-deger {
-    font-size:2.2rem; font-weight:700; line-height:1.1;
+    font-size:var(--f6); font-weight:700; line-height:1.1;
   }
   .sis-olasilik-bant {
-    font-size:.74rem; font-weight:650; padding:2px 9px; border-radius:999px;
+    font-size:var(--f2); font-weight:650; padding:2px 9px; border-radius:999px;
     text-transform:uppercase; letter-spacing:.03em;
   }
   .sis-olasilik-bant.dusuk { background:var(--iyi-zemin); color:var(--iyi); }
   .sis-olasilik-bant.orta { background:#f9731626; color:#ea580c; }
   .sis-olasilik-bant.yuksek { background:var(--uyari-zemin); color:var(--uyari-metin); }
-  .gecis-tablo { width:100%; border-collapse:collapse; font-size:.82rem;
+  .gecis-tablo { width:100%; border-collapse:collapse; font-size:var(--f2);
                   margin-top:8px; font-variant-numeric:tabular-nums; }
   .gecis-tablo th, .gecis-tablo td { padding:6px 4px; text-align:right;
                                       border-bottom:1px solid var(--cizgi); }
-  .gecis-tablo thead th { color:var(--soluk); font-weight:650; font-size:.74rem; }
+  .gecis-tablo thead th { color:var(--soluk); font-weight:650; font-size:var(--f2); }
   /* Satir basligi SOLA yasli - sayilar saga, etiket sola; karisik
      hizalama tabloyu okunmaz yapardi. */
   .gecis-tablo tbody th { text-align:left; font-weight:600; }
@@ -451,24 +520,24 @@
   .gecis-tablo tbody tr:last-child td { border-bottom:0; }
   .gecis-n { color:var(--soluk); }
   .gecis-caption { caption-side:top; text-align:left; color:var(--soluk);
-                    font-size:.72rem; padding-bottom:2px; }
-  .gecis-esik { display:block; font-weight:400; font-size:.72rem;
+                    font-size:var(--f1); padding-bottom:2px; }
+  .gecis-esik { display:block; font-weight:400; font-size:var(--f1);
                  color:var(--soluk); }
-  .sis-olasilik-alt { font-size:.85rem; color:var(--soluk); }
-  .sis-olasilik-kiyas { font-size:.8rem; color:var(--soluk); margin-top:6px; }
+  .sis-olasilik-alt { font-size:var(--f2); color:var(--soluk); }
+  .sis-olasilik-kiyas { font-size:var(--f2); color:var(--soluk); margin-top:6px; }
   .sis-olasilik-ek {
-    font-size:.8rem; color:var(--soluk); margin-top:10px; padding-top:8px;
+    font-size:var(--f2); color:var(--soluk); margin-top:10px; padding-top:8px;
     border-top:1px dashed var(--cizgi);
   }
   .sis-olasilik-ek .sis-olasilik-bant { margin-left:4px; }
-  .sis-olasilik-ek-not { font-size:.72rem; color:var(--soluk); margin-top:4px; }
+  .sis-olasilik-ek-not { font-size:var(--f1); color:var(--soluk); margin-top:4px; }
   .sis-olasilik-not {
-    font-size:.74rem; color:var(--soluk); margin-top:10px; line-height:1.5;
+    font-size:var(--f2); color:var(--soluk); margin-top:10px; line-height:1.5;
     border-top:1px solid var(--cizgi); padding-top:8px;
   }
   .sis-olasilik-diyagram-btn {
     margin-top:10px; background:none; border:1px solid var(--cizgi);
-    color:var(--vurgu); font-size:.78rem; font-weight:650; padding:6px 12px;
+    color:var(--vurgu); font-size:var(--f2); font-weight:650; padding:6px 12px;
     border-radius:8px; cursor:pointer;
   }
   .sis-olasilik-diyagram-btn:hover { background:var(--kod-bg); }
@@ -480,45 +549,45 @@
      dokunusla aciliyor. */
   .kat { margin-top:10px; }
   /* Flex DEGIL: baslik metni uzun rozetle yan yana gelince flex ogesi
-     daralip "Trend · son 6 saat" uc satira kiriliyordu. Normal akis +
+     daralip baslik uc satira kiriliyordu. Normal akis +
      mutlak konumlu ok, metnin dogal sarmasina izin verir. */
   .kat > summary {
     cursor:pointer; user-select:none; list-style:none;
     position:relative; padding-right:20px;
-    font-size:.82rem; color:var(--soluk);
+    font-size:var(--f2); color:var(--soluk);
   }
   .kat > summary::-webkit-details-marker { display:none; }
   .kat > summary::after {
-    content:"▶"; font-size:.7rem; position:absolute; right:0; top:.2em;
+    content:"▶"; font-size:var(--f1); position:absolute; right:0; top:.2em;
     transition:transform .15s ease; display:inline-block;
   }
   .kat[open] > summary::after { transform:rotate(90deg); }
   .kat > summary:hover { color:var(--metin); }
   .kat-rozet {
-    font-family:var(--mono); font-size:.75rem;
+    font-family:var(--mono); font-size:var(--f2);
     color:var(--metin); font-weight:600; margin-left:8px;
   }
   /* Kart basligi olarak kullanilan katlanabilir summary - .basrow ile ayni
      tipografi (Trend / NOTAM Geçmişi gibi bolum basliklari icin). */
-  .kat-kart > summary { font-size:1rem; color:var(--metin); font-weight:650; }
+  .kat-kart > summary { font-size:var(--f4); color:var(--metin); font-weight:650; }
   /* Bir katlanir kartin icindeki alt bolumler - araya ince cizgi girsin ki
      saatlik tahmin ile olasilik karti ayri ayri okunabilsin (eskiden ayri
      kartlardi). Bolum adlari burada YAZILMIYOR: testler bu adlarin sayfada
      bulunup bulunmadigina bakiyor, CSS yorumu yanlis pozitif uretirdi. */
   .alt-bolum { padding-top:12px; }
   .alt-bolum + .alt-bolum { margin-top:12px; border-top:1px solid var(--cizgi); }
-  .kat-kart > summary::after { font-size:.7rem; color:var(--soluk); }
+  .kat-kart > summary::after { font-size:var(--f1); color:var(--soluk); }
 
   /* Önümüzdeki saatler şeridi - dar ekranda yatay kaydirilir, dikey
      kaydirmayi bolmesin diye sabit yukseklikli hucreler. */
   .tahmin-uyari {
     background:rgba(234,179,8,.12); border:1px solid rgba(234,179,8,.4);
-    border-radius:10px; padding:8px 10px; margin:8px 0 12px; font-size:.8rem;
+    border-radius:10px; padding:8px 10px; margin:8px 0 12px; font-size:var(--f2);
   }
   /* Tahminin yasi - sadece TAHMIN_YAS_UYARI_DK'yi gecince cizilir.
      Uyari rengi DEGIL: bayat tahmin bir hata degil, sadece bir baglam. */
   .tahmin-yas {
-    margin-left:auto; font-size:.72rem; color:var(--soluk);
+    margin-left:auto; font-size:var(--f1); color:var(--soluk);
     border:1px solid var(--cizgi); border-radius:999px; padding:2px 8px;
     white-space:nowrap;
   }
@@ -557,7 +626,7 @@
      neydi" bilgisi ekrandan cikmasin. Kolon 12 saat uzunlugunda. */
   .tahmin-tablo th[scope="row"] {
     position:sticky; left:0; z-index:1; background:var(--kart);
-    text-align:left; font-weight:600; font-size:.76rem; color:var(--soluk);
+    text-align:left; font-weight:600; font-size:var(--f2); color:var(--soluk);
     border-right:1px solid var(--cizgi);
     /* width:1% -> tarayici bu sutunu ICERIGE gore daraltir. Olmadan
        min-width:100%'ten artan bosluğun tamamini ilk sutun yutuyor ve
@@ -566,31 +635,31 @@
   }
   .tahmin-birim {
     display:inline-block; margin-left:5px; font-weight:400;
-    font-size:.68rem; opacity:.75;
+    font-size:var(--f1); opacity:.75;
   }
-  .tahmin-saat { font-size:.76rem; font-weight:650; font-family:var(--mono); }
+  .tahmin-saat { font-size:var(--f2); font-weight:650; font-family:var(--mono); }
   /* Spread en guclu onculer gostergeydi (bkz. sis_modeli/README.md) -
      tabloda da one cikiyor. */
-  .tahmin-vurgu td { font-size:1rem; font-weight:700; color:var(--metin); }
-  .tahmin-tablo td { font-size:.8rem; color:var(--metin); }
+  .tahmin-vurgu td { font-size:var(--f3); font-weight:700; color:var(--metin); }
+  .tahmin-tablo td { font-size:var(--f2); color:var(--metin); }
   /* Modelin sis kodu verdigi saat: TUM kolon hafifce boyanir, basligina
      simge+metin gelir. Renk TEK BASINA tasiyici degil - renk korlugunde
      ve tek renkli baskida da "sis" yazisi okunur. */
   .tahmin-sisli { background:rgba(234,179,8,.12); }
   .tahmin-sis {
-    font-size:.66rem; font-weight:700; color:var(--dikkat);
+    font-size:var(--f1); font-weight:700; color:var(--dikkat);
     margin-top:2px; display:flex; align-items:center; gap:3px;
     justify-content:center;
   }
-  .tahmin-aciklama { font-size:.72rem; color:var(--soluk); margin-top:8px; }
+  .tahmin-aciklama { font-size:var(--f1); color:var(--soluk); margin-top:8px; }
 
-  .bolum-baslik { font-weight:650; font-size:1.05rem; margin:28px 0 12px; }
+  .bolum-baslik { font-weight:650; font-size:var(--f4); margin:28px 0 12px; }
   /* Bayat senkron uyarisi - kirmizi DEGIL: liste hala dogru olabilir,
      sadece dogrulanmamis. Kirmizi "yanlis" ima ederdi. */
   .notam-senkron-bayat { color:var(--dikkat); font-weight:650; }
   .notam-uyari {
     background:rgba(234,179,8,.12); border:1px solid rgba(234,179,8,.4);
-    border-radius:10px; padding:10px 12px; margin-bottom:14px; font-size:.85rem;
+    border-radius:10px; padding:10px 12px; margin-bottom:14px; font-size:var(--f2);
   }
   .notam-kart {
     border-bottom:1px solid var(--cizgi); padding:12px 0;
@@ -600,10 +669,10 @@
                 margin-bottom:6px; }
   .notam-no { font-weight:650; font-family:var(--mono); }
   .notam-etiket {
-    padding:2px 8px; border-radius:999px; font-size:.72rem; font-weight:600;
+    padding:2px 8px; border-radius:999px; font-size:var(--f1); font-weight:600;
     background:var(--kod-bg); border:1px solid var(--cizgi); color:var(--soluk);
   }
-  .notam-durum { font-size:.75rem; color:var(--soluk); margin-left:auto; }
+  .notam-durum { font-size:var(--f2); color:var(--soluk); margin-left:auto; }
   /* Suresi dolmus / henuz baslamamis NOTAM'in durum etiketi - soluk griden
      ayrilsin ki arama sonuclarinda yururlukte olanla karistirilmasin. */
   .notam-durum-gecmis { color:var(--dikkat); font-weight:600; }
@@ -613,29 +682,29 @@
   }
   .notam-aktif-baslik { cursor:pointer; user-select:none; }
   .notam-aktif-sayi {
-    color:var(--soluk); font-size:.82rem; margin-left:auto; margin-right:4px;
+    color:var(--soluk); font-size:var(--f2); margin-left:auto; margin-right:4px;
   }
   .notam-ok {
-    font-size:.7rem; color:var(--soluk); transition:transform .15s ease;
+    font-size:var(--f1); color:var(--soluk); transition:transform .15s ease;
     display:inline-block;
   }
   .notam-ok.acik { transform:rotate(90deg); }
-  .notam-ozet { font-size:.88rem; margin:4px 0; }
+  .notam-ozet { font-size:var(--f3); margin:4px 0; }
   .notam-metin {
     background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:8px;
-    padding:10px; font-size:.78rem; line-height:1.5; margin-top:6px;
+    padding:10px; font-size:var(--f2); line-height:1.5; margin-top:6px;
     font-family:var(--mono); white-space:pre-wrap;
     word-break:break-word;
   }
-  .notam-kaynak { font-size:.72rem; color:var(--soluk); margin-top:6px; }
-  .notam-bos { color:var(--soluk); font-size:.88rem; padding:8px 0; }
+  .notam-kaynak { font-size:var(--f1); color:var(--soluk); margin-top:6px; }
+  .notam-bos { color:var(--soluk); font-size:var(--f3); padding:8px 0; }
   .notam-arama { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
   .notam-arama input, .notam-arama select {
     /* min-width:0 olmadan flex ogesi kendi icerik genisliginin altina
        inemez - dar telefonlarda select'in etiketi kirpiliyordu. */
     flex:1 1 140px; min-width:0; padding:8px 10px; border-radius:8px;
     border:1px solid var(--cizgi);
-    background:var(--bg); color:var(--metin); font-size:.85rem;
+    background:var(--bg); color:var(--metin); font-size:var(--f2);
   }
   /* SESSIZ dugme. Eskiden dolu koyu zeminliydi ve NOTAM panelindeki tek
      dolu dugme oydu - yani gozun ilk gittigi yer "filtreyi temizle"
@@ -645,58 +714,58 @@
   .notam-arama button {
     padding:8px 14px; border-radius:8px; border:1px solid var(--cizgi);
     background:transparent; color:var(--soluk); font-weight:600;
-    font-size:.85rem; cursor:pointer;
+    font-size:var(--f2); cursor:pointer;
   }
   .notam-arama button:hover { background:var(--etkilesim); color:var(--metin); }
-  .notam-arama-not { color:var(--soluk); font-size:.78rem; margin:-8px 0 12px; }
+  .notam-arama-not { color:var(--soluk); font-size:var(--f2); margin:-8px 0 12px; }
 
   /* LVO REFERENCE - METAR/NOTAM/ATC Notes'tan gorsel olarak ayri, saf
      bilgi/referans paneli. Hicbir karar uretmez (bkz. ltfj_lvo_referans.py). */
   .lvo-alt-baslik {
-    font-weight:650; font-size:.92rem; margin:18px 0 8px; display:flex;
+    font-weight:650; font-size:var(--f3); margin:18px 0 8px; display:flex;
     align-items:center; gap:8px;
   }
   .lvo-alt-baslik:first-child { margin-top:0; }
   .lvo-provenance {
-    display:inline-block; padding:2px 8px; border-radius:999px; font-size:.68rem;
+    display:inline-block; padding:2px 8px; border-radius:999px; font-size:var(--f1);
     font-weight:700; letter-spacing:.02em; background:var(--kod-bg);
     border:1px solid var(--cizgi); color:var(--soluk);
   }
-  .lvo-tablo { width:100%; border-collapse:collapse; font-size:.82rem; margin:6px 0 10px; }
+  .lvo-tablo { width:100%; border-collapse:collapse; font-size:var(--f2); margin:6px 0 10px; }
   .lvo-tablo th, .lvo-tablo td {
     padding:6px 8px; border-bottom:1px solid var(--cizgi); text-align:left;
     width:auto;
   }
-  .lvo-tablo th { color:var(--soluk); font-weight:600; font-size:.72rem; }
-  .lvo-esik-liste { font-size:.85rem; margin:4px 0 12px; }
+  .lvo-tablo th { color:var(--soluk); font-weight:600; font-size:var(--f1); }
+  .lvo-esik-liste { font-size:var(--f2); margin:4px 0 12px; }
   .lvo-esik-satir {
     display:flex; justify-content:space-between; gap:10px; padding:6px 0;
     border-bottom:1px solid var(--cizgi);
   }
   .lvo-esik-satir:last-child { border-bottom:none; }
   .lvo-esik-deger { font-weight:650; font-family:var(--mono); }
-  .lvo-not-listesi { font-size:.78rem; color:var(--soluk); margin:8px 0 0; padding-left:18px; }
+  .lvo-not-listesi { font-size:var(--f2); color:var(--soluk); margin:8px 0 0; padding-left:18px; }
   .lvo-not-listesi li { margin-bottom:4px; }
   .lvo-awos-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; }
   .lvo-awos-kart {
     border:1px solid var(--cizgi); border-radius:10px; padding:10px 12px; background:var(--kod-bg);
   }
   .lvo-awos-pist { font-weight:650; margin-bottom:6px; }
-  .lvo-awos-deger { display:flex; justify-content:space-between; font-size:.85rem; padding:3px 0; }
-  .lvo-awos-alt { font-size:.72rem; color:var(--soluk); margin-top:6px; }
+  .lvo-awos-deger { display:flex; justify-content:space-between; font-size:var(--f2); padding:3px 0; }
+  .lvo-awos-alt { font-size:var(--f1); color:var(--soluk); margin-top:6px; }
   .lvo-stale {
     color:var(--uyari); font-weight:700; margin-left:6px;
   }
   .lvo-form { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; align-items:flex-end; }
-  .lvo-form label { display:block; font-size:.72rem; color:var(--soluk); margin-bottom:3px; }
+  .lvo-form label { display:block; font-size:var(--f1); color:var(--soluk); margin-bottom:3px; }
   .lvo-form input, .lvo-form select {
     padding:8px 10px; border-radius:8px; border:1px solid var(--cizgi);
-    background:var(--bg); color:var(--metin); font-size:.85rem; width:100%; box-sizing:border-box;
+    background:var(--bg); color:var(--metin); font-size:var(--f2); width:100%; box-sizing:border-box;
   }
   .lvo-form-alan { flex:1 1 100px; }
   .lvo-form button {
     padding:8px 14px; border-radius:8px; border:none; background:var(--vurgu);
-    color:var(--bg); font-weight:650; font-size:.85rem; cursor:pointer; flex-shrink:0;
+    color:var(--bg); font-weight:650; font-size:var(--f2); cursor:pointer; flex-shrink:0;
   }
   /* Temizleme YIKICI ve PAYLASILAN veriyi siler - kaydet butonuyla ayni
      agirlikta durmasin diye ikincil (cerceveli) gorunum. */
@@ -704,15 +773,15 @@
     background:transparent; color:var(--soluk); border:1px solid var(--cizgi);
   }
   .lvo-form button.lvo-awos-temizle:hover { color:var(--uyari); border-color:var(--uyari); }
-  .lvo-hata { color:var(--uyari); font-size:.8rem; margin-top:6px; min-height:1.1em; }
-  .lvo-esik-kaynak { font-size:.72rem; color:var(--soluk); display:block; margin-top:2px; }
+  .lvo-hata { color:var(--uyari); font-size:var(--f2); margin-top:6px; min-height:1.1em; }
+  .lvo-esik-kaynak { font-size:var(--f1); color:var(--soluk); display:block; margin-top:2px; }
 
   .atc-not-ekle-btn {
     margin-left:auto; padding:6px 12px; border-radius:8px; border:none;
-    background:var(--vurgu); color:var(--bg); font-weight:650; font-size:.82rem;
+    background:var(--vurgu); color:var(--bg); font-weight:650; font-size:var(--f2);
     cursor:pointer;
   }
-  .atc-not-kalan { color:var(--soluk); font-size:.72rem; margin-top:6px; }
+  .atc-not-kalan { color:var(--soluk); font-size:var(--f1); margin-top:6px; }
 
   /* ATC Notes artik sayfa akisinda degil - sag altta sabit duran bir
      dugmeyle (FAB) acilan yuzen bir panel. Telefonda alttan yukari kayan
@@ -720,15 +789,19 @@
   .atc-fab {
     position:fixed; right:16px;
     bottom:calc(16px + env(safe-area-inset-bottom, 0px));
-    width:56px; height:56px; border-radius:999px; border:none;
-    background:var(--vurgu); color:var(--bg); font-size:1.4rem;
+    width:56px; height:56px; border-radius:999px;
+    /* Dokunma hedefi 56px KALIYOR - degisen yalnizca yuzey. Koyu temada
+       kenarlik veriliyor cunku zemin artik sayfayla yakin degerde ve
+       dugmenin sinirinin gorunmesi gerekiyor. */
+    border:1px solid var(--fab-cizgi);
+    background:var(--fab-zemin); color:var(--fab-metin); font-size:var(--f5);
     box-shadow:0 4px 16px rgba(0,0,0,.3); cursor:pointer; z-index:60;
     display:flex; align-items:center; justify-content:center;
   }
   .atc-fab-rozet {
     position:absolute; top:-2px; right:-2px; min-width:20px; height:20px;
     padding:0 5px; border-radius:999px; background:var(--uyari); color:#fff;
-    font-size:.68rem; font-weight:700; display:flex; align-items:center;
+    font-size:var(--f1); font-weight:700; display:flex; align-items:center;
     justify-content:center; border:2px solid var(--bg);
   }
   .atc-fab-rozet[hidden] { display:none; }
@@ -747,10 +820,10 @@
     display:flex; align-items:center; gap:10px; padding:16px 16px 10px;
     border-bottom:1px solid var(--cizgi); flex-shrink:0;
   }
-  .atc-panel-ust .tip { font-weight:650; font-size:1.05rem; }
+  .atc-panel-ust .tip { font-weight:650; font-size:var(--f4); }
   .atc-panel-kapat {
     width:32px; height:32px; border-radius:999px; border:none; flex-shrink:0;
-    background:var(--kod-bg); color:var(--metin); font-size:1.1rem; cursor:pointer;
+    background:var(--kod-bg); color:var(--metin); font-size:var(--f4); cursor:pointer;
     display:flex; align-items:center; justify-content:center;
   }
   .atc-panel-govde { overflow-y:auto; padding:14px 16px 20px; -webkit-overflow-scrolling:touch; }
@@ -774,17 +847,17 @@
   }
   .modal-kutu-genis { max-width:820px; max-height:90vh; overflow:auto; }
   .modal-kutu-genis img { width:100%; height:auto; border-radius:8px; display:block; }
-  .modal-kutu h3 { margin:0 0 4px; font-size:1.05rem; }
-  .modal-kutu label { display:block; font-size:.82rem; color:var(--soluk); margin:12px 0 4px; }
+  .modal-kutu h3 { margin:0 0 4px; font-size:var(--f4); }
+  .modal-kutu label { display:block; font-size:var(--f2); color:var(--soluk); margin:12px 0 4px; }
   .modal-kutu input, .modal-kutu textarea {
     width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--cizgi);
-    background:var(--bg); color:var(--metin); font-size:.9rem; font-family:inherit;
+    background:var(--bg); color:var(--metin); font-size:var(--f3); font-family:inherit;
     box-sizing:border-box; resize:vertical;
   }
-  .modal-hata { color:var(--uyari); font-size:.8rem; margin-top:8px; min-height:1.1em; }
+  .modal-hata { color:var(--uyari); font-size:var(--f2); margin-top:8px; min-height:1.1em; }
   .modal-butonlar { display:flex; gap:8px; justify-content:flex-end; margin-top:14px; }
   .modal-butonlar button {
-    padding:8px 16px; border-radius:8px; border:none; font-weight:650; font-size:.85rem;
+    padding:8px 16px; border-radius:8px; border:none; font-weight:650; font-size:var(--f2);
     cursor:pointer;
   }
   #atc-not-kaydet { background:var(--vurgu); color:var(--bg); }
@@ -797,13 +870,21 @@
   .vfr-sekme {
     position:fixed; top:96px; right:0; z-index:58; border:none;
     padding:10px 7px; border-radius:10px 0 0 10px; color:#fff;
-    font-weight:700; font-size:.8rem; letter-spacing:.05em; cursor:pointer;
+    font-weight:700; font-size:var(--f2); letter-spacing:.05em; cursor:pointer;
     writing-mode:vertical-rl; text-orientation:mixed;
     box-shadow:0 2px 10px rgba(0,0,0,.3);
   }
-  .vfr-sekme.vfr-yesil { background:#22c55e; }
-  .vfr-sekme.vfr-kirmizi { background:#ef4444; }
-  .vfr-sekme.vfr-bilinmiyor { background:#64748b; }
+  /* Zeminler KOYULASTIRILDI. Olculen: beyaz yazi uzerinde
+     #22c55e = 2.28:1 (sayfadaki EN DUSUK kontrast, hem de emniyetle
+     en ilgili gostergede), #ef4444 = 3.76:1. Ikisi de AA'nin (4.5)
+     altindaydi. Ton korundu, yalnizca deger dusuruldu:
+       #15803d = 5.02:1   #b91c1c = 6.47:1   #475569 = 7.58:1
+     .vfr-nokta renkleri DEGISMEDI: onlar kart zemininde duran kucuk
+     daireler, uzerlerinde yazi yok - metin kontrasti kurali onlara
+     uygulanmaz. */
+  .vfr-sekme.vfr-yesil { background:#15803d; }
+  .vfr-sekme.vfr-kirmizi { background:#b91c1c; }
+  .vfr-sekme.vfr-bilinmiyor { background:#475569; }
   .vfr-panel-ortu {
     position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:62;
     display:flex; align-items:flex-start; justify-content:flex-end; padding:16px;
@@ -815,13 +896,13 @@
     box-shadow:0 8px 32px rgba(0,0,0,.35);
   }
   .vfr-panel-ust { display:flex; align-items:center; gap:10px; }
-  .vfr-panel-ust h3 { margin:0; font-size:1rem; display:flex; align-items:center; gap:8px; flex:1; }
+  .vfr-panel-ust h3 { margin:0; font-size:var(--f4); display:flex; align-items:center; gap:8px; flex:1; }
   .vfr-nokta { width:10px; height:10px; border-radius:999px; display:inline-block; flex-shrink:0; }
   .vfr-nokta.yesil { background:#22c55e; }
   .vfr-nokta.kirmizi { background:#ef4444; }
   .vfr-nokta.bilinmiyor { background:#64748b; }
-  .vfr-panel ul { margin:10px 0 0; padding-left:18px; font-size:.85rem; }
-  .vfr-panel .vfr-esik { color:var(--soluk); font-size:.72rem; margin-top:10px; }
+  .vfr-panel ul { margin:10px 0 0; padding-left:18px; font-size:var(--f2); }
+  .vfr-panel .vfr-esik { color:var(--soluk); font-size:var(--f1); margin-top:10px; }
 </style>
 <script>
   /* SATIR ICI ve GOVDE CIZILMEDEN ONCE olmak ZORUNDA: paneller varsayilan
@@ -850,7 +931,7 @@
          saatlerce acik kalabiliyor ve sunucuda yazilan "canli" etiketi
          zamanla yalan olurdu. data-gozlem en yeni METAR/SPECI zamani. -->
     <div class="ust-durum-sat">
-      <span class="ust-durum" id="ust-durum" data-gozlem="2026-09-23T23:20:00.333000+00:00"
+      <span class="ust-durum" id="ust-durum" data-gozlem="2026-09-23T23:50:00.320000+00:00"
             role="status"></span>
       <span class="ust-saat" id="ust-saat" title="Eşgüdümlü Evrensel Zaman"></span>
     </div>
@@ -869,24 +950,33 @@
      etiketi yerine OLCULEN yaslar. -->
 <div class="veri-serit">
   <span class="veri-oge"><b>METAR</b><time id="veri-metar"
-        data-zaman="2026-09-23T23:20:00.333000+00:00"></time></span>
+        data-zaman="2026-09-23T23:50:00.320000+00:00"></time></span>
   <span class="veri-oge"><b>TAF</b><time id="veri-taf"
         data-zaman="2026-09-23T22:40:00.701000+00:00"></time></span>
   <span class="veri-oge"><b>NOTAM</b><span id="veri-notam">—</span></span>
-  <span class="veri-oge veri-kaynak">MGM · sayfa 24.09.2026 02:50 yerel</span>
+  <span class="veri-oge veri-kaynak">MGM · sayfa 23.09 23:55Z (02:55 yerel)</span>
 </div>
+<!-- SU AN blogu: dort ana olcu, sayfanin tepesinde ve KART DISINDA.
+     Ayni dort olcu eskiden hem burada (serit) hem de METAR kartinin
+     icinde (hero) vardi - ikisi ayni ekranda, farkli bicimlerde. Artik
+     tek yerde ve tek bicimde (bkz. _olcu). Serit KALDIRILMADI: hero
+     kaydirinca ekrandan cikiyor, serit yapiskan. Ikisi ayni anda
+     gorunmesin diye serit yalnizca hero ekrandan CIKINCA aciliyor
+     (asagidaki IntersectionObserver). JS yoksa ikisi de gorunur -
+     eski davranis, bilgi kaybi yok. -->
+<div class="su-an" id="su-an"><div class="hero"><div class="hero-oge"><div class="hero-etiket">GÖRÜŞ</div><div class="hero-deger">10+<span class="hero-birim">km</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><path d="M4.0,14.6 L13.2,14.6 L22.4,5.4 L31.6,5.4 L40.8,5.4 L50.0,5.4 L59.2,5.4 L68.4,5.4 L77.6,5.4 L86.8,5.4 L96.0,5.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="5.4" r="3" fill="currentColor"/></svg></div><div class="hero-oge"><div class="hero-etiket">TAVAN</div><div class="hero-deger hero-deger-metin">bildirilmedi</div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><path d="M4.0,14.6 L13.2,14.6 L16.6,14.6 L22.4,14.6 L31.6,14.6 L40.8,14.6 L50.0,14.6 L59.2,5.4 L68.4,5.4 L77.6,5.4 L86.8,7.3 L96.0,7.3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="7.3" r="3" fill="currentColor"/></svg></div><div class="hero-oge"><div class="hero-etiket">RÜZGÂR</div><div class="hero-deger">000°/0<span class="hero-birim">kt</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><path d="M4.0,8.5 L12.4,5.4 L20.7,11.5 L29.1,14.6 L37.5,14.6 L45.8,11.5 L54.2,14.6 L62.5,14.6 L70.9,8.5 L79.3,14.6 L87.6,14.6 L96.0,14.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="14.6" r="3" fill="currentColor"/></svg></div><div class="hero-oge"><div class="hero-etiket">SPREAD</div><div class="hero-deger">2.0<span class="hero-birim">°C</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><path d="M4.0,10.0 L12.4,10.0 L20.7,5.4 L29.1,5.4 L37.5,5.4 L45.8,5.4 L54.2,10.0 L62.5,14.6 L70.9,10.0 L79.3,10.0 L87.6,14.6 L96.0,10.0" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="10.0" r="3" fill="currentColor"/></svg></div></div></div>
 <div class="yapiskan-ust">
-<div class="ozet-serit" id="ozet-serit"><span class="ozet-renk" style="background:#3b82f6">BLU</span><span class="ozet-oge" title="Görüş">10+ km</span><span class="ozet-oge" title="Bulut tavanı">tavan yok</span><span class="ozet-oge" title="Rüzgâr (yön/hız, G=hamle)">000°/0</span><span class="ozet-oge" title="Spread (sıcaklık - çiy noktası)">Δ1°</span></div>
+<div class="ozet-serit" id="ozet-serit"><span class="ozet-renk" style="background:#3b82f6">BLU</span><span class="ozet-oge" title="Görüş">10+ km</span><span class="ozet-oge" title="Bulut tavanı">tavan yok</span><span class="ozet-oge" title="Rüzgâr (yön/hız, G=hamle)">000°/0 kt</span><span class="ozet-oge" title="Spread (sıcaklık − çiy noktası)">Δ2.0°</span></div>
 <nav class="sekme-cubugu" role="tablist" aria-label="Sayfa bölümleri"><button type="button" class="sekme" role="tab" id="sekme-durum" data-sekme="durum" aria-controls="panel-durum" aria-selected="true"><svg class="ikon sekme-ikon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Durum</button><button type="button" class="sekme" role="tab" id="sekme-beklenti" data-sekme="beklenti" aria-controls="panel-beklenti" aria-selected="false"><svg class="ikon sekme-ikon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Beklenti</button><button type="button" class="sekme" role="tab" id="sekme-istatistik" data-sekme="istatistik" aria-controls="panel-istatistik" aria-selected="false"><svg class="ikon sekme-ikon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>İstatistik<span class="sekme-rozet">%1</span></button><button type="button" class="sekme" role="tab" id="sekme-lvo" data-sekme="lvo" aria-controls="panel-lvo" aria-selected="false"><svg class="ikon sekme-ikon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.5"/></svg>LVO</button><button type="button" class="sekme" role="tab" id="sekme-notam" data-sekme="notam" aria-controls="panel-notam" aria-selected="false"><svg class="ikon sekme-ikon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>NOTAM<span class="sekme-rozet" id="notam-aktif-sayi"></span></button></nav>
 </div>
 
 <div class="sekme-panel" id="panel-durum" role="tabpanel"
      aria-labelledby="sekme-durum">
-<div class="kart"><details class="kat kat-kart"><summary>Trend · son 6 saat <span class="kat-rozet">0kt · 1020hPa · 12°C</span></summary><div class="grafik-grid"><div class="grafik-kutu" data-noktalar="[{&quot;x&quot;: 0.0067, &quot;y&quot;: 0.3878, &quot;s&quot;: &quot;21:20&quot;, &quot;d&quot;: &quot;2 kt&quot;}, {&quot;x&quot;: 0.1053, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;21:50&quot;, &quot;d&quot;: &quot;3 kt&quot;}, {&quot;x&quot;: 0.204, &quot;y&quot;: 0.6122, &quot;s&quot;: &quot;22:20&quot;, &quot;d&quot;: &quot;1 kt&quot;}, {&quot;x&quot;: 0.3027, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;22:50&quot;, &quot;d&quot;: &quot;0 kt&quot;}, {&quot;x&quot;: 0.4013, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;23:20&quot;, &quot;d&quot;: &quot;0 kt&quot;}, {&quot;x&quot;: 0.5, &quot;y&quot;: 0.6122, &quot;s&quot;: &quot;23:50&quot;, &quot;d&quot;: &quot;1 kt&quot;}, {&quot;x&quot;: 0.5987, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;00:20&quot;, &quot;d&quot;: &quot;0 kt&quot;}, {&quot;x&quot;: 0.6973, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;00:50&quot;, &quot;d&quot;: &quot;0 kt&quot;}, {&quot;x&quot;: 0.796, &quot;y&quot;: 0.3878, &quot;s&quot;: &quot;01:20&quot;, &quot;d&quot;: &quot;2 kt&quot;}, {&quot;x&quot;: 0.8947, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;01:50&quot;, &quot;d&quot;: &quot;0 kt&quot;}, {&quot;x&quot;: 0.9933, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;02:20&quot;, &quot;d&quot;: &quot;0 kt&quot;}]"><div class="grafik-baslik"><span>Rüzgâr</span><span class="grafik-son">0 kt</span></div><div class="grafik-sarmal"><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,24.8 L63.2,10.5 L122.4,39.2 L181.6,53.5 L240.8,53.5 L300.0,39.2 L359.2,53.5 L418.4,53.5 L477.6,24.8 L536.8,53.5 L596.0,53.5" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="53.5" r="3" fill="#3b82f6"/></svg><div class="grafik-imlec" hidden></div><div class="grafik-nokta" hidden></div><div class="grafik-balon" hidden></div></div><div class="grafik-eksen"><span>21:20</span><span>02:20</span></div></div><div class="grafik-kutu" data-noktalar="[{&quot;x&quot;: 0.0067, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;15:20&quot;, &quot;d&quot;: &quot;2300 ft&quot;}, {&quot;x&quot;: 0.0515, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;15:50&quot;, &quot;d&quot;: &quot;2300 ft&quot;}, {&quot;x&quot;: 0.068, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;16:01&quot;, &quot;d&quot;: &quot;2300 ft&quot;}, {&quot;x&quot;: 0.0964, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;16:20&quot;, &quot;d&quot;: &quot;2300 ft&quot;}, {&quot;x&quot;: 0.1412, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;16:50&quot;, &quot;d&quot;: &quot;2300 ft&quot;}, {&quot;x&quot;: 0.1861, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;17:20&quot;, &quot;d&quot;: &quot;2300 ft&quot;}, {&quot;x&quot;: 0.2309, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;17:50&quot;, &quot;d&quot;: &quot;2300 ft&quot;}, {&quot;x&quot;: 0.2758, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;18:20&quot;, &quot;d&quot;: &quot;12000 ft&quot;}, {&quot;x&quot;: 0.3206, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;18:50&quot;, &quot;d&quot;: &quot;12000 ft&quot;}, {&quot;x&quot;: 0.3655, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;19:20&quot;, &quot;d&quot;: &quot;12000 ft&quot;}, {&quot;x&quot;: 0.4103, &quot;y&quot;: 0.3022, &quot;s&quot;: &quot;19:50&quot;, &quot;d&quot;: &quot;10000 ft&quot;}, {&quot;x&quot;: 0.4552, &quot;y&quot;: 0.3022, &quot;s&quot;: &quot;20:20&quot;, &quot;d&quot;: &quot;10000 ft&quot;}]"><div class="grafik-baslik"><span>Bulut tavanı</span><span class="grafik-son grafik-son-yok">raporlanmıyor</span></div><div class="grafik-sarmal"><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,53.5 L30.9,53.5 L40.8,53.5 L57.8,53.5 L84.7,53.5 L111.6,53.5 L138.5,53.5 L165.5,10.5 L192.4,10.5 L219.3,10.5 L246.2,19.3 L273.1,19.3" fill="none" stroke="#22c55e" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="273.1" cy="19.3" r="4" fill="none" stroke="#22c55e" stroke-width="2"/><path d="M273.1,19.3 L596.0,19.3" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-dasharray="5,4"/></svg><div class="grafik-imlec" hidden></div><div class="grafik-nokta" hidden></div><div class="grafik-balon" hidden></div></div><div class="grafik-eksen"><span>15:20</span><span>02:20</span></div><div class="grafik-durum-notu">Son ölçüm: 10000 ft · 20:20 yerel — o zamandan beri raporlanmıyor.</div></div><div class="grafik-kutu" data-noktalar="[{&quot;x&quot;: 0.0067, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;21:20&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.1053, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;21:50&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.204, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;22:20&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.3027, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;22:50&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.4013, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;23:20&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.5, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;23:50&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.5987, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;00:20&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.6973, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;00:50&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.796, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;01:20&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.8947, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;01:50&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.9933, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;02:20&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}]"><div class="grafik-baslik"><span>QNH</span><span class="grafik-son">1020 hPa</span></div><div class="grafik-sarmal"><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,32.0 L63.2,32.0 L122.4,32.0 L181.6,32.0 L240.8,32.0 L300.0,32.0 L359.2,32.0 L418.4,32.0 L477.6,32.0 L536.8,32.0 L596.0,32.0" fill="none" stroke="#eab308" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="32.0" r="3" fill="#eab308"/></svg><div class="grafik-imlec" hidden></div><div class="grafik-nokta" hidden></div><div class="grafik-balon" hidden></div></div><div class="grafik-eksen"><span>21:20</span><span>02:20</span></div></div><div class="grafik-kutu" data-noktalar="[{&quot;x&quot;: 0.0067, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;21:20&quot;, &quot;d&quot;: &quot;12 °C&quot;}, {&quot;x&quot;: 0.1053, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;21:50&quot;, &quot;d&quot;: &quot;12 °C&quot;}, {&quot;x&quot;: 0.204, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;22:20&quot;, &quot;d&quot;: &quot;13 °C&quot;}, {&quot;x&quot;: 0.3027, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;22:50&quot;, &quot;d&quot;: &quot;13 °C&quot;}, {&quot;x&quot;: 0.4013, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;23:20&quot;, &quot;d&quot;: &quot;13 °C&quot;}, {&quot;x&quot;: 0.5, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;23:50&quot;, &quot;d&quot;: &quot;13 °C&quot;}, {&quot;x&quot;: 0.5987, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;00:20&quot;, &quot;d&quot;: &quot;13 °C&quot;}, {&quot;x&quot;: 0.6973, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;00:50&quot;, &quot;d&quot;: &quot;12 °C&quot;}, {&quot;x&quot;: 0.796, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;01:20&quot;, &quot;d&quot;: &quot;13 °C&quot;}, {&quot;x&quot;: 0.8947, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;01:50&quot;, &quot;d&quot;: &quot;13 °C&quot;}, {&quot;x&quot;: 0.9933, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;02:20&quot;, &quot;d&quot;: &quot;12 °C&quot;}]"><div class="grafik-baslik"><span>Sıcaklık</span><span class="grafik-son">12 °C</span></div><div class="grafik-sarmal"><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,53.5 L63.2,53.5 L122.4,10.5 L181.6,10.5 L240.8,10.5 L300.0,10.5 L359.2,10.5 L418.4,53.5 L477.6,10.5 L536.8,10.5 L596.0,53.5" fill="none" stroke="#ef4444" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="53.5" r="3" fill="#ef4444"/></svg><div class="grafik-imlec" hidden></div><div class="grafik-nokta" hidden></div><div class="grafik-balon" hidden></div></div><div class="grafik-eksen"><span>21:20</span><span>02:20</span></div></div></div></details></div><div class="kart kart-durum" style="--durum-renk:#3b82f6"><div class="basrow"><span class="tip">METAR</span><span class="zaman">23.09 23:20Z · 02:20 yerel</span><span class="rozet" title="LTFJ Bot durum seviyesi — resmî ICAO CAT I/II/III kategorisi değildir" style="background:#3b82f6"><svg class="ikon rozet-nokta" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="5"/></svg>BLU · çok iyi</span></div><details class="kat"><summary><svg class="ikon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M8 14h.01M16 14h.01M9 18h6"/></svg> Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</summary><div class="yorum"><b>Rüzgâr:</b> Rüzgâr yok denecek kadar az, sakin hava koşulları var.<br><b>Görüş:</b> Görüş mükemmel, ufuk çizgisine kadar her şey net görünüyor.<br><b>Gökyüzü:</b> Bulut yok, gökyüzü açık ve temiz.<br><b>Uçuşa etkisi:</b> Hava koşulları uçuş için kısıtlayıcı bir unsur içermiyor.</div></details><div class="hero"><div class="hero-oge"><div class="hero-etiket">GÖRÜŞ</div><div class="hero-deger">10000<span class="hero-birim">m</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><path d="M4.0,14.6 L14.2,14.6 L24.4,5.4 L34.7,5.4 L44.9,5.4 L55.1,5.4 L65.3,5.4 L75.6,5.4 L85.8,5.4 L96.0,5.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="5.4" r="3" fill="currentColor"/></svg></div><div class="hero-oge"><div class="hero-etiket">TAVAN</div><div class="hero-deger">—<span class="hero-birim">ft</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><path d="M4.0,14.6 L13.2,14.6 L16.6,14.6 L22.4,14.6 L31.6,14.6 L40.8,14.6 L50.0,14.6 L59.2,5.4 L68.4,5.4 L77.6,5.4 L86.8,7.3 L96.0,7.3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="7.3" r="3" fill="currentColor"/></svg></div><div class="hero-oge"><div class="hero-etiket">RÜZGÂR</div><div class="hero-deger">000°/0<span class="hero-birim">kt</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><path d="M4.0,8.5 L13.2,5.4 L22.4,11.5 L31.6,14.6 L40.8,14.6 L50.0,11.5 L59.2,14.6 L68.4,14.6 L77.6,8.5 L86.8,14.6 L96.0,14.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="14.6" r="3" fill="currentColor"/></svg></div><div class="hero-oge"><div class="hero-etiket">SPREAD</div><div class="hero-deger">1.0<span class="hero-birim">°C</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><path d="M4.0,10.0 L13.2,10.0 L22.4,5.4 L31.6,5.4 L40.8,5.4 L50.0,5.4 L59.2,10.0 L68.4,14.6 L77.6,10.0 L86.8,10.0 L96.0,14.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="14.6" r="3" fill="currentColor"/></svg></div></div><div class="ozet-ikincil">12°C / çiy 11°C · QNH 1020</div><table><tr><td>Pist 06L</td><td>000° 0 kt</td></tr><tr><td>Pist 06R</td><td>090° 2 kt</td></tr><tr><td>Pist 24L</td><td>120° 3 kt</td></tr><tr><td>Pist 24R</td><td>100° 2 kt</td></tr><tr><td>Meteorolojik tercih</td><td>06R</td></tr></table><div class="pist-kaynak"><svg class="ikon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M17.8 19.2 16 11l3.5-3.5a2.1 2.1 0 0 0-3-3L13 8 4.8 6.2a1 1 0 0 0-.9 1.7l5.6 3.4-2.3 2.3-2.4-.5a1 1 0 0 0-.9 1.6l2.6 2.6 2.6 2.6a1 1 0 0 0 1.6-.9l-.5-2.4 2.3-2.3 3.4 5.6a1 1 0 0 0 1.7-.9z"/></svg> 06L: alan rüzgârından; 06R, 24L, 24R: AD 2.15 anemometreleri; kuyruk limiti 10 kt — CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi</div><pre>METAR LTFJ 232320Z 00000KT CAVOK 12/11 Q1020 NOSIG RMK RWY24R 10002KT RWY06R 09002KT RWY24L 12003KT</pre></div><div class="kart kart-durum" style="--durum-renk:#94a3b8"><div class="basrow"><span class="tip">SPECI</span><span class="zaman">23.09 13:01Z · 16:01 yerel</span><span class="rozet" title="LTFJ Bot durum seviyesi — resmî ICAO CAT I/II/III kategorisi değildir" style="background:#94a3b8"><svg class="ikon rozet-nokta" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="5"/></svg>WHT · iyi</span></div><div class="hero"><div class="hero-oge"><div class="hero-etiket">GÖRÜŞ</div><div class="hero-deger">9999<span class="hero-birim">m</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><path d="M4.0,14.6 L14.2,14.6 L24.4,5.4 L34.7,5.4 L44.9,5.4 L55.1,5.4 L65.3,5.4 L75.6,5.4 L85.8,5.4 L96.0,5.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="5.4" r="3" fill="currentColor"/></svg></div><div class="hero-oge"><div class="hero-etiket">TAVAN</div><div class="hero-deger">2300<span class="hero-birim">ft</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><path d="M4.0,14.6 L13.2,14.6 L16.6,14.6 L22.4,14.6 L31.6,14.6 L40.8,14.6 L50.0,14.6 L59.2,5.4 L68.4,5.4 L77.6,5.4 L86.8,7.3 L96.0,7.3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="7.3" r="3" fill="currentColor"/></svg></div><div class="hero-oge"><div class="hero-etiket">RÜZGÂR</div><div class="hero-deger">360°/11<span class="hero-birim">kt</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><path d="M4.0,8.5 L13.2,5.4 L22.4,11.5 L31.6,14.6 L40.8,14.6 L50.0,11.5 L59.2,14.6 L68.4,14.6 L77.6,8.5 L86.8,14.6 L96.0,14.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="14.6" r="3" fill="currentColor"/></svg></div><div class="hero-oge"><div class="hero-etiket">SPREAD</div><div class="hero-deger">3.0<span class="hero-birim">°C</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><path d="M4.0,10.0 L13.2,10.0 L22.4,5.4 L31.6,5.4 L40.8,5.4 L50.0,5.4 L59.2,10.0 L68.4,14.6 L77.6,10.0 L86.8,10.0 L96.0,14.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="14.6" r="3" fill="currentColor"/></svg></div></div><div class="ozet-ikincil">-SHRA · 15°C / çiy 12°C · QNH 1018</div><table><tr><td>Pist 06L</td><td>360° (değişken 320°–030°) 11 kt</td></tr><tr><td>Pist 06R</td><td>340° (değişken 320°–020°) 14 kt</td></tr><tr><td>Pist 24L</td><td>340° 10 kt</td></tr><tr><td>Pist 24R</td><td>340° 13 kt</td></tr><tr><td>Meteorolojik tercih</td><td>06L</td></tr></table><div class="pist-kaynak"><svg class="ikon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M17.8 19.2 16 11l3.5-3.5a2.1 2.1 0 0 0-3-3L13 8 4.8 6.2a1 1 0 0 0-.9 1.7l5.6 3.4-2.3 2.3-2.4-.5a1 1 0 0 0-.9 1.6l2.6 2.6 2.6 2.6a1 1 0 0 0 1.6-.9l-.5-2.4 2.3-2.3 3.4 5.6a1 1 0 0 0 1.7-.9z"/></svg> 06L: alan rüzgârından; 06R, 24L, 24R: AD 2.15 anemometreleri; kuyruk limiti 5 kt — CIKARSANAN varsayım — RWYCC bildirilmedi, yağış nedeniyle ıslak/kirli pist kabul edildi</div><pre>SPECI LTFJ 231301Z 36011KT 320V030 9999 -SHRA FEW018CB BKN023 BKN080 15/12 Q1018 NOSIG RMK RWY24R 34013KT RWY06R 34014KT 320V020 RWY24L 34010KT</pre></div><div class="kart"><div class="basrow"><span class="tip">TAF</span><span class="zaman">23.09 22:40Z · 01:40 yerel</span></div><details class="kat"><summary><svg class="ikon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M8 14h.01M16 14h.01M9 18h6"/></svg> Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</summary><div class="yorum">**Genel:** İstanbul Sabiha Gökçen Havalimanı için 24 saat boyunca değişken rüzgâr ve görüş koşulları beklenmektedir.<br>• **0000/0405 UTC:** Değişken 2 knot rüzgâr, görüş sınırlaması yok.<br>• **0405/0407 UTC:** Kademeli geçişle 230 derece 12 knot rüzgâr, 3500 ft&#x27;de dağınık bulutlar.<br>• **0407/0411 UTC:** Geçici olarak hafif sağanak, 1800 ft&#x27;de az bulut ve gök gürültülü bulutlar, 3000 ft&#x27;de kırık bulutlar; bu durumun %40 ihtimali vardır.<br>• **0412/0416 UTC:** Kademeli geçişle değişken 2 knot rüzgâr, görüş sınırlaması yok.</div></details><pre>TAF LTFJ 232240Z 2400/2424 VRB02KT CAVOK
+<div class="kart kart-durum" style="--durum-renk:#3b82f6"><div class="basrow"><span class="tip">METAR</span><span class="zaman">23.09 23:50Z (02:50 yerel)</span><span class="rozet" title="LTFJ Bot durum seviyesi — resmî ICAO CAT I/II/III kategorisi değildir" style="background:#3b82f6"><svg class="ikon rozet-nokta" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="5"/></svg>BLU · çok iyi</span></div><details class="kat"><summary><svg class="ikon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M8 14h.01M16 14h.01M9 18h6"/></svg> Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</summary><div class="yorum">**Rüzgâr:** Rüzgâr yok denecek kadar az, sakin hava koşulları var.<br>**Görüş:** Görüş mükemmel, 10 kilometre ve daha fazla mesafede her şey net görünüyor.<br>**Gökyüzü:** Bulut bildirilmemiş, gökyüzü açık ve yağış yok.<br>**Uçuşa etkisi:** Rüzgâr, görüş ve hava olayları açısından kısıtlayıcı bir unsur yoktur.</div></details><div class="ozet-ikincil">12°C / çiy 10°C · QNH 1020</div><table><tr><td>Pist 06L</td><td>000° 0 kt</td></tr><tr><td>Pist 06R</td><td>000° 0 kt</td></tr><tr><td>Pist 24L</td><td>000° 0 kt</td></tr><tr><td>Pist 24R</td><td>040° 1 kt</td></tr><tr><td>Meteorolojik tercih</td><td>06L</td></tr></table><div class="pist-kaynak"><svg class="ikon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M17.8 19.2 16 11l3.5-3.5a2.1 2.1 0 0 0-3-3L13 8 4.8 6.2a1 1 0 0 0-.9 1.7l5.6 3.4-2.3 2.3-2.4-.5a1 1 0 0 0-.9 1.6l2.6 2.6 2.6 2.6a1 1 0 0 0 1.6-.9l-.5-2.4 2.3-2.3 3.4 5.6a1 1 0 0 0 1.7-.9z"/></svg> 06L: alan rüzgârından; 06R, 24L, 24R: AD 2.15 anemometreleri; kuyruk limiti 10 kt — CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi</div><pre>METAR LTFJ 232350Z 00000KT CAVOK 12/10 Q1020 NOSIG RMK RWY24R 04001KT RWY06R 00000KT RWY24L 00000KT</pre></div><div class="kart kart-durum" style="--durum-renk:#94a3b8"><div class="basrow"><span class="tip">SPECI</span><span class="zaman">23.09 13:01Z (16:01 yerel)</span><span class="rozet" title="LTFJ Bot durum seviyesi — resmî ICAO CAT I/II/III kategorisi değildir" style="background:#94a3b8"><svg class="ikon rozet-nokta" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="5"/></svg>WHT · iyi</span></div><div class="ozet-ikincil">-SHRA · 15°C / çiy 12°C · QNH 1018</div><table><tr><td>Pist 06L</td><td>360° (değişken 320°–030°) 11 kt</td></tr><tr><td>Pist 06R</td><td>340° (değişken 320°–020°) 14 kt</td></tr><tr><td>Pist 24L</td><td>340° 10 kt</td></tr><tr><td>Pist 24R</td><td>340° 13 kt</td></tr><tr><td>Meteorolojik tercih</td><td>06L</td></tr></table><div class="pist-kaynak"><svg class="ikon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M17.8 19.2 16 11l3.5-3.5a2.1 2.1 0 0 0-3-3L13 8 4.8 6.2a1 1 0 0 0-.9 1.7l5.6 3.4-2.3 2.3-2.4-.5a1 1 0 0 0-.9 1.6l2.6 2.6 2.6 2.6a1 1 0 0 0 1.6-.9l-.5-2.4 2.3-2.3 3.4 5.6a1 1 0 0 0 1.7-.9z"/></svg> 06L: alan rüzgârından; 06R, 24L, 24R: AD 2.15 anemometreleri; kuyruk limiti 5 kt — CIKARSANAN varsayım — RWYCC bildirilmedi, yağış nedeniyle ıslak/kirli pist kabul edildi</div><pre>SPECI LTFJ 231301Z 36011KT 320V030 9999 -SHRA FEW018CB BKN023 BKN080 15/12 Q1018 NOSIG RMK RWY24R 34013KT RWY06R 34014KT 320V020 RWY24L 34010KT</pre></div><div class="kart"><div class="basrow"><span class="tip">TAF</span><span class="zaman">23.09 22:40Z (01:40 yerel)</span></div><details class="kat"><summary><svg class="ikon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M8 14h.01M16 14h.01M9 18h6"/></svg> Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</summary><div class="yorum">**Genel:** İstanbul Sabiha Gökçen Havalimanı için 24 saat boyunca değişken rüzgâr ve görüş koşulları beklenmektedir.<br>• **0000/0405 UTC:** Değişken 2 knot rüzgâr, görüş sınırlaması yok.<br>• **0405/0407 UTC:** Kademeli geçişle 230 derece 12 knot rüzgâr, 3500 ft&#x27;de dağınık bulutlar.<br>• **0407/0411 UTC:** Geçici olarak hafif sağanak, 1800 ft&#x27;de az bulut ve gök gürültülü bulutlar, 3000 ft&#x27;de kırık bulutlar; bu durumun %40 ihtimali vardır.<br>• **0412/0416 UTC:** Kademeli geçişle değişken 2 knot rüzgâr, görüş sınırlaması yok.</div></details><pre>TAF LTFJ 232240Z 2400/2424 VRB02KT CAVOK
     BECMG 2405/2407 23012KT SCT035
     PROB40
     TEMPO 2407/2411 -SHRA FEW018TCU BKN030
-    BECMG 2412/2416 VRB02KT CAVOK</pre></div>
+    BECMG 2412/2416 VRB02KT CAVOK</pre></div><div class="kart"><details class="kat kat-kart"><summary>Geçmiş eğilim · son 6 saat <span class="kat-rozet">4 grafik · 300 ölçüm</span></summary><div class="grafik-grid"><div class="grafik-kutu" data-noktalar="[{&quot;x&quot;: 0.0067, &quot;y&quot;: 0.3878, &quot;s&quot;: &quot;21:20&quot;, &quot;d&quot;: &quot;2 kt&quot;}, {&quot;x&quot;: 0.0964, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;21:50&quot;, &quot;d&quot;: &quot;3 kt&quot;}, {&quot;x&quot;: 0.1861, &quot;y&quot;: 0.6122, &quot;s&quot;: &quot;22:20&quot;, &quot;d&quot;: &quot;1 kt&quot;}, {&quot;x&quot;: 0.2758, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;22:50&quot;, &quot;d&quot;: &quot;0 kt&quot;}, {&quot;x&quot;: 0.3655, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;23:20&quot;, &quot;d&quot;: &quot;0 kt&quot;}, {&quot;x&quot;: 0.4552, &quot;y&quot;: 0.6122, &quot;s&quot;: &quot;23:50&quot;, &quot;d&quot;: &quot;1 kt&quot;}, {&quot;x&quot;: 0.5448, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;00:20&quot;, &quot;d&quot;: &quot;0 kt&quot;}, {&quot;x&quot;: 0.6345, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;00:50&quot;, &quot;d&quot;: &quot;0 kt&quot;}, {&quot;x&quot;: 0.7242, &quot;y&quot;: 0.3878, &quot;s&quot;: &quot;01:20&quot;, &quot;d&quot;: &quot;2 kt&quot;}, {&quot;x&quot;: 0.8139, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;01:50&quot;, &quot;d&quot;: &quot;0 kt&quot;}, {&quot;x&quot;: 0.9036, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;02:20&quot;, &quot;d&quot;: &quot;0 kt&quot;}, {&quot;x&quot;: 0.9933, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;02:50&quot;, &quot;d&quot;: &quot;0 kt&quot;}]"><div class="grafik-baslik"><span>Rüzgâr</span><span class="grafik-son">0 kt</span></div><div class="grafik-sarmal"><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,24.8 L57.8,10.5 L111.6,39.2 L165.5,53.5 L219.3,53.5 L273.1,39.2 L326.9,53.5 L380.7,53.5 L434.5,24.8 L488.4,53.5 L542.2,53.5 L596.0,53.5" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="53.5" r="3" fill="#3b82f6"/></svg><div class="grafik-imlec" hidden></div><div class="grafik-nokta" hidden></div><div class="grafik-balon" hidden></div></div><div class="grafik-eksen"><span>21:20</span><span>02:50</span></div></div><div class="grafik-kutu" data-noktalar="[{&quot;x&quot;: 0.0067, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;15:20&quot;, &quot;d&quot;: &quot;2300 ft&quot;}, {&quot;x&quot;: 0.0496, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;15:50&quot;, &quot;d&quot;: &quot;2300 ft&quot;}, {&quot;x&quot;: 0.0653, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;16:01&quot;, &quot;d&quot;: &quot;2300 ft&quot;}, {&quot;x&quot;: 0.0925, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;16:20&quot;, &quot;d&quot;: &quot;2300 ft&quot;}, {&quot;x&quot;: 0.1354, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;16:50&quot;, &quot;d&quot;: &quot;2300 ft&quot;}, {&quot;x&quot;: 0.1783, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;17:20&quot;, &quot;d&quot;: &quot;2300 ft&quot;}, {&quot;x&quot;: 0.2212, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;17:50&quot;, &quot;d&quot;: &quot;2300 ft&quot;}, {&quot;x&quot;: 0.2641, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;18:20&quot;, &quot;d&quot;: &quot;12000 ft&quot;}, {&quot;x&quot;: 0.307, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;18:50&quot;, &quot;d&quot;: &quot;12000 ft&quot;}, {&quot;x&quot;: 0.3499, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;19:20&quot;, &quot;d&quot;: &quot;12000 ft&quot;}, {&quot;x&quot;: 0.3928, &quot;y&quot;: 0.3022, &quot;s&quot;: &quot;19:50&quot;, &quot;d&quot;: &quot;10000 ft&quot;}, {&quot;x&quot;: 0.4357, &quot;y&quot;: 0.3022, &quot;s&quot;: &quot;20:20&quot;, &quot;d&quot;: &quot;10000 ft&quot;}]"><div class="grafik-baslik"><span>Bulut tavanı</span><span class="grafik-son grafik-son-yok">raporlanmıyor</span></div><div class="grafik-sarmal"><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,53.5 L29.7,53.5 L39.2,53.5 L55.5,53.5 L81.2,53.5 L107.0,53.5 L132.7,53.5 L158.4,10.5 L184.2,10.5 L209.9,10.5 L235.7,19.3 L261.4,19.3" fill="none" stroke="#22c55e" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="261.4" cy="19.3" r="4" fill="none" stroke="#22c55e" stroke-width="2"/><path d="M261.4,19.3 L596.0,19.3" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-dasharray="5,4"/></svg><div class="grafik-imlec" hidden></div><div class="grafik-nokta" hidden></div><div class="grafik-balon" hidden></div></div><div class="grafik-eksen"><span>15:20</span><span>02:50</span></div><div class="grafik-durum-notu">Son ölçüm: 10000 ft · 17:20Z (20:20 yerel) — o zamandan beri raporlanmıyor.</div></div><div class="grafik-kutu" data-noktalar="[{&quot;x&quot;: 0.0067, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;21:20&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.0964, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;21:50&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.1861, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;22:20&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.2758, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;22:50&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.3655, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;23:20&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.4552, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;23:50&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.5448, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;00:20&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.6345, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;00:50&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.7242, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;01:20&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.8139, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;01:50&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.9036, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;02:20&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}, {&quot;x&quot;: 0.9933, &quot;y&quot;: 0.5, &quot;s&quot;: &quot;02:50&quot;, &quot;d&quot;: &quot;1020 hPa&quot;}]"><div class="grafik-baslik"><span>QNH</span><span class="grafik-son">1020 hPa</span></div><div class="grafik-sarmal"><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,32.0 L57.8,32.0 L111.6,32.0 L165.5,32.0 L219.3,32.0 L273.1,32.0 L326.9,32.0 L380.7,32.0 L434.5,32.0 L488.4,32.0 L542.2,32.0 L596.0,32.0" fill="none" stroke="#eab308" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="32.0" r="3" fill="#eab308"/></svg><div class="grafik-imlec" hidden></div><div class="grafik-nokta" hidden></div><div class="grafik-balon" hidden></div></div><div class="grafik-eksen"><span>21:20</span><span>02:50</span></div></div><div class="grafik-kutu" data-noktalar="[{&quot;x&quot;: 0.0067, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;21:20&quot;, &quot;d&quot;: &quot;12 °C&quot;}, {&quot;x&quot;: 0.0964, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;21:50&quot;, &quot;d&quot;: &quot;12 °C&quot;}, {&quot;x&quot;: 0.1861, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;22:20&quot;, &quot;d&quot;: &quot;13 °C&quot;}, {&quot;x&quot;: 0.2758, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;22:50&quot;, &quot;d&quot;: &quot;13 °C&quot;}, {&quot;x&quot;: 0.3655, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;23:20&quot;, &quot;d&quot;: &quot;13 °C&quot;}, {&quot;x&quot;: 0.4552, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;23:50&quot;, &quot;d&quot;: &quot;13 °C&quot;}, {&quot;x&quot;: 0.5448, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;00:20&quot;, &quot;d&quot;: &quot;13 °C&quot;}, {&quot;x&quot;: 0.6345, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;00:50&quot;, &quot;d&quot;: &quot;12 °C&quot;}, {&quot;x&quot;: 0.7242, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;01:20&quot;, &quot;d&quot;: &quot;13 °C&quot;}, {&quot;x&quot;: 0.8139, &quot;y&quot;: 0.1635, &quot;s&quot;: &quot;01:50&quot;, &quot;d&quot;: &quot;13 °C&quot;}, {&quot;x&quot;: 0.9036, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;02:20&quot;, &quot;d&quot;: &quot;12 °C&quot;}, {&quot;x&quot;: 0.9933, &quot;y&quot;: 0.8365, &quot;s&quot;: &quot;02:50&quot;, &quot;d&quot;: &quot;12 °C&quot;}]"><div class="grafik-baslik"><span>Sıcaklık</span><span class="grafik-son">12 °C</span></div><div class="grafik-sarmal"><svg viewBox="0 0 600 64" class="grafik" preserveAspectRatio="none"><path d="M4.0,53.5 L57.8,53.5 L111.6,10.5 L165.5,10.5 L219.3,10.5 L273.1,10.5 L326.9,10.5 L380.7,53.5 L434.5,10.5 L488.4,10.5 L542.2,53.5 L596.0,53.5" fill="none" stroke="#ef4444" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="596.0" cy="53.5" r="3" fill="#ef4444"/></svg><div class="grafik-imlec" hidden></div><div class="grafik-nokta" hidden></div><div class="grafik-balon" hidden></div></div><div class="grafik-eksen"><span>21:20</span><span>02:50</span></div></div></div></details></div>
 </div>
 
 <div class="sekme-panel" id="panel-beklenti" role="tabpanel"
@@ -896,7 +986,7 @@
 
 <div class="sekme-panel" id="panel-istatistik" role="tabpanel"
      aria-labelledby="sekme-istatistik">
-<div class="kart"><div class="alt-bolum sis-olasilik"><div class="basrow"><span class="tip">İstatistiksel sis olasılığı</span><span class="lvo-provenance">İSTATİSTİKSEL</span></div><div class="sis-olasilik-ust"><span class="sis-olasilik-deger">%1</span><span class="sis-olasilik-bant dusuk">düşük</span></div><div class="sis-olasilik-alt">Önümüzdeki 3 saat içinde görüşün 1000 m altına düşme olasılığı</div><div class="sis-olasilik-kiyas">Normalde bu oran ortalama %0.8 civarındadır — şu an bu seviyeye yakın.</div><div class="sis-olasilik-ek">Sis eğilimi: <span class="sis-olasilik-bant orta">orta</span><div class="sis-olasilik-ek-not">Görüş henüz düşmemiş olsa da, mevcut nem, rüzgâr ve sıcaklık koşullarının sis oluşumuna ne kadar uygun olduğunu gösterir. Resmî bir tahmin değildir, sadece ek bir ipucudur.</div></div><div class="sis-olasilik-not">LTFJ'nin 2011–2023 METAR arşivinden öğrenilmiş istatistiksel bir tahmindir; resmî tahmin değildir ve TAF'ın yerine geçmez.</div><button type="button" id="sis-model-diyagram-btn" class="sis-olasilik-diyagram-btn">İki modelin bağlantısını gör</button></div><div id="sis-model-modal" class="modal-ortu" hidden><div class="modal-kutu modal-kutu-genis"><h3>Model A ve Model B nasıl bağlantılı?</h3><img src="sis_model_baglantisi.png" loading="lazy" alt="Model A ve Model B'nin girdi, çıktı ve birbirine bağlandığı yeri gösteren diyagram"><div class="modal-butonlar"><button type="button" id="sis-model-modal-kapat">Kapat</button></div></div></div><div class="alt-bolum"><div class="basrow"><span class="tip">Görüş geçiş süreleri</span><span class="zaman">2011–2026 arşivi · 64 sis olayı</span></div><table class="gecis-tablo"><caption class="gecis-caption">süreler <b>saat</b> cinsinden</caption><thead><tr><th></th><th title="olayların %10&apos;unda bu kadar veya daha kısa">%10</th><th>%25</th><th>medyan</th><th>%75</th><th>n</th></tr></thead><tbody><tr><th scope="row" title="Görüşün VMC eşiğinden özel VFR alt sınırına inme süresi">Düşme<span class="gecis-esik">5000→1500 m</span></th><td>0.5</td><td>1</td><td><b>1.5</b></td><td>2.5</td><td class="gecis-n">61</td></tr><tr><th scope="row" title="Sis eşiğinden VMC&#x27;ye dönme süresi">Toparlanma<span class="gecis-esik">1000→5000 m</span></th><td>1</td><td>1.5</td><td><b>2</b></td><td>3</td><td class="gecis-n">62</td></tr></tbody></table><div class="sis-olasilik-not">Geçmiş sis olaylarının SAYIMIDIR, tahmin değildir. Süreler 30 dakikalık gözlem ızgarasına yuvarlıdır — <b>"0.5 sa" aslında "yarım saat veya daha kısa"</b> demektir, gerçek en hızlı geçişler bu veriyle görülemeyecek kadar hızlı olabilir. Olay tanımı Tardif &amp; Rasmussen (2007).</div></div></div>
+<div class="kart"><div class="alt-bolum sis-olasilik"><div class="basrow"><span class="tip">İstatistiksel sis olasılığı</span><span class="lvo-provenance">İSTATİSTİKSEL</span></div><div class="sis-olasilik-ust"><span class="sis-olasilik-deger">%0.6</span><span class="sis-olasilik-bant dusuk">düşük</span></div><div class="sis-olasilik-alt">Önümüzdeki 3 saat içinde görüşün 1000 m altına düşme olasılığı</div><div class="sis-olasilik-kiyas">Normalde bu oran ortalama %0.8 civarındadır — şu an bu seviyeye yakın.</div><div class="sis-olasilik-ek">Sis eğilimi: <span class="sis-olasilik-bant yuksek">yüksek</span><div class="sis-olasilik-ek-not">Görüş henüz düşmemiş olsa da, mevcut nem, rüzgâr ve sıcaklık koşullarının sis oluşumuna ne kadar uygun olduğunu gösterir. Resmî bir tahmin değildir, sadece ek bir ipucudur.</div></div><div class="sis-olasilik-not">LTFJ'nin 2011–2023 METAR arşivinden öğrenilmiş istatistiksel bir tahmindir; resmî tahmin değildir ve TAF'ın yerine geçmez.</div><button type="button" id="sis-model-diyagram-btn" class="sis-olasilik-diyagram-btn">İki modelin bağlantısını gör</button></div><div id="sis-model-modal" class="modal-ortu" hidden><div class="modal-kutu modal-kutu-genis"><h3>Model A ve Model B nasıl bağlantılı?</h3><img src="sis_model_baglantisi.png" loading="lazy" alt="Model A ve Model B'nin girdi, çıktı ve birbirine bağlandığı yeri gösteren diyagram"><div class="modal-butonlar"><button type="button" id="sis-model-modal-kapat">Kapat</button></div></div></div><div class="alt-bolum"><div class="basrow"><span class="tip">Görüş geçiş süreleri</span><span class="zaman">2011–2026 arşivi · 64 sis olayı</span></div><table class="gecis-tablo"><caption class="gecis-caption">süreler <b>saat</b> cinsinden</caption><thead><tr><th></th><th title="olayların %10&apos;unda bu kadar veya daha kısa">%10</th><th>%25</th><th>medyan</th><th>%75</th><th>n</th></tr></thead><tbody><tr><th scope="row" title="Görüşün VMC eşiğinden özel VFR alt sınırına inme süresi">Düşme<span class="gecis-esik">5000→1500 m</span></th><td>0.5</td><td>1</td><td><b>1.5</b></td><td>2.5</td><td class="gecis-n">61</td></tr><tr><th scope="row" title="Sis eşiğinden VMC&#x27;ye dönme süresi">Toparlanma<span class="gecis-esik">1000→5000 m</span></th><td>1</td><td>1.5</td><td><b>2</b></td><td>3</td><td class="gecis-n">62</td></tr></tbody></table><div class="sis-olasilik-not">Geçmiş sis olaylarının SAYIMIDIR, tahmin değildir. Süreler 30 dakikalık gözlem ızgarasına yuvarlıdır — <b>"0.5 sa" aslında "yarım saat veya daha kısa"</b> demektir, gerçek en hızlı geçişler bu veriyle görülemeyecek kadar hızlı olabilir. Olay tanımı Tardif &amp; Rasmussen (2007).</div></div></div>
 </div>
 
 <div class="sekme-panel" id="panel-lvo" role="tabpanel"
@@ -945,7 +1035,7 @@
       <span class="lvo-provenance">NOTAM</span></div>
     <div id="lvo-notam-liste"><div class="notam-bos">Yükleniyor…</div></div>
 
-<details class="kat kat-lvo-referans"><summary>D) Doküman Referansı <span class="lvo-provenance">DOCUMENT REFERENCE ONLY</span></summary><div style="font-size:.85rem;">Sabiha Gökçen Havalimanı Düşük Görüş Operasyonları Talimatı<br><b>TL.007 REV.1 — 16.08.2024</b></div><table class="lvo-tablo"><thead><tr><th>Pist</th><th>Kategori</th><th>İniş RVR (m)</th><th>Kalkış RVR (m)</th><th>Açıklama</th></tr></thead><tbody><tr><td>06R</td><td>CAT II</td><td>550–300</td><td>400–125</td><td>CAT II iniş ve LVTO kalkış</td></tr><tr><td>24L</td><td>CAT I</td><td>—</td><td>—</td><td></td></tr><tr><td>06L</td><td>CAT I</td><td>—</td><td>—</td><td></td></tr><tr><td>24R</td><td>CAT I</td><td>—</td><td>400–125</td><td>Sadece LVTO kalkış</td></tr></tbody></table><table class="lvo-tablo"><thead><tr><th>Kategori</th><th>RVR</th><th>DH</th></tr></thead><tbody><tr><td>CAT I</td><td>RVR ≥ 550 m</td><td>DH ≥ 60 m (200 ft)</td></tr><tr><td>CAT II</td><td>300 m ≤ RVR &lt; 550 m</td><td>30 m (100 ft) ≤ DH &lt; 60 m (200 ft)</td></tr></tbody></table><div style="font-size:.8rem;font-weight:600;margin-top:.4rem;">RVR eşikleri (madde 6.1.ee)</div><div class="lvo-esik-liste"><div class="lvo-esik-satir"><span>RVR &lt; <span class="lvo-esik-deger">800 m</span> — LVO Hazırlık Safhası<span class="lvo-esik-kaynak">6.1.ee, 6.2.a · 550 ≤ Hazırlık Safhası &lt; 800 (madde 6.2.a)</span></span></div><div class="lvo-esik-satir"><span>RVR &lt; <span class="lvo-esik-deger">550 m</span> — LVO İniş Operasyonları Safhası (CAT II, sadece 06R)<span class="lvo-esik-kaynak">6.1.ee, 6.3.1.a · 300 ≤ Uygulama Safhası &lt; 550 (madde 6.3.1.a)</span></span></div><div class="lvo-esik-satir"><span>RVR &lt; <span class="lvo-esik-deger">400 m</span> — LVO Kalkış Operasyonları Safhası (LVTO, 06R ve 24R)<span class="lvo-esik-kaynak">6.1.ee, 6.3.2.b · 125 ≤ Uygulama Safhası &lt; 400 (madde 6.3.2.b)</span></span></div><div class="lvo-esik-satir"><span>RVR &lt; <span class="lvo-esik-deger">350 m</span> — Tanımlanmış alanlarda zorunlu Follow-me uygulama safhası<span class="lvo-esik-kaynak">6.1.ee</span></span></div></div><div style="font-size:.8rem;font-weight:600;margin-top:.4rem;">Bulut tabanı (ceiling) eşikleri — RVR'dan bağımsız, paralel tetikleyici</div><div class="lvo-esik-liste"><div class="lvo-esik-satir"><span>LVO Hazırlık Safhası — Bulut tabanının CAT II şartlarına (30 m/100 ft – 60 m/200 ft) düşmesinin beklenmesi<span class="lvo-esik-kaynak">6.2.a</span></span></div><div class="lvo-esik-satir"><span>LVO İniş Operasyonları Safhası (CAT II, sadece 06R) — Bulut tabanının CAT II değerlerine (200 ft altına) düşmesi; uygulama 30 m/100 ft – 60 m/200 ft arasında sürer<span class="lvo-esik-kaynak">6.3.1.a</span></span></div></div><div style="font-size:.8rem;margin-top:.4rem;">RVR, LVO/CAT II başlatma limitlerinin üzerinde olsa dahi (RVR ≥ 550 m), ilgili yaklaşma hattında birden fazla hava aracının inişini etkileyip pas geçmelerine neden olan bir bulut oluşumunun pilot raporlarıyla teyit edilmesi durumunda Düşük Görüş Operasyonları başlatılabilir (madde 6.3.1.b). Sonlandırma da bulut oluşumunun kalktığının pilot raporlarıyla teyidiyle yapılır (madde 6.4.b).</div><ul class="lvo-not-listesi"><li>&quot;Hazırlık Safhası&quot;nın başlatıldığı 800 m RVR değeri ile CAT I operasyonları limiti olan 800 m Görüş değeri karıştırılmamalıdır (madde 6.1.ee).</li><li>06R pisti için CAT II operasyonları uygulanmaya/planlanmaya başladığında LVTO sadece 06R pistinden yapılır; 06R iniş için planlanırken 24R&#x27;den LVTO yapılmaz (madde 6.3.2.e).</li><li>06L ve 24L pistleri düşük görüş kalkış operasyonlarında (LVTO) kullanılmaz (madde 6.3.2.d).</li><li>LVO Hazırlık ve CAT II İniş safhaları RVR&#x27;dan BAĞIMSIZ olarak bulut tabanı (ceiling) eşikleriyle de başlatılabilir; ikisi &#x27;ve/veya&#x27; bağlacıyla birbirinden bağımsız tetikleyicilerdir (madde 6.2.a, 6.3.1.a).</li></ul></details>
+<details class="kat kat-lvo-referans"><summary>D) Doküman Referansı <span class="lvo-provenance">DOCUMENT REFERENCE ONLY</span></summary><div style="font-size:var(--f2);">Sabiha Gökçen Havalimanı Düşük Görüş Operasyonları Talimatı<br><b>TL.007 REV.1 — 16.08.2024</b></div><table class="lvo-tablo"><thead><tr><th>Pist</th><th>Kategori</th><th>İniş RVR (m)</th><th>Kalkış RVR (m)</th><th>Açıklama</th></tr></thead><tbody><tr><td>06R</td><td>CAT II</td><td>550–300</td><td>400–125</td><td>CAT II iniş ve LVTO kalkış</td></tr><tr><td>24L</td><td>CAT I</td><td>—</td><td>—</td><td></td></tr><tr><td>06L</td><td>CAT I</td><td>—</td><td>—</td><td></td></tr><tr><td>24R</td><td>CAT I</td><td>—</td><td>400–125</td><td>Sadece LVTO kalkış</td></tr></tbody></table><table class="lvo-tablo"><thead><tr><th>Kategori</th><th>RVR</th><th>DH</th></tr></thead><tbody><tr><td>CAT I</td><td>RVR ≥ 550 m</td><td>DH ≥ 60 m (200 ft)</td></tr><tr><td>CAT II</td><td>300 m ≤ RVR &lt; 550 m</td><td>30 m (100 ft) ≤ DH &lt; 60 m (200 ft)</td></tr></tbody></table><div style="font-size:var(--f2);font-weight:600;margin-top:.4rem;">RVR eşikleri (madde 6.1.ee)</div><div class="lvo-esik-liste"><div class="lvo-esik-satir"><span>RVR &lt; <span class="lvo-esik-deger">800 m</span> — LVO Hazırlık Safhası<span class="lvo-esik-kaynak">6.1.ee, 6.2.a · 550 ≤ Hazırlık Safhası &lt; 800 (madde 6.2.a)</span></span></div><div class="lvo-esik-satir"><span>RVR &lt; <span class="lvo-esik-deger">550 m</span> — LVO İniş Operasyonları Safhası (CAT II, sadece 06R)<span class="lvo-esik-kaynak">6.1.ee, 6.3.1.a · 300 ≤ Uygulama Safhası &lt; 550 (madde 6.3.1.a)</span></span></div><div class="lvo-esik-satir"><span>RVR &lt; <span class="lvo-esik-deger">400 m</span> — LVO Kalkış Operasyonları Safhası (LVTO, 06R ve 24R)<span class="lvo-esik-kaynak">6.1.ee, 6.3.2.b · 125 ≤ Uygulama Safhası &lt; 400 (madde 6.3.2.b)</span></span></div><div class="lvo-esik-satir"><span>RVR &lt; <span class="lvo-esik-deger">350 m</span> — Tanımlanmış alanlarda zorunlu Follow-me uygulama safhası<span class="lvo-esik-kaynak">6.1.ee</span></span></div></div><div style="font-size:var(--f2);font-weight:600;margin-top:.4rem;">Bulut tabanı (ceiling) eşikleri — RVR'dan bağımsız, paralel tetikleyici</div><div class="lvo-esik-liste"><div class="lvo-esik-satir"><span>LVO Hazırlık Safhası — Bulut tabanının CAT II şartlarına (30 m/100 ft – 60 m/200 ft) düşmesinin beklenmesi<span class="lvo-esik-kaynak">6.2.a</span></span></div><div class="lvo-esik-satir"><span>LVO İniş Operasyonları Safhası (CAT II, sadece 06R) — Bulut tabanının CAT II değerlerine (200 ft altına) düşmesi; uygulama 30 m/100 ft – 60 m/200 ft arasında sürer<span class="lvo-esik-kaynak">6.3.1.a</span></span></div></div><div style="font-size:var(--f2);margin-top:.4rem;">RVR, LVO/CAT II başlatma limitlerinin üzerinde olsa dahi (RVR ≥ 550 m), ilgili yaklaşma hattında birden fazla hava aracının inişini etkileyip pas geçmelerine neden olan bir bulut oluşumunun pilot raporlarıyla teyit edilmesi durumunda Düşük Görüş Operasyonları başlatılabilir (madde 6.3.1.b). Sonlandırma da bulut oluşumunun kalktığının pilot raporlarıyla teyidiyle yapılır (madde 6.4.b).</div><ul class="lvo-not-listesi"><li>&quot;Hazırlık Safhası&quot;nın başlatıldığı 800 m RVR değeri ile CAT I operasyonları limiti olan 800 m Görüş değeri karıştırılmamalıdır (madde 6.1.ee).</li><li>06R pisti için CAT II operasyonları uygulanmaya/planlanmaya başladığında LVTO sadece 06R pistinden yapılır; 06R iniş için planlanırken 24R&#x27;den LVTO yapılmaz (madde 6.3.2.e).</li><li>06L ve 24L pistleri düşük görüş kalkış operasyonlarında (LVTO) kullanılmaz (madde 6.3.2.d).</li><li>LVO Hazırlık ve CAT II İniş safhaları RVR&#x27;dan BAĞIMSIZ olarak bulut tabanı (ceiling) eşikleriyle de başlatılabilir; ikisi &#x27;ve/veya&#x27; bağlacıyla birbirinden bağımsız tetikleyicilerdir (madde 6.2.a, 6.3.1.a).</li></ul></details>
   </div>
 </div>
 </div>
@@ -1070,6 +1160,26 @@
 //
 // GORECELI yaziyoruz cunku sayfadaki saatler yerel, veri UTC: "16:00'da"
 // hangi saat dilimi oldugu soylenmeden yaniltici, "6 sa once" degil.
+// SU AN blogu ekrandan cikinca yapiskan seridi ac. Ikisi ayni dort
+// olcuyu gosteriyor; ayni anda ikisini birden cizmek, ayni sayiyi
+// 374 piksel arayla iki kez yazmak demekti (bkz. _olcu).
+// IntersectionObserver yoksa (cok eski tarayici) serit HEP acik kalir -
+// bilgi kaybi degil, yalnizca tekrar.
+(function () {
+  var suAn = document.getElementById("su-an");
+  var sarmal = document.querySelector(".yapiskan-ust");
+  if (!sarmal) return;
+  if (!suAn || !("IntersectionObserver" in window)) {
+    sarmal.classList.add("serit-acik");
+    return;
+  }
+  new IntersectionObserver(function (girisler) {
+    girisler.forEach(function (g) {
+      sarmal.classList.toggle("serit-acik", !g.isIntersecting);
+    });
+  }, {threshold: 0}).observe(suAn);
+})();
+
 window.ltfjGecenSure = function (ms) {
   if (ms == null || isNaN(ms) || ms < 0) return "az önce";
   var dk = Math.floor(ms / 60000);
@@ -1089,6 +1199,7 @@ window.ltfjGecenSure = function (ms) {
 // SESSIZLIK_SAAT. Ikincisini bot Telegram alarmi icin de kullaniyor -
 // sayfa "canli" derken Telegram "kesinti" diyemesin.
 (function () {
+  var BEKLENEN_DK = 35;
   var TAZE_DK = 70;
   var KESINTI_DK = 6 * 60;
   var durumEl = document.getElementById("ust-durum");
@@ -1116,7 +1227,13 @@ window.ltfjGecenSure = function (ms) {
     var dk = yasDk(durumEl.getAttribute("data-gozlem"));
     var sinif, metin;
     if (dk === null) { sinif = "kesinti"; metin = "VERİ YOK"; }
-    else if (dk <= TAZE_DK) { sinif = "taze"; metin = "CANLI"; }
+    else if (dk <= BEKLENEN_DK) { sinif = "taze"; metin = "CANLI"; }
+    // BESINCI DURUM. Dort durum varken 35-70 dk arasi "CANLI" kutusunun
+    // icindeydi: METAR 49 dakikalikken rozet CANLI diyordu. Oysa kadans
+    // 30 dk + ~5 dk gecikme, yani o aralik "bir gozlem kacti" demek.
+    // Kacirilmis bir gozlem hata degil (MGM gecikebilir) ama CANLI da
+    // degil - okuyanin bilmesi gereken bir sey.
+    else if (dk <= TAZE_DK) { sinif = "gecikmeli"; metin = "1 GÖZLEM KAÇTI"; }
     else if (dk <= KESINTI_DK) { sinif = "gecikmeli"; metin = "GECİKMELİ"; }
     else { sinif = "kesinti"; metin = "VERİ KESİNTİSİ"; }
     durumEl.className = "ust-durum " + sinif;
@@ -1292,7 +1409,7 @@ window.ltfjKalanSure = function (ms) {
     }).join("");
     var ozet = n.reading_short
       ? '<div class="notam-ozet">' + esc(n.reading_short) +
-        ' <span style="color:var(--soluk); font-size:.75rem;">(NOTAC otomatik özeti — hata içerebilir)</span></div>'
+        ' <span style="color:var(--soluk); font-size:var(--f2);">(NOTAC otomatik özeti — hata içerebilir)</span></div>'
       : "";
     var g = gecerlilik(n);
     // Yesil nokta SADECE su anda gercekten yururlukte olan NOTAM'a konur.
@@ -1306,7 +1423,7 @@ window.ltfjKalanSure = function (ms) {
       '<span class="notam-durum' + (g.vurgula ? " notam-durum-gecmis" : "") + '">' +
       esc(g.etiket) + "</span></div>" +
       ozet +
-      "<details><summary style=\"cursor:pointer; font-size:.82rem; color:var(--soluk);\">Ham NOTAM metni</summary>" +
+      "<details><summary style=\"cursor:pointer; font-size:var(--f2); color:var(--soluk);\">Ham NOTAM metni</summary>" +
       '<div class="notam-metin">' + esc(n.text || "") + "</div></details>" +
       '<div class="notam-kaynak">Kaynak: NOTAC · geçerlilik: ' +
       esc(n.effective_start || "—") + " → " + esc(n.effective_end || "—") + "</div>" +

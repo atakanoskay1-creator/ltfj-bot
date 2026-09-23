@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:52896621",
   "id:52902264",
   "id:52912885",
   "id:52919340",
@@ -199,23 +198,16 @@
   "id:53954519",
   "id:53956881",
   "id:53958682",
-  "id:53964996"
+  "id:53964996",
+  "id:53970378"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 232320Z 00000KT CAVOK 12/11 Q1020 NOSIG RMK RWY24R 10002KT RWY06R 09002KT RWY24L 12003KT",
+ "son_metar": "METAR LTFJ 232350Z 00000KT CAVOK 12/10 Q1020 NOSIG RMK RWY24R 04001KT RWY06R 00000KT RWY24L 00000KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-23T23:20:00+00:00",
+ "son_veri_zamani": "2026-09-23T23:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-18T02:50:00+00:00",
-   "ruzgar_hiz": 3,
-   "tavan": 9000,
-   "qnh": 1014,
-   "sicaklik": 16,
-   "cig_noktasi": 16
-  },
   {
    "zaman": "2026-09-18T03:20:00+00:00",
    "ruzgar_hiz": 5,
@@ -2617,13 +2609,22 @@
    "qnh": 1020,
    "sicaklik": 12,
    "cig_noktasi": 11
+  },
+  {
+   "zaman": "2026-09-23T23:50:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 0,
+   "tavan": null,
+   "qnh": 1020,
+   "sicaklik": 12,
+   "cig_noktasi": 10
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 232250Z 00000KT CAVOK 13/11 Q1020 NOSIG RMK RWY24R VRB01KT RWY06R 06002KT RWY24L 10002KT": "**Rüzgâr:** Rüzgâr yok denecek kadar az, sakin hava koşulları var.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve daha fazla mesafede her şey net görünüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, gökyüzü açık ve yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlaması olmadığından hava koşulları uçuş için elverişli, önümüzdeki 2 saatte önemli değişiklik beklenmiyyor.",
   "TAF LTFJ 231640Z 2318/2418 VRB02KT 9999 SCT030 BECMG 2321/2324 CAVOK PROB30 TEMPO 2401/2405 2000 PRFG SCT002 BECMG 2405/2407 SCT030 BECMG 2407/2410 24012KT PROB30 TEMPO 2409/2413 -SHRA FEW018CB BKN030 BECMG 2413/2415 VRB02KT BECMG 2415/2418 CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken rüzgârla başlayan dönem, kademeli olarak açık hava koşullarına geçecektir.\n\n- **2318/2321 UTC:** Değişken 2 knot rüzgâr, 9999 metre görüş, 3000 feet'te dağınık bulutluluk.\n\n- **2321/2324 UTC:** Kademeli geçişle tamamen açık hava koşulları (CAVOK). %30 ihtimalle 2401/2405 UTC arasında geçici olarak 2000 metre görüş, hafif sis, 200 feet'te dağınık bulutluluk.\n\n- **2405/2410 UTC:** Kademeli olarak 3000 feet'te dağınık bulutluluk ve 24012 knot rüzgâr. %30 ihtimalle 2409/2413 UTC arasında geçici olarak hafif sağanak yağış, 1800 feet'te az bulutluluk ve 3000 feet'te kırık bulutluluk.\n\n- **2413/2418 UTC:** Kademeli olarak değişken 2 knot rüzgâr ve tamamen açık hava koşulları.",
   "TAF LTFJ 232240Z 2400/2424 VRB02KT CAVOK BECMG 2405/2407 23012KT SCT035 PROB40 TEMPO 2407/2411 -SHRA FEW018TCU BKN030 BECMG 2412/2416 VRB02KT CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 24 saat boyunca değişken rüzgâr ve görüş koşulları beklenmektedir.\n\n- **0000/0405 UTC:** Değişken 2 knot rüzgâr, görüş sınırlaması yok.\n- **0405/0407 UTC:** Kademeli geçişle 230 derece 12 knot rüzgâr, 3500 ft'de dağınık bulutlar.\n- **0407/0411 UTC:** Geçici olarak hafif sağanak, 1800 ft'de az bulut ve gök gürültülü bulutlar, 3000 ft'de kırık bulutlar; bu durumun %40 ihtimali vardır.\n- **0412/0416 UTC:** Kademeli geçişle değişken 2 knot rüzgâr, görüş sınırlaması yok.",
-  "METAR LTFJ 232320Z 00000KT CAVOK 12/11 Q1020 NOSIG RMK RWY24R 10002KT RWY06R 09002KT RWY24L 12003KT": "Rüzgâr: Rüzgâr yok denecek kadar az, sakin hava koşulları var.\n\nGörüş: Görüş mükemmel, ufuk çizgisine kadar her şey net görünüyor.\n\nGökyüzü: Bulut yok, gökyüzü açık ve temiz.\n\nUçuşa etkisi: Hava koşulları uçuş için kısıtlayıcı bir unsur içermiyor."
+  "METAR LTFJ 232320Z 00000KT CAVOK 12/11 Q1020 NOSIG RMK RWY24R 10002KT RWY06R 09002KT RWY24L 12003KT": "Rüzgâr: Rüzgâr yok denecek kadar az, sakin hava koşulları var.\n\nGörüş: Görüş mükemmel, ufuk çizgisine kadar her şey net görünüyor.\n\nGökyüzü: Bulut yok, gökyüzü açık ve temiz.\n\nUçuşa etkisi: Hava koşulları uçuş için kısıtlayıcı bir unsur içermiyor.",
+  "METAR LTFJ 232350Z 00000KT CAVOK 12/10 Q1020 NOSIG RMK RWY24R 04001KT RWY06R 00000KT RWY24L 00000KT": "**Rüzgâr:** Rüzgâr yok denecek kadar az, sakin hava koşulları var.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve daha fazla mesafede her şey net görünüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, gökyüzü açık ve yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve hava olayları açısından kısıtlayıcı bir unsur yoktur."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3065,6 +3066,6 @@
   }
  },
  "notam_son_senkron": "2026-09-23T20:20:56+00:00",
- "guncelleme": "2026-09-23T23:50:51+00:00",
+ "guncelleme": "2026-09-23T23:55:38+00:00",
  "push_gonderilen": []
 }

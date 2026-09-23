@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-23T23:50:51+00:00",
+ "uretildi": "2026-09-23T23:55:38+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-23T23:20:00+00:00",
-  "metin": "METAR LTFJ 232320Z 00000KT CAVOK 12/11 Q1020 NOSIG RMK RWY24R 10002KT RWY06R 09002KT RWY24L 12003KT",
+  "zaman": "2026-09-23T23:50:00+00:00",
+  "metin": "METAR LTFJ 232350Z 00000KT CAVOK 12/10 Q1020 NOSIG RMK RWY24R 04001KT RWY06R 00000KT RWY24L 00000KT",
   "ruzgar": {
    "yon": 0,
    "hiz": 0,
@@ -17,7 +17,7 @@
   "tavan": null,
   "hava": [],
   "sicaklik": 12,
-  "cig_noktasi": 11,
+  "cig_noktasi": 10,
   "qnh": 1020,
   "nosig": true,
   "renk": [
@@ -43,9 +43,9 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 1.8,
-    "yan": 0.9,
-    "yan_taraf": "sağdan",
+    "bas": 0.0,
+    "yan": 0.0,
+    "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
     "degisken": false,
@@ -56,22 +56,22 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -1.7,
-    "yan": 2.5,
-    "yan_taraf": "soldan",
+    "bas": -0.0,
+    "yan": 0.0,
+    "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
     "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
-    "kuyruk": true,
+    "kuyruk": false,
     "kuyruk_asildi": false
    },
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -1.6,
-    "yan": 1.2,
-    "yan_taraf": "soldan",
+    "bas": -0.9,
+    "yan": 0.4,
+    "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
     "degisken": false,
@@ -82,12 +82,12 @@
   ],
   "kuyruk_limiti": 10,
   "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi",
-  "tercih_pist": "06R",
+  "tercih_pist": "06L",
   "rvr": [],
   "prs": [],
   "gorus_op": [],
   "trend": null,
-  "sis_riski": "Sis oluşum göstergesi: yüksek (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 1°C, rüzgâr 0 kt, gece şartları",
+  "sis_riski": "Sis oluşum göstergesi: yüksek (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 2°C, rüzgâr 0 kt, gece şartları",
   "ozet": "Rüzgâr 000° 0kt · görüş CAVOK · 12°C · QNH 1020"
  },
  "taf": {
@@ -95,14 +95,6 @@
   "metin": "TAF LTFJ 232240Z 2400/2424 VRB02KT CAVOK BECMG 2405/2407 23012KT SCT035 PROB40 TEMPO 2407/2411 -SHRA FEW018TCU BKN030 BECMG 2412/2416 VRB02KT CAVOK"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-18T02:50:00+00:00",
-   "ruzgar_hiz": 3,
-   "tavan": 9000,
-   "qnh": 1014,
-   "sicaklik": 16,
-   "cig_noktasi": 16
-  },
   {
    "zaman": "2026-09-18T03:20:00+00:00",
    "ruzgar_hiz": 5,
@@ -2504,6 +2496,15 @@
    "qnh": 1020,
    "sicaklik": 12,
    "cig_noktasi": 11
+  },
+  {
+   "zaman": "2026-09-23T23:50:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 0,
+   "tavan": null,
+   "qnh": 1020,
+   "sicaklik": 12,
+   "cig_noktasi": 10
   }
  ]
 }
