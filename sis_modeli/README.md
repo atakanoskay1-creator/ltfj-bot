@@ -661,6 +661,11 @@ LTFJ'nin 1.5 sa düşme / 2.0 sa toparlanma değerleri, Japonya'daki
 **radyasyon sisi** profiline (2.0 / 2.0 sa) yakın; yağış sisinden (4.1 / 3.6
 sa) belirgin biçimde hızlı. 64 olayın 63'ünün yağışsız olmasıyla tutarlı.
 
+**Sayfada:** sonuçlar `ltfj_gorus_gecis_tablo.py`'ye **dondurulmuş** durumda
+(`--dondur`) ve sayfadaki **"İstatistik · arşivden"** bölümünde gösteriliyor.
+Bot arşivi (6 MB) çalışma anında okumaz — `ltfj_sis_olasilik` ile aynı
+disiplin; dondurulmuş modül hiçbir şey import etmez.
+
 **Sınırlar:** 64 olay küçük bir örneklem; yüzdelikler, özellikle %10, birkaç
 olaya dayanıyor. Sis tipi (adveksiyon/radyasyon) ayrımı YAPILMADI — makale
 bu ayrımın kendisinin zor olduğunu söylüyor ve sınıflandırıcısını ayrıca

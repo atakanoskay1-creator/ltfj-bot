@@ -269,10 +269,69 @@ def _satir_yaz(ad: str, o: dict) -> None:
           f"{o['medyan']:>9.1f}{o['p75']:>8.1f}")
 
 
+DONDURULMUS_YOL = Path(__file__).resolve().parent.parent / "ltfj_gorus_gecis_tablo.py"
+
+
+def _dondur(sonuc: dict, ilk: int, son: int, olay_sayisi: int) -> None:
+    """Hesaplanan sayilari CALISMA ANI modulune yazar.
+
+    NEDEN DONDURULUYOR: bot bu sayilari sayfada gosterecek ama arsivi
+    (6 MB, 274 bin satir) her kosuda okuyamaz - ltfj_sis_olasilik ile
+    AYNI disiplin. Calisma ani modulu yalnizca sabit tasir, hesap
+    yapmaz, agir bagimlilik import etmez."""
+    d, t = sonuc["dusme"]["tumu"], sonuc["toparlanma"]["tumu"]
+
+    def _bic(o):
+        return ("{" + ", ".join(f'"{k}": {o[k]:.2f}' if isinstance(o[k], float)
+                                else f'"{k}": {o[k]}'
+                                for k in ("n", "p10", "p25", "medyan", "p75")) + "}")
+
+    DONDURULMUS_YOL.write_text(f'''#!/usr/bin/env python3
+"""DONDURULMUS gorus gecis sureleri - sis_modeli/gorus_gecis.py uretti.
+
+ELLE DUZENLEME. Yeniden uretmek icin:
+    python -m sis_modeli.gorus_gecis --dondur
+
+NEDEN DONDURULMUS: sayfa bu sayilari gosteriyor ama bot arsivi (6 MB,
+274 bin satir) her kosuda okuyamaz. ltfj_sis_olasilik ile ayni disiplin -
+bu modul SABIT tasir, hesap yapmaz, agir bagimlilik import etmez.
+
+Yontem, kapsam ve sinirlar icin: sis_modeli/README.md "Gorus gecis
+sureleri" ve sis_modeli/gorus_gecis.py modul aciklamasi.
+
+Sureler SAAT cinsinden ve 30 dakikalik izgaraya YUVARLIDIR (arsivde
+SPECI yok) - "0.5 saat" aslinda "0.5 saat VEYA DAHA KISA" demektir.
+"""
+
+KAPSAM_ILK_YIL = {ilk}
+KAPSAM_SON_YIL = {son}
+OLAY_SAYISI = {olay_sayisi}
+
+# Olay tanimi (Tardif & Rasmussen 2007): gorus <2000 m kesintisiz >=3
+# saat, icinde <1000 m >=1 saat, kar yok.
+ESIK_VMC_M = 5000
+ESIK_SVFR_M = 1500
+ESIK_SIS_M = 1000
+
+# n = olculebilen olay sayisi (penceresi eksik/zaten dusuk olanlar haric)
+DUSME = {_bic(d)}
+TOPARLANMA = {_bic(t)}
+
+# Yagisli olay sayisi. LTFJ'de pratikte YOK - makalede yagis sisi en
+# yavas gecisi uretiyordu ama burada orneklem olusmuyor. Bu bir eksiklik
+# degil, LTFJ hakkinda bir bulgu.
+YAGISLI_OLAY = {sonuc["dusme"]["yagisli"]["n"]}
+''', encoding="utf-8")
+    print(f"donduruldu: {DONDURULMUS_YOL.name}")
+
+
 def main(argv=None) -> int:
     a = argparse.ArgumentParser(description=__doc__)
     a.add_argument("--veri", type=Path, default=VARSAYILAN_VERI)
     a.add_argument("--json", type=Path, help="sonuçları JSON olarak da yaz")
+    a.add_argument("--dondur", action="store_true",
+                   help="sonuçları ltfj_gorus_gecis_tablo.py'ye DONDUR "
+                        "(çalışma anı modülü - bot arşivi okumaz)")
     s = a.parse_args(argv)
     if not s.veri.exists():
         import sys
@@ -317,6 +376,9 @@ def main(argv=None) -> int:
         print()
         sonuc[anahtar] = {"tumu": ozet(hepsi), "yagisli": ozet(yagisli),
                           "yagissiz": ozet(yagissiz), "olculemeyen": sebepler}
+
+    if s.dondur:
+        _dondur(sonuc, ilk, son, len(olaylar))
 
     sonuc["olay_sayisi"] = len(olaylar)
     sonuc["kapsam"] = {"ilk_yil": ilk, "son_yil": son, "seyrek_yillar": seyrek}
