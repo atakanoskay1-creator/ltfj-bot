@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-23T23:20:50+00:00",
+ "uretildi": "2026-09-23T23:31:08+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-23T22:50:00+00:00",
-  "metin": "METAR LTFJ 232250Z 00000KT CAVOK 13/11 Q1020 NOSIG RMK RWY24R VRB01KT RWY06R 06002KT RWY24L 10002KT",
+  "zaman": "2026-09-23T23:20:00+00:00",
+  "metin": "METAR LTFJ 232320Z 00000KT CAVOK 12/11 Q1020 NOSIG RMK RWY24R 10002KT RWY06R 09002KT RWY24L 12003KT",
   "ruzgar": {
    "yon": 0,
    "hiz": 0,
@@ -16,7 +16,7 @@
   "cavok": true,
   "tavan": null,
   "hava": [],
-  "sicaklik": 13,
+  "sicaklik": 12,
   "cig_noktasi": 11,
   "qnh": 1020,
   "nosig": true,
@@ -43,9 +43,9 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 2.0,
-    "yan": 0.1,
-    "yan_taraf": "soldan",
+    "bas": 1.8,
+    "yan": 0.9,
+    "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
     "degisken": false,
@@ -55,6 +55,19 @@
    },
    {
     "pist": "24L",
+    "yon_gercek": 244.12,
+    "bas": -1.7,
+    "yan": 2.5,
+    "yan_taraf": "soldan",
+    "bas_hamle": null,
+    "yan_hamle": null,
+    "degisken": false,
+    "kaynak": "AD 2.15 anemometreleri",
+    "kuyruk": true,
+    "kuyruk_asildi": false
+   },
+   {
+    "pist": "24R",
     "yon_gercek": 244.12,
     "bas": -1.6,
     "yan": 1.2,
@@ -74,22 +87,14 @@
   "prs": [],
   "gorus_op": [],
   "trend": null,
-  "sis_riski": "Sis oluşum göstergesi: yüksek (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 2°C, rüzgâr 0 kt, gece şartları",
-  "ozet": "Rüzgâr 000° 0kt · görüş CAVOK · 13°C · QNH 1020"
+  "sis_riski": "Sis oluşum göstergesi: yüksek (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 1°C, rüzgâr 0 kt, gece şartları",
+  "ozet": "Rüzgâr 000° 0kt · görüş CAVOK · 12°C · QNH 1020"
  },
  "taf": {
   "zaman": "2026-09-23T22:40:00+00:00",
   "metin": "TAF LTFJ 232240Z 2400/2424 VRB02KT CAVOK BECMG 2405/2407 23012KT SCT035 PROB40 TEMPO 2407/2411 -SHRA FEW018TCU BKN030 BECMG 2412/2416 VRB02KT CAVOK"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-18T02:20:00+00:00",
-   "ruzgar_hiz": 5,
-   "tavan": 9000,
-   "qnh": 1014,
-   "sicaklik": 16,
-   "cig_noktasi": 15
-  },
   {
    "zaman": "2026-09-18T02:50:00+00:00",
    "ruzgar_hiz": 3,
@@ -2489,6 +2494,15 @@
    "tavan": null,
    "qnh": 1020,
    "sicaklik": 13,
+   "cig_noktasi": 11
+  },
+  {
+   "zaman": "2026-09-23T23:20:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 0,
+   "tavan": null,
+   "qnh": 1020,
+   "sicaklik": 12,
    "cig_noktasi": 11
   }
  ]
