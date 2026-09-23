@@ -103,22 +103,69 @@ SABLON = """<!DOCTYPE html>
 <meta name="description" content="{icao} anlık METAR ve TAF">
 <style>
 {yazitipi_css}
+  /* ===================== TASARIM SISTEMI =====================
+     TEK KAYNAK. Once her anlamsal renk sayfaya DAGILMIS sabit hex olarak
+     duruyordu: ornegin "dikkat" tonu (#b45309 acik / #fbbf24 koyu) UC AYRI
+     kuralda, her biri ayrica iki koyu tema blogunda tekrarlanmisti - dokuz
+     yer. Birini guncelleyip otekileri unutmak an meselesiydi.
+
+     KATMANLAR: zemin -> panel -> kart -> etkilesim. Her katman bir ustune
+     gore hafifce ayrisir; koyu temada saf siyah ve asiri kontrast YOK.
+
+     ANLAMSAL RENKLER durum anlatir, dekorasyon degildir. "-zemin" varyanti
+     rozet/kutu arka plani, duz olani metin/kenarlik icindir.
+
+     NOT: RENK_KODU (BLU/WHT/GRN/YLO/AMB/RED) BURAYA TASINMADI - o bir
+     HAVACILIK DURUM KODU, arayuz rengi degil; Telegram tarafiyla ayni
+     kavrami paylasiyor ve tema degistirince degismemeli. */
   :root {{
     /* Mono yigini eskiden 6 ayri yerde KOPYALANMISTI - biri guncellenip
        otekiler unutulabilirdi. Tek kaynak. */
     --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
-    --bg:#f8fafc; --kart:#ffffff; --metin:#0f172a; --soluk:#64748b;
-    --cizgi:#e2e8f0; --vurgu:#0f172a; --kod-bg:#f1f5f9;
+
+    /* yuzey katmanlari */
+    --bg:#f8fafc; --panel:#f1f5f9; --kart:#ffffff; --etkilesim:#f1f5f9;
+    --cizgi:#e2e8f0; --kod-bg:#f1f5f9;
+    /* metin */
+    --metin:#0f172a; --soluk:#64748b; --sessiz:#94a3b8; --vurgu:#0f172a;
+    /* anlamsal - durum anlatir */
+    /* Metin tonlari OLCULEREK secildi - WCAG AA (4.5:1), kendi "-zemin"
+       tonlarinin uzerinde. Onceki degerler (#16a34a / #dc2626) acik temada
+       2.89:1 ve 3.97:1 veriyordu, yani AA'nin altindaydi. */
+    --iyi:#166534;    --iyi-zemin:#22c55e26;    --iyi-dolu:#22c55e;
+    --dikkat:#b45309; --dikkat-zemin:#f59e0b26; --dikkat-dolu:#f59e0b;
+    --uyari:#ef4444;  --uyari-zemin:#ef444426;  --uyari-metin:#b91c1c;
+    --bilgi:#2563eb;  --bilgi-zemin:#3b82f626;
+    /* olcek */
+    --r1:8px; --r2:12px; --r3:16px;
   }}
+  /* Koyu tema iki yerde tanimli olmak ZORUNDA: biri sistem tercihi, oteki
+     elle secim (data-theme). Ikisi ayni listeyi tasir - listeyi TOKEN'a
+     indirgemenin asil kazanci da bu: artik tek satir kopyalaniyor. */
   @media (prefers-color-scheme: dark) {{
     :root:not([data-theme="light"]) {{
-      --bg:#0b1220; --kart:#111a2e; --metin:#e8eefc; --soluk:#8fa0bf;
-      --cizgi:#1e2a44; --vurgu:#e8eefc; --kod-bg:#0a1120;
+      --bg:#0b1220; --panel:#0f1729; --kart:#111a2e; --etkilesim:#1e2a44;
+      --cizgi:#1e2a44; --kod-bg:#0a1120;
+      --metin:#e8eefc; --soluk:#8fa0bf; --sessiz:#64748b; --vurgu:#e8eefc;
+      --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
+      --bilgi:#60a5fa;
     }}
   }}
   :root[data-theme="dark"] {{
-    --bg:#0b1220; --kart:#111a2e; --metin:#e8eefc; --soluk:#8fa0bf;
-    --cizgi:#1e2a44; --vurgu:#e8eefc; --kod-bg:#0a1120;
+    --bg:#0b1220; --panel:#0f1729; --kart:#111a2e; --etkilesim:#1e2a44;
+    --cizgi:#1e2a44; --kod-bg:#0a1120;
+    --metin:#e8eefc; --soluk:#8fa0bf; --sessiz:#64748b; --vurgu:#e8eefc;
+    --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
+    --bilgi:#60a5fa;
+  }}
+  /* Hareket azaltma tercihi: isletim sisteminde acan kullanici icin tum
+     gecis ve animasyonlar durur. Sayfa islevini KAYBETMEZ - donen ok yine
+     doner, sadece aninda. */
+  @media (prefers-reduced-motion: reduce) {{
+    *, *::before, *::after {{
+      animation-duration:.01ms !important; animation-iteration-count:1 !important;
+      transition-duration:.01ms !important; scroll-behavior:auto !important;
+    }}
   }}
   * {{ box-sizing:border-box; }}
   body {{
@@ -356,9 +403,9 @@ SABLON = """<!DOCTYPE html>
     font-size:.74rem; font-weight:650; padding:2px 9px; border-radius:999px;
     text-transform:uppercase; letter-spacing:.03em;
   }}
-  .sis-olasilik-bant.dusuk {{ background:#22c55e26; color:#16a34a; }}
+  .sis-olasilik-bant.dusuk {{ background:var(--iyi-zemin); color:var(--iyi); }}
   .sis-olasilik-bant.orta {{ background:#f9731626; color:#ea580c; }}
-  .sis-olasilik-bant.yuksek {{ background:#ef444426; color:#dc2626; }}
+  .sis-olasilik-bant.yuksek {{ background:var(--uyari-zemin); color:var(--uyari-metin); }}
   .gecis-tablo {{ width:100%; border-collapse:collapse; font-size:.82rem;
                   margin-top:8px; font-variant-numeric:tabular-nums; }}
   .gecis-tablo th, .gecis-tablo td {{ padding:6px 4px; text-align:right;
@@ -456,21 +503,15 @@ SABLON = """<!DOCTYPE html>
   /* Modelin sis kodu verdigi saat - kart kenarligi ve kucuk bir etiketle
      isaretlenir. Renk DEGIL simge+metin tasiyor: renk korlugunde de,
      kucuk ekranda da okunur kalsin. */
-  .tahmin-hucre-sis {{ border-color:#b45309; }}
-  .tahmin-sis {{ font-size:.68rem; font-weight:700; color:#b45309; margin-bottom:3px; }}
-  @media (prefers-color-scheme: dark) {{
-    :root:not([data-theme="light"]) .tahmin-hucre-sis {{ border-color:#fbbf24; }}
-    :root:not([data-theme="light"]) .tahmin-sis {{ color:#fbbf24; }}
-  }}
-  :root[data-theme="dark"] .tahmin-hucre-sis {{ border-color:#fbbf24; }}
-  :root[data-theme="dark"] .tahmin-sis {{ color:#fbbf24; }}
+  .tahmin-hucre-sis {{ border-color:var(--dikkat); }}
+  .tahmin-sis {{ font-size:.68rem; font-weight:700; color:var(--dikkat); margin-bottom:3px; }}
   .tahmin-satir {{ font-size:.72rem; color:var(--soluk); line-height:1.5; }}
   .tahmin-aciklama {{ font-size:.72rem; color:var(--soluk); margin-top:8px; }}
 
   .bolum-baslik {{ font-weight:650; font-size:1.05rem; margin:28px 0 12px; }}
   /* Bayat senkron uyarisi - kirmizi DEGIL: liste hala dogru olabilir,
      sadece dogrulanmamis. Kirmizi "yanlis" ima ederdi. */
-  .notam-senkron-bayat {{ color:#b45309; font-weight:650; }}
+  .notam-senkron-bayat {{ color:var(--dikkat); font-weight:650; }}
   .notam-uyari {{
     background:rgba(234,179,8,.12); border:1px solid rgba(234,179,8,.4);
     border-radius:10px; padding:10px 12px; margin-bottom:14px; font-size:.85rem;
@@ -489,14 +530,10 @@ SABLON = """<!DOCTYPE html>
   .notam-durum {{ font-size:.75rem; color:var(--soluk); margin-left:auto; }}
   /* Suresi dolmus / henuz baslamamis NOTAM'in durum etiketi - soluk griden
      ayrilsin ki arama sonuclarinda yururlukte olanla karistirilmasin. */
-  .notam-durum-gecmis {{ color:#b45309; font-weight:600; }}
-  @media (prefers-color-scheme: dark) {{
-    :root:not([data-theme="light"]) .notam-durum-gecmis {{ color:#fbbf24; }}
-  }}
-  :root[data-theme="dark"] .notam-durum-gecmis {{ color:#fbbf24; }}
+  .notam-durum-gecmis {{ color:var(--dikkat); font-weight:600; }}
   .notam-aktif-nokta {{
     display:inline-block; width:8px; height:8px; border-radius:999px;
-    background:#22c55e; box-shadow:0 0 0 2px rgba(34,197,94,.25); flex-shrink:0;
+    background:var(--iyi-dolu); box-shadow:0 0 0 2px var(--iyi-zemin); flex-shrink:0;
   }}
   .notam-aktif-baslik {{ cursor:pointer; user-select:none; }}
   .notam-aktif-sayi {{
@@ -565,7 +602,7 @@ SABLON = """<!DOCTYPE html>
   .lvo-awos-deger {{ display:flex; justify-content:space-between; font-size:.85rem; padding:3px 0; }}
   .lvo-awos-alt {{ font-size:.72rem; color:var(--soluk); margin-top:6px; }}
   .lvo-stale {{
-    color:#ef4444; font-weight:700; margin-left:6px;
+    color:var(--uyari); font-weight:700; margin-left:6px;
   }}
   .lvo-form {{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; align-items:flex-end; }}
   .lvo-form label {{ display:block; font-size:.72rem; color:var(--soluk); margin-bottom:3px; }}
@@ -583,8 +620,8 @@ SABLON = """<!DOCTYPE html>
   .lvo-form button.lvo-awos-temizle {{
     background:transparent; color:var(--soluk); border:1px solid var(--cizgi);
   }}
-  .lvo-form button.lvo-awos-temizle:hover {{ color:#ef4444; border-color:#ef4444; }}
-  .lvo-hata {{ color:#ef4444; font-size:.8rem; margin-top:6px; min-height:1.1em; }}
+  .lvo-form button.lvo-awos-temizle:hover {{ color:var(--uyari); border-color:var(--uyari); }}
+  .lvo-hata {{ color:var(--uyari); font-size:.8rem; margin-top:6px; min-height:1.1em; }}
   .lvo-esik-kaynak {{ font-size:.72rem; color:var(--soluk); display:block; margin-top:2px; }}
 
   .atc-not-ekle-btn {{
@@ -607,7 +644,7 @@ SABLON = """<!DOCTYPE html>
   }}
   .atc-fab-rozet {{
     position:absolute; top:-2px; right:-2px; min-width:20px; height:20px;
-    padding:0 5px; border-radius:999px; background:#ef4444; color:#fff;
+    padding:0 5px; border-radius:999px; background:var(--uyari); color:#fff;
     font-size:.68rem; font-weight:700; display:flex; align-items:center;
     justify-content:center; border:2px solid var(--bg);
   }}
@@ -661,7 +698,7 @@ SABLON = """<!DOCTYPE html>
     background:var(--bg); color:var(--metin); font-size:.9rem; font-family:inherit;
     box-sizing:border-box; resize:vertical;
   }}
-  .modal-hata {{ color:#ef4444; font-size:.8rem; margin-top:8px; min-height:1.1em; }}
+  .modal-hata {{ color:var(--uyari); font-size:.8rem; margin-top:8px; min-height:1.1em; }}
   .modal-butonlar {{ display:flex; gap:8px; justify-content:flex-end; margin-top:14px; }}
   .modal-butonlar button {{
     padding:8px 16px; border-radius:8px; border:none; font-weight:650; font-size:.85rem;
