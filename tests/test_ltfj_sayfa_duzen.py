@@ -138,15 +138,17 @@ def test_beklenti_YALNIZCA_tahmin_iceriyor(tmp_path):
                "dew_point_2m": 8, "visibility": 9000, "wind_speed_10m": 9,
                "cloud_cover_low": 40}]
     html = _sayfa(tmp_path, saatlik_tahmin=tahmin)
-    assert "Beklenti · önümüzdeki saatler" in html
-    beklenti = html.split("Beklenti · önümüzdeki saatler")[1].split("</details>")[0]
+    # Baslik artik katlanir <summary> degil, sekme panelinin kart basligi.
+    beklenti = html.split('id="panel-beklenti"')[1].split('class="sekme-panel"')[0]
+    assert "Beklenti" in beklenti and "önümüzdeki saatler" in beklenti
     assert 'class="tahmin-serit"' in beklenti
     assert "İstatistiksel sis olasılığı" not in beklenti
 
 
 def test_notam_tek_baslik_altinda_ve_uyari_en_altta(tmp_path):
+    """NOTAM artik kendi SEKME PANELINDE; icerik sirasi degismedi."""
     html = _sayfa(tmp_path)
-    notam = html.split("<summary>NOTAM")[1].split("</details>\n</div>")[0]
+    notam = html.split('id="panel-notam"')[1]
     for parca in ("Aktif NOTAM'lar", "Geçmiş / Arama", "notam-uyari"):
         assert parca in notam, parca
     # Uyari, iki alt bolumden de SONRA gelmeli.

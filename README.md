@@ -119,7 +119,52 @@ Neden bu ikisi:
 Yazı tipleri [SIL Open Font License 1.1](https://github.com/IBM/plex/blob/master/LICENSE.txt)
 ile lisanslıdır.
 
-### 9. Sayfadaki "İstatistik" Bölümü
+### 9. Sayfa Düzeni: Sekmeler
+
+Sayfa **beş yatay sekmeye** bölündü: **Durum · Beklenti · İstatistik · LVO ·
+NOTAM**. Öncesinde hepsi alt alta katlanır başlıklardı ve sayfa gereksiz
+uzuyordu.
+
+**Neden yatay, neden sol dikey ray değil.** İçerik sütunu `max-width:680px`,
+telefonda ise tam genişlik (~360px). Soldaki dikey bir ray yatay genişliği
+**kalıcı olarak** yerdi (~%25); üstelik "İstatistik" gibi uzun etiketler ya
+döndürülmüş yazı ya kısaltma gerektirirdi ve sayfanın sağ kenarı zaten VFR
+sekmesiyle meşgul. Yatay çubuk dikey yerden **bir kez** ödün verir.
+
+Ölçüldü (Chromium, gerçek sayfa): çubuk 360/390/412/680px'te taşmıyor. 320px'te
+36px taşıyor — orada yatay kaydırma devrede ve seçili sekme otomatik görünür
+yapılıyor.
+
+**Rozetler çubukta, çünkü sekme içeriği gizliyor.** NOTAM sayfadayken
+kaydırırken göz ucuyla görülüyordu; sekmenin arkasına girince yeni NOTAM'ı
+fark etmenin tek yolu çubuktaki rozet kalır. Aynısı sis olasılığı için de
+geçerli. NOTAM rozeti mevcut istemci JS'iyle aynı `id`'yi kullanır
+(`notam-aktif-sayi`) — rozet mantığı tek yerde.
+
+Sis rozeti **tam sayıya** yuvarlanır (`%28`), panel ondalığı gösterir: bir
+sekme rozetinde `%27.8` sahte hassasiyettir — rozet "bakmalı mıyım?" sorusunu
+yanıtlar, kesin değeri panel verir.
+
+**JS yoksa sayfa bozulmaz.** Paneller HTML'de `hidden` DEĞİL; gizleme yalnızca
+`<html class="js">` varken devreye girer ve o sınıfı `<head>` içindeki satır
+içi betik gövde çizilmeden önce ekler (açılışta titreme olmaz). Betik
+engellenirse çubuk hiç çizilmez ve sayfa eski "hepsi alt alta" hâline düşer —
+boş değil.
+
+Seçili sekme `localStorage`'a yazılır; okuma `try/catch` ile sarılıdır (gizli
+sekmede erişim istisna atabilir) ve bilinmeyen bir değer reddedilir — yoksa
+hiçbir CSS kuralıyla eşleşmeyen bir sekme sayfayı tamamen boş açardı.
+
+Özet şerit ile sekme çubuğu **tek bir yapışkan blokta** (`.yapiskan-ust`).
+İkisini ayrı ayrı yapışkan yapmak, çubuğa "şerit ne kadar yüksek?" diye sabit
+bir `top:` değeri uydurmayı gerektirirdi; şerit dar ekranda satır kaydırdığı
+için o sayı sabit değil.
+
+Bölümler sekme içinde **ayrıca katlanmaz** — sekmeye basıp bir de başlığı
+açmak iki tıklama olurdu. LVO'nun eski elle yazılmış aç/kapa mekanizması bu
+yüzden kaldırıldı.
+
+### 9.1. "İstatistik" Sekmesinin İçeriği
 
 Arşivden öğrenilmiş her şey **tek katlanır başlık** altında toplandı:
 

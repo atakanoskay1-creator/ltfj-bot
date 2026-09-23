@@ -132,16 +132,22 @@ def test_lvo_scripti_atc_notes_ve_notam_scriptinden_bagimsiz_degisken_kullanir(t
     assert html.count("var DB_URL = ") >= 2  # ATC Notes ve LVO script'leri ayri ayri tanimliyor
 
 
-def test_lvo_bolumu_varsayilan_olarak_kapali(tmp_path):
-    """Kullanicinin istegi: sayfa acildiginda LVO REFERENCE uzun metinler
-    GOSTERMEMELI, sadece basliga tiklaninca acilmali (NOTAM aktif liste ile
-    AYNI collapsible desen)."""
+def test_lvo_bolumu_varsayilan_olarak_GORUNMUYOR(tmp_path):
+    """Ayni iddia, yeni mekanizma: sayfa acildiginda LVO REFERENCE uzun
+    metinleri GOSTERMEMELI. Eskiden elle yazilmis bir ac/kapa vardi; artik
+    kendi SEKME PANELI ve acilista secili sekme "durum".
+
+    Ayri bir ac/kapa BILEREK kaldirildi: sekmeye basip bir de basliga
+    basmak iki tiklama olurdu."""
     html = _sayfa_yaz(tmp_path)
-    m = re.search(r'<div id="lvo-govde"([^>]*)>', html)
-    assert m is not None
-    assert "hidden" in m.group(1)
-    assert 'id="lvo-baslik"' in html
-    assert "lvoPaneliAcKapat" in html
+    assert 'id="panel-lvo"' in html
+    assert 'id="sekme-lvo"' in html
+    # Eski mekanizmanin kalintisi kalmamali
+    assert "lvoPaneliAcKapat" not in html
+    assert 'id="lvo-baslik"' not in html
+    # Acilista "durum" sekmesi secili -> LVO paneli CSS ile gizli
+    assert 'data-sekme", s' in html or 'k.setAttribute("data-sekme"' in html
+    assert '.js[data-sekme="lvo"]' in html
 
 
 def test_farkindalik_notlari_bolumu_var(tmp_path):
