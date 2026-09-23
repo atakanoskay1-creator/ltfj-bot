@@ -47,8 +47,12 @@ def _bolum(html: str, baslik: str) -> str:      # geriye uyumluluk
 # ------------------------------------------------------------ bölüm var
 def test_istatistik_basligi_var(tmp_path):
     html = _sayfa(tmp_path)
-    assert "İstatistik" in _panel(html, "istatistik")
-    assert "arşivden" in _panel(html, "istatistik")
+    panel = _panel(html, "istatistik")
+    assert "İstatistiksel sis olasılığı" in panel
+    # "İstatistik · arşivden" dis basligi KALDIRILDI (sekme adinin
+    # tekrariydi). SAGLAMA kaybolmadi: her alt bolum kendi kapsamini
+    # yaziyor - testin korudugu sey buydu, basligin kendisi degil.
+    assert "arşiv" in panel, "arsiv saglamasi tamamen kaybolmus"
 
 
 def test_istatistik_KENDI_sekmesinde(tmp_path):

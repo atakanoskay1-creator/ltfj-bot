@@ -374,6 +374,10 @@ SABLON = """<!DOCTYPE html>
     stroke-linecap:round; stroke-linejoin:round;
   }}
   button .ikon {{ margin-right:5px; }}
+  /* Uyari kutularinda ikon metne YAPISIK ciziliyordu ("!Bilgi amaclidir").
+     button disinda hicbir kural bosluk vermiyordu. Renk de burada: uyari
+     kutusunun ikonu govde metniyle ayni griye boyaniyordu. */
+  .ikon-uyari {{ margin-right:7px; color:var(--dikkat); vertical-align:-.16em; }}
 
   /* ---- UYGULAMA BASLIGI ---- */
   h1 {{ display:flex; align-items:baseline; gap:9px; flex-wrap:wrap; }}
@@ -560,6 +564,12 @@ SABLON = """<!DOCTYPE html>
   /* Satir basligi SOLA yasli - sayilar saga, etiket sola; karisik
      hizalama tabloyu okunmaz yapardi. */
   .gecis-tablo tbody th {{ text-align:left; font-weight:600; }}
+  /* Son satirin alt cizgisi: th iki satirli (etiket + esik) oldugu icin
+     td'lerden uzun ciziliyor ve tablonun altinda SADECE ilk sutun
+     genisliginde kopuk bir cizgi kaliyordu. Alt kenarlik son satirda
+     tamamen kalkiyor - tablonun sonunu zaten bosluk belirtiyor. */
+  .gecis-tablo tbody tr:last-child th,
+  .gecis-tablo tbody tr:last-child td {{ border-bottom:0; }}
   .gecis-n {{ color:var(--soluk); }}
   .gecis-caption {{ caption-side:top; text-align:left; color:var(--soluk);
                     font-size:.72rem; padding-bottom:2px; }}
@@ -633,25 +643,66 @@ SABLON = """<!DOCTYPE html>
     border:1px solid var(--cizgi); border-radius:999px; padding:2px 8px;
     white-space:nowrap;
   }}
-  .tahmin-serit {{
-    display:flex; gap:6px; overflow-x:auto; padding-bottom:6px;
-    -webkit-overflow-scrolling:touch;
+  /* Tahmin TABLOSU. Eskiden her saat bagimsiz bir <div> kolonuydu ve
+     kosullu satirlar (sis isareti, sinir tabakasi) satirlari yatayda
+     KAYDIRIYORDU - olcum ve gerekce icin bkz. _saatlik_tahmin_html.
+     Tablo hizayi yapisal olarak garanti eder. */
+  .tahmin-kaydir {{ overflow-x:auto; -webkit-overflow-scrolling:touch; }}
+  .tahmin-tablo {{
+    border-collapse:collapse; font-variant-numeric:tabular-nums;
+    min-width:100%;
   }}
-  .tahmin-hucre {{
-    flex:0 0 auto; min-width:66px; text-align:center; padding:8px 6px;
-    border:1px solid var(--cizgi); border-radius:10px; background:var(--kod-bg);
+  /* Yatay dolgu OLCULDU: 9px'te tablo 659px cikiyor ve icerik sutunu
+     642px oldugu icin son saat 17px kirpiliyordu (masaustunde bile
+     kaydirma cubugu). 7px'te dogal genislik 642'nin altina iniyor,
+     min-width:100% de kalani sutunlara dagitiyor. Telefonda (320px)
+     hala kayar - 10 saatlik serit icin dogru davranis; satir basligi
+     yapiskan oldugu icin okunur kaliyor. */
+  .tahmin-tablo th, .tahmin-tablo td {{
+    padding:5px 7px; text-align:right; white-space:nowrap;
+    border-bottom:1px solid var(--cizgi);
   }}
-  .tahmin-saat {{
-    font-size:.78rem; font-weight:650; margin-bottom:4px;
-    font-family:var(--mono);
+  .tahmin-tablo tbody tr:last-child th,
+  .tahmin-tablo tbody tr:last-child td {{ border-bottom:0; }}
+  .tahmin-tablo thead th {{ text-align:center; vertical-align:bottom; }}
+  /* BASLIK SATIRININ SOL KOSESI de yapiskan olmali. Yoksa tablo yatay
+     kayarken satir basliklari (asagida) kayan saatleri maskeliyor ama
+     BASLIK SATIRI maskelemiyor: 390px'te 297px kaydirildiginda sol ust
+     kosede "02:00"in kuyrugu ("00") gorunuyordu. z-index satir
+     basliklarindan (1) BUYUK, cunku bu hucre hem yatay hem dikey
+     komsulari ortmeli. */
+  .tahmin-tablo thead th:first-child {{
+    position:sticky; left:0; z-index:2; background:var(--kart);
   }}
-  .tahmin-spread {{ font-size:1.05rem; font-weight:700; margin-bottom:4px; }}
-  /* Modelin sis kodu verdigi saat - kart kenarligi ve kucuk bir etiketle
-     isaretlenir. Renk DEGIL simge+metin tasiyor: renk korlugunde de,
-     kucuk ekranda da okunur kalsin. */
-  .tahmin-hucre-sis {{ border-color:var(--dikkat); }}
-  .tahmin-sis {{ font-size:.68rem; font-weight:700; color:var(--dikkat); margin-bottom:3px; }}
-  .tahmin-satir {{ font-size:.72rem; color:var(--soluk); line-height:1.5; }}
+  /* Satir basligi YAPISKAN: telefonda tablo yatay kayarken "bu sayi
+     neydi" bilgisi ekrandan cikmasin. Kolon 12 saat uzunlugunda. */
+  .tahmin-tablo th[scope="row"] {{
+    position:sticky; left:0; z-index:1; background:var(--kart);
+    text-align:left; font-weight:600; font-size:.76rem; color:var(--soluk);
+    border-right:1px solid var(--cizgi);
+    /* width:1% -> tarayici bu sutunu ICERIGE gore daraltir. Olmadan
+       min-width:100%'ten artan bosluğun tamamini ilk sutun yutuyor ve
+       saat kolonlari sağa sıkışıyordu. */
+    width:1%; padding-right:14px;
+  }}
+  .tahmin-birim {{
+    display:inline-block; margin-left:5px; font-weight:400;
+    font-size:.68rem; opacity:.75;
+  }}
+  .tahmin-saat {{ font-size:.76rem; font-weight:650; font-family:var(--mono); }}
+  /* Spread en guclu onculer gostergeydi (bkz. sis_modeli/README.md) -
+     tabloda da one cikiyor. */
+  .tahmin-vurgu td {{ font-size:1rem; font-weight:700; color:var(--metin); }}
+  .tahmin-tablo td {{ font-size:.8rem; color:var(--metin); }}
+  /* Modelin sis kodu verdigi saat: TUM kolon hafifce boyanir, basligina
+     simge+metin gelir. Renk TEK BASINA tasiyici degil - renk korlugunde
+     ve tek renkli baskida da "sis" yazisi okunur. */
+  .tahmin-sisli {{ background:rgba(234,179,8,.12); }}
+  .tahmin-sis {{
+    font-size:.66rem; font-weight:700; color:var(--dikkat);
+    margin-top:2px; display:flex; align-items:center; gap:3px;
+    justify-content:center;
+  }}
   .tahmin-aciklama {{ font-size:.72rem; color:var(--soluk); margin-top:8px; }}
 
   .bolum-baslik {{ font-weight:650; font-size:1.05rem; margin:28px 0 12px; }}
@@ -707,10 +758,17 @@ SABLON = """<!DOCTYPE html>
     border:1px solid var(--cizgi);
     background:var(--bg); color:var(--metin); font-size:.85rem;
   }}
+  /* SESSIZ dugme. Eskiden dolu koyu zeminliydi ve NOTAM panelindeki tek
+     dolu dugme oydu - yani gozun ilk gittigi yer "filtreyi temizle"
+     oluyordu, listenin kendisi degil. Eylem tersine cevrilebilir ve
+     ikincil; cerceveli bicim hiyerarsiyi duzeltiyor. Dokunma hedefi
+     ayni kaliyor (dikey dolgu degismedi). */
   .notam-arama button {{
-    padding:8px 14px; border-radius:8px; border:none; background:var(--vurgu);
-    color:var(--bg); font-weight:650; font-size:.85rem; cursor:pointer;
+    padding:8px 14px; border-radius:8px; border:1px solid var(--cizgi);
+    background:transparent; color:var(--soluk); font-weight:600;
+    font-size:.85rem; cursor:pointer;
   }}
+  .notam-arama button:hover {{ background:var(--etkilesim); color:var(--metin); }}
   .notam-arama-not {{ color:var(--soluk); font-size:.78rem; margin:-8px 0 12px; }}
 
   /* LVO REFERENCE - METAR/NOTAM/ATC Notes'tan gorsel olarak ayri, saf
@@ -1018,13 +1076,13 @@ SABLON = """<!DOCTYPE html>
 <div class="sekme-panel" id="panel-notam" role="tabpanel"
      aria-labelledby="sekme-notam">
 <div class="kart">
-  <div class="basrow">
-    <span class="tip">NOTAM</span>
-    <span class="zaman" id="notam-senkron-zamani"></span>
-  </div>
-
+  <!-- DIS BASLIK KALDIRILDI: "NOTAM" sekme dugmesinin kendi adiydi ve
+       hemen altinda "Aktif NOTAM'lar" geliyordu. Senkron zamani (tek
+       gercek bilgi) asil bolum basligina TASINDI - id ayni kaldigi icin
+       onu dolduran JS'e dokunulmadi. -->
   <div class="alt-bolum">
-    <div class="basrow"><span class="tip">Aktif NOTAM'lar</span></div>
+    <div class="basrow"><span class="tip">Aktif NOTAM'lar</span>
+      <span class="zaman" id="notam-senkron-zamani"></span></div>
     <div class="notam-arama" id="notam-aktif-filtre">
       <input type="text" id="notam-aktif-q" placeholder="Numara, pist, anahtar kelime…">
       <select id="notam-aktif-kategori"><option value="">Tüm kategoriler</option></select>
@@ -3089,42 +3147,103 @@ def _saatlik_tahmin_html(satirlar: list, yas_dk: float | None = None) -> str:
             metin = f"{yas_dk / 60:.0f} saat önceki model çıktısı"
         yas_rozeti = f'<span class="tahmin-yas">{html.escape(metin)}</span>'
 
-    hucreler = []
-    for s in satirlar:
-        sic, cig = s.get("temperature_2m"), s.get("dew_point_2m")
+    # NEDEN TABLO, neden ayri <div> kolonlari DEGIL:
+    #
+    # Onceki surumde her saat kendi <div>'iydi ve iki satir KOSULLUYDU -
+    # sis isareti (weather_code) ve sinir tabakasi yuksekligi (deneysel
+    # alan, Open-Meteo bazen hic dondurmuyor). Sonuc tarayicida olculdu:
+    # sisli bir kolonda gorus 489px'te, komsu kolonlarda 468px'teydi -
+    # yani "gorus" satirini yatay tararken sisli saatin gorusu,
+    # komsularinin RUZGAR satirinin hizasina dusuyordu. BLH'si olmayan
+    # kolon ise en alt satiri hic cizmiyordu. Bir meteoroloji seridinde
+    # bu yanlis okutur.
+    #
+    # Tablo bunu YAPISAL olarak cozer: satir bir <tr>, hangi hucre bos
+    # olursa olsun hiza bozulmaz. Ustelik satir basliklari <th scope="row">
+    # olunca ekran okuyucu her sayiyi adiyla okur - eskiden hangi sayinin
+    # ne oldugu yalnizca ALTTAKI DUZ METINDE yaziyordu.
+    def _hucre(deger, sinif=""):
+        icerik = "&mdash;" if deger is None else html.escape(str(deger))
+        c = f' class="{sinif}"' if sinif else ""
+        return f"<td{c}>{icerik}</td>"
+
+    basliklar = []
+    satir_verisi = {ad: [] for ad in
+                    ("spread", "gorus", "ruzgar", "bulut", "blh")}
+    for satir in satirlar:
+        sic, cig = satir.get("temperature_2m"), satir.get("dew_point_2m")
         spread = None if sic is None or cig is None else sic - cig
-        gorus_m = s.get("visibility")
+        gorus_m = satir.get("visibility")
         # Open-Meteo görüşü METRE verir; 10 km ve üstünü METAR'daki gibi
         # "10+" olarak kısaltıyoruz - aradaki her 100 metreyi göstermek
         # olmayan bir hassasiyet ima ederdi.
         if gorus_m is None:
-            gorus = "—"
+            gorus = None
         elif gorus_m >= 10000:
-            gorus = "10+ km"
+            gorus = "10+"
         else:
-            gorus = f"{gorus_m / 1000:.1f} km"
+            gorus = f"{gorus_m / 1000:.1f}"
         # weather_code ve boundary_layer_height DENEYSEL alanlar: Open-Meteo
         # kabul etmezse onbellekte hic olmazlar (bkz. ltfj_dis_kaynak_cache.
-        # HOURLY_DENEYSEL). Yoklugunda hucre eskisi gibi cizilir.
-        sisli = s.get("weather_code") in SIS_KODLARI
+        # HOURLY_DENEYSEL). Yoklugunda hucre "—" olur, satir KAYBOLMAZ.
+        sisli = satir.get("weather_code") in SIS_KODLARI
+        sinif = "tahmin-sisli" if sisli else ""
         sis_isareti = ('<div class="tahmin-sis" title="Model bu saatte sis '
-                       'bekliyor (WMO kodu)">' + ikon("sis") + ' sis</div>'
+                       'bekliyor (WMO kodu)">' + ikon("sis") + " sis</div>"
                        ) if sisli else ""
-        blh = s.get("boundary_layer_height")
-        blh_satiri = ("" if blh is None else
-                      f'<div class="tahmin-satir" title="Sınır tabakası '
-                      f'yüksekliği - alçaldıkça radyasyon sisine elverişli">'
-                      f'{blh:.0f} m</div>')
-        hucreler.append(
-            f'<div class="tahmin-hucre{" tahmin-hucre-sis" if sisli else ""}">'
-            f'<div class="tahmin-saat">{html.escape(_yerel_saat(s.get("saat", "")))}</div>'
-            f'<div class="tahmin-spread">{_sayi(spread, "°", 1)}</div>'
-            f"{sis_isareti}"
-            f'<div class="tahmin-satir">{html.escape(gorus)}</div>'
-            f'<div class="tahmin-satir">{_sayi(s.get("wind_speed_10m"), " km/s")}</div>'
-            f'<div class="tahmin-satir">{_sayi(s.get("cloud_cover_low"), "%")}</div>'
-            f"{blh_satiri}"
-            "</div>")
+        bas_sinif = f' class="{sinif}"' if sinif else ""
+        basliklar.append(
+            f'<th scope="col"{bas_sinif}><span class="tahmin-saat">'
+            f'{html.escape(_yerel_saat(satir.get("saat", "")))}</span>'
+            f"{sis_isareti}</th>")
+        satir_verisi["spread"].append(
+            (None if spread is None else f"{spread:.1f}", sinif))
+        satir_verisi["gorus"].append((gorus, sinif))
+        # RUZGAR BIRIM DONUSUMU: Open-Meteo'ya wind_speed_unit
+        # GONDERILMIYOR, yani varsayilan km/SAAT donuyor. Sayfa "km/s"
+        # yaziyordu - hem Turkce'de kilometre/saniye okunur hem de
+        # sayfanin geri kalani (METAR, ozet serit, hero) KNOT. Yan yana
+        # duran iki ruzgar sayisindan biri km/h digeri kt olursa ~2 kat
+        # yanlis okunur. Cevirip kt yaziyoruz; deger UYDURULMUYOR, ayni
+        # olcunun birimi degisiyor (1 kt = 1.852 km/h).
+        kmh = satir.get("wind_speed_10m")
+        satir_verisi["ruzgar"].append(
+            (None if kmh is None else f"{kmh / 1.852:.0f}", sinif))
+        bulut = satir.get("cloud_cover_low")
+        satir_verisi["bulut"].append(
+            (None if bulut is None else f"{bulut:.0f}", sinif))
+        blh = satir.get("boundary_layer_height")
+        satir_verisi["blh"].append(
+            (None if blh is None else f"{blh:.0f}", sinif))
+
+    # Birimler SATIR BASLIGINDA, her hucrede DEGIL: 360px'te birimli
+    # hucreler tabloyu tasiriyordu, ustelik ayni birim 12 kez tekrar
+    # ediyordu. Ayni yaklasim gecis tablosunda da kullanilmisti.
+    SATIR_TANIMLARI = (
+        ("spread", "spread", "°C",
+         "Sıcaklık − çiy noktası; düştükçe sis riski artar"),
+        ("gorus", "görüş", "km", "Model görüşü; 10+ = 10 km ve üstü"),
+        ("ruzgar", "rüzgâr", "kt",
+         "10 m rüzgârı; Open-Meteo'nun km/sa değerinden çevrildi"),
+        ("bulut", "alçak bulut", "%", "Düşük seviye bulut örtüsü oranı"),
+        ("blh", "sınır tabakası", "m",
+         "Sınır tabakası yüksekliği; alçaldıkça radyasyon sisine elverişli"),
+    )
+    govde = []
+    for anahtar, etiket, birim, aciklama in SATIR_TANIMLARI:
+        hucre_listesi = satir_verisi[anahtar]
+        # Alan HIC gelmemisse (deneysel alan reddedilmis) satiri bosuna
+        # cizmiyoruz - ama TEK bir saatte bile varsa satir kaliyor ve
+        # eksikler "—" oluyor. Fark onemli: "bu alan yok" ile "bu saatte
+        # yok" ayri seyler.
+        if all(d is None for d, _ in hucre_listesi):
+            continue
+        vurgu = ' class="tahmin-vurgu"' if anahtar == "spread" else ""
+        govde.append(
+            f'<tr{vurgu}><th scope="row" title="{html.escape(aciklama)}">'
+            f'{etiket}<span class="tahmin-birim">{birim}</span></th>'
+            + "".join(_hucre(d, sinif) for d, sinif in hucre_listesi)
+            + "</tr>")
 
     return (
         '<div class="alt-bolum">'
@@ -3133,12 +3252,12 @@ def _saatlik_tahmin_html(satirlar: list, yas_dk: float | None = None) -> str:
         '<div class="tahmin-uyari">Bu bir <strong>model tahminidir, TAF değildir</strong> — '
         "resmî havacılık tahmini yerine geçmez, operasyonel karar için TAF ve "
         "resmî kaynaklar esastır. Eğilimi görmek için konulmuştur.</div>"
-        '<div class="tahmin-serit">' + "".join(hucreler) + "</div>"
-        '<div class="tahmin-aciklama">Satırlar: saat (yerel) · '
-        "<strong>spread</strong> (sıcaklık − çiy noktası, düştükçe sis riski artar) · "
-        "görüş · rüzgâr · düşük bulut oranı · sınır tabakası yüksekliği "
-        "(alçaldıkça radyasyon sisine elverişli). \"sis\" işareti, modelin o saat "
-        "için sis kodu (WMO 45/48) verdiğini gösterir.</div>"
+        '<div class="tahmin-kaydir"><table class="tahmin-tablo">'
+        '<thead><tr><th></th>' + "".join(basliklar) + "</tr></thead>"
+        "<tbody>" + "".join(govde) + "</tbody></table></div>"
+        '<div class="tahmin-aciklama">Saatler yereldir. "sis" işareti, modelin '
+        "o saat için sis kodu (WMO 45/48) verdiğini gösterir. Eksik değer "
+        "<b>&mdash;</b> ile yazılır, satır gizlenmez.</div>"
         "</div>")
 
 
@@ -3246,10 +3365,12 @@ def _beklenti_html(tahmin_html: str) -> str:
         '<div class="notam-bos">Model tahmini şu an yok. Dış kaynak '
         'önbelleği (Open-Meteo) güncellenmemiş olabilir; bot bir sonraki '
         'koşuda yeniden dener.</div>')
-    return ('<div class="kart">'
-            '<div class="basrow"><span class="tip">Beklenti</span>'
-            '<span class="zaman">önümüzdeki saatler</span></div>'
-            f"{govde}</div>")
+    # DIS BASLIK YOK. Eskiden burada "Beklenti · önümüzdeki saatler"
+    # yaziyordu ve HEMEN altinda _saatlik_tahmin_html'in kendi basligi
+    # ("Önümüzdeki saatler · Open-Meteo model tahmini") geliyordu - ayni
+    # sey ust uste uc kez. Sekme dugmesi paneli zaten "Beklenti" diye
+    # adlandiriyor; kaynak bilgisini ic baslik tasiyor.
+    return f'<div class="kart">{govde}</div>'
 
 
 def _gecis_tablosu_html() -> str:
@@ -3334,9 +3455,12 @@ def _istatistik_html(sis_html: str, notlar: list) -> str:
         f'<ul class="lvo-not-listesi">{not_html}</ul></div>') if not_html else ""
     # Rozet (sis %) artik SEKME DUGMESINDE (bkz. _sekme_cubugu_html):
     # panel kapaliyken gorulmesi gereken tek sey o.
+    # DIS BASLIK YOK (bkz. _beklenti_html'deki ayni gerekce): sekme
+    # "İstatistik" diyor, hemen altinda "İstatistiksel sis olasılığı"
+    # geliyordu. "arşivden" ibaresi de kayip degil - uc alt bolumun
+    # UCU DE kendi kapsamini yaziyor ("2011–2026 arşivi", "LTFJ'nin
+    # 2011–2023 METAR arşivinden...").
     return ('<div class="kart">'
-            '<div class="basrow"><span class="tip">İstatistik</span>'
-            '<span class="zaman">arşivden</span></div>'
             f"{sis_html}{tavan_bolumu}{gecis_html}"
             "</div>")
 
