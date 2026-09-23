@@ -1,14 +1,14 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-23T22:50:53+00:00",
+ "uretildi": "2026-09-23T23:01:26+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-23T22:20:00+00:00",
-  "metin": "METAR LTFJ 232220Z VRB02KT CAVOK 13/11 Q1020 NOSIG RMK RWY24R VRB02KT RWY06R VRB02KT RWY24L 36002KT",
+  "zaman": "2026-09-23T22:50:00+00:00",
+  "metin": "METAR LTFJ 232250Z 00000KT CAVOK 13/11 Q1020 NOSIG RMK RWY24R VRB01KT RWY06R 06002KT RWY24L 10002KT",
   "ruzgar": {
-   "yon": null,
-   "hiz": 2,
+   "yon": 0,
+   "hiz": 0,
    "hamle": null,
    "degisken": null
   },
@@ -28,11 +28,37 @@
   "dikkat": [],
   "pistler": [
    {
+    "pist": "06L",
+    "yon_gercek": 64.1,
+    "bas": 0.0,
+    "yan": 0.0,
+    "yan_taraf": "soldan",
+    "bas_hamle": null,
+    "yan_hamle": null,
+    "degisken": false,
+    "kaynak": "alan rüzgârından",
+    "kuyruk": false,
+    "kuyruk_asildi": false
+   },
+   {
+    "pist": "06R",
+    "yon_gercek": 64.1,
+    "bas": 2.0,
+    "yan": 0.1,
+    "yan_taraf": "soldan",
+    "bas_hamle": null,
+    "yan_hamle": null,
+    "degisken": false,
+    "kaynak": "AD 2.15 anemometreleri",
+    "kuyruk": false,
+    "kuyruk_asildi": false
+   },
+   {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -0.9,
-    "yan": 1.8,
-    "yan_taraf": "sağdan",
+    "bas": -1.6,
+    "yan": 1.2,
+    "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
     "degisken": false,
@@ -43,27 +69,19 @@
   ],
   "kuyruk_limiti": 10,
   "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi",
-  "tercih_pist": "24L",
+  "tercih_pist": "06R",
   "rvr": [],
   "prs": [],
   "gorus_op": [],
   "trend": null,
-  "sis_riski": "Sis oluşum göstergesi: yüksek (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 2°C, rüzgâr 2 kt, gece şartları",
-  "ozet": "Rüzgâr değişken 2kt · görüş CAVOK · 13°C · QNH 1020"
+  "sis_riski": "Sis oluşum göstergesi: yüksek (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 2°C, rüzgâr 0 kt, gece şartları",
+  "ozet": "Rüzgâr 000° 0kt · görüş CAVOK · 13°C · QNH 1020"
  },
  "taf": {
   "zaman": "2026-09-23T16:40:00+00:00",
   "metin": "TAF LTFJ 231640Z 2318/2418 VRB02KT 9999 SCT030 BECMG 2321/2324 CAVOK PROB30 TEMPO 2401/2405 2000 PRFG SCT002 BECMG 2405/2407 SCT030 BECMG 2407/2410 24012KT PROB30 TEMPO 2409/2413 -SHRA FEW018CB BKN030 BECMG 2413/2415 VRB02KT BECMG 2415/2418 CAVOK"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-18T01:50:00+00:00",
-   "ruzgar_hiz": 0,
-   "tavan": 9000,
-   "qnh": 1014,
-   "sicaklik": 16,
-   "cig_noktasi": 15
-  },
   {
    "zaman": "2026-09-18T02:20:00+00:00",
    "ruzgar_hiz": 5,
@@ -2459,6 +2477,15 @@
    "zaman": "2026-09-23T22:20:00+00:00",
    "gorus": 10000,
    "ruzgar_hiz": 2,
+   "tavan": null,
+   "qnh": 1020,
+   "sicaklik": 13,
+   "cig_noktasi": 11
+  },
+  {
+   "zaman": "2026-09-23T22:50:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 0,
    "tavan": null,
    "qnh": 1020,
    "sicaklik": 13,
