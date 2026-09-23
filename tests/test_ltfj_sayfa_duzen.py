@@ -138,10 +138,14 @@ def test_beklenti_YALNIZCA_tahmin_iceriyor(tmp_path):
                "dew_point_2m": 8, "visibility": 9000, "wind_speed_10m": 9,
                "cloud_cover_low": 40}]
     html = _sayfa(tmp_path, saatlik_tahmin=tahmin)
-    # Baslik artik katlanir <summary> degil, sekme panelinin kart basligi.
     beklenti = html.split('id="panel-beklenti"')[1].split('class="sekme-panel"')[0]
-    assert "Beklenti" in beklenti and "önümüzdeki saatler" in beklenti
-    assert 'class="tahmin-serit"' in beklenti
+    # DIS KART BASLIGI ("Beklenti · önümüzdeki saatler") BILEREK KALDIRILDI:
+    # sekme dugmesi paneli zaten adlandiriyor, altinda da tahminin kendi
+    # basligi duruyordu - ayni sey ust uste. Bkz.
+    # test_panel_kendi_SEKME_ADINI_baslik_olarak_TEKRARLAMIYOR.
+    # Testin ASIL iddiasi degismedi: bu panelde TAHMIN var, ISTATISTIK yok.
+    assert "Önümüzdeki saatler" in beklenti
+    assert 'class="tahmin-tablo"' in beklenti
     assert "İstatistiksel sis olasılığı" not in beklenti
 
 

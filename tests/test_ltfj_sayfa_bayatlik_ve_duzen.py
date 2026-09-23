@@ -94,9 +94,17 @@ def test_footer_SOLA_yasli(tmp_path):
     assert "text-align:center" not in css
 
 
-def test_tahmin_hucresi_ORTALI_kalmali(tmp_path):
-    """Tek kelimelik hucrelerde ortalama dogru tercih - toptan
-    degistirilmedi."""
+def test_tahmin_SAAT_basliklari_ORTALI_SAYILAR_SAGA_yasli(tmp_path):
+    """Serit tabloya cevrilince hizalama ikiye ayrildi ve bu KASITLI:
+
+    - SAAT basliklari tek kelimelik etiket -> ortali (eski tercih).
+    - SAYILAR saga yasli -> basamaklar alt alta gelir. "10+" ile "3.0"
+      ortali dizilseydi virgul/basamak hizasi kayardi ve bir sutunu
+      dikey taramak zorlasirdi; tabular-nums da ancak saga yasliyken
+      ise yarar.
+    """
     html = _sayfa(tmp_path)
-    hucre = html.split(".tahmin-hucre {")[1].split("}")[0]
-    assert "text-align:center" in hucre
+    hucre = html.split(".tahmin-tablo th, .tahmin-tablo td {")[1].split("}")[0]
+    assert "text-align:right" in hucre
+    bas = html.split(".tahmin-tablo thead th {")[1].split("}")[0]
+    assert "text-align:center" in bas

@@ -8,7 +8,26 @@ açıkça söylüyor.
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import re
+
 import ltfj_sayfa as s
+
+
+# Serit 2026-09'da TABLOYA cevrildi: bagimsiz <div> kolonlarinda kosullu
+# satirlar (sis isareti, sinir tabakasi) satirlari yatayda KAYDIRIYORDU -
+# olcum ve gerekce icin bkz. tests/test_ltfj_sayfa_beklenti.py. Buradaki
+# testlerin NIYETI degismedi, yalnizca capalari yeni yapiya tasindi.
+def _kolon_sayisi(html: str) -> int:
+    return html.count('<th scope="col"')
+
+
+def _hucreler(html: str, etiket: str) -> list:
+    """Satir basligi `etiket` iceren satirin hucre metinleri."""
+    for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.S):
+        bas = re.search(r'<th scope="row"[^>]*>(.*?)</th>', tr, re.S)
+        if bas and etiket in re.sub(r"<[^>]+>", "", bas.group(1)):
+            return [h.strip() for h in re.findall(r"<td[^>]*>(.*?)</td>", tr, re.S)]
+    raise AssertionError(f"{etiket!r} satiri yok")
 
 
 def _satirlar(n=3):
@@ -37,7 +56,7 @@ def test_sayfa_tahmin_verilmeden_de_uretiliyor(tmp_path):
     KENDİSİNE bakılıyor - şerit yalnızca blok basıldığında üretilir."""
     hedef = tmp_path / "index.html"
     s.sayfa_yaz([], [], hedef)
-    assert 'class="tahmin-serit"' not in hedef.read_text(encoding="utf-8")
+    assert 'class="tahmin-tablo"' not in hedef.read_text(encoding="utf-8")
 
 
 # ------------------------------------------------------------ icerik
@@ -52,22 +71,22 @@ def test_kaynak_acikca_yaziyor():
 
 
 def test_her_saat_icin_bir_hucre():
-    html = s._saatlik_tahmin_html(_satirlar(n=5))
-    assert html.count('class="tahmin-hucre"') == 5
+    assert _kolon_sayisi(s._saatlik_tahmin_html(_satirlar(n=5))) == 5
 
 
 def test_spread_hesaplaniyor():
     """Spread (sıcaklık - çiy noktası) bu projedeki en güçlü öncü
     göstergeydi, şeritte başa konuyor."""
     html = s._saatlik_tahmin_html(_satirlar(n=1))   # 12 - 8 = 4.0
-    assert "4.0°" in html
+    # Birim artik SATIR BASLIGINDA (bkz. test_birim_satir_basliginda_*),
+    # hucrede ciplak sayi duruyor.
+    assert _hucreler(html, "spread") == ["4.0"]
 
 
 def test_gorus_10km_ustu_kisaltiliyor():
     """Aradaki her 100 metreyi göstermek olmayan bir hassasiyet ima eder."""
     html = s._saatlik_tahmin_html(_satirlar(n=2))
-    assert "10+ km" in html      # 12000 m
-    assert "3.0 km" in html      # 3000 m
+    assert _hucreler(html, "görüş") == ["10+", "3.0"]   # 12000 m, 3000 m
 
 
 def test_eksik_degerler_cokmeden_tire_basiliyor():
@@ -79,7 +98,8 @@ def test_eksik_degerler_cokmeden_tire_basiliyor():
 def test_bozuk_saat_damgasi_cokmuyor():
     html = s._saatlik_tahmin_html([{"saat": "bozuk", "temperature_2m": 5,
                                     "dew_point_2m": 3}])
-    assert 'class="tahmin-hucre"' in html
+    assert _kolon_sayisi(html) == 1
+    assert "—" in html      # saat cozulemedi ama kolon duruyor
 
 
 # ------------------------------------------------------------ sayfaya gomulme
@@ -89,7 +109,7 @@ def test_sayfaya_gomulunce_gorunuyor(tmp_path):
     html = hedef.read_text(encoding="utf-8")
     assert "Önümüzdeki saatler" in html
     assert "TAF değildir" in html
-    assert 'class="tahmin-serit"' in html
+    assert 'class="tahmin-tablo"' in html
 
 
 # ================================================ sis kodu + sınır tabakası
@@ -106,7 +126,8 @@ def _sisli_satir(kod=45, blh=120.0):
 def test_sis_kodunda_isaret_ve_kenarlik_var():
     html = s._saatlik_tahmin_html(_sisli_satir(kod=45))
     assert '<div class="tahmin-sis"' in html
-    assert "tahmin-hucre-sis" in html
+    # Tum kolon isaretleniyor (eskiden tek hucrenin kenarligiydi).
+    assert "tahmin-sisli" in html
 
 
 def test_kiragili_sis_kodu_48_de_isaretleniyor():
@@ -116,19 +137,23 @@ def test_kiragili_sis_kodu_48_de_isaretleniyor():
 def test_sissiz_kodda_isaret_yok():
     html = s._saatlik_tahmin_html(_sisli_satir(kod=3))
     assert '<div class="tahmin-sis"' not in html
-    assert "tahmin-hucre-sis" not in html
+    assert "tahmin-sisli" not in html
 
 
 def test_sinir_tabakasi_yuksekligi_gosteriliyor():
-    assert "120 m" in s._saatlik_tahmin_html(_sisli_satir(blh=120.0))
+    html = s._saatlik_tahmin_html(_sisli_satir(blh=120.0))
+    assert _hucreler(html, "sınır tabakası") == ["120"]
 
 
 def test_deneysel_alanlar_yoksa_serit_yine_ciziliyor():
     """En kritik test: Open-Meteo bu alanları reddederse şerit
     kaybolmamalı, sadece işaret/satır çıkmamalı."""
     html = s._saatlik_tahmin_html(_satirlar(n=3))   # weather_code/blh YOK
-    assert html.count('class="tahmin-hucre') == 3
+    assert _kolon_sayisi(html) == 3
     assert '<div class="tahmin-sis"' not in html
+    # BLH satiri hic cizilmiyor - "bu alan yok" ile "bu saatte yok"
+    # ayri seyler (bkz. test_alan_HIC_yoksa_satir_bosuna_cizilmiyor).
+    assert "sınır tabakası<span" not in html
 
 
 def test_sis_kodlari_tek_yerde_tanimli():
@@ -185,8 +210,7 @@ def test_bayat_tahmin_yine_de_GOSTERILIYOR():
     """EN KRITIK TEST: eski davranis bayat tahmini tamamen gizliyordu.
     Artik gosteriliyor, yalnizca yasi etiketleniyor - "bazen var bazen
     yok" davranisinin kaynagi buydu."""
-    html = s._saatlik_tahmin_html(_satirlar(n=4), yas_dk=300)
-    assert html.count('class="tahmin-hucre') == 4
+    assert _kolon_sayisi(s._saatlik_tahmin_html(_satirlar(n=4), yas_dk=300)) == 4
 
 
 def test_yas_sinir_sabiti_tek_yerde():

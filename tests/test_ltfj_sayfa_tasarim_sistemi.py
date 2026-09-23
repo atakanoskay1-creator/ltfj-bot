@@ -108,7 +108,9 @@ def test_tema_ezmeleri_TEKRARLANMIYOR(tmp_path):
     """Eskiden .tahmin-sis ve .notam-durum-gecmis için ayrı koyu tema
     kuralları vardı; token'la birlikte gereksizleştiler."""
     html = _sayfa(tmp_path)
-    for secici in (".tahmin-hucre-sis", ".tahmin-sis", ".notam-durum-gecmis"):
+    # .tahmin-hucre-sis -> .tahmin-sisli (serit tabloya cevrildi:
+    # artik tek hucrenin kenarligi degil tum kolonun zemini).
+    for secici in (".tahmin-sisli", ".tahmin-sis", ".notam-durum-gecmis"):
         assert html.count(secici + " {") == 1, f"{secici} birden fazla kuralda"
 
 
