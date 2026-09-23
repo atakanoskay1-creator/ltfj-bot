@@ -207,7 +207,40 @@ kalıyor.
 
 Telefonda 2×2, ≥560px'te tek sırada dört.
 
-### 11. Yazı Tipi (yazitipi/)
+### 11. LVO Paneli: Operasyonel Önce, Referans Sonra
+
+Panel **1556px**'ti — telefonda dört ekran. Sebebi ölçüldü: statik doküman
+referansı **3838 bayt**, farkındalık notları **198 bayt**. Yani referans,
+operasyonel olanın **19 katı** ve onu ekrandan aşağı itiyordu.
+
+Sıra operasyonelden referansa çevrildi ve referans **katlandı** (varsayılan
+kapalı):
+
+| | Bölüm | Kaynak |
+|---|---|---|
+| A | Farkındalık Notları | METAR/TAF/AWOS |
+| B | AWOS RVR | elle girilen |
+| C | LVO Related NOTAM | NOTAM |
+| D | Doküman Referansı *(katlı)* | statik |
+
+**1556px → 510px.** Referans açılınca tam metin aynen geliyor (1544px).
+
+**Bu, #67'de kaldırılan aç/kapa'nın geri dönüşü DEĞİL.** O, LVO panelinin
+*tamamını* gizliyordu ve sekmeyle mükerrerdi. Buradaki yalnızca panelin
+*içindeki* statik referansı katlıyor — sekme "LVO'yu göster", bu "kural
+metnini göster".
+
+### 11.1. Boş Sekme Kusuru
+
+Tahmin verisi yokken **"Beklenti" sekmesi tamamen boş açılıyordu** — tıklıyorsun,
+hiçbir şey yok, açıklama da yok.
+
+Sebep: `_beklenti_html()` veri yoksa `""` dönüyordu. Bu, bölüm **katlanır bir
+başlıkken doğruydu** (başlık hiç çizilmezdi). Sekmeye dönüşünce aynı davranış
+boş bir sekme üretti, çünkü sekme listesi sabit. Artık panel neden boş
+olduğunu söylüyor.
+
+### 12. Yazı Tipi (yazitipi/)
 
 Sayfa **IBM Plex Sans** (gövde) ve **IBM Plex Mono** (ham METAR/TAF/NOTAM kod
 blokları) kullanır. Yazı tipleri `yazitipi/` klasöründen, yani **kendi
@@ -233,7 +266,7 @@ Neden bu ikisi:
 Yazı tipleri [SIL Open Font License 1.1](https://github.com/IBM/plex/blob/master/LICENSE.txt)
 ile lisanslıdır.
 
-### 12. Sayfa Düzeni: Sekmeler
+### 13. Sayfa Düzeni: Sekmeler
 
 Sayfa **beş yatay sekmeye** bölündü: **Durum · Beklenti · İstatistik · LVO ·
 NOTAM**. Öncesinde hepsi alt alta katlanır başlıklardı ve sayfa gereksiz
@@ -298,7 +331,7 @@ Bölümler sekme içinde **ayrıca katlanmaz** — sekmeye basıp bir de başlı
 açmak iki tıklama olurdu. LVO'nun eski elle yazılmış aç/kapa mekanizması bu
 yüzden kaldırıldı.
 
-### 12.1. "İstatistik" Sekmesinin İçeriği
+### 13.1. "İstatistik" Sekmesinin İçeriği
 
 Arşivden öğrenilmiş her şey **tek katlanır başlık** altında toplandı:
 
@@ -312,7 +345,7 @@ her yerde koruyor ama istatistikler üç ayrı yere dağılmıştı. LVO panelin
 mı) — onlar ölçüm. "Beklenti" başlığında **kalan** tek şey Open-Meteo model
 tahmini.
 
-### 13. Cron Güvenilirliği (ÖNEMLİ)
+### 14. Cron Güvenilirliği (ÖNEMLİ)
 
 **GitHub zamanlanmış koşuları düşürür.** Bu depoda ölçüldü: dış kaynak
 önbelleği `:3,23,43` (20 dakikada bir) ayarlıyken 26 saatte **78 yerine 6**
@@ -356,7 +389,7 @@ curl -X POST -H "Accept: application/vnd.github+json" \
 PAT'in `repo` yetkisi olmalı. Bu isteği herhangi bir güvenilir zamanlayıcı
 (kendi sunucun, ücretsiz bir cron servisi, bir Raspberry Pi) atabilir.
 
-### 14. SPECI Boşluğu ve `gozlem_arsivi.csv`
+### 15. SPECI Boşluğu ve `gozlem_arsivi.csv`
 
 **Sorun.** Sis geçiş sürelerini (`sis_modeli/gorus_gecis.py`) hesapladığımız
 eğitim arşivi IEM ASOS'tan geliyor ve **SPECI içermiyor**. Ölçüldü: 274.907
