@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-24T02:20:53+00:00",
+ "uretildi": "2026-09-24T02:31:15+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-24T01:50:00+00:00",
-  "metin": "METAR LTFJ 240150Z 00000KT CAVOK 12/11 Q1020 NOSIG RMK RWY24R VRB01KT RWY06R VRB02KT RWY24L 14003KT",
+  "zaman": "2026-09-24T02:20:00+00:00",
+  "metin": "METAR LTFJ 240220Z 00000KT CAVOK 12/11 Q1021 NOSIG RMK RWY24R 00000KT RWY06R 00000KT RWY24L 00000KT",
   "ruzgar": {
    "yon": 0,
    "hiz": 0,
@@ -18,7 +18,7 @@
   "hava": [],
   "sicaklik": 12,
   "cig_noktasi": 11,
-  "qnh": 1020,
+  "qnh": 1021,
   "nosig": true,
   "renk": [
    "BLU",
@@ -41,16 +41,42 @@
     "kuyruk_asildi": false
    },
    {
-    "pist": "24L",
-    "yon_gercek": 244.12,
-    "bas": -0.7,
-    "yan": 2.9,
+    "pist": "06R",
+    "yon_gercek": 64.1,
+    "bas": 0.0,
+    "yan": 0.0,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
     "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
-    "kuyruk": true,
+    "kuyruk": false,
+    "kuyruk_asildi": false
+   },
+   {
+    "pist": "24L",
+    "yon_gercek": 244.12,
+    "bas": -0.0,
+    "yan": 0.0,
+    "yan_taraf": "sağdan",
+    "bas_hamle": null,
+    "yan_hamle": null,
+    "degisken": false,
+    "kaynak": "AD 2.15 anemometreleri",
+    "kuyruk": false,
+    "kuyruk_asildi": false
+   },
+   {
+    "pist": "24R",
+    "yon_gercek": 244.12,
+    "bas": -0.0,
+    "yan": 0.0,
+    "yan_taraf": "sağdan",
+    "bas_hamle": null,
+    "yan_hamle": null,
+    "degisken": false,
+    "kaynak": "AD 2.15 anemometreleri",
+    "kuyruk": false,
     "kuyruk_asildi": false
    }
   ],
@@ -62,21 +88,13 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": "Sis oluşum göstergesi: yüksek (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 1°C, rüzgâr 0 kt, gece şartları",
-  "ozet": "Rüzgâr 000° 0kt · görüş CAVOK · 12°C · QNH 1020"
+  "ozet": "Rüzgâr 000° 0kt · görüş CAVOK · 12°C · QNH 1021"
  },
  "taf": {
   "zaman": "2026-09-23T22:40:00+00:00",
   "metin": "TAF LTFJ 232240Z 2400/2424 VRB02KT CAVOK BECMG 2405/2407 23012KT SCT035 PROB40 TEMPO 2407/2411 -SHRA FEW018TCU BKN030 BECMG 2412/2416 VRB02KT CAVOK"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-18T05:20:00+00:00",
-   "ruzgar_hiz": 4,
-   "tavan": 2300,
-   "qnh": 1015,
-   "sicaklik": 19,
-   "cig_noktasi": 17
-  },
   {
    "zaman": "2026-09-18T05:50:00+00:00",
    "ruzgar_hiz": 3,
@@ -2481,6 +2499,15 @@
    "ruzgar_hiz": 0,
    "tavan": null,
    "qnh": 1020,
+   "sicaklik": 12,
+   "cig_noktasi": 11
+  },
+  {
+   "zaman": "2026-09-24T02:20:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 0,
+   "tavan": null,
+   "qnh": 1021,
    "sicaklik": 12,
    "cig_noktasi": 11
   }
