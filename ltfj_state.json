@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:53054415",
   "id:53064832",
   "id:53070896",
   "id:53079723",
@@ -199,7 +198,8 @@
   "id:54101768",
   "id:54106461",
   "id:54106871",
-  "id:54109692"
+  "id:54109692",
+  "id:54111428"
  ],
  "ilk_calisma": false,
  "son_metar": "METAR LTFJ 241050Z 10006KT 8000 -SHRA FEW020CB BKN035 16/10 Q1023 RESHRA NOSIG RMK RWY24R 12006KT 040V160 RWY06R 08007KT RWY24L 14005KT",
@@ -2645,10 +2645,10 @@
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 240850Z 24007KT 190V300 9999 SCT035 19/09 Q1022 NOSIG RMK RWY24R 21007KT 160V250 RWY06R 23007KT 190V260 RWY24L 25007KT 210V310": "**Rüzgâr:** Kuzeybatıdan 7 knot hızla esen rüzgâr, yönü 190 ile 300 derece arasında değişiyor ve pistle neredeyse hiç yan bileşen oluşturmuyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Gökyüzünün yarısından fazlası bulutlu, bulutlar yaklaşık 3500 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş açısından kısıtlayıcı bir unsur yoktur, hava durumu önümüzdeki 2 saatte önemli ölçüde değişmeyecektir.",
   "TAF LTFJ 240440Z 2406/2506 23010KT 9999 SCT035 TEMPO 2406/2410 -SHRA FEW018CB BKN030 BECMG 2413/2416 05005KT CAVOK": "**LTFJ — İstanbul Sabiha Gökçen Havalimanı Hava Tahmini**\n\n**Genel:** Güneybatı rüzgarı, görüş 10 km, 3500 ft'te dağınık bulutluluk.\n\n- **2406/2410 UTC:** Hafif yağmur, 1800 ft'te az bulut ve gök gürültülü bulut, 3000 ft'te kapalı.\n- **2413/2416 UTC:** Rüzgar kuzeyden 5 kt'ye düşüyor, görüş sınırsız, bulut yok.",
   "METAR LTFJ 240950Z VRB04KT 4800 -SHRA FEW020CB BKN035 17/11 Q1022 NOSIG RMK RWY24R 05006KT 020V080 RWY06R VRB06KT RWY24L 03008KT": "**Rüzgâr:** Rüzgâr değişken yönden 4 knot (yaklaşık 7 km/s) şiddette esiyordu.\n\n**Görüş:** Görüş mesafesi 4800 metre olup, uçuş için yeterli durumdaydı.\n\n**Gökyüzü:** Az bulutlu 2000 feet (yaklaşık 600 metre) yükseklikte fırtına bulutu, daha üstte çok bulutlu 3500 feet (yaklaşık 1050 metre) tabakası vardı; hafif sağanak yağmur gözlenmişti.\n\n**Uçuşa etkisi:** Düşük görüş (4800 m) ve fırtına bulutunun varlığı dikkat gerektiriyordu; rüzgâr şiddeti ve eğilim verilerine göre önemli kısıtlama yoktu.",
-  "TAF AMD LTFJ 241011Z 2410/2506 24010KT 9999 SCT035 BECMG 2410/2414 05009KT TEMPO 2410/2414 4000 SHRA FEW018CB BKN030 BECMG 2415/2418 CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken rüzgar ve görüş koşulları beklenmektedir.\n\n- **2410/2414 UTC:** Rüzgar 240°'den 9 knot'a düşecek; geçici olarak 4000 metre görüş, sağanak yağış ve 18 metre yükseklikte gök gürültülü bulutlar beklenmektedir.\n- **2415/2418 UTC:** Kademeli geçişle CAVOK (tam görüş ve açık hava) koşullarına ulaşılacaktır."
+  "TAF AMD LTFJ 241011Z 2410/2506 24010KT 9999 SCT035 BECMG 2410/2414 05009KT TEMPO 2410/2414 4000 SHRA FEW018CB BKN030 BECMG 2415/2418 CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken rüzgar ve görüş koşulları beklenmektedir.\n\n- **2410/2414 UTC:** Rüzgar 240°'den 9 knot'a düşecek; geçici olarak 4000 metre görüş, sağanak yağış ve 18 metre yükseklikte gök gürültülü bulutlar beklenmektedir.\n- **2415/2418 UTC:** Kademeli geçişle CAVOK (tam görüş ve açık hava) koşullarına ulaşılacaktır.",
+  "TAF LTFJ 241040Z 2412/2512 19007KT 9999 SCT035 BECMG 2412/2413 25010KT TEMPO 2412/2415 4000 SHRA FEW018CB BKN030 BECMG 2413/2415 05009KT BECMG 2415/2418 CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken rüzgar ve geçici yağış beklenmektedir.\n\n- **2412/2415 UTC:** Sağanak yağış ve gök gürültülü bulutlar ile 4000 metre görüş mesafesi; az miktarda düşük bulut (500 metre civarı) ve 3000 metre yüksekliğinde kırık bulutluluk.\n- **2415/2418 UTC:** Görüş mesafesi 10 kilometre ve üzeri, bulut yok."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3123,12 +3123,13 @@
   }
  },
  "notam_son_senkron": "2026-09-24T08:40:55+00:00",
- "guncelleme": "2026-09-24T11:01:24+00:00",
+ "guncelleme": "2026-09-24T11:10:56+00:00",
  "push_gonderilen": [
   "id:54091494",
-  "id:54101768",
-  "id:54034135",
   "id:54098411",
+  "id:54101768",
+  "id:54111428",
+  "id:54034135",
   "id:54106461"
  ]
 }
