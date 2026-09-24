@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:53178814",
   "id:53183325",
   "id:53191905",
   "id:53194663",
@@ -199,23 +198,16 @@
   "id:54211187",
   "id:54217074",
   "id:54225182",
-  "id:54227817"
+  "id:54227817",
+  "id:54236046"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 241950Z 06005KT CAVOK 14/10 Q1021 NOSIG RMK RWY24R 04003KT 010V070 RWY06R 06005KT 020V100 RWY24L VRB02KT",
+ "son_metar": "METAR LTFJ 242020Z 05004KT 010V090 CAVOK 14/10 Q1021 NOSIG RMK RWY24R 02003KT 320V070 RWY06R 04006KT RWY24L 02003KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-24T19:50:00+00:00",
+ "son_veri_zamani": "2026-09-24T20:20:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-18T23:20:00+00:00",
-   "ruzgar_hiz": 4,
-   "tavan": null,
-   "qnh": 1018,
-   "sicaklik": 16,
-   "cig_noktasi": 15
-  },
   {
    "zaman": "2026-09-18T23:50:00+00:00",
    "ruzgar_hiz": 4,
@@ -2660,13 +2652,22 @@
    "qnh": 1021,
    "sicaklik": 14,
    "cig_noktasi": 10
+  },
+  {
+   "zaman": "2026-09-24T20:20:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 4,
+   "tavan": null,
+   "qnh": 1021,
+   "sicaklik": 14,
+   "cig_noktasi": 10
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 241850Z 04006KT CAVOK 15/10 Q1022 NOSIG RMK RWY24R 03004KT RWY06R 03006KT RWY24L 02004KT 360V080": "**Rüzgâr:** Kuzeydoğudan 6 knot hızla esen hafif rüzgâr, yan bileşen çok düşük.\n\n**Görüş:** Sınırsız görüş, uçuş için görüş açısından hiçbir kısıtlama yok.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Gözlemlenen veriler operasyonel kısıtlama göstermemektedir.",
   "TAF LTFJ 241640Z 2418/2518 04004KT CAVOK BECMG 2509/2513 05014KT SCT035 BECMG 2513/2516 CAVOK BECMG 2516/2518 04004KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 24. günün 16:40 UTC'den 25. günün 18:00 UTC'ye kadar olan dönemde değişken rüzgar ve görüş koşulları beklenmektedir.\n\n- **2418/2509 UTC:** Rüzgar 040° 4 knot, görüş sınırsız.\n- **2509/2513 UTC:** Kademeli geçiş — rüzgar 050° 14 knot, 3500 feet'te dağınık bulutlar.\n- **2513/2516 UTC:** Kademeli geçiş — görüş sınırsız.\n- **2516/2518 UTC:** Kademeli geçiş — rüzgar 040° 4 knot.",
   "METAR LTFJ 241920Z 03006KT CAVOK 15/10 Q1022 NOSIG RMK RWY24R 01005KT 340V040 RWY06R 02005KT RWY24L 35004KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 6 knot hızla esen hafif rüzgâr, yan bileşen 3 knot.\n\n**Görüş:** Görüş sınırsız, uçuş için rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok.\n\n**Uçuşa etkisi:** Verideki kısıtlayıcı unsur bulunmamaktadır.",
-  "METAR LTFJ 241950Z 06005KT CAVOK 14/10 Q1021 NOSIG RMK RWY24R 04003KT 010V070 RWY06R 06005KT 020V100 RWY24L VRB02KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/s) hafif rüzgâr esiyor, yan rüzgâr bileşeni önemsizdir.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzerinde, uçuş için rahat koşullar var.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava durumu.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermemektedir, önümüzdeki 2 saatte önemli değişiklik beklenmemektedir."
+  "METAR LTFJ 241950Z 06005KT CAVOK 14/10 Q1021 NOSIG RMK RWY24R 04003KT 010V070 RWY06R 06005KT 020V100 RWY24L VRB02KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/s) hafif rüzgâr esiyor, yan rüzgâr bileşeni önemsizdir.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzerinde, uçuş için rahat koşullar var.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava durumu.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermemektedir, önümüzdeki 2 saatte önemli değişiklik beklenmemektedir.",
+  "METAR LTFJ 242020Z 05004KT 010V090 CAVOK 14/10 Q1021 NOSIG RMK RWY24R 02003KT 320V070 RWY06R 04006KT RWY24L 02003KT": "**Rüzgâr:** Kuzey-kuzeydoğu yönünden 4 knot (yaklaşık 7 km/s) hafif rüzgâr esiyorsa da yönü 10 derece ile 90 derece arasında değişkenlik gösteriyor.\n\n**Görüş:** Görüş sınırsız, uçuş için rahat koşullar var.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava durumu.\n\n**Uçuşa etkisi:** Raporlanan veriler içinde uçuşu kısıtlayan bir unsur bulunmuyor; rüzgâr hafif ve görüş iyi."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3141,6 +3142,6 @@
   }
  },
  "notam_son_senkron": "2026-09-24T14:41:03+00:00",
- "guncelleme": "2026-09-24T20:15:52+00:00",
+ "guncelleme": "2026-09-24T20:31:13+00:00",
  "push_gonderilen": []
 }
