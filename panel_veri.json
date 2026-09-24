@@ -1,6 +1,6 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-24T23:01:21+00:00",
+ "uretildi": "2026-09-24T23:15:52+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
@@ -91,8 +91,8 @@
   "ozet": "Rüzgâr 040° 6kt · görüş CAVOK · 13°C · QNH 1021"
  },
  "taf": {
-  "zaman": "2026-09-24T16:40:00+00:00",
-  "metin": "TAF LTFJ 241640Z 2418/2518 04004KT CAVOK BECMG 2509/2513 05014KT SCT035 BECMG 2513/2516 CAVOK BECMG 2516/2518 04004KT"
+  "zaman": "2026-09-24T22:40:00+00:00",
+  "metin": "TAF LTFJ 242240Z 2500/2524 03005KT CAVOK BECMG 2508/2512 04015KT FEW040 BECMG 2514/2517 04005KT CAVOK"
  },
  "gecmis": [
   {
