@@ -60,17 +60,30 @@ def test_gorus_10km_ustu_kisaltiliyor():
     assert "600 m" in s._ozet_serit_html({"gorus": 600}, None)
 
 
-def test_tavan_bildirilmiyorsa_bos_birakilmiyor():
-    """"tavan yok" ile "veri gelmedi" ayni sey degil ama ikisi de
-    kaydirmadan gorunmeli - bos hucre birakmak sessizce yaniltir."""
-    assert "tavan yok" in s._ozet_serit_html({"gorus": 9999, "tavan": None}, None)
+def test_tavan_YOK_ile_VERI_GELMEDI_ayri_yaziliyor():
+    """KURAL SIKILASTIRILDI. Serit, tavan sayisi gelmediginde KOSULSUZ
+    "tavan yok" yaziyordu - yani bozuk/kirpilmis bir raporda da ortada
+    tavan olmadigini SOYLEMIS oluyordu. Artik ayrim var:
+
+    - SCT050 okunmus: 5/8+ katman yok, tavan TANIM GEREGI yok -> "tavan yok"
+    - hicbir bulut bilgisi gelmemis: bilmiyoruz -> "—"
+
+    Ikisi de kaydirmadan GORUNUR kalir; bos hucre birakmak sessizce
+    yaniltirdi (bu kisim degismedi)."""
+    var = s._ozet_serit_html(
+        {"gorus": 9999, "tavan": None, "bulutlar": [{"ortu": "SCT", "ft": 5000}]}, None)
+    assert "tavan yok" in var
+
+    bilinmiyor = s._ozet_serit_html({"gorus": 9999, "tavan": None}, None)
+    assert "tavan yok" not in bilinmiyor
+    assert "—" in bilinmiyor
 
 
 def test_eksik_alanlar_cokmeden_tire_oluyor():
     """Kismi cozum (or. ruzgar okunmus, gerisi yok) - eksik alanlar
     "—" olur, satir yine cizilir."""
     html = s._ozet_serit_html({"ruzgar_yon": 60, "ruzgar_hiz": 4}, None)
-    assert html.count("—") == 2      # gorus + spread
+    assert html.count("—") == 3      # gorus + tavan (bilinmiyor) + spread
     assert 'class="ozet-serit"' in html
 
 

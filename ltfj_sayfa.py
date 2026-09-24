@@ -19,7 +19,8 @@ import ltfj_gorus_gecis_tablo as gecis_tablo
 import ltfj_sis_olasilik as sis_olasilik
 import ltfj_sis_olasilik_b as sis_olasilik_b
 import ltfj_vfr as vfr
-from ltfj_analiz import metar_coz, ozet_satiri, uyarilar
+from ltfj_analiz import (TAVAN_KATMANLARI, metar_coz, ozet_satiri,
+                         uyarilar)
 # Sis kodlari alanin KENDI tanimiyla ayni yerde dursun - bu oturumda
 # kopyalanmis bir sabit (NOTAM gecerlilik karari) iki yerde ayni hatayi
 # tasidi, tekrarlamayalim. ltfj_rasat zaten import edildigi icin ek bir
@@ -581,6 +582,15 @@ SABLON = """<!DOCTYPE html>
   .grafik {{ color:var(--marka); }}
   .grafik-esik {{
     stroke:var(--soluk); stroke-width:1; stroke-dasharray:4,4; opacity:.7;
+  }}
+  /* OLCUM OLMAYAN ZAMAN ARALIGI. Cizgi burada DEVAM ETMIYOR - alan bos
+     ve sinir cizgisiyle ayrilmis. rect esneyen SVG icinde durdugu icin
+     sorun degil: dikdortgen ve dikey cizgi esnemeden de dogru okunur,
+     yalnizca YAZI eziliyordu. */
+  .grafik-bosluk {{ fill:var(--soluk); opacity:.08; }}
+  .grafik-sinir {{
+    stroke:var(--soluk); stroke-width:1; stroke-dasharray:3,3; opacity:.55;
+    vector-effect:non-scaling-stroke;
   }}
   /* HTML - SVG <text> DEGIL: grafik SVG'si preserveAspectRatio="none"
      ile esniyor, icindeki yazi hem kuculuyor hem yatayda eziliyordu.
@@ -2897,19 +2907,27 @@ def _svg_cizgi(noktalar: list, renk: str, raporlanmiyor: bool = False,
 
     oranlar = [(x(z) / genislik, y(v) / yukseklik) for z, v in noktalar]
 
+    bosluk_svg = ""
     if uzatildi:
         kenar_x = x(t1)
-        ek_yol = (f'<path d="M{son_x:.1f},{son_y:.1f} L{kenar_x:.1f},{son_y:.1f}" '
-                  f'fill="none" stroke="{renk}" stroke-width="2" '
-                  f'stroke-linecap="round" stroke-dasharray="5,4"/>')
+        # CIZGI DEVAM ETMIYOR. Ilk surumde son olcumun HIZASINDA yatay
+        # kesikli bir cizgi ciziliyordu; bu, degerin surdugu izlenimini
+        # veriyordu - "tavan 3500 ft'te sabit" diye okunuyordu, oysa o
+        # olcumden beri tavan hic raporlanmadi. Artik o zaman araligi
+        # BOS: sinir cizgisiyle ayrilmis, icinde veri olmayan bir alan.
+        bosluk_svg = (
+            f'<rect class="grafik-bosluk" x="{son_x:.1f}" y="0" '
+            f'width="{max(0.0, kenar_x - son_x):.1f}" height="{yukseklik}"/>'
+            f'<line class="grafik-sinir" x1="{son_x:.1f}" y1="0" '
+            f'x2="{son_x:.1f}" y2="{yukseklik}"/>')
         nokta_svg = (f'<circle cx="{son_x:.1f}" cy="{son_y:.1f}" r="4" '
-                     f'fill="none" stroke="{renk}" stroke-width="2"/>' + ek_yol)
+                     f'fill="none" stroke="{renk}" stroke-width="2"/>')
     else:
         nokta_svg = f'<circle cx="{son_x:.1f}" cy="{son_y:.1f}" r="3" fill="{renk}"/>'
 
     svg = (f'<svg viewBox="0 0 {genislik} {yukseklik}" class="grafik" '
            f'preserveAspectRatio="none">'
-           f"{dolgu}{esik_svg}"
+           f"{dolgu}{bosluk_svg}{esik_svg}"
            f'<path d="{yol}" fill="none" stroke="{renk}" stroke-width="2" '
            f'stroke-linejoin="round" stroke-linecap="round"/>'
            f'{nokta_svg}</svg>')
@@ -2932,7 +2950,8 @@ def _en_son_kayit(gecmis: list) -> dict | None:
 
 
 def _grafik_blogu(alan: str, baslik: str, birim: str,
-                   gecmis: list, simdi: datetime, guncel: dict | None) -> str:
+                   gecmis: list, simdi: datetime, guncel: dict | None,
+                   yokluk: str | None = None) -> str:
     noktalar = _grafik_verisi(gecmis, alan, simdi)
     # guncel: gecmis'teki EN YENI kayit (zamana gore, tipi ne olursa olsun).
     # Bu kayitta alan yoksa/None ise ("tavan" icin tipik ornek: gokyuzu
@@ -2978,11 +2997,22 @@ def _grafik_blogu(alan: str, baslik: str, birim: str,
     ]
 
     if raporlanmiyor:
-        son_etiket = '<span class="grafik-son grafik-son-yok">raporlanmıyor</span>'
+        # "raporlanmiyor" ile "yok" AYNI SEY DEGIL ve kullanici icin fark
+        # buyuk: birincisi "bilgi gelmiyor", ikincisi "ortada tavan yok".
+        # Hangisi oldugunu SOYLEYEBILIYORSAK soyluyoruz (bkz.
+        # _tavan_yoklugu); soyleyemiyorsak notr kelimede kaliyoruz.
+        if yokluk == "yok":
+            rozet, kuyruk = "tavan yok", "o zamandan beri 5/8+ katman (BKN/OVC/VV) yok"
+        elif yokluk == "yukseklik_yok":
+            rozet, kuyruk = ("yükseklik bildirilmedi",
+                             "katman var ama yüksekliği bildirilmedi (BKN///)")
+        else:
+            rozet, kuyruk = "raporlanmıyor", "o zamandan beri raporlanmıyor"
+        son_etiket = f'<span class="grafik-son grafik-son-yok">{rozet}</span>'
         durum_notu = (
             f'<div class="grafik-durum-notu">Son ölçüm: {son_deger:.0f} '
-            f'{html.escape(birim)} · {_zaman_metni(noktalar[-1][0])} — o zamandan '
-            f'beri raporlanmıyor.</div>'
+            f'{html.escape(birim)} · {_zaman_metni(noktalar[-1][0])} — {kuyruk}.'
+            f'</div>'
         )
     else:
         son_etiket = f'<span class="grafik-son">{son_deger:.0f} {html.escape(birim)}</span>'
@@ -3012,12 +3042,33 @@ def _grafik_blogu(alan: str, baslik: str, birim: str,
     )
 
 
-def _trend_bolumu(gecmis: list) -> str:
+def _ayni_gozlem(kayit: dict | None, zaman: datetime | None) -> bool:
+    """Olcum gecmisindeki kayit ile guncel raporun AYNI gozlem olup
+    olmadigi (dakika hassasiyetinde)."""
+    if kayit is None or zaman is None:
+        return False
+    try:
+        k = datetime.fromisoformat(kayit["zaman"])
+    except (KeyError, ValueError, TypeError):
+        return False
+    return abs((k - zaman).total_seconds()) <= 60
+
+
+def _trend_bolumu(gecmis: list, tavan_yoklugu: str | None = None,
+                  gozlem_zamani: datetime | None = None) -> str:
     if not gecmis:
         return ""
     simdi = datetime.now(timezone.utc)
     guncel = _en_son_kayit(gecmis)
-    bloklar = [_grafik_blogu(alan, baslik, birim, gecmis, simdi, guncel)
+    # tavan_yoklugu GUNCEL RAPORDAN cikarildi; grafikteki "raporlanmiyor"
+    # ise olcum gecmisinin EN SON KAYDINA bakiyor. Normalde ayni gozlem,
+    # ama ayni degillerse (gecmis bir tur geride kalmissa) rapordan gelen
+    # cumleyi baska bir gozlemin uzerine yazmis olurduk - o yuzden
+    # eslesmiyorsa notr kelimeye donuluyor.
+    if tavan_yoklugu and not _ayni_gozlem(guncel, gozlem_zamani):
+        tavan_yoklugu = None
+    bloklar = [_grafik_blogu(alan, baslik, birim, gecmis, simdi, guncel,
+                             tavan_yoklugu if alan == "tavan" else None)
                for alan, baslik, birim in GRAFIKLER]
     bloklar = [b for b in bloklar if b]
     if not bloklar:
@@ -3339,7 +3390,14 @@ def _vfr_sekmesi_html(guncel_cozum: dict | None) -> str:
         '<div class="vfr-panel">'
         '<div class="vfr-panel-ust">'
         f'<h3><span class="vfr-nokta {nokta}"></span>{html.escape(baslik)}</h3>'
-        '<button type="button" id="vfr-panel-kapat" class="atc-panel-kapat" aria-label="Kapat">{ikon_kapat}</button>'
+        # f-STRING OLMAK ZORUNDA: bu satir duz string oldugu icin
+        # {ikon_kapat} sayfaya OLDUGU GIBI basiliyordu - VFR panelini
+        # acan kullanici kapatma ikonu yerine "{ikon_kapat}" yazisi
+        # goruyordu. Sayfa govdesi .format() ile kuruluyor ama format
+        # DEGERLERIN ICINE GIRMEZ, bu HTML de bir deger olarak
+        # gecirildigi icin yer tutucu hic doldurulmuyordu.
+        f'<button type="button" id="vfr-panel-kapat" class="atc-panel-kapat" '
+        f'aria-label="Kapat">{ikon("kapat")}</button>'
         '</div>'
         f'<ul>{sebep_html}</ul>'
         f'<div class="vfr-esik">Eşik: görüş ≥ {vfr.VFR_GORUS_ESIGI_M} m, '
@@ -3405,6 +3463,37 @@ def _kivilcim(gecmis: list, alan: str, simdi: datetime) -> str:
     return svg.replace("<svg ", '<svg class="hero-kivilcim" aria-hidden="true" ', 1)
 
 
+def _tavan_yoklugu(cozum: dict | None) -> str | None:
+    """Tavan SAYISI yokken bunun ne demek oldugunu soyleyebiliyor muyuz?
+
+    "yok"            - METAR'da hic BKN/OVC/VV katmani yok. Bu bir tahmin
+                       degil, tavanin TANIMI: tavan en alcak 5/8+ katmanin
+                       tabanidir; katman yoksa tavan da yoktur.
+    "yukseklik_yok"  - Katman VAR ama yuksekligi bildirilmemis (BKN///).
+                       Burada "tavan yok" demek YANLIS bir operasyonel
+                       ifade olurdu: tavan vardir, yuksekligi bilinmiyor.
+    None             - Soyleyemiyoruz (cozum yok, ya da "bulutlar"
+                       anahtari hic gelmemis - yani bulut gruplarini
+                       gormemisiz demektir; bos LISTE ise gordugumuz ve
+                       katman olmadigi anlamina gelir).
+    """
+    if cozum is None:
+        return None
+    bulutlar = cozum.get("bulutlar") or []
+    katmanlar = [b for b in bulutlar if b.get("ortu") in TAVAN_KATMANLARI]
+    if katmanlar:
+        # Katman var: sayisi yoksa yuksekligi bildirilmemistir (BKN///).
+        return "yukseklik_yok" if all(b.get("ft") is None for b in katmanlar) else None
+    # OLUMLU BIR ISARET SART. Bulut grubunun listede olmamasi tek basina
+    # "tavan yok" demek DEGIL - bozuk/kirpilmis bir raporda da liste bos
+    # kalir (ornek: "LTFJ 231420Z /////KT //// // Q////"). Bu yuzden ya
+    # gercekten okunmus bir katman (FEW/SCT) ya da "bulut yok" diyen bir
+    # kod (NSC/NCD/SKC/CLR, CAVOK) aranıyor.
+    if bulutlar or cozum.get("bulut_yok") or cozum.get("cavok"):
+        return "yok"
+    return None
+
+
 def _olcu(cozum: dict, anahtar: str) -> tuple[str, str]:
     """Dort ana olcunun (deger, birim) bicimi - TEK KAYNAK.
 
@@ -3435,7 +3524,14 @@ def _olcu(cozum: dict, anahtar: str) -> tuple[str, str]:
         return (f"{m / 1000:g}", "km") if m >= 1000 else (f"{m:g}", "m")
     if anahtar == "tavan":
         t = cozum.get("tavan")
-        return ("bildirilmedi", "") if t is None else (f"{t:g}", "ft")
+        if t is not None:
+            return (f"{t:g}", "ft")
+        # "bildirilmedi" ile "yok" AYNI SEY DEGIL. METAR'da hic BKN/OVC
+        # katmani yoksa tavan tanim geregi YOKTUR; bunu "bildirilmedi"
+        # diye yazmak, bilgi eksikligi varmis gibi okutuyordu. Ama
+        # katman varken yuksekligi bildirilmemisse (BKN///) "yok" demek
+        # yanlis olur - o durumda "bildirilmedi" dogru kelime.
+        return ("yok", "") if _tavan_yoklugu(cozum) == "yok" else ("bildirilmedi", "")
     if anahtar == "_ruzgar":
         yon, hiz = cozum.get("ruzgar_yon"), cozum.get("ruzgar_hiz")
         if hiz is None:
@@ -4034,7 +4130,18 @@ def _ozet_serit_html(cozum: dict | None, notlar: dict | None) -> str:
     def _kisa(anahtar, on=""):
         deger, birim = _olcu(cozum, anahtar)
         if deger == "bildirilmedi":
-            return {"tavan": "tavan yok"}.get(anahtar, "—")
+            # BURADA ESKIDEN tavan icin KOSULSUZ "tavan yok" yaziliyordu.
+            # Ama "sayi gelmedi" ile "tavan yok" ayni sey degil: bozuk ya
+            # da kirpilmis bir raporda da sayi gelmez ve serit, ortada
+            # tavan olmadigini SOYLEMIS olurdu. Artik bu ayrimi _olcu
+            # yapiyor (bkz. _tavan_yoklugu); buraya dusen sey gercekten
+            # "bilmiyoruz" demek.
+            return "—"
+        if anahtar == "tavan" and deger == "yok":
+            # Seritte GORUNUR ETIKET yok (sadece title), o yuzden deger
+            # kendini anlatmak zorunda. Hero'da ustunde "TAVAN" yaziyor,
+            # orada sade "yok" dogru okunuyor.
+            return "tavan yok"
         # Spread'de birim YAZILMIYOR: "Δ" zaten farki anlatiyor ve
         # serit dar ekranda tek satirda kalmali.
         if on:
@@ -4216,13 +4323,17 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
     # SIRA: once GUNCEL raporlar, sonra GECMIS egilim. Trend bolumu
     # eskiden en ustteydi, yani 6 saatlik gecmis su anki gozlemden once
     # okunuyordu.
-    govde = (("".join(_kart(r, yorum_onbellegi, gecmis, simdi) for r in sirali)
-              or "<div class='kart'>Rapor yok.</div>")
-             + _trend_bolumu(gecmis))
-    icao = raporlar[0].get("icao", "LTFJ") if raporlar else "LTFJ"
-
+    # GUNCEL RAPOR GOVDEDEN ONCE cozuluyor: trend bolumu, tavan sayisi
+    # yokken "tavan yok" mu yoksa "raporlanmiyor" mu yazacagini buna
+    # bakarak seciyor (bkz. _tavan_yoklugu).
     guncel_rapor = next((r for r in sirali if r["tip"] in ("METAR", "SPECI")), None)
     guncel_cozum = metar_coz(guncel_rapor["metin"]) if guncel_rapor else None
+
+    govde = (("".join(_kart(r, yorum_onbellegi, gecmis, simdi) for r in sirali)
+              or "<div class='kart'>Rapor yok.</div>")
+             + _trend_bolumu(gecmis, _tavan_yoklugu(guncel_cozum),
+                             guncel_rapor.get("zaman") if guncel_rapor else None))
+    icao = raporlar[0].get("icao", "LTFJ") if raporlar else "LTFJ"
     # Ust seritteki renk rozeti kartlarla AYNI hesaptan gelsin diye
     # havacilik_notlari burada bir kez daha cagriliyor (saf fonksiyon,
     # ag/dosya erisimi yok); rozetin karttakinden sessizce sapmamasi icin.
