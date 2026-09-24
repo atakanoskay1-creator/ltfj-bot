@@ -1,19 +1,16 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-24T20:45:56+00:00",
+ "uretildi": "2026-09-24T21:01:24+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-24T20:20:00+00:00",
-  "metin": "METAR LTFJ 242020Z 05004KT 010V090 CAVOK 14/10 Q1021 NOSIG RMK RWY24R 02003KT 320V070 RWY06R 04006KT RWY24L 02003KT",
+  "zaman": "2026-09-24T20:50:00+00:00",
+  "metin": "METAR LTFJ 242050Z VRB02KT CAVOK 14/10 Q1021 NOSIG RMK RWY24R 35005KT 340V040 RWY06R 02004KT 360V070 RWY24L 36004KT",
   "ruzgar": {
-   "yon": 50,
-   "hiz": 4,
+   "yon": null,
+   "hiz": 2,
    "hamle": null,
-   "degisken": [
-    10,
-    90
-   ]
+   "degisken": null
   },
   "gorus": 10000,
   "cavok": true,
@@ -31,27 +28,14 @@
   "dikkat": [],
   "pistler": [
    {
-    "pist": "06L",
+    "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 3.9,
-    "yan": 1.0,
+    "bas": 2.9,
+    "yan": 2.8,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
     "degisken": true,
-    "kaynak": "alan rüzgârından",
-    "kuyruk": false,
-    "kuyruk_asildi": false
-   },
-   {
-    "pist": "06R",
-    "yon_gercek": 64.1,
-    "bas": 5.5,
-    "yan": 2.4,
-    "yan_taraf": "soldan",
-    "bas_hamle": null,
-    "yan_hamle": null,
-    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -59,8 +43,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -2.2,
-    "yan": 2.1,
+    "bas": -1.7,
+    "yan": 3.6,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -72,8 +56,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -2.2,
-    "yan": 2.1,
+    "bas": -1.4,
+    "yan": 4.8,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -91,21 +75,13 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 050° 4kt (değişken 010°–090°) · görüş CAVOK · 14°C · QNH 1021"
+  "ozet": "Rüzgâr değişken 2kt · görüş CAVOK · 14°C · QNH 1021"
  },
  "taf": {
   "zaman": "2026-09-24T16:40:00+00:00",
   "metin": "TAF LTFJ 241640Z 2418/2518 04004KT CAVOK BECMG 2509/2513 05014KT SCT035 BECMG 2513/2516 CAVOK BECMG 2516/2518 04004KT"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-18T23:50:00+00:00",
-   "ruzgar_hiz": 4,
-   "tavan": null,
-   "qnh": 1018,
-   "sicaklik": 16,
-   "cig_noktasi": 15
-  },
   {
    "zaman": "2026-09-19T00:20:00+00:00",
    "ruzgar_hiz": 4,
@@ -2547,6 +2523,15 @@
    "zaman": "2026-09-24T20:20:00+00:00",
    "gorus": 10000,
    "ruzgar_hiz": 4,
+   "tavan": null,
+   "qnh": 1021,
+   "sicaklik": 14,
+   "cig_noktasi": 10
+  },
+  {
+   "zaman": "2026-09-24T20:50:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 2,
    "tavan": null,
    "qnh": 1021,
    "sicaklik": 14,
