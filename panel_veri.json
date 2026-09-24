@@ -1,13 +1,13 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-24T17:45:54+00:00",
+ "uretildi": "2026-09-24T18:01:22+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-24T17:20:00+00:00",
-  "metin": "METAR LTFJ 241720Z 05006KT CAVOK 16/11 Q1022 NOSIG RMK RWY24R 02004KT 350V050 RWY06R 04007KT RWY24L 06005KT",
+  "zaman": "2026-09-24T17:50:00+00:00",
+  "metin": "METAR LTFJ 241750Z 03006KT CAVOK 15/10 Q1022 NOSIG RMK RWY24R 35004KT 320V050 RWY06R 02007KT RWY24L 02003KT",
   "ruzgar": {
-   "yon": 50,
+   "yon": 30,
    "hiz": 6,
    "hamle": null,
    "degisken": null
@@ -16,8 +16,8 @@
   "cavok": true,
   "tavan": null,
   "hava": [],
-  "sicaklik": 16,
-  "cig_noktasi": 11,
+  "sicaklik": 15,
+  "cig_noktasi": 10,
   "qnh": 1022,
   "nosig": true,
   "renk": [
@@ -30,8 +30,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 5.8,
-    "yan": 1.5,
+    "bas": 5.0,
+    "yan": 3.4,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -43,8 +43,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 6.4,
-    "yan": 2.9,
+    "bas": 5.0,
+    "yan": 4.9,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -56,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -5.0,
-    "yan": 0.4,
+    "bas": -2.2,
+    "yan": 2.1,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -69,8 +69,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -2.9,
-    "yan": 2.8,
+    "bas": -1.1,
+    "yan": 3.8,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -88,21 +88,13 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 050° 6kt · görüş CAVOK · 16°C · QNH 1022"
+  "ozet": "Rüzgâr 030° 6kt · görüş CAVOK · 15°C · QNH 1022"
  },
  "taf": {
   "zaman": "2026-09-24T16:40:00+00:00",
   "metin": "TAF LTFJ 241640Z 2418/2518 04004KT CAVOK BECMG 2509/2513 05014KT SCT035 BECMG 2513/2516 CAVOK BECMG 2516/2518 04004KT"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-18T20:50:00+00:00",
-   "ruzgar_hiz": 4,
-   "tavan": null,
-   "qnh": 1018,
-   "sicaklik": 18,
-   "cig_noktasi": 16
-  },
   {
    "zaman": "2026-09-18T21:20:00+00:00",
    "ruzgar_hiz": 4,
@@ -2542,6 +2534,15 @@
    "qnh": 1022,
    "sicaklik": 16,
    "cig_noktasi": 11
+  },
+  {
+   "zaman": "2026-09-24T17:50:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 6,
+   "tavan": null,
+   "qnh": 1022,
+   "sicaklik": 15,
+   "cig_noktasi": 10
   }
  ]
 }
