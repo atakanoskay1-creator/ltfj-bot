@@ -249,9 +249,24 @@ def test_BESINCI_tazelik_durumu_var(tmp_path):
         assert f'"{metin}"' in html_metin, metin
 
 
-def test_beklenen_esik_KADANSTAN_turuyor():
-    """30 dk kadans + ~5 dk MGM gecikmesi = ~35 dk."""
-    assert ltfj_ayarlar.GOZLEM_BEKLENEN_DK == 35
+def test_beklenen_esik_OLCULEN_tepenin_USTUNDE():
+    """DÜZELTİLDİ — ilk sürüm 35'ti ve yanlış alarm üretiyordu.
+
+    Eşiği teorik kadanstan (30 + ~5 gecikme) kurmuştum, ama 35 normal
+    değerin ÜSTÜ değil TAM KENDİSİydi. Git geçmişinden ölçülen gerçek
+    dağılım (150 bot koşusu, sayfanın üretildiği andaki yaş):
+
+        min 6 · medyan 21 · %75 31 · %99 31 · MAX 33 dk
+
+    Üstelik sayfa kendini yenilemiyor, durum istemcide her 15 saniyede
+    yeniden hesaplanıyor - açık bırakılan sayfada yaş büyümeye devam
+    ediyor. 2 dakikalık pay her döngüde "1 GÖZLEM KAÇTI" demekti.
+
+    Bu test eşiğin ÖLÇÜLEN TEPEYE pay bırakmasını zorunlu kılıyor;
+    sayının kendisini değil."""
+    OLCULEN_TEPE_DK = 33          # 150 kosu, git gecmisinden
+    assert ltfj_ayarlar.GOZLEM_BEKLENEN_DK >= OLCULEN_TEPE_DK + 15, (
+        "esik olculen tepeye yeterli pay birakmiyor - yanlis alarm uretir")
     assert ltfj_ayarlar.GOZLEM_BEKLENEN_DK < ltfj_ayarlar.GOZLEM_TAZE_DK
     assert ltfj_ayarlar.GOZLEM_TAZE_DK < ltfj_ayarlar.SESSIZLIK_SAAT * 60
 
