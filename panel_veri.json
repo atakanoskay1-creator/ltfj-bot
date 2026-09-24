@@ -1,18 +1,18 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-24T07:21:01+00:00",
+ "uretildi": "2026-09-24T07:31:12+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-24T06:50:00+00:00",
-  "metin": "METAR LTFJ 240650Z 17005KT 130V210 9999 FEW035 SCT180 17/12 Q1022 NOSIG RMK RWY24R 17005KT 110V210 RWY06R 14005KT RWY24L 20004KT 160V260",
+  "zaman": "2026-09-24T07:20:00+00:00",
+  "metin": "METAR LTFJ 240720Z 17005KT 130V190 9999 FEW035 SCT180 17/12 Q1022 NOSIG RMK RWY24R 16006KT 080V210 RWY06R 16007KT RWY24L 16006KT 110V210",
   "ruzgar": {
    "yon": 170,
    "hiz": 5,
    "hamle": null,
    "degisken": [
     130,
-    210
+    190
    ]
   },
   "gorus": 9999,
@@ -46,21 +46,21 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 1.2,
-    "yan": 4.8,
+    "bas": -0.7,
+    "yan": 7.0,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
     "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
-    "kuyruk": false,
+    "kuyruk": true,
     "kuyruk_asildi": false
    },
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": 2.9,
-    "yan": 2.8,
+    "bas": 0.6,
+    "yan": 6.0,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -72,8 +72,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": 1.4,
-    "yan": 4.8,
+    "bas": 0.6,
+    "yan": 6.0,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -85,27 +85,19 @@
   ],
   "kuyruk_limiti": 10,
   "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi",
-  "tercih_pist": "24L",
+  "tercih_pist": "24R",
   "rvr": [],
   "prs": [],
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 170° 5kt (değişken 130°–210°) · görüş 10+ km · 17°C · QNH 1022"
+  "ozet": "Rüzgâr 170° 5kt (değişken 130°–190°) · görüş 10+ km · 17°C · QNH 1022"
  },
  "taf": {
   "zaman": "2026-09-24T04:40:00+00:00",
   "metin": "TAF LTFJ 240440Z 2406/2506 23010KT 9999 SCT035 TEMPO 2406/2410 -SHRA FEW018CB BKN030 BECMG 2413/2416 05005KT CAVOK"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-18T09:37:00+00:00",
-   "ruzgar_hiz": 18,
-   "tavan": 2200,
-   "qnh": 1016,
-   "sicaklik": 19,
-   "cig_noktasi": 18
-  },
   {
    "zaman": "2026-09-18T09:50:00+00:00",
    "ruzgar_hiz": 15,
@@ -2516,6 +2508,15 @@
   },
   {
    "zaman": "2026-09-24T06:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 5,
+   "tavan": null,
+   "qnh": 1022,
+   "sicaklik": 17,
+   "cig_noktasi": 12
+  },
+  {
+   "zaman": "2026-09-24T07:20:00+00:00",
    "gorus": 9999,
    "ruzgar_hiz": 5,
    "tavan": null,
