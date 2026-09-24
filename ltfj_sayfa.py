@@ -1353,6 +1353,59 @@ window.ltfjGecenSure = function (ms) {{
          + '<circle cx="12" cy="12" r="5"/></svg>';
   }}
 
+  // ACIK SEKME BAYATLIGI - kullanici bildirdi (iPad'de sayfa acik).
+  //
+  // Gozlem damgasi (data-gozlem) HTML'e GOMULU; yas her 15 saniyede
+  // ISTEMCIDE yeniden hesaplaniyor. Sayfa kendini yenilemedigi icin
+  // sekme acik durdukca yas buyuyor, SUNUCUDAKI veri taze olsa bile.
+  //
+  // Olculdu - sayfayi 12:00'de acinca:
+  //   12:20  sekmede 12:00 gozlemi, rozet CANLI  (gercek guncel 12:20)
+  //   12:45  sekmede 12:00 gozlemi, rozet CANLI  (gercek guncel 12:20)
+  //   12:51  yas 51 dk -> "1 GOZLEM KACTI"
+  // Yani once 45 DAKIKALIK BIR METAR "CANLI" diye gosteriliyor (sessiz
+  // ve yanlis), sonra da yanlis alarm veriliyor. Ikisi de kotu.
+  //
+  // COZUM: kadansa yakin araliklarla SUNUCUYA BAK, ama YALNIZCA GOZLEM
+  // DEGISTIYSE yeniden yukle. Kor bir zamanlayiciyla her N dakikada
+  // yeniden yuklemek, degismemis veri icin kullanicinin yazdigi LVO RVR
+  // degerlerini bosuna silerdi (sekme secimi localStorage'da, o kaliyor).
+  var KONTROL_MS = 300000;            // 5 dk - METAR kadansinin altinda
+  var kontrolBekliyor = false;
+
+  function yenilemeGuvenli() {{
+    // Kullanici YAZIYORSA yeniden yukleme: LVO RVR girdileri kalici
+    // degil, silinirdi.
+    var odak = document.activeElement;
+    if (odak && /^(INPUT|TEXTAREA|SELECT)$/.test(odak.tagName)) {{ return false; }}
+    // Acik bir panel/modal varken de yukleme - kullanici onun icinde.
+    var ortuler = document.querySelectorAll(".atc-panel-ortu, .vfr-panel-ortu");
+    for (var i = 0; i < ortuler.length; i++) {{
+      if (!ortuler[i].hasAttribute("hidden")) {{ return false; }}
+    }}
+    return true;
+  }}
+
+  function yeniVeriVarMi() {{
+    if (kontrolBekliyor || document.hidden || !window.fetch) {{ return; }}
+    var simdikiGozlem = durumEl ? durumEl.getAttribute("data-gozlem") : null;
+    if (!simdikiGozlem) {{ return; }}
+    kontrolBekliyor = true;
+    fetch(window.location.pathname + "?_=" + Date.now(), {{cache: "no-store"}})
+      .then(function (y) {{ return y.ok ? y.text() : null; }})
+      .then(function (metin) {{
+        kontrolBekliyor = false;
+        if (!metin) {{ return; }}
+        var m = metin.match(/id="ust-durum" data-gozlem="([^"]*)"/);
+        // Damga AYNIYSA yeniden yukleme yok: bayatlik gercek, rozet
+        // onu durustce zaten soyluyor.
+        if (!m || m[1] === simdikiGozlem || !m[1]) {{ return; }}
+        if (!yenilemeGuvenli()) {{ return; }}
+        window.location.replace(window.location.pathname + "?_=" + Date.now());
+      }})
+      .catch(function () {{ kontrolBekliyor = false; }});   // cevrimdisi: sessiz
+  }}
+
   function durumTazele() {{
     if (saatEl) {{
       var d = new Date();
@@ -1361,7 +1414,8 @@ window.ltfjGecenSure = function (ms) {{
         String(d.getUTCMinutes()).padStart(2, "0") + "Z";
     }}
     if (!durumEl) {{ return; }}
-    var dk = yasDk(durumEl.getAttribute("data-gozlem"));
+    var gozlem = durumEl.getAttribute("data-gozlem");
+    var dk = yasDk(gozlem);
     var sinif, metin;
     if (dk === null) {{ sinif = "kesinti"; metin = "VERİ YOK"; }}
     else if (dk <= BEKLENEN_DK) {{ sinif = "taze"; metin = "CANLI"; }}
@@ -1393,11 +1447,14 @@ window.ltfjGecenSure = function (ms) {{
 
   function hepsi() {{ durumTazele(); yaslariTazele(); }}
   hepsi();
+  // Kadans kontrolu: 5 dakikada bir sunucuya bak. Sekme arkada iken
+  // atlaniyor (pil), one gelince hemen bir kez bakiliyor.
+  setInterval(yeniVeriVarMi, KONTROL_MS);
   // 15 sn: dakika degisimini kacirmayacak kadar sik, saniye saymayacak
   // kadar seyrek - surekli hareket operasyonel ekranda gurultudur.
   setInterval(hepsi, 15000);
   document.addEventListener("visibilitychange", function () {{
-    if (!document.hidden) {{ hepsi(); }}
+    if (!document.hidden) {{ hepsi(); yeniVeriVarMi(); }}
   }});
 }})();
 

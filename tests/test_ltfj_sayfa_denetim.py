@@ -315,3 +315,62 @@ def test_HAM_METAR_damgasina_dokunulmadi(tmp_path):
     """231920Z rapor metninin KENDISI - bizim biçimimiz değil."""
     html_metin = _sayfa(tmp_path)
     assert "231920Z" in html_metin
+
+
+# ====================================== açık sekme bayatlığı (kullanıcı bildirdi)
+def test_acik_sekme_SUNUCUYA_bakiyor(tmp_path):
+    """KULLANICI BİLDİRDİ: iPad'de sayfa açık bırakılınca rozet bozuluyordu.
+
+    Sebep: gözlem damgası HTML'e gömülü, sayfa kendini yenilemiyor, yaş
+    her 15 saniyede istemcide yeniden hesaplanıyor. Ölçüldü - sayfayı
+    12:00'de açınca:
+
+        12:20  sekmede 12:00 gözlemi, rozet CANLI  (gerçek güncel 12:20)
+        12:45  sekmede 12:00 gözlemi, rozet CANLI  (gerçek güncel 12:20)
+        12:51  yaş 51 dk -> "1 GÖZLEM KAÇTI"
+
+    Yani önce 45 DAKİKALIK bir METAR "CANLI" diye gösteriliyordu -
+    sessiz ve yanlış - sonra da yanlış alarm veriliyordu."""
+    html_metin = _sayfa(tmp_path)
+    assert "function yeniVeriVarMi" in html_metin
+    js = html_metin.split("function yeniVeriVarMi")[1].split("function durumTazele")[0]
+    assert "fetch(" in js and 'cache: "no-store"' in js
+
+
+def test_YALNIZCA_gozlem_degistiyse_yeniden_yukluyor(tmp_path):
+    """Kör bir zamanlayıcıyla her N dakikada yeniden yüklemek,
+    değişmemiş veri için kullanıcının yazdığı LVO RVR değerlerini boşuna
+    silerdi (sekme seçimi localStorage'da, o kalıyor)."""
+    html_metin = _sayfa(tmp_path)
+    js = html_metin.split("function yeniVeriVarMi")[1].split("function durumTazele")[0]
+    assert "m[1] === simdikiGozlem" in js, "damga karsilastirmasi yok"
+    # Karsilastirma, yeniden yuklemeden ONCE gelmeli.
+    assert js.index("m[1] === simdikiGozlem") < js.index("location.replace")
+
+
+def test_kullanici_YAZIYORKEN_yeniden_yuklemiyor(tmp_path):
+    """LVO RVR girdileri kalıcı değil - yazarken yüklense silinirdi."""
+    html_metin = _sayfa(tmp_path)
+    js = html_metin.split("function yenilemeGuvenli")[1].split("function yeniVeriVarMi")[0]
+    assert "activeElement" in js
+    assert "INPUT|TEXTAREA|SELECT" in js
+    # Acik panel/modal varken de yuklenmemeli.
+    assert "atc-panel-ortu" in js and "vfr-panel-ortu" in js
+
+
+def test_kontrol_araligi_METAR_kadansinin_ALTINDA(tmp_path):
+    """30 dk kadanslı veriyi 30 dk'dan seyrek yoklamak, yeni METAR'ı bir
+    tur kaçırmak demek olurdu."""
+    html_metin = _sayfa(tmp_path)
+    ms = int(re.search(r"var KONTROL_MS = (\d+);", html_metin).group(1))
+    assert 0 < ms / 60000 < 30, f"{ms / 60000} dk"
+    assert "setInterval(yeniVeriVarMi" in html_metin
+
+
+def test_arka_plandayken_yoklamiyor(tmp_path):
+    """Sekme arkadayken ağ/pil harcamasın; öne gelince hemen baksın."""
+    html_metin = _sayfa(tmp_path)
+    js = html_metin.split("function yeniVeriVarMi")[1].split("function durumTazele")[0]
+    assert "document.hidden" in js
+    gorunurluk = html_metin.split('addEventListener("visibilitychange"')[1][:200]
+    assert "yeniVeriVarMi()" in gorunurluk
