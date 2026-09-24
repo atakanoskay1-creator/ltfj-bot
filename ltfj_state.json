@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:53030168",
   "id:53038078",
   "id:53040616",
   "id:53042612",
@@ -199,23 +198,16 @@
   "id:54082598",
   "id:54085516",
   "id:54091494",
-  "id:54093936"
+  "id:54093936",
+  "id:54098411"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 240920Z 23008KT 170V260 9999 FEW020CB BKN035 19/10 Q1022 NOSIG RMK RWY24R VRB07KT RWY06R 20008KT 170V260 RWY24L 21008KT",
+ "son_metar": "METAR LTFJ 240950Z VRB04KT 4800 -SHRA FEW020CB BKN035 17/11 Q1022 NOSIG RMK RWY24R 05006KT 020V080 RWY06R VRB06KT RWY24L 03008KT",
  "son_uyari": null,
- "son_renk": "BLU",
+ "son_renk": "GRN",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-24T09:20:00+00:00",
+ "son_veri_zamani": "2026-09-24T09:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-18T12:20:00+00:00",
-   "ruzgar_hiz": 10,
-   "tavan": 2200,
-   "qnh": 1016,
-   "sicaklik": 20,
-   "cig_noktasi": 18
-  },
   {
    "zaman": "2026-09-18T12:50:00+00:00",
    "ruzgar_hiz": 10,
@@ -2638,13 +2630,22 @@
    "qnh": 1022,
    "sicaklik": 19,
    "cig_noktasi": 10
+  },
+  {
+   "zaman": "2026-09-24T09:50:00+00:00",
+   "gorus": 4800,
+   "ruzgar_hiz": 4,
+   "tavan": 3500,
+   "qnh": 1022,
+   "sicaklik": 17,
+   "cig_noktasi": 11
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 240750Z 19005KT 140V230 9999 FEW035 SCT180 18/11 Q1022 NOSIG RMK RWY24R 19004KT 090V260 RWY06R VRB04KT RWY24L VRB04KT": "**Rüzgâr:** Kuzey-kuzeybatıdan 5 knot hızla esiyor, yönü 140 ile 230 derece arasında değişiyor ve pistle yan rüzgâr bileşeni 4 knot.\n\n**Görüş:** 10 kilometre ve daha fazla görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, 3500 feet yükseklikte az miktarda bulut; 18000 feet yükseklikte parçalı bulutluluk; yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları uçuş için uygun.",
   "METAR LTFJ 240820Z 24007KT 170V290 9999 SCT035 19/10 Q1022 NOSIG RMK RWY24R VRB06KT RWY06R 21005KT 180V270 RWY24L 22006KT 160V250": "**Rüzgâr:** Batı-kuzeybatı yönünden 7 knot hızla esiyordu, yönü 170 ile 290 derece arasında değişiyordu.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede görüş vardı, uçuş için rahat koşullar sağlıyordu.\n\n**Gökyüzü:** Gökyüzünün yaklaşık yarısı 3500 feet (1050 metre) yüksekliğinde parçalı bulutlarla kaplıydı, yağış yoktu.\n\n**Uçuşa etkisi:** Rüzgâr hafif, görüş iyi ve hava olayı olmadığı için rapor döneminde kısıtlayıcı unsur yoktu.",
   "METAR LTFJ 240850Z 24007KT 190V300 9999 SCT035 19/09 Q1022 NOSIG RMK RWY24R 21007KT 160V250 RWY06R 23007KT 190V260 RWY24L 25007KT 210V310": "**Rüzgâr:** Kuzeybatıdan 7 knot hızla esen rüzgâr, yönü 190 ile 300 derece arasında değişiyor ve pistle neredeyse hiç yan bileşen oluşturmuyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Gökyüzünün yarısından fazlası bulutlu, bulutlar yaklaşık 3500 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş açısından kısıtlayıcı bir unsur yoktur, hava durumu önümüzdeki 2 saatte önemli ölçüde değişmeyecektir.",
-  "TAF LTFJ 240440Z 2406/2506 23010KT 9999 SCT035 TEMPO 2406/2410 -SHRA FEW018CB BKN030 BECMG 2413/2416 05005KT CAVOK": "**LTFJ — İstanbul Sabiha Gökçen Havalimanı Hava Tahmini**\n\n**Genel:** Güneybatı rüzgarı, görüş 10 km, 3500 ft'te dağınık bulutluluk.\n\n- **2406/2410 UTC:** Hafif yağmur, 1800 ft'te az bulut ve gök gürültülü bulut, 3000 ft'te kapalı.\n- **2413/2416 UTC:** Rüzgar kuzeyden 5 kt'ye düşüyor, görüş sınırsız, bulut yok."
+  "TAF LTFJ 240440Z 2406/2506 23010KT 9999 SCT035 TEMPO 2406/2410 -SHRA FEW018CB BKN030 BECMG 2413/2416 05005KT CAVOK": "**LTFJ — İstanbul Sabiha Gökçen Havalimanı Hava Tahmini**\n\n**Genel:** Güneybatı rüzgarı, görüş 10 km, 3500 ft'te dağınık bulutluluk.\n\n- **2406/2410 UTC:** Hafif yağmur, 1800 ft'te az bulut ve gök gürültülü bulut, 3000 ft'te kapalı.\n- **2413/2416 UTC:** Rüzgar kuzeyden 5 kt'ye düşüyor, görüş sınırsız, bulut yok.",
+  "METAR LTFJ 240950Z VRB04KT 4800 -SHRA FEW020CB BKN035 17/11 Q1022 NOSIG RMK RWY24R 05006KT 020V080 RWY06R VRB06KT RWY24L 03008KT": "**Rüzgâr:** Rüzgâr değişken yönden 4 knot (yaklaşık 7 km/s) şiddette esiyordu.\n\n**Görüş:** Görüş mesafesi 4800 metre olup, uçuş için yeterli durumdaydı.\n\n**Gökyüzü:** Az bulutlu 2000 feet (yaklaşık 600 metre) yükseklikte fırtına bulutu, daha üstte çok bulutlu 3500 feet (yaklaşık 1050 metre) tabakası vardı; hafif sağanak yağmur gözlenmişti.\n\n**Uçuşa etkisi:** Düşük görüş (4800 m) ve fırtına bulutunun varlığı dikkat gerektiriyordu; rüzgâr şiddeti ve eğilim verilerine göre önemli kısıtlama yoktu."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3119,8 +3120,9 @@
   }
  },
  "notam_son_senkron": "2026-09-24T08:40:55+00:00",
- "guncelleme": "2026-09-24T09:50:54+00:00",
+ "guncelleme": "2026-09-24T10:01:18+00:00",
  "push_gonderilen": [
+  "id:54098411",
   "id:54034135",
   "id:54091494"
  ]
