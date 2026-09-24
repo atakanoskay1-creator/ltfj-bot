@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:52919340",
   "id:52927737",
   "id:52930610",
   "id:52939145",
@@ -199,23 +198,16 @@
   "id:53964996",
   "id:53970378",
   "id:53982885",
-  "id:53986958"
+  "id:53986958",
+  "id:53994943"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 240050Z 00000KT CAVOK 12/11 Q1020 NOSIG RMK RWY24R VRB01KT RWY06R 07001KT RWY24L 13002KT",
+ "son_metar": "METAR LTFJ 240120Z 00000KT CAVOK 12/11 Q1021 NOSIG RMK RWY24R VRB01KT RWY06R VRB02KT RWY24L 16001KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-24T00:50:00+00:00",
+ "son_veri_zamani": "2026-09-24T01:20:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-18T04:20:00+00:00",
-   "ruzgar_hiz": 4,
-   "tavan": 9000,
-   "qnh": 1014,
-   "sicaklik": 18,
-   "cig_noktasi": 16
-  },
   {
    "zaman": "2026-09-18T04:50:00+00:00",
    "ruzgar_hiz": 3,
@@ -2620,13 +2612,22 @@
    "qnh": 1020,
    "sicaklik": 12,
    "cig_noktasi": 11
+  },
+  {
+   "zaman": "2026-09-24T01:20:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 0,
+   "tavan": null,
+   "qnh": 1021,
+   "sicaklik": 12,
+   "cig_noktasi": 11
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 232350Z 00000KT CAVOK 12/10 Q1020 NOSIG RMK RWY24R 04001KT RWY06R 00000KT RWY24L 00000KT": "**Rüzgâr:** Rüzgâr yok denecek kadar az, sakin hava koşulları var.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve daha fazla mesafede her şey net görünüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, gökyüzü açık ve yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve hava olayları açısından kısıtlayıcı bir unsur yoktur.",
   "METAR LTFJ 240020Z 00000KT CAVOK 12/11 Q1020 NOSIG RMK RWY24R 00000KT RWY06R VRB02KT RWY24L 03002KT": "**Rüzgâr:** Rüzgâr yok denecek kadar az, sakin hava koşulları var.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzeri mesafede her şey net görünüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, gökyüzü açık ve yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve hava olaylarından kaynaklı kısıtlama yoktur.",
   "METAR LTFJ 240050Z 00000KT CAVOK 12/11 Q1020 NOSIG RMK RWY24R VRB01KT RWY06R 07001KT RWY24L 13002KT": "Rüzgâr: Rüzgâr yok denecek kadar az, sakin hava koşulları var.\n\nGörüş: Görüş mükemmel, 10 kilometre ve üzeri mesafede her şey net görünüyor.\n\nGökyüzü: Bulut bildirilmemiş, gökyüzü açık ve yağış yok.\n\nUçuşa etkisi: Rüzgâr ve görüş kısıtlaması olmadığından uçuş koşulları elverişli, hava sakin kalacak.",
-  "TAF LTFJ 232240Z 2400/2424 VRB02KT CAVOK BECMG 2405/2407 23012KT SCT035 PROB40 TEMPO 2407/2411 -SHRA FEW018TCU BKN030 BECMG 2412/2416 VRB02KT CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 24 saat boyunca değişken rüzgâr ve görüş koşulları beklenmektedir.\n\n- **0000/0405 UTC:** Değişken 2 knot rüzgâr, görüş sınırlaması yok.\n- **0405/0407 UTC:** Kademeli geçişle 230° yönünden 12 knot rüzgâr, 3500 ft'de dağınık bulut.\n- **0407/0411 UTC:** Geçici olarak hafif sağanak yağış, 1800 ft'de az bulut ve gök gürültülü bulut, 3000 ft'de kapalı bulut.\n- **0412/0416 UTC:** Kademeli geçişle değişken 2 knot rüzgâr, görüş sınırlaması yok."
+  "TAF LTFJ 232240Z 2400/2424 VRB02KT CAVOK BECMG 2405/2407 23012KT SCT035 PROB40 TEMPO 2407/2411 -SHRA FEW018TCU BKN030 BECMG 2412/2416 VRB02KT CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 24 saat boyunca değişken rüzgâr ve görüş koşulları beklenmektedir.\n\n- **0000/0405 UTC:** Değişken 2 knot rüzgâr, görüş sınırlaması yok.\n- **0405/0407 UTC:** Kademeli geçişle 230° yönünden 12 knot rüzgâr, 3500 ft'de dağınık bulut.\n- **0407/0411 UTC:** Geçici olarak hafif sağanak yağış, 1800 ft'de az bulut ve gök gürültülü bulut, 3000 ft'de kapalı bulut.\n- **0412/0416 UTC:** Kademeli geçişle değişken 2 knot rüzgâr, görüş sınırlaması yok.",
+  "METAR LTFJ 240120Z 00000KT CAVOK 12/11 Q1021 NOSIG RMK RWY24R VRB01KT RWY06R VRB02KT RWY24L 16001KT": "**Rüzgâr:** Rüzgâr yok denecek kadar az, sakin hava koşulları var.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve daha fazla mesafede her şey net görünüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, gökyüzü açık, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlaması olmadığından uçuş koşulları elverişli, önümüzdeki 2 saatte hava değişmesi beklenmiyyor."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3068,6 +3069,6 @@
   }
  },
  "notam_son_senkron": "2026-09-23T20:20:56+00:00",
- "guncelleme": "2026-09-24T01:20:54+00:00",
+ "guncelleme": "2026-09-24T01:31:05+00:00",
  "push_gonderilen": []
 }
