@@ -315,3 +315,38 @@ def test_HAM_METAR_damgasina_dokunulmadi(tmp_path):
     """231920Z rapor metninin KENDISI - bizim biçimimiz değil."""
     html_metin = _sayfa(tmp_path)
     assert "231920Z" in html_metin
+
+
+# ====================================== açık sekme bayatlığı (kullanıcı bildirdi)
+def test_bayat_demeden_once_BIR_KEZ_bakiyor(tmp_path):
+    """KULLANICI BİLDİRDİ: iPad'de sayfayı açık bırakınca rozet sırayla
+    "1 GÖZLEM KAÇTI" -> "GECİKMELİ" -> "VERİ KESİNTİSİ" oluyordu - oysa
+    akışta sorun yoktu, bayat olan SEKMEYDİ.
+
+    Sebep: gözlem damgası HTML'e gömülü ve sayfa kendini yenilemiyor;
+    yaş her 15 saniyede istemcide yeniden hesaplanıyor. Yani sekme açık
+    durdukça yaş büyüyor, sunucudaki veri taze olsa bile.
+
+    Eskiden fark edilmiyordu çünkü ilk eşik 70 dakikaydı.
+
+    Tarayıcıda doğrulandı: 55 dk'lık damgayla açılan sayfa BİR kez
+    yeniliyor, damga değişmeyince duruyor (2 sn'de 0 ek gezinme)."""
+    html_metin = _sayfa(tmp_path)
+    js = html_metin.split("function tazelemeDene")[1].split("function durumTazele")[0]
+    # Dongu korumasi: hangi DAMGA icin bakildigi saklaniyor.
+    assert 'sessionStorage.getItem(anahtar)' in js
+    assert '"ltfj-tazeleme:" + gozlem' in js
+    # Gecmisi bayat kopyalarla doldurmasin.
+    assert "location.replace" in js
+    # sessionStorage yoksa (Safari gizli sekme) otomatik yenileme YOK -
+    # dongu riski olmasin diye sessizce eski davranisa duser.
+    assert "catch" in js and "return false" in js
+
+
+def test_tazeleme_YALNIZCA_esik_asilinca(tmp_path):
+    """Taze sayfada yenileme denenmemeli - her açılışta bir fazladan
+    istek demek olurdu."""
+    html_metin = _sayfa(tmp_path)
+    cagri = html_metin.split("var dk = yasDk(gozlem);")[1].split("var sinif")[0]
+    assert "dk > BEKLENEN_DK" in cagri
+    assert "tazelemeDene(gozlem)" in cagri

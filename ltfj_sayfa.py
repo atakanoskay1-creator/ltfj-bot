@@ -1353,6 +1353,37 @@ window.ltfjGecenSure = function (ms) {{
          + '<circle cx="12" cy="12" r="5"/></svg>';
   }}
 
+  // SAYFA KENDINI YENILEMIYOR. Gozlem damgasi (data-gozlem) HTML'e
+  // GOMULU; yas ise her 15 saniyede ISTEMCIDE yeniden hesaplaniyor.
+  // Sonucu: sekme acik durdukca yas buyumeye devam ediyor, SUNUCUDAKI
+  // veri taze olsa bile. iPad'de sayfayi acik birakan kullanici bunu
+  // bildirdi - rozet sirayla "1 GOZLEM KACTI" -> "GECIKMELI" ->
+  // "VERI KESINTISI" oluyordu, oysa akista bir sorun yoktu; bayat olan
+  // SEKMEYDI.
+  //
+  // Eskiden fark edilmiyordu cunku ilk esik 70 dakikaydi; o sureden
+  // once sekmeyi acik birakan pek olmuyordu.
+  //
+  // Duzeltme: sayfa "akis bayat" DEMEDEN once BIR KEZ BAKSIN.
+  // Dongu korumasi: hangi gozlem damgasi icin bakildigi sessionStorage'a
+  // yaziliyor. Yeniden yukledikten sonra damga AYNI ise bayatlik
+  // gercektir ve durum durustce gosterilir - ikinci bir yenileme yok.
+  function tazelemeDene(gozlem) {{
+    if (!gozlem) {{ return false; }}
+    var anahtar = "ltfj-tazeleme:" + gozlem;
+    try {{
+      if (sessionStorage.getItem(anahtar)) {{ return false; }}
+      sessionStorage.setItem(anahtar, "1");
+    }} catch (e) {{
+      // Safari gizli sekmede sessionStorage'a yazmayi reddedebilir.
+      // O zaman otomatik yenileme YOK - eski davranis, dongu riski yok.
+      return false;
+    }}
+    // replace(): iPad'de geri tusunu bayat kopyalarla doldurmamak icin.
+    window.location.replace(window.location.pathname + "?_=" + Date.now());
+    return true;
+  }}
+
   function durumTazele() {{
     if (saatEl) {{
       var d = new Date();
@@ -1361,7 +1392,11 @@ window.ltfjGecenSure = function (ms) {{
         String(d.getUTCMinutes()).padStart(2, "0") + "Z";
     }}
     if (!durumEl) {{ return; }}
-    var dk = yasDk(durumEl.getAttribute("data-gozlem"));
+    var gozlem = durumEl.getAttribute("data-gozlem");
+    var dk = yasDk(gozlem);
+    // Bayat gorunuyorsa ONCE BAK, sonra soyle: bu sekme bayat olabilir,
+    // sunucudaki sayfa taze olabilir.
+    if (dk !== null && dk > BEKLENEN_DK && tazelemeDene(gozlem)) {{ return; }}
     var sinif, metin;
     if (dk === null) {{ sinif = "kesinti"; metin = "VERİ YOK"; }}
     else if (dk <= BEKLENEN_DK) {{ sinif = "taze"; metin = "CANLI"; }}
