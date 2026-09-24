@@ -161,7 +161,7 @@ def test_son_kayitta_deger_yoksa_son_nokta_ici_bos_cizilir(tmp_path):
     html = hedef.read_text(encoding="utf-8")
     i = _grafik_basi(html, "Bulut tavanı")
     svg = html[i:html.index("</svg>", i)]
-    assert 'fill="none" stroke="#22c55e" stroke-width="2"/>' in svg  # ici bos daire
+    assert 'fill="none" stroke="currentColor" stroke-width="2"/>' in svg  # ici bos daire
     assert "stroke-dasharray" in svg
 
 

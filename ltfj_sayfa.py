@@ -128,11 +128,20 @@ def ikon(ad: str, sinif: str = "ikon") -> str:
 GRAFIK_PENCERE_SAAT = 6
 GRAFIK_MIN_NOKTA = 2      # cizgi cizmek icin en az bu kadar nokta lazim
 GRAFIK_YEDEK_NOKTA = 12   # pencere yeterli veri vermezse en fazla bu kadar eski kayit gosterilir
+# RENKLER KALDIRILDI - hepsi artik --marka. Onceki degerler
+# (#3b82f6 / #22c55e / #eab308 / #ef4444) DURUM RENKLERININ AYNISIYDI:
+# BLU, GRN, YLO ve RED. Yani sayfa renksiz degildi, renk butcesini SERI
+# KIMLIGINE harciyordu - yesil bir tavan cizgisi "iyi", kirmizi bir
+# sicaklik cizgisi "kotu" gibi okunuyordu, oysa ikisi de sadece birer
+# seri. Dort grafigin her biri TEK SERI ve kendi basligini tasiyor
+# ("Rüzgâr", "Bulut tavanı", ...), yani kimligi baslik veriyor; hue'ya
+# gerek yok. (dataviz rehberi: "Status colors are reserved ... never
+# reused for series".)
 GRAFIKLER = (
-    ("ruzgar_hiz", "Rüzgâr", "kt", "#3b82f6"),
-    ("tavan", "Bulut tavanı", "ft", "#22c55e"),
-    ("qnh", "QNH", "hPa", "#eab308"),
-    ("sicaklik", "Sıcaklık", "°C", "#ef4444"),
+    ("ruzgar_hiz", "Rüzgâr", "kt"),
+    ("tavan", "Bulut tavanı", "ft"),
+    ("qnh", "QNH", "hPa"),
+    ("sicaklik", "Sıcaklık", "°C"),
 )
 
 # --------------------------------------------------------------- yazı tipi
@@ -226,6 +235,15 @@ SABLON = """<!DOCTYPE html>
        neredeyse beyaz oluyordu (olculen bagil parlaklik 0.853, hero
        0.023 - 37 kat). Gece karartilmis bir kulede ekranin en parlak
        nesnesi "not ekle" dugmesi olmamali. */
+    /* MARKA TONU - ANLAM TASIMAZ. Grafik cizgisi, secili sekme
+       gostergesi ve odak halkasi icin; durum ASLA bu tonla
+       anlatilmaz. Mor secildi cunku durum hue'lari (kirmizi 15,
+       turuncu 30, sari 50, yesil 140, mavi 250 derece) arasindaki
+       EN GENIS bosluk orada. Olculdu (OKLab ΔE, rehberin
+       normal-gorus tabani 15): en yakin durum rengine 15.8;
+       kontrast acik yuzeyde 8.98, koyuda 7.24 (cizgi icin
+       gereken 3:1'in cok ustunde). */
+    --marka:#5b21b6;
     --fab-zemin:#0f172a; --fab-metin:#f8fafc; --fab-cizgi:transparent;
     /* Kart golgesi: acik temada kagit degil KONSOL hissi icin.
        Koyu temada golge yok - siyah uzerine golge gorunmez ve
@@ -265,8 +283,8 @@ SABLON = """<!DOCTYPE html>
       --metin:#e8eefc; --soluk:#8fa0bf; --sessiz:#64748b; --vurgu:#e8eefc;
       --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
       --bilgi:#60a5fa;
+      --marka:#b39ddb;
       --fab-zemin:#1e2a44; --fab-metin:#e8eefc; --fab-cizgi:#31405f;
-    --golge:none; --golge-yukari:none;
       --golge:none; --golge-yukari:none;
     }}
   }}
@@ -276,7 +294,9 @@ SABLON = """<!DOCTYPE html>
     --metin:#e8eefc; --soluk:#8fa0bf; --sessiz:#64748b; --vurgu:#e8eefc;
     --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
     --bilgi:#60a5fa;
+    --marka:#b39ddb;
     --fab-zemin:#1e2a44; --fab-metin:#e8eefc; --fab-cizgi:#31405f;
+    --golge:none; --golge-yukari:none;
   }}
   /* Hareket azaltma tercihi: isletim sisteminde acan kullanici icin tum
      gecis ve animasyonlar durur. Sayfa islevini KAYBETMEZ - donen ok yine
@@ -556,6 +576,25 @@ SABLON = """<!DOCTYPE html>
   /* "bildirilmedi" bir SAYI degil - hero puntosunda sayfanin en buyuk
      yazisi oluyor ve yoklugu olculmus bir degerden baskin gosteriyordu. */
   .hero-deger-metin {{ font-size:var(--f3); font-weight:600; color:var(--soluk); }}
+  /* Grafik cizgileri MARKA tonunda - durum rengi DEGIL (bkz.
+     GRAFIKLER aciklamasi). currentColor ile miras aliniyor. */
+  .grafik {{ color:var(--marka); }}
+  .grafik-esik {{
+    stroke:var(--soluk); stroke-width:1; stroke-dasharray:4,4; opacity:.7;
+  }}
+  /* HTML - SVG <text> DEGIL: grafik SVG'si preserveAspectRatio="none"
+     ile esniyor, icindeki yazi hem kuculuyor hem yatayda eziliyordu.
+     Konum, cizgiyle AYNI olcekten (bkz. _esik_orani) yuzde olarak
+     geliyor; zemin cipi altindaki dolguyu kesip yaziyi okunur birakiyor. */
+  .grafik-esik-ad {{
+    position:absolute; left:0; transform:translateY(-100%);
+    font-size:var(--f1); font-family:var(--mono); color:var(--soluk);
+    background:var(--kart); padding:0 .3em; border-radius:3px;
+    pointer-events:none; white-space:nowrap;
+  }}
+  /* Kivilcim (hero) de ayni tonda - ama oradaki SVG 100x20, esik cizgisi
+     o boyutta okunmaz, o yuzden yalnizca cizgi + dolgu. */
+  .hero-kivilcim {{ color:var(--marka); }}
   /* Gun/gece baglami - sis penceresi gece-sabah oldugu icin BILGI. */
   .ust-faz {{
     font-size:var(--f1); color:var(--soluk); letter-spacing:.02em;
@@ -2765,9 +2804,40 @@ def _grafik_verisi(gecmis: list, alan: str, simdi: datetime) -> list:
     return _gecmis_noktalari(gecmis, alan, None)[-GRAFIK_YEDEK_NOKTA:]
 
 
+def _dikey_olcek(degerler: list) -> tuple[float, float]:
+    """Grafigin dusey ekseni. TEK KAYNAK: hem cizgi hem esik etiketi
+    ayni olcegi kullanmak zorunda, yoksa etiket cizginin uzerine
+    oturmaz."""
+    v_min, v_max = min(degerler), max(degerler)
+    if v_min == v_max:
+        v_min, v_max = v_min - 1, v_max + 1
+    pad = (v_max - v_min) * 0.15
+    return v_min - pad, v_max + pad
+
+
+def _esik_orani(degerler: list, esik: float | None,
+                yukseklik: int = 64) -> float | None:
+    """Esigin cizim kutusundaki DUSEY ORANI (0 = ust kenar, 1 = alt) -
+    cizilen araliga dusmuyorsa None.
+
+    Etiket SVG <text> DEGIL, ustune konumlanan HTML: SVG
+    preserveAspectRatio="none" ile esnedigi icin icindeki yazi hem
+    kuculuyor hem yatayda eziliyordu (olculdu: 600 birimlik kutu ~326
+    px'e siginca 11 px'lik yazi ~6 px'e dusuyor). Oran burada
+    hesaplanip yuzde olarak HTML'e veriliyor."""
+    if esik is None or not degerler:
+        return None
+    v_min, v_max = _dikey_olcek(degerler)
+    if not v_min <= esik <= v_max:
+        return None
+    y = yukseklik - 4 - (yukseklik - 8) * ((esik - v_min) / (v_max - v_min))
+    return y / yukseklik
+
+
 def _svg_cizgi(noktalar: list, renk: str, raporlanmiyor: bool = False,
                guncel_zaman: datetime | None = None,
-               genislik=600, yukseklik=64) -> tuple | None:
+               genislik=600, yukseklik=64,
+               esik: float | None = None) -> tuple | None:
     """(svg, oranlar) dondurur. oranlar: her nokta icin (x, y) - SVG kutusuna
     gore 0-1 arasi ORAN. SVG preserveAspectRatio="none" ile esnedigi icin bu
     oranlar istemcide dogrudan piksele cevrilebilir (bkz. grafik balonu
@@ -2783,11 +2853,7 @@ def _svg_cizgi(noktalar: list, renk: str, raporlanmiyor: bool = False,
     if len(noktalar) < 2:
         return None
     degerler = [v for _, v in noktalar]
-    v_min, v_max = min(degerler), max(degerler)
-    if v_min == v_max:
-        v_min, v_max = v_min - 1, v_max + 1
-    pad = (v_max - v_min) * 0.15
-    v_min, v_max = v_min - pad, v_max + pad
+    v_min, v_max = _dikey_olcek(degerler)
 
     t0 = noktalar[0][0]
     t1 = noktalar[-1][0]
@@ -2806,6 +2872,29 @@ def _svg_cizgi(noktalar: list, renk: str, raporlanmiyor: bool = False,
                     for i, (z, v) in enumerate(noktalar))
     son_x, son_y = x(noktalar[-1][0]), y(noktalar[-1][1])
 
+    # ESIK CIZGISI - yalnizca CIZILEN ARALIGA DUSUYORSA. Dusmeyeni
+    # zorla gostermek y eksenini esnetirdi, yani veriyi carpitirdi;
+    # ekseni bozmaktansa cizgiyi hic cizmemek dogru.
+    esik_svg = ""
+    esik_oran = _esik_orani(degerler, esik, yukseklik)
+    if esik_oran is not None:
+        ey = esik_oran * yukseklik
+        esik_svg = (
+            f'<line class="grafik-esik" x1="4" y1="{ey:.1f}" '
+            f'x2="{genislik - 4}" y2="{ey:.1f}"/>')
+
+    # GRADYAN DOLGU - cizginin altini kapatir. Dekoratif degil: cizginin
+    # HANGI TARAFININ "asagi" oldugunu gosterir ve kucuk yukseklikte
+    # egilimin yonunu okumayi kolaylastirir. Kimlik yine cizgide.
+    kimlik = f"gd{abs(hash((genislik, yukseklik, len(noktalar)))) % 100000}"
+    dolgu_yolu = (yol + f" L{son_x:.1f},{yukseklik} L{x(noktalar[0][0]):.1f},"
+                        f"{yukseklik} Z")
+    dolgu = (f'<defs><linearGradient id="{kimlik}" x1="0" y1="0" x2="0" y2="1">'
+             f'<stop offset="0%" stop-color="{renk}" stop-opacity=".22"/>'
+             f'<stop offset="100%" stop-color="{renk}" stop-opacity="0"/>'
+             f'</linearGradient></defs>'
+             f'<path d="{dolgu_yolu}" fill="url(#{kimlik})" stroke="none"/>')
+
     oranlar = [(x(z) / genislik, y(v) / yukseklik) for z, v in noktalar]
 
     if uzatildi:
@@ -2820,6 +2909,7 @@ def _svg_cizgi(noktalar: list, renk: str, raporlanmiyor: bool = False,
 
     svg = (f'<svg viewBox="0 0 {genislik} {yukseklik}" class="grafik" '
            f'preserveAspectRatio="none">'
+           f"{dolgu}{esik_svg}"
            f'<path d="{yol}" fill="none" stroke="{renk}" stroke-width="2" '
            f'stroke-linejoin="round" stroke-linecap="round"/>'
            f'{nokta_svg}</svg>')
@@ -2841,7 +2931,7 @@ def _en_son_kayit(gecmis: list) -> dict | None:
     return en_son
 
 
-def _grafik_blogu(alan: str, baslik: str, birim: str, renk: str,
+def _grafik_blogu(alan: str, baslik: str, birim: str,
                    gecmis: list, simdi: datetime, guncel: dict | None) -> str:
     noktalar = _grafik_verisi(gecmis, alan, simdi)
     # guncel: gecmis'teki EN YENI kayit (zamana gore, tipi ne olursa olsun).
@@ -2858,8 +2948,13 @@ def _grafik_blogu(alan: str, baslik: str, birim: str, renk: str,
             guncel_zaman = datetime.fromisoformat(guncel["zaman"])
         except (KeyError, ValueError, TypeError):
             guncel_zaman = None
-    cizim = _svg_cizgi(noktalar, renk, raporlanmiyor=raporlanmiyor,
-                       guncel_zaman=guncel_zaman)
+    # TAVAN icin RED esigi: RENK_DURUMLARI'nin son satirinin altina
+    # dusmek RED demek. Tablodan geliyor, uydurulmuyor. Diger alanlarin
+    # (ruzgar/QNH/sicaklik) boyle tek degiskenli bir esigi YOK, o yuzden
+    # onlara cizgi cizilmiyor.
+    esik = pist.RENK_DURUMLARI[-1][1] if alan == "tavan" else None
+    cizim = _svg_cizgi(noktalar, "currentColor", raporlanmiyor=raporlanmiyor,
+                       esik=esik, guncel_zaman=guncel_zaman)
     if not cizim:
         return ""
     svg, oranlar = cizim
@@ -2893,12 +2988,22 @@ def _grafik_blogu(alan: str, baslik: str, birim: str, renk: str,
         son_etiket = f'<span class="grafik-son">{son_deger:.0f} {html.escape(birim)}</span>'
         durum_notu = ""
 
+    # ESIK ETIKETI - cizginin USTUNDE, SOL kenarda. Sag uc "su anki deger"
+    # noktasinin yeri; etiketi oraya koymak (ilk surum) yaziyi cizginin
+    # uzerine bindiriyordu (ekran goruntusuyle gorundu).
+    esik_oran = _esik_orani([v for _, v in noktalar], esik)
+    esik_etiketi = ""
+    if esik_oran is not None:
+        esik_etiketi = (f'<span class="grafik-esik-ad" '
+                        f'style="top:{esik_oran * 100:.1f}%">RED '
+                        f'{esik:.0f} {html.escape(birim)}</span>')
+
     return (
         f'<div class="grafik-kutu" '
         f'data-noktalar="{html.escape(json.dumps(nokta_verisi, ensure_ascii=False))}">'
         f'<div class="grafik-baslik"><span>{html.escape(baslik)}</span>'
         f'{son_etiket}</div>'
-        f'<div class="grafik-sarmal">{svg}'
+        f'<div class="grafik-sarmal">{svg}{esik_etiketi}'
         f'<div class="grafik-imlec" hidden></div>'
         f'<div class="grafik-nokta" hidden></div>'
         f'<div class="grafik-balon" hidden></div></div>'
@@ -2912,8 +3017,8 @@ def _trend_bolumu(gecmis: list) -> str:
         return ""
     simdi = datetime.now(timezone.utc)
     guncel = _en_son_kayit(gecmis)
-    bloklar = [_grafik_blogu(alan, baslik, birim, renk, gecmis, simdi, guncel)
-               for alan, baslik, birim, renk in GRAFIKLER]
+    bloklar = [_grafik_blogu(alan, baslik, birim, gecmis, simdi, guncel)
+               for alan, baslik, birim in GRAFIKLER]
     bloklar = [b for b in bloklar if b]
     if not bloklar:
         return ""

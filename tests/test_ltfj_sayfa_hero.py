@@ -167,10 +167,21 @@ def test_tavan_yoksa_BILDIRILMEDI(tmp_path):
 
 # ------------------------------------------- görsel sözleşme
 def test_kivilcim_currentColor_kullaniyor(tmp_path):
-    """Sabit renk verilseydi koyu temada yanlış tonda çizilirdi."""
+    """Sabit renk verilseydi koyu temada yanlış tonda çizilirdi.
+
+    ÇAPA DARALTILDI: kıvılcım SVG'sine gradyan dolgu eklendi ve o
+    `<path ... stroke="none">` ile BAŞLIYOR - testin ilk sürümü ilk
+    stroke'u arıyordu, yani dolgunun "none"ını okuyup kırılıyordu.
+    Artık ÇİZGİ path'i aranıyor (stroke-width="2" olan)."""
     html = _sayfa(tmp_path)
-    m = re.search(r'<svg class="hero-kivilcim"[^>]*>.*?stroke="([^"]*)"', html, re.S)
-    assert m and m.group(1) == "currentColor", m.group(1) if m else "svg yok"
+    svg = re.search(r'<svg class="hero-kivilcim".*?</svg>', html, re.S)
+    assert svg, "kıvılcım svg yok"
+    # ÇİZGİ path'i: stroke-width="2" olan. Gradyan dolgusu
+    # stroke="none" ile geliyor ve SVG'de ondan ÖNCE duruyor.
+    m = re.search(r'stroke="([^"]*)" stroke-width="2"', svg.group(0))
+    assert m and m.group(1) == "currentColor", m.group(1) if m else "cizgi yok"
+    # Dolgunun da marka tonundan geldiğini doğrula (sabit renk değil):
+    assert 'stop-color="currentColor"' in svg.group(0)
 
 
 def test_kivilcim_ekran_okuyucudan_gizli(tmp_path):
