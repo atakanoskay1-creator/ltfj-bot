@@ -33,14 +33,31 @@ SESSIZLIK_SAAT = 6
 # kacirmak degil. Ayni "2x kadans" mantigi NOTAM_BAYAT_MS'te de kullanildi.
 GOZLEM_TAZE_DK = 70
 
-# "TAM ZAMANINDA" esigi. LTFJ METAR kadansi :20/:50 (30 dk) + MGM'in
-# ~5 dakikalik yayin gecikmesi; yani NORMAL calisan bir sistemde en
-# yasli gozlem ~35 dakikaliktir. 35-70 dk arasi "bir gozlem kacti"
-# demektir ve bu aralik eskiden "CANLI" kutusunun icindeydi - olcum
-# aninda METAR 49 dakikaliktir ve rozet CANLI diyordu.
-# GOZLEM_TAZE_DK (70) bunun IKI KATI olarak duruyor: 70'i de asmak
-# "iki gozlem kacti" demek ve orasi GECIKMELI.
-GOZLEM_BEKLENEN_DK = 35
+# "TAM ZAMANINDA" esigi - OLCULEREK duzeltildi.
+#
+# ILK SURUM 35'TI VE YANLIS ALARM URETIYORDU. Hesap teorikti: kadans
+# 30 dk + MGM'in ~5 dakikalik yayin gecikmesi = 35. Ama 35, normal
+# degerin USTU degil TAM KENDISIYDI - yani esik, saglikli sistemin
+# tepe noktasina konmustu.
+#
+# Gercek dagilim git gecmisinden olculdu (150 bot kosusu, her commit'in
+# zamani ile o commit'teki son_veri_zamani farki = kullanicinin o an
+# gordugu yas):
+#
+#     min 6 · medyan 21 · %75 31 · %99 31 · MAX 33 dk
+#
+# Yani sayfa URETILDIGI anda yas en fazla 33 dk. 35'lik esik 2 dakika
+# pay birakiyordu.
+#
+# USTELIK SAYFA KENDINI YENILEMIYOR (location.reload yok; durum her 15
+# saniyede ISTEMCIDE yeniden hesaplaniyor). Acik birakilan bir sayfada
+# yas durmadan buyuyor - kullanici sayfayi 5 dakika acik tutunca 33+5
+# esigi asiyordu. Vardiya boyunca acik duran bir sayfa icin bu her
+# dongude "1 GOZLEM KACTI" demek oluyordu.
+#
+# 50: olculen tepeye (33) ~17 dakika pay birakiyor; gercekten kacan bir
+# 30 dakikalik gozlem yasi 60+'a tasidigi icin sinyal korunuyor.
+GOZLEM_BEKLENEN_DK = 50
 
 # LTFJ pist ekseni GERCEK yonleri (AIP AD 2.12, AIRAC AMDT 07/26). Hem
 # ltfj_analiz.py (yan_ruzgar - Telegram ozet mesajindaki crosswind) hem de
