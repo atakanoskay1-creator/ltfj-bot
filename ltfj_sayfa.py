@@ -7,6 +7,7 @@ GitHub Pages yayinlar. Ek altyapi yok. Sayfa tek dosya - harici CSS/JS yok.
 """
 
 import html
+import math
 import json
 import re
 from datetime import datetime, timedelta, timezone
@@ -40,6 +41,23 @@ RENK_KODU = {
     "BLU": "#3b82f6", "WHT": "#94a3b8", "GRN": "#22c55e",
     "YLO": "#eab308", "AMB": "#f97316", "RED": "#ef4444",
 }
+
+def _gunes_iso(an: datetime) -> tuple[str, str]:
+    """LTFJ gun dogumu/batimi, ISO damga olarak (yoksa bos dize).
+
+    HESAP KOPYALANMADI: ltfj_pist._gunes_saatleri() zaten var ve
+    sis_riski() de onu kullaniyor - iki ayri gunes hesabi olsaydi
+    sayfanin "gece" dedigi an ile sis notunun "gece" dedigi an
+    ayrisabilirdi."""
+    try:
+        sonuc = pist._gunes_saatleri(an)
+    except Exception:
+        return "", ""
+    if not sonuc:
+        return "", ""
+    dogus, batim = sonuc
+    return dogus.isoformat(), batim.isoformat()
+
 
 def _zaman_metni(an: datetime, tarihli: bool = False) -> str:
     """TEK ZAMAN KURALI: UTC esas, yerel parantez icinde.
@@ -163,7 +181,7 @@ YAZITIPI_CSS = "\n".join(
 
 
 SABLON = """<!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" data-gun-dogumu="{gun_dogumu}" data-gun-batimi="{gun_batimi}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -192,7 +210,10 @@ SABLON = """<!DOCTYPE html>
     --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
 
     /* yuzey katmanlari */
-    --bg:#f8fafc; --panel:#f1f5f9; --kart:#ffffff; --etkilesim:#f1f5f9;
+    /* #f8fafc -> #eef2f7: kartlar (beyaz) zeminden daha net
+       ayrissin. Kontrast metin/zemin oranlarini DUSURMEZ -
+       metin kart uzerinde duruyor, zemin degismedi. */
+    --bg:#eef2f7; --panel:#e6ecf3; --kart:#ffffff; --etkilesim:#e6ecf3;
     --cizgi:#e2e8f0; --kod-bg:#f1f5f9;
     /* metin */
     --metin:#0f172a; --soluk:#64748b; --sessiz:#94a3b8; --vurgu:#0f172a;
@@ -206,6 +227,12 @@ SABLON = """<!DOCTYPE html>
        0.023 - 37 kat). Gece karartilmis bir kulede ekranin en parlak
        nesnesi "not ekle" dugmesi olmamali. */
     --fab-zemin:#0f172a; --fab-metin:#f8fafc; --fab-cizgi:transparent;
+    /* Kart golgesi: acik temada kagit degil KONSOL hissi icin.
+       Koyu temada golge yok - siyah uzerine golge gorunmez ve
+       parlaklik eklemek gece kullanimini bozardi; orada derinlik
+       yuzey basamaklarindan (--bg < --panel < --kart) geliyor. */
+    --golge:0 1px 2px rgba(15,23,42,.04), 0 2px 8px rgba(15,23,42,.05);
+    --golge-yukari:0 2px 4px rgba(15,23,42,.05), 0 6px 20px rgba(15,23,42,.07);
     --iyi:#166534;    --iyi-zemin:#22c55e26;    --iyi-dolu:#22c55e;
     --dikkat:#b45309; --dikkat-zemin:#f59e0b26; --dikkat-dolu:#f59e0b;
     --uyari:#ef4444;  --uyari-zemin:#ef444426;  --uyari-metin:#b91c1c;
@@ -239,6 +266,8 @@ SABLON = """<!DOCTYPE html>
       --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
       --bilgi:#60a5fa;
       --fab-zemin:#1e2a44; --fab-metin:#e8eefc; --fab-cizgi:#31405f;
+    --golge:none; --golge-yukari:none;
+      --golge:none; --golge-yukari:none;
     }}
   }}
   :root[data-theme="dark"] {{
@@ -527,6 +556,84 @@ SABLON = """<!DOCTYPE html>
   /* "bildirilmedi" bir SAYI degil - hero puntosunda sayfanin en buyuk
      yazisi oluyor ve yoklugu olculmus bir degerden baskin gosteriyordu. */
   .hero-deger-metin {{ font-size:var(--f3); font-weight:600; color:var(--soluk); }}
+  /* Gun/gece baglami - sis penceresi gece-sabah oldugu icin BILGI. */
+  .ust-faz {{
+    font-size:var(--f1); color:var(--soluk); letter-spacing:.02em;
+    white-space:nowrap;
+  }}
+  /* BANT GOSTERGESI - degerin BLU..RED bandinda NEREDE durdugu.
+     Kutular kotuden iyiye (solda RED) dizilir; dolu kutu bulundugu
+     bandi gosterir. Renk TEK TASIYICI DEGIL: konum + kod metni. */
+  .bant {{
+    display:flex; align-items:center; gap:2px; margin-top:6px;
+  }}
+  .bant-kutu {{
+    flex:1 1 0; height:3px; border-radius:2px; background:var(--cizgi);
+  }}
+  .bant-aktif {{ background:var(--soluk); }}
+  .bant-dikkat .bant-aktif {{ background:var(--dikkat); }}
+  .bant-uyari .bant-aktif {{ background:var(--uyari-metin); }}
+  .bant-kod {{
+    flex:0 0 auto; margin-left:5px; font-family:var(--mono);
+    font-size:var(--f1); font-weight:700; color:var(--soluk);
+    letter-spacing:.02em;
+  }}
+  .bant-dikkat .bant-kod {{ color:var(--dikkat); }}
+  .bant-uyari .bant-kod {{ color:var(--uyari-metin); }}
+
+  /* PIST DIYAGRAMI - pist ekseni + ruzgar oku + bilesen okumasi.
+     Renkler NOTR: bu bir durum gostergesi degil, bir GEOMETRI. Tek
+     istisna kuyruk limiti asimi, o da metinle birlikte. */
+  .pist-diyagram {{
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    margin:12px 0; padding:10px 12px;
+    background:var(--kod-bg); border:1px solid var(--cizgi);
+    border-radius:var(--r2);
+  }}
+  /* 1:1 CIZILIYOR. Onceden viewBox 180 birim 132px'e sigdiriliyordu
+     (olcek .73) ve 11 birimlik uc adlari ekranda 8.1px'e dusuyordu -
+     sayfadaki en kucuk yazinin da altinda. Tipografi testi bunu
+     yakaladi. Simdi birim = piksel, yazilar olcekten geliyor. */
+  .pd-svg {{
+    width:120px; height:120px; max-width:100%; flex:0 0 auto;
+    color:var(--metin);
+  }}
+  .pd-halka {{ fill:none; stroke:var(--cizgi); stroke-width:1; }}
+  .pd-pist {{
+    stroke:var(--soluk); stroke-width:13; stroke-linecap:butt; opacity:.75;
+  }}
+  .pd-uc-ad {{
+    /* Serit uzerinde duruyorlar - serit rengiyle degil ZEMINLE
+       kontrast yapmalilar. */
+    font-family:var(--mono); font-size:var(--f1); font-weight:700;
+    fill:var(--kart); text-anchor:middle; dominant-baseline:middle;
+  }}
+  .pd-uc-tercih {{ fill:var(--kart); }}
+  .pd-kuzey {{
+    /* Pusula kuzeyi: boyutla degil OPAKLIKLA geri cekiliyor ki
+       olcegin disina cikmasin. */
+    font-size:var(--f1); font-weight:700; fill:var(--sessiz); opacity:.8;
+    text-anchor:middle; dominant-baseline:middle;
+  }}
+  .pd-ok {{ stroke:currentColor; stroke-width:2.4; stroke-linecap:round; }}
+  .pd-okuma {{ flex:1 1 120px; min-width:0; }}
+  .pd-pist-ad {{
+    font-family:var(--mono); font-weight:700; font-size:var(--f4);
+    line-height:1.2;
+  }}
+  .pd-satir {{
+    font-size:var(--f2); color:var(--metin); display:flex;
+    align-items:baseline; gap:6px; margin-top:2px;
+  }}
+  .pd-satir b {{ font-family:var(--mono); font-size:var(--f3); }}
+  .pd-etiket {{
+    font-size:var(--f1); color:var(--soluk); text-transform:uppercase;
+    letter-spacing:.06em; min-width:42px;
+  }}
+  /* Limit asimi: renk TEK TASIYICI degil, altinda metin de var. */
+  .pd-satir.pd-asan b, .pd-satir.pd-asan {{ color:var(--uyari-metin); }}
+  .pd-not {{ font-size:var(--f1); color:var(--soluk); margin-top:4px; }}
+
   .hero-birim {{
     font-size:var(--f1); font-weight:500; color:var(--soluk); margin-left:3px;
   }}
@@ -553,8 +660,11 @@ SABLON = """<!DOCTYPE html>
   .js[data-sekme="notam"]      #panel-notam {{ display:block; }}
   .kart {{
     background:var(--kart); border:1px solid var(--cizgi); border-radius:14px;
-    padding:18px; margin-bottom:16px;
+    padding:18px; margin-bottom:16px; box-shadow:var(--golge);
   }}
+  /* "SU AN" blogu sayfanin en onemli ogesi - yuzey hiyerarsisinde de
+     en ustte dursun. */
+  .su-an .hero {{ box-shadow:var(--golge-yukari); }}
   .basrow {{ display:flex; align-items:center; gap:10px; flex-wrap:wrap;
              margin-bottom:12px; }}
   .tip {{ font-weight:650; font-size:var(--f4); }}
@@ -1060,6 +1170,23 @@ SABLON = """<!DOCTYPE html>
       if (gecerli.indexOf(v) !== -1) {{ s = v; }}
     }} catch (e) {{}}          /* gizli sekmede localStorage atabilir */
     k.setAttribute("data-sekme", s);
+
+    /* GECE = KOYU TEMA. Gun dogumu/batimi LTFJ icin GERCEKTEN
+       hesaplanmis (ltfj_pist._gunes_saatleri); uydurma bir "aksam
+       oldu" tahmini degil. Kullanicinin ACIK tercihi (data-theme)
+       varsa ona DOKUNULMAZ - bu yuzden yalnizca oznitelik yokken
+       yaziliyor. Karar ISTEMCIDE veriliyor cunku sayfa bir vardiya
+       boyunca acik kalabiliyor; sunucuda gomulu bir "gunduz" etiketi
+       saat 21:00'de yalan olurdu. */
+    try {{
+      var dogus = Date.parse(k.getAttribute("data-gun-dogumu") || "");
+      var batim = Date.parse(k.getAttribute("data-gun-batimi") || "");
+      if (!isNaN(dogus) && !isNaN(batim) && !k.getAttribute("data-theme")) {{
+        var t = Date.now();
+        k.setAttribute("data-faz", (t >= dogus && t < batim) ? "gunduz" : "gece");
+        if (t < dogus || t >= batim) {{ k.setAttribute("data-theme", "dark"); }}
+      }}
+    }} catch (e) {{}}
   }})();
 </script>
 </head>
@@ -1075,6 +1202,9 @@ SABLON = """<!DOCTYPE html>
       <span class="ust-durum" id="ust-durum" data-gozlem="{son_gozlem_iso}"
             role="status"></span>
       <span class="ust-saat" id="ust-saat" title="Eşgüdümlü Evrensel Zaman"></span>
+      <!-- Gun/gece: sis penceresi gece-sabah oldugu icin bu BILGI,
+           dekor degil. Metni JS dolduruyor (sayfa acik kalabilir). -->
+      <span class="ust-faz" id="ust-faz"></span>
     </div>
   </div>
   <div class="header-butonlar">
@@ -1445,7 +1575,26 @@ window.ltfjGecenSure = function (ms) {{
     }});
   }}
 
-  function hepsi() {{ durumTazele(); yaslariTazele(); }}
+  function fazTazele() {{
+    var el = document.getElementById("ust-faz");
+    var k = document.documentElement;
+    if (!el) {{ return; }}
+    var dogus = Date.parse(k.getAttribute("data-gun-dogumu") || "");
+    var batim = Date.parse(k.getAttribute("data-gun-batimi") || "");
+    if (isNaN(dogus) || isNaN(batim)) {{ el.textContent = ""; return; }}
+    var t = Date.now();
+    var gunduz = (t >= dogus && t < batim);
+    // Siradaki gecis: gunduzsek batim, gecesek dogus.
+    var sirada = new Date(gunduz ? batim : dogus);
+    function ikili(n) {{ return String(n).padStart(2, "0"); }}
+    var saat = ikili(sirada.getUTCHours()) + ":" + ikili(sirada.getUTCMinutes()) + "Z";
+    el.textContent = (gunduz ? "gündüz · batım " : "gece · doğuş ") + saat;
+    el.setAttribute("title", gunduz
+      ? "Gün batımı " + saat + " (LTFJ için hesaplanmış)"
+      : "Gün doğumu " + saat + " (LTFJ için hesaplanmış) — sis penceresi");
+  }}
+
+  function hepsi() {{ durumTazele(); yaslariTazele(); fazTazele(); }}
   hepsi();
   // Kadans kontrolu: 5 dakikada bir sunucuya bak. Sekme arkada iken
   // atlaniyor (pil), one gelince hemen bir kez bakiliyor.
@@ -3207,6 +3356,60 @@ def _hero_deger(cozum: dict, anahtar: str) -> str:
     return f"{deger} {birim}".strip()
 
 
+def _olcu_bant_kodu(cozum: dict, anahtar: str) -> str | None:
+    """Tek bir olcunun renk bandi KODU ("BLU".."RED") - ya da None.
+
+    ltfj_pist.RENK_DURUMLARI'nin AYNI satirlari, yalnizca tek degiskene
+    uygulanarak: gorus icin gorus sutunu, tavan icin tavan sutunu. Sayfa
+    KENDI esigini tanimlamiyor."""
+    if anahtar == "gorus":
+        v, sutun = cozum.get("gorus"), 2
+    elif anahtar == "tavan":
+        v, sutun = cozum.get("tavan"), 1
+    else:
+        return None
+    if v is None:
+        return None
+    for kod, min_tavan, min_gorus in pist.RENK_DURUMLARI:
+        if v >= (min_tavan if sutun == 1 else min_gorus):
+            return kod
+    return "RED"
+
+
+# Iyiden kotuye - gosterge bunu TERS cizer (kotu solda) ki "asagi
+# dogru bozuluyor" okumasi soldan saga olsun.
+BANT_SIRASI = tuple(k for k, _, _ in pist.RENK_DURUMLARI) + ("RED",)
+
+
+def _bant_gostergesi_html(cozum: dict, anahtar: str) -> str:
+    """Degerin BLU..RED bandinda NEREDE durdugunu KONUMLA gosterir.
+
+    NEDEN: renk tek tasiyici olmasin. Esik asimi zaten sayiyi boyuyor
+    (bkz. _olcu_bandi) ama renk korlugunde, tek renkli baskida ve gunes
+    altinda renk zayif bir kanal. Konum her kosulda okunur.
+
+    Ayrica "bir sonraki esige ne kadar var" sorusunu cevapliyor - sayi
+    tek basina bunu soylemiyor.
+
+    UYDURMA YOK: bantlar ltfj_pist.RENK_DURUMLARI'nin kendisi; ara deger
+    interpolasyonu YAPILMIYOR, yalnizca hangi bantta oldugu isaretleniyor."""
+    kod = _olcu_bant_kodu(cozum, anahtar)
+    if kod is None:
+        return ""
+    band = _olcu_bandi(cozum, anahtar)
+    sinif = f" bant-{band}" if band else ""
+    kutular = []
+    for b in BANT_SIRASI[::-1]:                 # kotuden iyiye: RED -> BLU
+        aktif = " bant-aktif" if b == kod else ""
+        kutular.append(f'<span class="bant-kutu{aktif}"></span>')
+    ad = {"gorus": "Görüş", "tavan": "Tavan"}.get(anahtar, anahtar)
+    return (f'<div class="bant{sinif}" role="img" '
+            f'aria-label="{ad} durum bandı: {kod}" '
+            f'title="{ad} bandı: {kod} — ölçek ltfj_pist.RENK_DURUMLARI">'
+            + "".join(kutular)
+            + f'<span class="bant-kod">{kod}</span></div>')
+
+
 def _olcu_bandi(cozum: dict, anahtar: str) -> str:
     """Tek bir olcunun renk bandi - YENI ESIK UYDURULMUYOR.
 
@@ -3222,19 +3425,12 @@ def _olcu_bandi(cozum: dict, anahtar: str) -> str:
     kutudaydi. Goz once rakama gider.
 
     Doner: "" (vurgu yok) | "dikkat" | "uyari"."""
-    if anahtar == "gorus":
-        v, sutun = cozum.get("gorus"), 2
-    elif anahtar == "tavan":
-        v, sutun = cozum.get("tavan"), 1
-    else:
+    kod = _olcu_bant_kodu(cozum, anahtar)
+    if kod is None:
         return ""
-    if v is None:
-        return ""
-    # Tablo iyiden kotuye sirali; ilk saglanan bant bu olcunun bandi.
-    for kod, min_tavan, min_gorus in pist.RENK_DURUMLARI:
-        if v >= (min_tavan if sutun == 1 else min_gorus):
-            return "dikkat" if kod in ("YLO", "AMB") else ""
-    return "uyari"      # tablonun en alt satirinin da altinda = RED
+    if kod == "RED":
+        return "uyari"
+    return "dikkat" if kod in ("YLO", "AMB") else ""
 
 
 def _hero_html(cozum: dict, gecmis: list, simdi: datetime) -> str:
@@ -3261,8 +3457,130 @@ def _hero_html(cozum: dict, gecmis: list, simdi: datetime) -> str:
             f'<div class="{sinif}">{html.escape(deger)}'
             + (f'<span class="hero-birim">{birim}</span>' if birim else "")
             + '</div>'
+            + _bant_gostergesi_html(cozum, anahtar)
             + (kiv or '<div class="hero-yok">eğilim verisi yok</div>') + "</div>")
     return '<div class="hero">' + "".join(hucreler) + "</div>"
+
+
+def _pist_diyagrami_html(cozum: dict, metin: str, tercih: str | None) -> str:
+    """Pist ekseni + ruzgar oku + bilesen okumasi.
+
+    NEDEN: bu bilgi sayfada zaten VARDI ama duz metin olarak -
+    "Pist 06L  020° 2 kt". Kontrolorun kafasinda yaptigi geometriyi
+    (ruzgar pistin neresinden geliyor, ne kadari bas, ne kadari yan)
+    ekran yapmiyordu. ltfj_panel/panel.html'de bir ruzgar vektoru zaten
+    vardi ama ANA SAYFADA yoktu.
+
+    HICBIR HESAP KOPYALANMADI - VE YENI BIR KARAR CAGRISI DA YOK.
+    Tercih edilen pist DISARIDAN geliyor: havacilik_notlari() onu zaten
+    hesapliyor (notlar["tercih"]) ve sayfa da, Telegram da ayni degeri
+    kullaniyor. Burada yeniden hesaplamak, ayni METAR icin iki farkli
+    cevap riski dogururdu; ustelik tests/test_ltfj_sayfa_lvo.py'deki
+    koruma da bunu dogru sekilde engelledi.
+
+    Pist eksenleri ltfj_ayarlar'dan, per-pist ruzgar kaynagi
+    pist_ruzgar_kaynagi()'ndan (pist_raporu ve ltfj_panel de ayni
+    fonksiyondan besleniyor), bilesenler bilesenler()'den geliyor.
+
+    UYDURMA YOK: ruzgar yonu bilinmiyorsa (VRB) ok CIZILMEZ, yonsuzluk
+    yazilir. Tercih edilen pist bir ATC atamasi DEGIL - fonksiyonun
+    kendi aciklamasindaki uyari burada da tekrarlanir."""
+    if not cozum or not tercih or tercih not in pist.PISTLER:
+        return ""
+    pist_yonu = pist.PISTLER[tercih]["yon"]
+
+    # Bu pistin KENDI ruzgar kaynagi (RMK anemometresi varsa o).
+    kaynak = next((x for x in pist.pist_ruzgar_kaynagi(cozum, metin)
+                   if x["pist"] == tercih), None)
+    if not kaynak:
+        return ""
+    yon, hiz = kaynak["yon"], kaynak["hiz_sabit"]
+    bas, yan, taraf = pist.bilesenler(yon, hiz, pist_yonu)
+
+    # Kucultuldu (180x144 -> 150x120) ki telefonda okuma YAN YANA kalsin;
+    # 390px'te blok alt alta dusuyordu. 1:1 cizim korunuyor.
+    MERKEZ_X, MERKEZ_Y, YARICAP = 60.0, 60.0, 38.0
+
+    def _nokta(kerteriz: float, uzaklik: float) -> tuple[float, float]:
+        """Pusula kerterizini SVG koordinatina cevirir (kuzey YUKARI)."""
+        a = math.radians(kerteriz)
+        return (MERKEZ_X + uzaklik * math.sin(a),
+                MERKEZ_Y - uzaklik * math.cos(a))
+
+    # Pist seridi: eksen boyunca iki uc. SVG'de 0 derece SAGA bakar,
+    # pusulada 0 derece YUKARI - fark cikarilarak donduruluyor.
+    x1, y1 = _nokta(pist_yonu, YARICAP * 0.80)
+    x2, y2 = _nokta(pist_yonu + 180, YARICAP * 0.80)
+    yakin_ad = tercih[:2]                       # "06L" -> "06"
+    uzak_ad = "24" if yakin_ad == "06" else "06"
+    # UC ADLARI PISTIN USTUNDE - gercekte de pist numarasi asfalta
+    # yazilidir. Eksenin yaninda dururken ruzgar okuyla cakisiyorlardi
+    # (bas ruzgari en sik durum, ok tam oradan geliyor); serit uzerinde
+    # cakisma yapisal olarak imkansiz cunku ok seride girmeden duruyor.
+    # Her iki ad da SOLDAN SAGA okunacak sekilde donduruluyor.
+    e1x, e1y = _nokta(pist_yonu, YARICAP * 0.52)
+    e2x, e2y = _nokta(pist_yonu + 180, YARICAP * 0.52)
+    # Eksen acisi +-90 araligina indirgenir ki iki numara da SOLDAN SAGA
+    # okunsun. (Gercek pistte numaralar birbirine gore terstir - her biri
+    # kendi yaklasma yonunden okunur - ama 11 piksellik bir diyagramda
+    # okunurluk gercekciligin onune geciyor.)
+    donme = pist_yonu - 90
+    while donme > 90:
+        donme -= 180
+    while donme < -90:
+        donme += 180
+    d1 = d2 = donme
+
+    ok = ""
+    if yon is not None and hiz:
+        # Ruzgar GELDIGI yonden merkeze dogru cizilir (meteorolojik yon).
+        # Ok SERIDE GIRMEDEN duruyor (serit yarim uzunlugu .80 yaricap,
+        # numaralar .52'de) - boylece hicbir ruzgar yonunde cakismaz.
+        kx, ky = _nokta(yon, YARICAP * 1.16)
+        ix, iy = _nokta(yon, YARICAP * 0.76)
+        ok = (f'<line class="pd-ok" x1="{kx:.1f}" y1="{ky:.1f}" '
+              f'x2="{ix:.1f}" y2="{iy:.1f}" marker-end="url(#pd-uc)"/>')
+
+    baslik = (f"Rüzgâr {yon:03d}°/{hiz} kt" if yon is not None and hiz is not None
+              else "Rüzgâr yönü değişken")
+    svg = (
+        f'<svg class="pd-svg" viewBox="0 0 120 120" role="img" '
+        f'aria-label="{html.escape(baslik)}, pist {html.escape(tercih)}">'
+        '<defs><marker id="pd-uc" viewBox="0 0 10 10" refX="9" refY="5" '
+        'markerWidth="5" markerHeight="5" orient="auto-start-reverse">'
+        '<path d="M0 0 L10 5 L0 10 z" fill="currentColor"/></marker></defs>'
+        f'<circle class="pd-halka" cx="{MERKEZ_X}" cy="{MERKEZ_Y}" r="{YARICAP}"/>'
+        f'<line class="pd-pist" x1="{x1:.1f}" y1="{y1:.1f}" '
+        f'x2="{x2:.1f}" y2="{y2:.1f}"/>'
+        f'<text class="pd-uc-ad pd-uc-tercih" x="{e1x:.1f}" y="{e1y:.1f}" '
+        f'transform="rotate({d1:.1f} {e1x:.1f} {e1y:.1f})">{yakin_ad}</text>'
+        f'<text class="pd-uc-ad" x="{e2x:.1f}" y="{e2y:.1f}" '
+        f'transform="rotate({d2:.1f} {e2x:.1f} {e2y:.1f})">{uzak_ad}</text>'
+        f'<text class="pd-kuzey" x="{MERKEZ_X}" y="{MERKEZ_Y - YARICAP - 6:.1f}">K</text>'
+        f"{ok}</svg>")
+
+    if bas is None:
+        okuma = '<div class="pd-satir">Rüzgâr yönü değişken — bileşen hesaplanamıyor</div>'
+    else:
+        limit, _ = pist.kuyruk_limiti(cozum)
+        kuyruk = bas < 0
+        bas_sinif = " pd-asan" if kuyruk and abs(bas) > limit else ""
+        okuma = (
+            f'<div class="pd-satir{bas_sinif}">'
+            f'<span class="pd-etiket">{"kuyruk" if kuyruk else "baş"}</span>'
+            f'<b>{abs(bas):.0f}</b> kt</div>'
+            f'<div class="pd-satir"><span class="pd-etiket">yan</span>'
+            f'<b>{yan:.0f}</b> kt{f" {taraf}" if taraf else ""}</div>')
+        if kuyruk and abs(bas) > limit:
+            okuma += (f'<div class="pd-not">kuyruk limiti {limit} kt '
+                      f'(AD 2.20 K) aşılıyor</div>')
+
+    return ('<div class="pist-diyagram">'
+            f'{svg}<div class="pd-okuma">'
+            f'<div class="pd-pist-ad">{html.escape(tercih)}</div>{okuma}'
+            '<div class="pd-not">rüzgâra göre hesaplanmış tercih — '
+            'aktif pisti ATC belirler</div>'
+            '</div></div>')
 
 
 def _ikincil_satir(cozum: dict) -> str:
@@ -3353,6 +3671,11 @@ def _kart(rapor: dict, yorum_onbellegi: dict | None = None,
         ikincil = _ikincil_satir(cozum)
         if ikincil:
             p.append(f'<div class="ozet-ikincil">{html.escape(ikincil)}</div>')
+
+        diyagram = _pist_diyagrami_html(cozum, rapor["metin"],
+                                        notlar.get("tercih"))
+        if diyagram:
+            p.append(diyagram)
 
         satirlar = []
         ham_pistler = notlar["pistler"]
@@ -3816,6 +4139,11 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
                       ikon_zil_js=json.dumps(ikon("zil")),
                       ikon_zil_kapali_js=json.dumps(ikon("zil-kapali")),
                       gozlem_taze_dk=GOZLEM_TAZE_DK,
+                      # LTFJ icin GERCEK gun dogumu/batimi
+                      # (ltfj_pist._gunes_saatleri). Gun/gece karari
+                      # ISTEMCIDE veriliyor - sayfa acik kalabiliyor.
+                      gun_dogumu=_gunes_iso(simdi)[0],
+                      gun_batimi=_gunes_iso(simdi)[1],
                       gozlem_beklenen_dk=GOZLEM_BEKLENEN_DK,
                       sessizlik_saat=SESSIZLIK_SAAT,
                       # Basliktaki durum gostergesi ve yas seridi BU iki
