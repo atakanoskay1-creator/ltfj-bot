@@ -19,7 +19,8 @@ import ltfj_gorus_gecis_tablo as gecis_tablo
 import ltfj_sis_olasilik as sis_olasilik
 import ltfj_sis_olasilik_b as sis_olasilik_b
 import ltfj_vfr as vfr
-from ltfj_analiz import metar_coz, ozet_satiri, uyarilar
+from ltfj_analiz import (TAVAN_KATMANLARI, metar_coz, ozet_satiri,
+                         uyarilar)
 # Sis kodlari alanin KENDI tanimiyla ayni yerde dursun - bu oturumda
 # kopyalanmis bir sabit (NOTAM gecerlilik karari) iki yerde ayni hatayi
 # tasidi, tekrarlamayalim. ltfj_rasat zaten import edildigi icin ek bir
@@ -128,11 +129,20 @@ def ikon(ad: str, sinif: str = "ikon") -> str:
 GRAFIK_PENCERE_SAAT = 6
 GRAFIK_MIN_NOKTA = 2      # cizgi cizmek icin en az bu kadar nokta lazim
 GRAFIK_YEDEK_NOKTA = 12   # pencere yeterli veri vermezse en fazla bu kadar eski kayit gosterilir
+# RENKLER KALDIRILDI - hepsi artik --marka. Onceki degerler
+# (#3b82f6 / #22c55e / #eab308 / #ef4444) DURUM RENKLERININ AYNISIYDI:
+# BLU, GRN, YLO ve RED. Yani sayfa renksiz degildi, renk butcesini SERI
+# KIMLIGINE harciyordu - yesil bir tavan cizgisi "iyi", kirmizi bir
+# sicaklik cizgisi "kotu" gibi okunuyordu, oysa ikisi de sadece birer
+# seri. Dort grafigin her biri TEK SERI ve kendi basligini tasiyor
+# ("Rüzgâr", "Bulut tavanı", ...), yani kimligi baslik veriyor; hue'ya
+# gerek yok. (dataviz rehberi: "Status colors are reserved ... never
+# reused for series".)
 GRAFIKLER = (
-    ("ruzgar_hiz", "Rüzgâr", "kt", "#3b82f6"),
-    ("tavan", "Bulut tavanı", "ft", "#22c55e"),
-    ("qnh", "QNH", "hPa", "#eab308"),
-    ("sicaklik", "Sıcaklık", "°C", "#ef4444"),
+    ("ruzgar_hiz", "Rüzgâr", "kt"),
+    ("tavan", "Bulut tavanı", "ft"),
+    ("qnh", "QNH", "hPa"),
+    ("sicaklik", "Sıcaklık", "°C"),
 )
 
 # --------------------------------------------------------------- yazı tipi
@@ -226,6 +236,15 @@ SABLON = """<!DOCTYPE html>
        neredeyse beyaz oluyordu (olculen bagil parlaklik 0.853, hero
        0.023 - 37 kat). Gece karartilmis bir kulede ekranin en parlak
        nesnesi "not ekle" dugmesi olmamali. */
+    /* MARKA TONU - ANLAM TASIMAZ. Grafik cizgisi, secili sekme
+       gostergesi ve odak halkasi icin; durum ASLA bu tonla
+       anlatilmaz. Mor secildi cunku durum hue'lari (kirmizi 15,
+       turuncu 30, sari 50, yesil 140, mavi 250 derece) arasindaki
+       EN GENIS bosluk orada. Olculdu (OKLab ΔE, rehberin
+       normal-gorus tabani 15): en yakin durum rengine 15.8;
+       kontrast acik yuzeyde 8.98, koyuda 7.24 (cizgi icin
+       gereken 3:1'in cok ustunde). */
+    --marka:#5b21b6;
     --fab-zemin:#0f172a; --fab-metin:#f8fafc; --fab-cizgi:transparent;
     /* Kart golgesi: acik temada kagit degil KONSOL hissi icin.
        Koyu temada golge yok - siyah uzerine golge gorunmez ve
@@ -265,8 +284,8 @@ SABLON = """<!DOCTYPE html>
       --metin:#e8eefc; --soluk:#8fa0bf; --sessiz:#64748b; --vurgu:#e8eefc;
       --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
       --bilgi:#60a5fa;
+      --marka:#b39ddb;
       --fab-zemin:#1e2a44; --fab-metin:#e8eefc; --fab-cizgi:#31405f;
-    --golge:none; --golge-yukari:none;
       --golge:none; --golge-yukari:none;
     }}
   }}
@@ -276,7 +295,9 @@ SABLON = """<!DOCTYPE html>
     --metin:#e8eefc; --soluk:#8fa0bf; --sessiz:#64748b; --vurgu:#e8eefc;
     --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
     --bilgi:#60a5fa;
+    --marka:#b39ddb;
     --fab-zemin:#1e2a44; --fab-metin:#e8eefc; --fab-cizgi:#31405f;
+    --golge:none; --golge-yukari:none;
   }}
   /* Hareket azaltma tercihi: isletim sisteminde acan kullanici icin tum
      gecis ve animasyonlar durur. Sayfa islevini KAYBETMEZ - donen ok yine
@@ -556,6 +577,34 @@ SABLON = """<!DOCTYPE html>
   /* "bildirilmedi" bir SAYI degil - hero puntosunda sayfanin en buyuk
      yazisi oluyor ve yoklugu olculmus bir degerden baskin gosteriyordu. */
   .hero-deger-metin {{ font-size:var(--f3); font-weight:600; color:var(--soluk); }}
+  /* Grafik cizgileri MARKA tonunda - durum rengi DEGIL (bkz.
+     GRAFIKLER aciklamasi). currentColor ile miras aliniyor. */
+  .grafik {{ color:var(--marka); }}
+  .grafik-esik {{
+    stroke:var(--soluk); stroke-width:1; stroke-dasharray:4,4; opacity:.7;
+  }}
+  /* OLCUM OLMAYAN ZAMAN ARALIGI. Cizgi burada DEVAM ETMIYOR - alan bos
+     ve sinir cizgisiyle ayrilmis. rect esneyen SVG icinde durdugu icin
+     sorun degil: dikdortgen ve dikey cizgi esnemeden de dogru okunur,
+     yalnizca YAZI eziliyordu. */
+  .grafik-bosluk {{ fill:var(--soluk); opacity:.08; }}
+  .grafik-sinir {{
+    stroke:var(--soluk); stroke-width:1; stroke-dasharray:3,3; opacity:.55;
+    vector-effect:non-scaling-stroke;
+  }}
+  /* HTML - SVG <text> DEGIL: grafik SVG'si preserveAspectRatio="none"
+     ile esniyor, icindeki yazi hem kuculuyor hem yatayda eziliyordu.
+     Konum, cizgiyle AYNI olcekten (bkz. _esik_orani) yuzde olarak
+     geliyor; zemin cipi altindaki dolguyu kesip yaziyi okunur birakiyor. */
+  .grafik-esik-ad {{
+    position:absolute; left:0; transform:translateY(-100%);
+    font-size:var(--f1); font-family:var(--mono); color:var(--soluk);
+    background:var(--kart); padding:0 .3em; border-radius:3px;
+    pointer-events:none; white-space:nowrap;
+  }}
+  /* Kivilcim (hero) de ayni tonda - ama oradaki SVG 100x20, esik cizgisi
+     o boyutta okunmaz, o yuzden yalnizca cizgi + dolgu. */
+  .hero-kivilcim {{ color:var(--marka); }}
   /* Gun/gece baglami - sis penceresi gece-sabah oldugu icin BILGI. */
   .ust-faz {{
     font-size:var(--f1); color:var(--soluk); letter-spacing:.02em;
@@ -2765,9 +2814,40 @@ def _grafik_verisi(gecmis: list, alan: str, simdi: datetime) -> list:
     return _gecmis_noktalari(gecmis, alan, None)[-GRAFIK_YEDEK_NOKTA:]
 
 
+def _dikey_olcek(degerler: list) -> tuple[float, float]:
+    """Grafigin dusey ekseni. TEK KAYNAK: hem cizgi hem esik etiketi
+    ayni olcegi kullanmak zorunda, yoksa etiket cizginin uzerine
+    oturmaz."""
+    v_min, v_max = min(degerler), max(degerler)
+    if v_min == v_max:
+        v_min, v_max = v_min - 1, v_max + 1
+    pad = (v_max - v_min) * 0.15
+    return v_min - pad, v_max + pad
+
+
+def _esik_orani(degerler: list, esik: float | None,
+                yukseklik: int = 64) -> float | None:
+    """Esigin cizim kutusundaki DUSEY ORANI (0 = ust kenar, 1 = alt) -
+    cizilen araliga dusmuyorsa None.
+
+    Etiket SVG <text> DEGIL, ustune konumlanan HTML: SVG
+    preserveAspectRatio="none" ile esnedigi icin icindeki yazi hem
+    kuculuyor hem yatayda eziliyordu (olculdu: 600 birimlik kutu ~326
+    px'e siginca 11 px'lik yazi ~6 px'e dusuyor). Oran burada
+    hesaplanip yuzde olarak HTML'e veriliyor."""
+    if esik is None or not degerler:
+        return None
+    v_min, v_max = _dikey_olcek(degerler)
+    if not v_min <= esik <= v_max:
+        return None
+    y = yukseklik - 4 - (yukseklik - 8) * ((esik - v_min) / (v_max - v_min))
+    return y / yukseklik
+
+
 def _svg_cizgi(noktalar: list, renk: str, raporlanmiyor: bool = False,
                guncel_zaman: datetime | None = None,
-               genislik=600, yukseklik=64) -> tuple | None:
+               genislik=600, yukseklik=64,
+               esik: float | None = None) -> tuple | None:
     """(svg, oranlar) dondurur. oranlar: her nokta icin (x, y) - SVG kutusuna
     gore 0-1 arasi ORAN. SVG preserveAspectRatio="none" ile esnedigi icin bu
     oranlar istemcide dogrudan piksele cevrilebilir (bkz. grafik balonu
@@ -2783,11 +2863,7 @@ def _svg_cizgi(noktalar: list, renk: str, raporlanmiyor: bool = False,
     if len(noktalar) < 2:
         return None
     degerler = [v for _, v in noktalar]
-    v_min, v_max = min(degerler), max(degerler)
-    if v_min == v_max:
-        v_min, v_max = v_min - 1, v_max + 1
-    pad = (v_max - v_min) * 0.15
-    v_min, v_max = v_min - pad, v_max + pad
+    v_min, v_max = _dikey_olcek(degerler)
 
     t0 = noktalar[0][0]
     t1 = noktalar[-1][0]
@@ -2806,20 +2882,52 @@ def _svg_cizgi(noktalar: list, renk: str, raporlanmiyor: bool = False,
                     for i, (z, v) in enumerate(noktalar))
     son_x, son_y = x(noktalar[-1][0]), y(noktalar[-1][1])
 
+    # ESIK CIZGISI - yalnizca CIZILEN ARALIGA DUSUYORSA. Dusmeyeni
+    # zorla gostermek y eksenini esnetirdi, yani veriyi carpitirdi;
+    # ekseni bozmaktansa cizgiyi hic cizmemek dogru.
+    esik_svg = ""
+    esik_oran = _esik_orani(degerler, esik, yukseklik)
+    if esik_oran is not None:
+        ey = esik_oran * yukseklik
+        esik_svg = (
+            f'<line class="grafik-esik" x1="4" y1="{ey:.1f}" '
+            f'x2="{genislik - 4}" y2="{ey:.1f}"/>')
+
+    # GRADYAN DOLGU - cizginin altini kapatir. Dekoratif degil: cizginin
+    # HANGI TARAFININ "asagi" oldugunu gosterir ve kucuk yukseklikte
+    # egilimin yonunu okumayi kolaylastirir. Kimlik yine cizgide.
+    kimlik = f"gd{abs(hash((genislik, yukseklik, len(noktalar)))) % 100000}"
+    dolgu_yolu = (yol + f" L{son_x:.1f},{yukseklik} L{x(noktalar[0][0]):.1f},"
+                        f"{yukseklik} Z")
+    dolgu = (f'<defs><linearGradient id="{kimlik}" x1="0" y1="0" x2="0" y2="1">'
+             f'<stop offset="0%" stop-color="{renk}" stop-opacity=".22"/>'
+             f'<stop offset="100%" stop-color="{renk}" stop-opacity="0"/>'
+             f'</linearGradient></defs>'
+             f'<path d="{dolgu_yolu}" fill="url(#{kimlik})" stroke="none"/>')
+
     oranlar = [(x(z) / genislik, y(v) / yukseklik) for z, v in noktalar]
 
+    bosluk_svg = ""
     if uzatildi:
         kenar_x = x(t1)
-        ek_yol = (f'<path d="M{son_x:.1f},{son_y:.1f} L{kenar_x:.1f},{son_y:.1f}" '
-                  f'fill="none" stroke="{renk}" stroke-width="2" '
-                  f'stroke-linecap="round" stroke-dasharray="5,4"/>')
+        # CIZGI DEVAM ETMIYOR. Ilk surumde son olcumun HIZASINDA yatay
+        # kesikli bir cizgi ciziliyordu; bu, degerin surdugu izlenimini
+        # veriyordu - "tavan 3500 ft'te sabit" diye okunuyordu, oysa o
+        # olcumden beri tavan hic raporlanmadi. Artik o zaman araligi
+        # BOS: sinir cizgisiyle ayrilmis, icinde veri olmayan bir alan.
+        bosluk_svg = (
+            f'<rect class="grafik-bosluk" x="{son_x:.1f}" y="0" '
+            f'width="{max(0.0, kenar_x - son_x):.1f}" height="{yukseklik}"/>'
+            f'<line class="grafik-sinir" x1="{son_x:.1f}" y1="0" '
+            f'x2="{son_x:.1f}" y2="{yukseklik}"/>')
         nokta_svg = (f'<circle cx="{son_x:.1f}" cy="{son_y:.1f}" r="4" '
-                     f'fill="none" stroke="{renk}" stroke-width="2"/>' + ek_yol)
+                     f'fill="none" stroke="{renk}" stroke-width="2"/>')
     else:
         nokta_svg = f'<circle cx="{son_x:.1f}" cy="{son_y:.1f}" r="3" fill="{renk}"/>'
 
     svg = (f'<svg viewBox="0 0 {genislik} {yukseklik}" class="grafik" '
            f'preserveAspectRatio="none">'
+           f"{dolgu}{bosluk_svg}{esik_svg}"
            f'<path d="{yol}" fill="none" stroke="{renk}" stroke-width="2" '
            f'stroke-linejoin="round" stroke-linecap="round"/>'
            f'{nokta_svg}</svg>')
@@ -2841,8 +2949,9 @@ def _en_son_kayit(gecmis: list) -> dict | None:
     return en_son
 
 
-def _grafik_blogu(alan: str, baslik: str, birim: str, renk: str,
-                   gecmis: list, simdi: datetime, guncel: dict | None) -> str:
+def _grafik_blogu(alan: str, baslik: str, birim: str,
+                   gecmis: list, simdi: datetime, guncel: dict | None,
+                   yokluk: str | None = None) -> str:
     noktalar = _grafik_verisi(gecmis, alan, simdi)
     # guncel: gecmis'teki EN YENI kayit (zamana gore, tipi ne olursa olsun).
     # Bu kayitta alan yoksa/None ise ("tavan" icin tipik ornek: gokyuzu
@@ -2858,8 +2967,13 @@ def _grafik_blogu(alan: str, baslik: str, birim: str, renk: str,
             guncel_zaman = datetime.fromisoformat(guncel["zaman"])
         except (KeyError, ValueError, TypeError):
             guncel_zaman = None
-    cizim = _svg_cizgi(noktalar, renk, raporlanmiyor=raporlanmiyor,
-                       guncel_zaman=guncel_zaman)
+    # TAVAN icin RED esigi: RENK_DURUMLARI'nin son satirinin altina
+    # dusmek RED demek. Tablodan geliyor, uydurulmuyor. Diger alanlarin
+    # (ruzgar/QNH/sicaklik) boyle tek degiskenli bir esigi YOK, o yuzden
+    # onlara cizgi cizilmiyor.
+    esik = pist.RENK_DURUMLARI[-1][1] if alan == "tavan" else None
+    cizim = _svg_cizgi(noktalar, "currentColor", raporlanmiyor=raporlanmiyor,
+                       esik=esik, guncel_zaman=guncel_zaman)
     if not cizim:
         return ""
     svg, oranlar = cizim
@@ -2883,22 +2997,43 @@ def _grafik_blogu(alan: str, baslik: str, birim: str, renk: str,
     ]
 
     if raporlanmiyor:
-        son_etiket = '<span class="grafik-son grafik-son-yok">raporlanmıyor</span>'
+        # "raporlanmiyor" ile "yok" AYNI SEY DEGIL ve kullanici icin fark
+        # buyuk: birincisi "bilgi gelmiyor", ikincisi "ortada tavan yok".
+        # Hangisi oldugunu SOYLEYEBILIYORSAK soyluyoruz (bkz.
+        # _tavan_yoklugu); soyleyemiyorsak notr kelimede kaliyoruz.
+        if yokluk == "yok":
+            rozet, kuyruk = "tavan yok", "o zamandan beri 5/8+ katman (BKN/OVC/VV) yok"
+        elif yokluk == "yukseklik_yok":
+            rozet, kuyruk = ("yükseklik bildirilmedi",
+                             "katman var ama yüksekliği bildirilmedi (BKN///)")
+        else:
+            rozet, kuyruk = "raporlanmıyor", "o zamandan beri raporlanmıyor"
+        son_etiket = f'<span class="grafik-son grafik-son-yok">{rozet}</span>'
         durum_notu = (
             f'<div class="grafik-durum-notu">Son ölçüm: {son_deger:.0f} '
-            f'{html.escape(birim)} · {_zaman_metni(noktalar[-1][0])} — o zamandan '
-            f'beri raporlanmıyor.</div>'
+            f'{html.escape(birim)} · {_zaman_metni(noktalar[-1][0])} — {kuyruk}.'
+            f'</div>'
         )
     else:
         son_etiket = f'<span class="grafik-son">{son_deger:.0f} {html.escape(birim)}</span>'
         durum_notu = ""
+
+    # ESIK ETIKETI - cizginin USTUNDE, SOL kenarda. Sag uc "su anki deger"
+    # noktasinin yeri; etiketi oraya koymak (ilk surum) yaziyi cizginin
+    # uzerine bindiriyordu (ekran goruntusuyle gorundu).
+    esik_oran = _esik_orani([v for _, v in noktalar], esik)
+    esik_etiketi = ""
+    if esik_oran is not None:
+        esik_etiketi = (f'<span class="grafik-esik-ad" '
+                        f'style="top:{esik_oran * 100:.1f}%">RED '
+                        f'{esik:.0f} {html.escape(birim)}</span>')
 
     return (
         f'<div class="grafik-kutu" '
         f'data-noktalar="{html.escape(json.dumps(nokta_verisi, ensure_ascii=False))}">'
         f'<div class="grafik-baslik"><span>{html.escape(baslik)}</span>'
         f'{son_etiket}</div>'
-        f'<div class="grafik-sarmal">{svg}'
+        f'<div class="grafik-sarmal">{svg}{esik_etiketi}'
         f'<div class="grafik-imlec" hidden></div>'
         f'<div class="grafik-nokta" hidden></div>'
         f'<div class="grafik-balon" hidden></div></div>'
@@ -2907,13 +3042,34 @@ def _grafik_blogu(alan: str, baslik: str, birim: str, renk: str,
     )
 
 
-def _trend_bolumu(gecmis: list) -> str:
+def _ayni_gozlem(kayit: dict | None, zaman: datetime | None) -> bool:
+    """Olcum gecmisindeki kayit ile guncel raporun AYNI gozlem olup
+    olmadigi (dakika hassasiyetinde)."""
+    if kayit is None or zaman is None:
+        return False
+    try:
+        k = datetime.fromisoformat(kayit["zaman"])
+    except (KeyError, ValueError, TypeError):
+        return False
+    return abs((k - zaman).total_seconds()) <= 60
+
+
+def _trend_bolumu(gecmis: list, tavan_yoklugu: str | None = None,
+                  gozlem_zamani: datetime | None = None) -> str:
     if not gecmis:
         return ""
     simdi = datetime.now(timezone.utc)
     guncel = _en_son_kayit(gecmis)
-    bloklar = [_grafik_blogu(alan, baslik, birim, renk, gecmis, simdi, guncel)
-               for alan, baslik, birim, renk in GRAFIKLER]
+    # tavan_yoklugu GUNCEL RAPORDAN cikarildi; grafikteki "raporlanmiyor"
+    # ise olcum gecmisinin EN SON KAYDINA bakiyor. Normalde ayni gozlem,
+    # ama ayni degillerse (gecmis bir tur geride kalmissa) rapordan gelen
+    # cumleyi baska bir gozlemin uzerine yazmis olurduk - o yuzden
+    # eslesmiyorsa notr kelimeye donuluyor.
+    if tavan_yoklugu and not _ayni_gozlem(guncel, gozlem_zamani):
+        tavan_yoklugu = None
+    bloklar = [_grafik_blogu(alan, baslik, birim, gecmis, simdi, guncel,
+                             tavan_yoklugu if alan == "tavan" else None)
+               for alan, baslik, birim in GRAFIKLER]
     bloklar = [b for b in bloklar if b]
     if not bloklar:
         return ""
@@ -3234,7 +3390,14 @@ def _vfr_sekmesi_html(guncel_cozum: dict | None) -> str:
         '<div class="vfr-panel">'
         '<div class="vfr-panel-ust">'
         f'<h3><span class="vfr-nokta {nokta}"></span>{html.escape(baslik)}</h3>'
-        '<button type="button" id="vfr-panel-kapat" class="atc-panel-kapat" aria-label="Kapat">{ikon_kapat}</button>'
+        # f-STRING OLMAK ZORUNDA: bu satir duz string oldugu icin
+        # {ikon_kapat} sayfaya OLDUGU GIBI basiliyordu - VFR panelini
+        # acan kullanici kapatma ikonu yerine "{ikon_kapat}" yazisi
+        # goruyordu. Sayfa govdesi .format() ile kuruluyor ama format
+        # DEGERLERIN ICINE GIRMEZ, bu HTML de bir deger olarak
+        # gecirildigi icin yer tutucu hic doldurulmuyordu.
+        f'<button type="button" id="vfr-panel-kapat" class="atc-panel-kapat" '
+        f'aria-label="Kapat">{ikon("kapat")}</button>'
         '</div>'
         f'<ul>{sebep_html}</ul>'
         f'<div class="vfr-esik">Eşik: görüş ≥ {vfr.VFR_GORUS_ESIGI_M} m, '
@@ -3300,6 +3463,37 @@ def _kivilcim(gecmis: list, alan: str, simdi: datetime) -> str:
     return svg.replace("<svg ", '<svg class="hero-kivilcim" aria-hidden="true" ', 1)
 
 
+def _tavan_yoklugu(cozum: dict | None) -> str | None:
+    """Tavan SAYISI yokken bunun ne demek oldugunu soyleyebiliyor muyuz?
+
+    "yok"            - METAR'da hic BKN/OVC/VV katmani yok. Bu bir tahmin
+                       degil, tavanin TANIMI: tavan en alcak 5/8+ katmanin
+                       tabanidir; katman yoksa tavan da yoktur.
+    "yukseklik_yok"  - Katman VAR ama yuksekligi bildirilmemis (BKN///).
+                       Burada "tavan yok" demek YANLIS bir operasyonel
+                       ifade olurdu: tavan vardir, yuksekligi bilinmiyor.
+    None             - Soyleyemiyoruz (cozum yok, ya da "bulutlar"
+                       anahtari hic gelmemis - yani bulut gruplarini
+                       gormemisiz demektir; bos LISTE ise gordugumuz ve
+                       katman olmadigi anlamina gelir).
+    """
+    if cozum is None:
+        return None
+    bulutlar = cozum.get("bulutlar") or []
+    katmanlar = [b for b in bulutlar if b.get("ortu") in TAVAN_KATMANLARI]
+    if katmanlar:
+        # Katman var: sayisi yoksa yuksekligi bildirilmemistir (BKN///).
+        return "yukseklik_yok" if all(b.get("ft") is None for b in katmanlar) else None
+    # OLUMLU BIR ISARET SART. Bulut grubunun listede olmamasi tek basina
+    # "tavan yok" demek DEGIL - bozuk/kirpilmis bir raporda da liste bos
+    # kalir (ornek: "LTFJ 231420Z /////KT //// // Q////"). Bu yuzden ya
+    # gercekten okunmus bir katman (FEW/SCT) ya da "bulut yok" diyen bir
+    # kod (NSC/NCD/SKC/CLR, CAVOK) aranıyor.
+    if bulutlar or cozum.get("bulut_yok") or cozum.get("cavok"):
+        return "yok"
+    return None
+
+
 def _olcu(cozum: dict, anahtar: str) -> tuple[str, str]:
     """Dort ana olcunun (deger, birim) bicimi - TEK KAYNAK.
 
@@ -3330,7 +3524,14 @@ def _olcu(cozum: dict, anahtar: str) -> tuple[str, str]:
         return (f"{m / 1000:g}", "km") if m >= 1000 else (f"{m:g}", "m")
     if anahtar == "tavan":
         t = cozum.get("tavan")
-        return ("bildirilmedi", "") if t is None else (f"{t:g}", "ft")
+        if t is not None:
+            return (f"{t:g}", "ft")
+        # "bildirilmedi" ile "yok" AYNI SEY DEGIL. METAR'da hic BKN/OVC
+        # katmani yoksa tavan tanim geregi YOKTUR; bunu "bildirilmedi"
+        # diye yazmak, bilgi eksikligi varmis gibi okutuyordu. Ama
+        # katman varken yuksekligi bildirilmemisse (BKN///) "yok" demek
+        # yanlis olur - o durumda "bildirilmedi" dogru kelime.
+        return ("yok", "") if _tavan_yoklugu(cozum) == "yok" else ("bildirilmedi", "")
     if anahtar == "_ruzgar":
         yon, hiz = cozum.get("ruzgar_yon"), cozum.get("ruzgar_hiz")
         if hiz is None:
@@ -3929,7 +4130,18 @@ def _ozet_serit_html(cozum: dict | None, notlar: dict | None) -> str:
     def _kisa(anahtar, on=""):
         deger, birim = _olcu(cozum, anahtar)
         if deger == "bildirilmedi":
-            return {"tavan": "tavan yok"}.get(anahtar, "—")
+            # BURADA ESKIDEN tavan icin KOSULSUZ "tavan yok" yaziliyordu.
+            # Ama "sayi gelmedi" ile "tavan yok" ayni sey degil: bozuk ya
+            # da kirpilmis bir raporda da sayi gelmez ve serit, ortada
+            # tavan olmadigini SOYLEMIS olurdu. Artik bu ayrimi _olcu
+            # yapiyor (bkz. _tavan_yoklugu); buraya dusen sey gercekten
+            # "bilmiyoruz" demek.
+            return "—"
+        if anahtar == "tavan" and deger == "yok":
+            # Seritte GORUNUR ETIKET yok (sadece title), o yuzden deger
+            # kendini anlatmak zorunda. Hero'da ustunde "TAVAN" yaziyor,
+            # orada sade "yok" dogru okunuyor.
+            return "tavan yok"
         # Spread'de birim YAZILMIYOR: "Δ" zaten farki anlatiyor ve
         # serit dar ekranda tek satirda kalmali.
         if on:
@@ -4111,13 +4323,17 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
     # SIRA: once GUNCEL raporlar, sonra GECMIS egilim. Trend bolumu
     # eskiden en ustteydi, yani 6 saatlik gecmis su anki gozlemden once
     # okunuyordu.
-    govde = (("".join(_kart(r, yorum_onbellegi, gecmis, simdi) for r in sirali)
-              or "<div class='kart'>Rapor yok.</div>")
-             + _trend_bolumu(gecmis))
-    icao = raporlar[0].get("icao", "LTFJ") if raporlar else "LTFJ"
-
+    # GUNCEL RAPOR GOVDEDEN ONCE cozuluyor: trend bolumu, tavan sayisi
+    # yokken "tavan yok" mu yoksa "raporlanmiyor" mu yazacagini buna
+    # bakarak seciyor (bkz. _tavan_yoklugu).
     guncel_rapor = next((r for r in sirali if r["tip"] in ("METAR", "SPECI")), None)
     guncel_cozum = metar_coz(guncel_rapor["metin"]) if guncel_rapor else None
+
+    govde = (("".join(_kart(r, yorum_onbellegi, gecmis, simdi) for r in sirali)
+              or "<div class='kart'>Rapor yok.</div>")
+             + _trend_bolumu(gecmis, _tavan_yoklugu(guncel_cozum),
+                             guncel_rapor.get("zaman") if guncel_rapor else None))
+    icao = raporlar[0].get("icao", "LTFJ") if raporlar else "LTFJ"
     # Ust seritteki renk rozeti kartlarla AYNI hesaptan gelsin diye
     # havacilik_notlari burada bir kez daha cagriliyor (saf fonksiyon,
     # ag/dosya erisimi yok); rozetin karttakinden sessizce sapmamasi icin.

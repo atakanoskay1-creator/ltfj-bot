@@ -4,6 +4,7 @@ Balon TAMAMEN statik uretilir: nokta koordinatlari + okunabilir metinler
 sayfa yazilirken data-noktalar niteligine gomulur, istemci tarafinda
 hicbir fetch() yapilmaz."""
 import html as html_mod
+import re
 import json
 from datetime import datetime, timedelta, timezone
 
@@ -161,8 +162,8 @@ def test_son_kayitta_deger_yoksa_son_nokta_ici_bos_cizilir(tmp_path):
     html = hedef.read_text(encoding="utf-8")
     i = _grafik_basi(html, "Bulut tavanı")
     svg = html[i:html.index("</svg>", i)]
-    assert 'fill="none" stroke="#22c55e" stroke-width="2"/>' in svg  # ici bos daire
-    assert "stroke-dasharray" in svg
+    assert 'fill="none" stroke="currentColor" stroke-width="2"/>' in svg  # ici bos daire
+    assert 'class="grafik-sinir"' in svg   # olcumun bittigi yer
 
 
 def test_son_kayitta_deger_varsa_raporlanmiyor_etiketi_cikmaz(tmp_path):
@@ -194,16 +195,109 @@ def test_son_kayitta_deger_yoksa_eksen_ucu_eski_olcumde_takili_kalmiyor(tmp_path
     assert eksen_son != son_olcum_saati
 
 
-def test_son_kayitta_deger_yoksa_kesikli_cizgi_sag_kenara_kadar_uzaniyor(tmp_path):
-    """Kesikli 'raporlanmiyor' cizgisi son gercek noktadan grafigin SAG
-    KENARINA (guncel zamana) kadar uzanmali, ortada bir yerde kesilmemeli."""
+def test_olcumsuz_aralik_BOS_birakiliyor_cizgi_devam_ETMIYOR(tmp_path):
+    """KARAR DEGISTI. Eskiden son gercek olcumden sag kenara kadar, son
+    degerin HIZASINDA yatay kesikli bir cizgi ciziliyordu. Kullanici bunu
+    "deger surüyor" diye okuyordu ("tavan 3000 ft'te sabit"), oysa o
+    olcumden beri tavan hic raporlanmadi - yani cizgi OLMAYAN bir veriyi
+    cizmis oluyordu.
+
+    Artik o aralik BOS: sinir cizgisi + veri olmadigini gosteren soluk
+    bir alan, sag kenara kadar."""
     hedef = tmp_path / "index.html"
     s.sayfa_yaz([METAR], _en_son_yok_gecmisi(), hedef, {}, "")
     html = hedef.read_text(encoding="utf-8")
     i = _grafik_basi(html, "Bulut tavanı")
     svg = html[i:html.index("</svg>", i)]
 
-    j = svg.index("stroke-dasharray")
-    kesikli_path = svg[svg.rindex("<path", 0, j):svg.index("/>", j)]
-    kenar_x = float(kesikli_path.split("L")[-1].split(",")[0])
-    assert kenar_x > 590   # genislik=600, kenar payi 4px -> sag kenar ~596
+    m = re.search(r'<rect class="grafik-bosluk" x="([\d.]+)" y="0" width="([\d.]+)"', svg)
+    assert m, "bos aralik cizilmemis"
+    x, gen = float(m.group(1)), float(m.group(2))
+    assert x + gen > 590   # genislik=600, kenar payi 4px -> sag kenar ~596
+
+    # Veri cizgisi bos alanin BASLADIGI yerde bitmeli, icine girmemeli.
+    cizgi = re.search(r'<path d="(M[^"]+)" fill="none"', svg).group(1)
+    son_x = float(cizgi.split("L")[-1].split(",")[0])
+    assert abs(son_x - x) < 0.5, (son_x, x)
+
+
+# ------------------------------------- "raporlanmiyor" mu, "tavan yok" mu?
+# Kullanici raporu: tavan raporlanmadiginda grafik bunu "dusuk degerin
+# devami" gibi gosteriyordu. Cizim tarafi yukarida duzeltildi; burasi
+# KELIMEYI dogruluyor - "bilgi gelmiyor" ile "ortada tavan yok" ayni sey
+# degil ve ikisini karistirmak operasyonel olarak yaniltici.
+def _eslesen_gecmis(tavan_son=None):
+    """Son kaydin ZAMANI METAR ile ayni - sayfa ancak o zaman rapordan
+    cikardigi cumleyi grafige yazar."""
+    return [
+        {"zaman": (SIMDI - timedelta(hours=2)).isoformat(),
+         "ruzgar_hiz": 5, "tavan": 3500, "qnh": 1016, "sicaklik": 20},
+        {"zaman": (SIMDI - timedelta(hours=1)).isoformat(),
+         "ruzgar_hiz": 5, "tavan": 3000, "qnh": 1016, "sicaklik": 20},
+        {"zaman": SIMDI.isoformat(),
+         "ruzgar_hiz": 9, "tavan": tavan_son, "qnh": 1020, "sicaklik": 22},
+    ]
+
+
+def _tavan_rozeti(tmp_path, metin, gecmis=None) -> str:
+    hedef = tmp_path / "index.html"
+    rapor = {"tip": "METAR", "icao": "LTFJ", "zaman": SIMDI, "metin": metin}
+    s.sayfa_yaz([rapor], gecmis if gecmis is not None else _eslesen_gecmis(),
+                hedef, {}, "")
+    html = hedef.read_text(encoding="utf-8")
+    i = _grafik_basi(html, "Bulut tavanı")
+    return html[i:i + 900]
+
+
+def test_katman_okundu_ve_hicbiri_5_8_degilse_TAVAN_YOK_deniyor(tmp_path):
+    """SCT050 okunmus: tavan en alcak 5/8+ katmanin tabanidir, oyle bir
+    katman yoksa tavan TANIM GEREGI yoktur. Bu bir cikarim degil."""
+    blok = _tavan_rozeti(tmp_path, "LTFJ 171200Z 06009KT 9999 SCT050 21/14 Q1016")
+    assert ">tavan yok<" in blok
+    assert "raporlanmıyor" not in blok
+
+
+def test_NSC_de_TAVAN_YOK(tmp_path):
+    """NSC/NCD/SKC/CLR "bulut grubu gelmedi" degil, "bulut yok" der."""
+    blok = _tavan_rozeti(tmp_path, "LTFJ 171200Z 06009KT 9999 NSC 21/14 Q1016")
+    assert ">tavan yok<" in blok
+
+
+def test_BKN_yuksekligi_bilinmiyorsa_TAVAN_YOK_DENMEZ(tmp_path):
+    """BKN/// : tavan VARDIR, yalnizca yuksekligi bildirilmemistir.
+    Burada "tavan yok" demek yanlis bir operasyonel ifade olurdu."""
+    blok = _tavan_rozeti(tmp_path, "LTFJ 171200Z 06009KT 9999 BKN/// 21/14 Q1016")
+    assert ">yükseklik bildirilmedi<" in blok
+    assert "tavan yok" not in blok
+
+
+def test_BOZUK_raporda_notr_kelimede_kaliniyor(tmp_path):
+    """Kirpilmis/bozuk bir raporda da bulut listesi BOS kalir. Listenin
+    bos olmasi tek basina "tavan yok" demek degil - olumlu bir isaret
+    (okunmus bir katman ya da NSC/CAVOK) yoksa notr kelime kullanilir."""
+    blok = _tavan_rozeti(tmp_path, "LTFJ 171200Z /////KT //// // Q////")
+    assert "raporlanmıyor" in blok
+    assert "tavan yok" not in blok
+
+
+def test_gecmisin_son_kaydi_BASKA_bir_gozlemse_rapordan_cumle_TASINMAZ(tmp_path):
+    """Grafikteki "raporlanmiyor", olcum gecmisinin son kaydina bakar;
+    "tavan yok" ise GUNCEL RAPORDAN cikarilir. Bu ikisi ayni gozlem
+    degilse, rapordan gelen cumle baska bir gozlemin uzerine yazilmis
+    olurdu."""
+    baska = _eslesen_gecmis()
+    baska[-1]["zaman"] = (SIMDI + timedelta(minutes=30)).isoformat()
+    blok = _tavan_rozeti(tmp_path, "LTFJ 171200Z 06009KT 9999 SCT050 21/14 Q1016",
+                         gecmis=baska)
+    assert "raporlanmıyor" in blok
+    assert "tavan yok" not in blok
+
+
+def test_tavan_yoklugu_kurali():
+    assert s._tavan_yoklugu({"bulutlar": [{"ortu": "SCT", "ft": 5000}]}) == "yok"
+    assert s._tavan_yoklugu({"bulutlar": [], "bulut_yok": True}) == "yok"
+    assert s._tavan_yoklugu({"bulutlar": [], "cavok": True}) == "yok"
+    assert s._tavan_yoklugu({"bulutlar": []}) is None          # olumlu isaret yok
+    assert s._tavan_yoklugu({"bulutlar": [{"ortu": "BKN", "ft": None}]}) == "yukseklik_yok"
+    assert s._tavan_yoklugu({"bulutlar": [{"ortu": "BKN", "ft": 800}]}) is None
+    assert s._tavan_yoklugu(None) is None

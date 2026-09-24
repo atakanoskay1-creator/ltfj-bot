@@ -97,7 +97,7 @@ def metar_coz(metin: str) -> dict:
 
     d = {
         "ruzgar_yon": None, "ruzgar_hiz": None, "ruzgar_hamle": None,
-        "degisken": None, "gorus": None, "cavok": False,
+        "degisken": None, "gorus": None, "cavok": False, "bulut_yok": False,
         "bulutlar": [], "tavan": None, "hava": [],
         "sicaklik": None, "cig_noktasi": None, "qnh": None,
         "nosig": nosig,
@@ -138,6 +138,13 @@ def metar_coz(metin: str) -> dict:
             continue
 
         if t in ("NSC", "NCD", "SKC", "CLR"):
+            # KAYIT ALTINA ALINIYOR (eskiden sessizce atlaniyordu): bu
+            # kodlar "bulut grubu GELMEDI" ile ayni sey degil, "bulut
+            # YOK" diyorlar. Web sayfasi tavan sayisi olmadiginda
+            # "tavan yok" mu yoksa "bildirilmedi" mi yazacagina buna
+            # bakarak karar veriyor (bkz. ltfj_sayfa._tavan_yoklugu) -
+            # bozuk/eksik bir raporda "tavan yok" demek yanlis olurdu.
+            d["bulut_yok"] = True
             continue
 
         m = RE_SICAKLIK.match(t)

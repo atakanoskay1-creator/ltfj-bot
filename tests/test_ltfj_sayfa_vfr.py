@@ -55,3 +55,30 @@ def test_vfr_panel_toggle_scripti_var_fetch_yok(tmp_path):
     yurutulen = "\n".join(satir for satir in blok.splitlines()
                            if not satir.strip().startswith("//"))
     assert "fetch(" not in yurutulen
+
+
+def test_kapat_dugmesinde_YER_TUTUCU_degil_gercek_IKON_var(tmp_path):
+    """BUG (kullanıcı raporu): VFR sekmesine basınca kapatma ikonu
+    yerine "{ikon_kapat}" YAZISI çıkıyordu.
+
+    Sebep: bu satır f-string DEĞİLDİ. Sayfa gövdesi .format() ile
+    kuruluyor ama format DEĞERLERİN İÇİNE girmez - bu HTML de bir
+    değer olarak geçirildiği için yer tutucu hiç doldurulmuyordu.
+
+    Test yer tutucunun SAYFANIN TAMAMINDA olmadığına bakıyor: aynı
+    hata başka bir düğmede de tekrarlanabilir."""
+    html = _sayfa_yaz(tmp_path, "LTFJ 161250Z 06010KT 9999 FEW020 22/15 Q1013 NOSIG")
+    assert "{ikon_kapat}" not in html
+    kapat = html.split('id="vfr-panel-kapat"')[1].split("</button>")[0]
+    assert "<svg" in kapat, kapat
+
+
+def test_HICBIR_format_yer_tutucusu_sayfaya_sizmiyor(tmp_path):
+    """Aynı sınıftan hataların tamamını kapatır: sayfada {bir_sey}
+    biçiminde doldurulmamış bir yer tutucu kalmamalı. (CSS/JS süslü
+    parantezleri elenir - onlar `{` sonrası boşluk/yeni satır ya da
+    `:`/`;` içerir; yer tutucu sade bir tanımlayıcıdır.)"""
+    import re
+    html = _sayfa_yaz(tmp_path, "LTFJ 161250Z 06010KT 9999 FEW020 22/15 Q1013 NOSIG")
+    kalanlar = set(re.findall(r"\{([a-z_][a-z0-9_]{2,})\}", html))
+    assert not kalanlar, kalanlar

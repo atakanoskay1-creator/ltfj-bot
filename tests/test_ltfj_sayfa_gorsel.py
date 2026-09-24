@@ -199,3 +199,185 @@ def test_kart_ZEMINDEN_ayrisiyor(tmp_path):
     kart = re.search(r"--kart:(#[0-9a-f]{6})", kok).group(1)
     assert bg != kart
     assert kart.lower() == "#ffffff"
+
+
+# ================================================== 3) gradyan + eşik çizgisi
+def _gecmisli_sayfa(tmp_path) -> str:
+    """_sayfa() geçmişsiz yazıyor; geçmiş yoksa grafik bölümü HİÇ
+    çizilmiyor (bkz. test_gecmis_yoksa_grafik_bolumu_hic_cikmaz).
+    Grafikle ilgili iddialar bu yüzden kendi fikstürünü kurmak
+    zorunda - yoksa test "grafik yok" diye değil, "gradyan yok" diye
+    kalırdı."""
+    gecmis = [{"zaman": (SIMDI - timedelta(minutes=30 * i)).isoformat(),
+               "tavan": 2500 + 40 * i, "ruzgar_hiz": 8 + (i % 5), "qnh": 1013,
+               "sicaklik": 12.0 + i * 0.2} for i in range(9, -1, -1)]
+    hedef = tmp_path / "g.html"
+    s.sayfa_yaz([{"tip": "METAR", "icao": "LTFJ", "zaman": SIMDI,
+                  "metin": "LTFJ 241720Z 06015KT 9999 FEW030 12/08 Q1013"}],
+                gecmis, hedef)
+    return hedef.read_text(encoding="utf-8")
+
+
+def test_grafiklerde_GRADYAN_dolgu_var(tmp_path):
+    """Dekoratif değil: çizginin HANGİ tarafının "aşağı" olduğunu
+    gösterir ve küçük yükseklikte eğilimin yönünü okumayı
+    kolaylaştırır. Kimlik yine çizgide."""
+    html_metin = _govde(_gecmisli_sayfa(tmp_path))
+    # MUTASYON DERSI: once yalnizca "linearGradient" ve BIR currentColor
+    # duragi araniyordu. Dolgu <path>'ini tamamen silmek de, duraklardan
+    # yalnizca birini sabit renge cevirmek de testi GECIYORDU. Uc sey
+    # birden dogrulanmali: tanim var, HER IKI durak mirasli, ve gercek
+    # bir yol o tanimi KULLANIYOR.
+    tanim = re.search(r'<linearGradient id="(gd\d+)"(.*?)</linearGradient>',
+                      html_metin, re.S)
+    assert tanim, "gradyan tanimi yok"
+    duraklar = re.findall(r'<stop [^>]*stop-color="([^"]+)"', tanim.group(2))
+    assert len(duraklar) == 2 and set(duraklar) == {"currentColor"}, duraklar
+    assert f'fill="url(#{tanim.group(1)})"' in html_metin, "tanim var ama kullanilmiyor"
+
+
+def test_esik_cizgisi_TABLODAN_geliyor(tmp_path):
+    """RED eşiği ltfj_pist.RENK_DURUMLARI'nın son satırından - sayfa
+    kendi eşiğini uydurmuyor."""
+    gecmis = [{"zaman": (SIMDI - timedelta(minutes=30 * i)).isoformat(),
+               "tavan": 250 + 60 * i, "ruzgar_hiz": 8, "qnh": 1013,
+               "sicaklik": 12.0} for i in range(9, -1, -1)]
+    hedef = tmp_path / "t.html"
+    s.sayfa_yaz([{"tip": "METAR", "icao": "LTFJ", "zaman": SIMDI,
+                  "metin": "LTFJ 241720Z 06008KT 1200 BR BKN002 14/13 Q1013"}],
+                gecmis, hedef)
+    html_metin = _govde(hedef.read_text(encoding="utf-8"))
+    esik = pist.RENK_DURUMLARI[-1][1]
+    assert 'class="grafik-esik"' in html_metin
+    assert f"RED {esik} ft" in html_metin
+
+
+def test_esik_etiketi_SVG_ICINDE_DEGIL_konumlanmis_HTML(tmp_path):
+    """SVG preserveAspectRatio="none" ile esniyor: icine konan <text>
+    hem kuculuyor hem yatayda eziliyor (ekran goruntusunde 11 px'lik
+    yazi ~6 px cikti). Etiket bu yuzden HTML ve konumu, cizgiyle AYNI
+    olcekten (_esik_orani) yuzde olarak geliyor."""
+    gecmis = [{"zaman": (SIMDI - timedelta(minutes=30 * i)).isoformat(),
+               "tavan": 250 + 60 * i, "ruzgar_hiz": 8, "qnh": 1013,
+               "sicaklik": 12.0} for i in range(9, -1, -1)]
+    hedef = tmp_path / "t.html"
+    s.sayfa_yaz([{"tip": "METAR", "icao": "LTFJ", "zaman": SIMDI,
+                  "metin": "LTFJ 241720Z 06008KT 1200 BR BKN002 14/13 Q1013"}],
+                gecmis, hedef)
+    html_metin = _govde(hedef.read_text(encoding="utf-8"))
+    assert "<text" not in html_metin.split("grafik-grid")[1].split("</details>")[0]
+    m = re.search(r'<span class="grafik-esik-ad" style="top:([\d.]+)%">', html_metin)
+    assert m, "konumlanmis HTML etiket yok"
+    # Cizgi ile AYNI orandan: SVG'deki y1, oranin 64 birimlik karsiligi.
+    oran = float(m.group(1)) / 100
+    y1 = float(re.search(r'<line class="grafik-esik" x1="4" y1="([\d.]+)"',
+                         html_metin).group(1))
+    assert abs(y1 / 64 - oran) < 0.002, (y1, oran)
+
+
+def test_esik_ARALIK_DISINDAYSA_cizilmiyor():
+    """Düşmeyeni zorla göstermek y eksenini esnetirdi, yani VERİYİ
+    ÇARPITIRDI. Ekseni bozmaktansa çizgiyi hiç çizmemek doğru."""
+    simdi = datetime.now(timezone.utc)
+    yuksek = [(simdi - timedelta(minutes=30 * i), 3000 + i) for i in range(6)]
+    svg, _ = s._svg_cizgi(yuksek, "currentColor", esik=200)
+    assert 'class="grafik-esik"' not in svg
+    assert s._esik_orani([3000 + i for i in range(6)], 200) is None
+
+
+def test_esik_alan_basina_dogru_DEGERLE_geciliyor(monkeypatch):
+    """MUTASYON DERSI: asagidaki "sayfada bir tane eşik çizgisi var"
+    testi iki mutasyonu birden kaciriyordu - eşiği HER alana geçirmek
+    (rüzgâr/QNH/sıcaklık aralıkları 200'ü içermediği için çizgi yine
+    çizilmiyor) ve eşiği TABLODAN değil elle (250) vermek. Bu yüzden
+    _svg_cizgi'ye giden argüman doğrudan kaydediliyor."""
+    kayit = {}
+
+    gecmis = [{"zaman": (SIMDI - timedelta(minutes=30 * i)).isoformat(),
+               "tavan": 2500 + 40 * i, "ruzgar_hiz": 8 + (i % 5), "qnh": 1013,
+               "sicaklik": 12.0 + i * 0.2} for i in range(9, -1, -1)]
+
+    gercek = s._svg_cizgi
+    for alan, baslik, birim in s.GRAFIKLER:
+        def yakala(*a, esik=None, **k):
+            kayit[alan] = esik
+            return gercek(*a, esik=esik, **k)
+        monkeypatch.setattr(s, "_svg_cizgi", yakala)
+        s._grafik_blogu(alan, baslik, birim, gecmis,
+                        datetime.now(timezone.utc), gecmis[-1])
+
+    assert kayit["tavan"] == pist.RENK_DURUMLARI[-1][1]
+    for alan in kayit:
+        if alan != "tavan":
+            assert kayit[alan] is None, f"{alan} icin uydurma esik"
+
+
+def test_esik_YALNIZCA_tavanda(tmp_path):
+    """Rüzgâr/QNH/sıcaklığın tek değişkenli böyle bir eşiği YOK -
+    onlara çizgi çizmek uydurma olurdu."""
+    gecmis = [{"zaman": (SIMDI - timedelta(minutes=30 * i)).isoformat(),
+               "tavan": 300 - 10 * i, "ruzgar_hiz": 10, "qnh": 1013,
+               "sicaklik": 12.0, "cig_noktasi": 10.0} for i in range(9, -1, -1)]
+    hedef = tmp_path / "e.html"
+    s.sayfa_yaz([{"tip": "METAR", "icao": "LTFJ", "zaman": SIMDI,
+                  "metin": "LTFJ 241720Z 06010KT 2000 BR BKN002 12/10 Q1013"}],
+                gecmis, hedef)
+    html_metin = _govde(hedef.read_text(encoding="utf-8"))
+    assert html_metin.count('class="grafik-esik"') == 1, "tavan disinda da cizilmis"
+
+
+# ================================================== 6) marka tonu
+def test_grafikler_DURUM_RENGI_kullanmiyor(tmp_path):
+    """EN ÖNEMLİSİ. GRAFIKLER eskiden #3b82f6 / #22c55e / #eab308 /
+    #ef4444 kullanıyordu - yani BLU, GRN, YLO ve RED'in ta kendisi.
+    Sayfa renksiz değildi; renk bütçesini SERİ KİMLİĞİNE harcıyordu.
+    Yeşil bir tavan çizgisi "iyi", kırmızı bir sıcaklık çizgisi "kötü"
+    gibi okunuyordu, oysa ikisi de sadece birer seri.
+
+    (dataviz rehberi: "Status colors are reserved ... never reused for
+    series".)"""
+    # Gecmissiz sayfada grafik HIC cizilmiyor; _sayfa() ile bu testin
+    # stroke iddialari BOSA calisiyordu (mutasyonla ortaya cikti).
+    html_metin = _govde(_gecmisli_sayfa(tmp_path))
+    for durum_rengi in ("#3b82f6", "#22c55e", "#eab308", "#ef4444", "#f97316"):
+        assert f'stroke="{durum_rengi}"' not in html_metin, durum_rengi
+    # GRAFIKLER artik renk TASIMIYOR.
+    assert all(len(g) == 3 for g in s.GRAFIKLER), s.GRAFIKLER
+
+
+def test_marka_tonu_DURUM_RENKLERINDEN_ayirt_edilebilir():
+    """Marka tonu bir durum gibi okunmamalı. Rehberin normal-görüş
+    tabanı: OKLab ΔE >= 15. Bu test sayıyı değil KURALI kilitliyor -
+    ton değişirse yeniden ölçülür."""
+    import math
+
+    def _lin(c):
+        c /= 255
+        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+    def _oklab(hx):
+        hx = hx.lstrip("#")
+        r, g, b = (_lin(int(hx[i:i + 2], 16)) for i in (0, 2, 4))
+        l = (0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b) ** (1 / 3)
+        m = (0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b) ** (1 / 3)
+        sv = (0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b) ** (1 / 3)
+        return (0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * sv,
+                1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * sv,
+                0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * sv)
+
+    def _dE(a, b):
+        x, y = _oklab(a), _oklab(b)
+        return 100 * math.sqrt(sum((p - q) ** 2 for p, q in zip(x, y)))
+
+    from ltfj_sayfa import RENK_KODU
+    marka = "#5b21b6"
+    for kod, renk in RENK_KODU.items():
+        assert _dE(marka, renk) >= 15, f"marka tonu {kod} gibi okunabilir"
+
+
+def test_marka_tonu_iki_temada_da_TANIMLI(tmp_path):
+    html_metin = _sayfa(tmp_path)
+    assert "--marka:#5b21b6" in html_metin
+    assert html_metin.count("--marka:#b39ddb") == 2, "iki koyu tema blogunda da olmali"
+    grafik = html_metin.split("\n  .grafik {")[1].split("}")[0]
+    assert "var(--marka)" in grafik

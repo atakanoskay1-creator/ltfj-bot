@@ -167,10 +167,21 @@ def test_tavan_yoksa_BILDIRILMEDI(tmp_path):
 
 # ------------------------------------------- görsel sözleşme
 def test_kivilcim_currentColor_kullaniyor(tmp_path):
-    """Sabit renk verilseydi koyu temada yanlış tonda çizilirdi."""
+    """Sabit renk verilseydi koyu temada yanlış tonda çizilirdi.
+
+    ÇAPA DARALTILDI: kıvılcım SVG'sine gradyan dolgu eklendi ve o
+    `<path ... stroke="none">` ile BAŞLIYOR - testin ilk sürümü ilk
+    stroke'u arıyordu, yani dolgunun "none"ını okuyup kırılıyordu.
+    Artık ÇİZGİ path'i aranıyor (stroke-width="2" olan)."""
     html = _sayfa(tmp_path)
-    m = re.search(r'<svg class="hero-kivilcim"[^>]*>.*?stroke="([^"]*)"', html, re.S)
-    assert m and m.group(1) == "currentColor", m.group(1) if m else "svg yok"
+    svg = re.search(r'<svg class="hero-kivilcim".*?</svg>', html, re.S)
+    assert svg, "kıvılcım svg yok"
+    # ÇİZGİ path'i: stroke-width="2" olan. Gradyan dolgusu
+    # stroke="none" ile geliyor ve SVG'de ondan ÖNCE duruyor.
+    m = re.search(r'stroke="([^"]*)" stroke-width="2"', svg.group(0))
+    assert m and m.group(1) == "currentColor", m.group(1) if m else "cizgi yok"
+    # Dolgunun da marka tonundan geldiğini doğrula (sabit renk değil):
+    assert 'stop-color="currentColor"' in svg.group(0)
 
 
 def test_kivilcim_ekran_okuyucudan_gizli(tmp_path):
@@ -201,3 +212,21 @@ def test_telefonda_2x2_genis_ekranda_4lu(tmp_path):
     assert "repeat(2,1fr)" in taban
     genis = html.split("@media (min-width:560px)")[1].split("}")[0]
     assert "repeat(4,1fr)" in genis
+
+
+def test_tavan_KANITLI_olarak_yoksa_YOK_yaziyor(tmp_path):
+    """SCT050 okunmus: tavan en alcak 5/8+ katmanin tabanidir, oyle bir
+    katman yoksa tavan TANIM GEREGI yoktur. Bunu "bildirilmedi" diye
+    yazmak, bilgi eksikligi varmis gibi okutuyordu.
+
+    Hero'da degerin USTUNDE zaten "TAVAN" etiketi var, o yuzden burada
+    sade "yok" yeterli; etiketi olmayan ozet seritte "tavan yok" yaziyor
+    (bkz. test_ltfj_sayfa_ozet_serit.py)."""
+    h = _hero(_sayfa(tmp_path, metin="LTFJ 231420Z 06005KT 9999 SCT050 15/10 Q1019"))
+    assert h["TAVAN"] == "yok"
+
+
+def test_tavan_BKN_yuksekligi_bilinmiyorsa_YOK_DENMEZ(tmp_path):
+    """BKN/// : tavan VARDIR, yalnizca yuksekligi bildirilmemistir."""
+    h = _hero(_sayfa(tmp_path, metin="LTFJ 231420Z 06005KT 9999 BKN/// 15/10 Q1019"))
+    assert h["TAVAN"] == "bildirilmedi"
