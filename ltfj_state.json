@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:53203791",
   "id:53208980",
   "id:53220034",
   "id:53226365",
@@ -199,23 +198,16 @@
   "id:54238652",
   "id:54246752",
   "id:54250857",
-  "id:54258905"
+  "id:54258905",
+  "id:54261290"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 242220Z 06004KT CAVOK 13/10 Q1021 NOSIG RMK RWY24R 35006KT RWY06R 02006KT RWY24L 04004KT",
+ "son_metar": "METAR LTFJ 242250Z 04006KT CAVOK 13/10 Q1021 NOSIG RMK RWY24R 36005KT RWY06R 02008KT RWY24L 03005KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-24T22:20:00+00:00",
+ "son_veri_zamani": "2026-09-24T22:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-19T01:50:00+00:00",
-   "ruzgar_hiz": 5,
-   "tavan": 3000,
-   "qnh": 1018,
-   "sicaklik": 16,
-   "cig_noktasi": 14
-  },
   {
    "zaman": "2026-09-19T02:20:00+00:00",
    "ruzgar_hiz": 4,
@@ -2665,13 +2657,22 @@
    "qnh": 1021,
    "sicaklik": 13,
    "cig_noktasi": 10
+  },
+  {
+   "zaman": "2026-09-24T22:50:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 6,
+   "tavan": null,
+   "qnh": 1021,
+   "sicaklik": 13,
+   "cig_noktasi": 10
   }
  ],
  "yorum_onbellegi": {
-  "TAF LTFJ 241640Z 2418/2518 04004KT CAVOK BECMG 2509/2513 05014KT SCT035 BECMG 2513/2516 CAVOK BECMG 2516/2518 04004KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 24. günün 16:40 UTC'den 25. günün 18:00 UTC'ye kadar olan dönemde başlangıçta görüş açık, sonrasında değişken bulutluluk beklenmektedir.\n\n- **2418/2509 UTC:** Rüzgar 040° 4 knot, görüş açık.\n- **2509/2513 UTC:** Kademeli geçiş — rüzgar 050° 14 knot, 3500 ft'de dağınık bulutlar.\n- **2513/2516 UTC:** Kademeli geçiş — görüş açık.\n- **2516/2518 UTC:** Rüzgar 040° 4 knot.",
-  "METAR LTFJ 242120Z 03005KT CAVOK 14/10 Q1021 NOSIG RMK RWY24R 36007KT RWY06R 02006KT RWY24L 04004KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot (yaklaşık 9 km/s) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Tüm yönlerde 10 kilometre ve daha fazla görüş var, uçuş için görüş açısından rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve hava olayları açısından kısıtlayıcı bir unsur yoktur.",
   "METAR LTFJ 242150Z 03004KT 360V090 CAVOK 13/10 Q1021 NOSIG RMK RWY24R 35006KT RWY06R 01006KT RWY24L 04003KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 4 knot hızla esen hafif rüzgâr, yönü 360 derece ile 90 derece arasında değişiyor.\n\n**Görüş:** Görüş sınırsız, uçuş için açık ve rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı unsur oluşturmuyor, hava koşulları uçuş için elverişli.",
-  "METAR LTFJ 242220Z 06004KT CAVOK 13/10 Q1021 NOSIG RMK RWY24R 35006KT RWY06R 02006KT RWY24L 04004KT": "**Rüzgâr:** Kuzey-kuzeydoğudan çok hafif 4 knot hızla esiyor, yan rüzgâr sorunu yok.\n\n**Görüş:** Mükemmel görüş koşulları, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut yok, gökyüzü açık ve temiz.\n\n**Uçuşa etkisi:** Hava koşulları uçuş için kısıtlayıcı bir unsur içermiyor, önümüzdeki 2 saatte de önemli değişiklik beklenmiyyor."
+  "METAR LTFJ 242220Z 06004KT CAVOK 13/10 Q1021 NOSIG RMK RWY24R 35006KT RWY06R 02006KT RWY24L 04004KT": "**Rüzgâr:** Kuzey-kuzeydoğudan çok hafif 4 knot hızla esiyor, yan rüzgâr sorunu yok.\n\n**Görüş:** Mükemmel görüş koşulları, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut yok, gökyüzü açık ve temiz.\n\n**Uçuşa etkisi:** Hava koşulları uçuş için kısıtlayıcı bir unsur içermiyor, önümüzdeki 2 saatte de önemli değişiklik beklenmiyyor.",
+  "METAR LTFJ 242250Z 04006KT CAVOK 13/10 Q1021 NOSIG RMK RWY24R 36005KT RWY06R 02008KT RWY24L 03005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan hafif bir şekilde 6 knot (yaklaşık 11 km/saat) hızında esiyor.\n\n**Görüş:** Görüş mükemmel, ufuk çizgisine kadar her şey açık ve net görülüyor.\n\n**Gökyüzü:** Bulut yok, gökyüzü temiz; yağış beklenmiyyor.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş koşulları uçuş için kısıtlayıcı bir unsur oluşturmuyor, hava durumu uygun.",
+  "TAF LTFJ 241640Z 2418/2518 04004KT CAVOK BECMG 2509/2513 05014KT SCT035 BECMG 2513/2516 CAVOK BECMG 2516/2518 04004KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 24. günün 16:40 UTC'den 25. günün 18:00 UTC'ye kadar olan dönemde değişken rüzgar ve görüş koşulları beklenmektedir.\n\n- **2418/2509 UTC:** Rüzgar 040° 4 knot, görüş sınırsız, bulut yok.\n- **2509/2513 UTC:** Kademeli geçiş — rüzgar 050° 14 knot, 3500 feet'te dağınık bulut.\n- **2513/2516 UTC:** Kademeli geçiş — görüş sınırsız, bulut yok.\n- **2516/2518 UTC:** Rüzgar 040° 4 knot."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3172,6 +3173,6 @@
   }
  },
  "notam_son_senkron": "2026-09-24T20:45:54+00:00",
- "guncelleme": "2026-09-24T22:46:03+00:00",
+ "guncelleme": "2026-09-24T23:01:21+00:00",
  "push_gonderilen": []
 }
