@@ -4,6 +4,7 @@ yerel gecmis birlestirme.
 Test verileri notam_ornekler.py'de - kullanicinin GERCEK NOTAC yanitindan
 (2026-09-16, GitHub Actions test istegi) alinan alan adlari ve yapisiyla
 birebir uyumlu."""
+from datetime import datetime, timezone
 from unittest.mock import patch
 
 import pytest
@@ -430,3 +431,38 @@ def test_zenginlestirme_ONBELLEGI_zincirin_sonuna_kadar_tasiniyor(monkeypatch):
     eski = {"i1": {"raw": GERCEK_RAW, "record_updated_at": "2026-09-24T18:18:00Z"}}
     nm.yururlukteki_ve_yaklasan_notamlar("LTFJ", eski)
     assert istenen == [], "önbellek zincirin sonuna ulaşmamış"
+
+
+def test_YEREL_ISARETLER_kayit_guncellenince_KAYBOLMUYOR():
+    """push_yaklasan / push_yururluk NOTAC'tan gelmez, botun kendi
+    defteridir. gecmisi_guncelle, record_updated_at değiştiğinde kaydı
+    dict(kayit) ile TAMAMEN değiştiriyor - işaretler orada silinirdi ve
+    aynı bildirim tekrar giderdi."""
+    eski = {"i1": {"id": "i1", "number": "B1/26", "record_updated_at": "ESKI",
+                   "push_yaklasan": True, "push_yururluk": True,
+                   "first_seen": "2026-01-01T00:00:00+00:00",
+                   "last_seen": "2026-01-01T00:00:00+00:00",
+                   "last_active": "2026-01-01T00:00:00+00:00"}}
+    yeni = {"id": "i1", "number": "B1/26", "record_updated_at": "YENI",
+            "status": "active"}
+    g = nm.gecmisi_guncelle(eski, [yeni], "2026-09-25T22:00:00+00:00")
+    assert g["i1"]["record_updated_at"] == "YENI", "kayıt tazelenmemiş"
+    assert g["i1"]["push_yaklasan"] is True
+    assert g["i1"]["push_yururluk"] is True
+    assert g["i1"]["first_seen"] == "2026-01-01T00:00:00+00:00"
+
+
+def test_yururlukte_mi_sinirlari():
+    an = datetime(2026, 9, 25, 12, 0, tzinfo=timezone.utc)
+
+    def k(bas, bit=None):
+        return {"effective_start": bas, "effective_end": bit}
+
+    assert nm.yururlukte_mi(k("2026-09-25T11:00:00Z", "2026-09-25T13:00:00Z"), an) is True
+    assert nm.yururlukte_mi(k("2026-09-25T13:00:00Z"), an) is False      # baslamadi
+    assert nm.yururlukte_mi(k("2026-09-25T10:00:00Z", "2026-09-25T11:00:00Z"), an) is False
+    assert nm.yururlukte_mi(k("2026-09-25T11:00:00Z", None), an) is True  # suresiz
+    # Baslangic okunamiyorsa yururlukte SAYMIYORUZ: "emin degilim"
+    # durumunda bildirim atmak yanlis alarm uretir.
+    assert nm.yururlukte_mi(k(None), an) is False
+    assert nm.yururlukte_mi(k("bozuk-tarih"), an) is False
