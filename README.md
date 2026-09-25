@@ -3,7 +3,7 @@
 LTFJ metar taf botu
 # ✈️ LTFJ (Sabiha Gökçen) METAR/TAF Telegram Botu
 
-**Günlük kullanım:** [Türkçe kullanıcı kılavuzu](KULLANICI_KILAVUZU.md)
+**Sayfa kullanım kılavuzu:** [Görselli PDF (14 sayfa)](KULLANICI_KILAVUZU.pdf)
 
 Bu proje, İstanbul Sabiha Gökçen Havalimanı (LTFJ) için güncel havacılık meteorolojisi (METAR ve TAF) verilerini otomatik olarak takip eden, yapay zeka desteğiyle analiz eden ve kritik değişiklikleri anlık olarak Telegram üzerinden bildiren sunucusuz (serverless) bir otomasyon sistemidir.
 
