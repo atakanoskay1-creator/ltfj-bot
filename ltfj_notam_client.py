@@ -142,6 +142,23 @@ def secenekleri_getir(timeout: int = VARSAYILAN_TIMEOUT) -> dict:
         raise NotamAyiklamaHatasi(f"OPTIONS yanıtı JSON değil: {e}") from e
 
 
+def detay_getir(notam_id: str, timeout: int = VARSAYILAN_TIMEOUT) -> dict:
+    """TEK bir NOTAM'in DETAY yaniti: GET /notam/{id}/
+
+    NEDEN AYRI BIR ISTEK GEREKIYOR (olculdu, bkz. notam_kesif.py):
+    liste ucu 33 alan donuyor ama TAM ORIJINAL NOTAM METNI orada YOK.
+    Detay ucu iki alan daha veriyor - "details" ve "raw":
+
+        raw: 'B3810/26 NOTAMC B3809/26\r Q) LTBB/QMRXX/IV/BO /A /000/
+              999/4054N02919E005\r A) LTFJ B) 2609241818\r E) NOTAM
+              CNL. NEW NOTAM TO FLW.'
+
+    Yani "hangi NOTAM'in yerine gecti / hangisini iptal etti" bilgisi
+    "raw" icinde. DRF'de liste ve detay serilestiricilerinin farkli
+    olmasi olagandir; bu yuzden listede aramak yeterli degildi."""
+    return _istek_at(f"{BASE_URL}/notam/{notam_id}/", None, timeout)
+
+
 def sayfa_getir(sayfa_url: str, timeout: int = VARSAYILAN_TIMEOUT) -> dict:
     """DRF sayfalama zarfindaki "next" (ya da "previous") alaninda gelen
     TAM URL'yi cagirir - bu URL zaten sorgu parametrelerini (location,

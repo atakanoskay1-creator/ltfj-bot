@@ -282,3 +282,23 @@ def test_yaklasan_listesi_STATUS_DEGERINE_bagli_DEGIL(tmp_path):
                               "notam_gecmisi": {"x": kayit}}, hedef)
         veri = json.loads(hedef.read_text(encoding="utf-8"))
         assert [k["number"] for k in veri["yaklasan"]] == ["B0009/26"], durum
+
+
+def test_status_UPCOMING_canli_bir_durum_olarak_isleniyor(tmp_path):
+    """TARAYICIDA YAKALANDI, birim testleri kaçırmıştı.
+
+    ltfjNotamGecerlilik() yalnızca "active" varken yazılmıştı ve
+    `status !== "active"` olan her şeyi "diğer" kutusuna atıyordu.
+    NOTAC'ın status sözlüğü ÖLÇÜLÜNCE (active / upcoming / expired)
+    yürürlüğe girmemiş kayıtların "upcoming" taşıdığı ortaya çıktı -
+    yani Yaklaşan NOTAM bölümü VERİ OLDUĞU HALDE boş kalıyordu.
+
+    Birim testleri bunu görmedi çünkü fikstürleri "active" kullanıyordu;
+    hata ancak gerçek status değeriyle tarayıcıda çıktı."""
+    html_metin = _sayfa(tmp_path)
+    blok = html_metin.split("ltfjNotamGecerlilik = function")[1].split("}};")[0]
+    assert 'var CANLI_DURUMLAR = ["active", "upcoming"]' in blok
+    # Eski kosul geri gelmemeli
+    assert 'n.status !== "active"' not in blok
+    # Buyuk/kucuk harf duyarsiz karsilastirma
+    assert "String(n.status).toLowerCase()" in blok

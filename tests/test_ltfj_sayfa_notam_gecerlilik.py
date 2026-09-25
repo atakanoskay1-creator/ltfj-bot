@@ -67,11 +67,25 @@ def test_kalan_sure_goreceli_yaziliyor_mutlak_saat_degil(tmp_path):
 
 
 def test_iptal_edilmis_notam_tarihten_bagimsiz_olarak_ayri_ele_aliniyor(tmp_path):
-    """NOTAC'in kendi status'u 'active' DEGILSE (cancelled/withdrawn)
-    tarih penceresi bakilmadan o deger gosterilmeli - iptal edilmis bir
-    NOTAM tarihi gecmemis olsa da yururlukte degildir."""
+    """NOTAC'in kendi status'u CANLI bir deger DEGILSE (cancelled/
+    withdrawn/expired) tarih penceresi bakilmadan o deger gosterilmeli -
+    iptal edilmis bir NOTAM tarihi gecmemis olsa da yururlukte degildir.
+
+    CAPA GUNCELLENDI, NIYET AYNI: kosul eskiden `status !== "active"`
+    idi. NOTAC'in status sozlugu OLCULUNCE (active / upcoming /
+    expired) bunun fazla genis oldugu ortaya cikti - "upcoming" de
+    canli bir durum ve o kosul Yaklasan NOTAM bolumunu bos birakiyordu
+    (bkz. test_ltfj_notam_qkod.py::test_status_UPCOMING_canli_bir_
+    durum_olarak_isleniyor). Artik CANLI_DURUMLAR listesi disindaki
+    her deger "diger" kutusuna gidiyor."""
     html = _sayfa(tmp_path)
-    assert 'if (n.status && n.status !== "active")' in html
+    assert 'var CANLI_DURUMLAR = ["active", "upcoming"]' in html
+    assert 'CANLI_DURUMLAR.indexOf(String(n.status).toLowerCase()) === -1' in html
+    # Kisa devre KORUNDU: tarih penceresine bakilmadan donuluyor.
+    blok = html.split("ltfjNotamGecerlilik = function")[1]
+    kisa_devre = blok.index("CANLI_DURUMLAR.indexOf")
+    tarih = blok.index("effective_end")
+    assert kisa_devre < tarih, "durum kontrolu tarih penceresinden SONRA kalmis"
 
 
 def test_arama_durum_filtresi_hesaplanan_gecerliligi_kullaniyor(tmp_path):

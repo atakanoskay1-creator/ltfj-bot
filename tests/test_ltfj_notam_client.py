@@ -198,3 +198,16 @@ def test_OPTIONS_anahtar_yoksa_yetki_hatasi(monkeypatch):
     monkeypatch.delenv("NOTAC_API_KEY", raising=False)
     with pytest.raises(nc.NotamYetkiHatasi):
         nc.secenekleri_getir()
+
+
+def test_detay_ucu_ID_ICEREN_URLe_gidiyor(monkeypatch):
+    """MUTASYON DERSI: URL'yi /notam/{id}/ yerine /notam/ yapmak hicbir
+    testi kirmiyordu - yani liste ucuna gidip ilk sayfayi "detay" diye
+    okuyabilirdik ve "raw" hic gelmezdi."""
+    monkeypatch.setenv("NOTAC_API_KEY", "lb_" + "c" * 40)
+    yanit = _sahte_yanit(200, json_deger={"raw": "B3810/26 NOTAMC B3809/26"})
+    with patch("requests.get", return_value=yanit) as mock_get:
+        assert nc.detay_getir("abc-123")["raw"].startswith("B3810/26")
+    url = mock_get.call_args.args[0]
+    assert url.endswith("/notam/abc-123/"), url
+    assert mock_get.call_args.kwargs["headers"]["Authorization"].startswith("Bearer ")

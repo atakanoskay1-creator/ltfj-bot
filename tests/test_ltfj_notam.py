@@ -323,3 +323,110 @@ def test_yururluktekiler_sorgusu_cokerse_HATA_YUKSELIYOR(monkeypatch):
     monkeypatch.setattr(nm.client, "notam_getir", sahte)
     with pytest.raises(nm.NotamServisHatasi):
         nm.yururlukteki_ve_yaklasan_notamlar("LTFJ")
+
+
+# --------------------------------------------- detay ucu / tam ham metin
+# OLCULDU (notam_kesif.py ciktisi): liste ucu 33 alan donuyor ama tam
+# orijinal NOTAM metni orada YOK. Detay ucu iki alan daha veriyor -
+# "details" ve "raw" - ve "hangi NOTAM'in yerine gecti" bilgisi "raw"
+# icinde. Asagidaki metin NOTAC'in GERCEK yanitindan, birebir.
+GERCEK_RAW = ("B3810/26 NOTAMC B3809/26\r Q) LTBB/QMRXX/IV/BO /A /000/999/"
+              "4054N02919E005\r A) LTFJ B) 2609241818\r E) NOTAM CNL. "
+              "NEW NOTAM TO FLW.")
+
+
+def _ham(nid="i1", tip="C", guncelleme="2026-09-24T18:18:00Z"):
+    return {"id": nid, "number": "B3810/26", "notam_type": tip, "status": "active",
+            "location_code": "LTFJ", "text": "NOTAM CNL. NEW NOTAM TO FLW.",
+            "record_updated_at": guncelleme}
+
+
+def test_detay_ucundan_raw_eklenip_referans_cikiyor(monkeypatch):
+    monkeypatch.setattr(nm.client, "detay_getir",
+                        lambda nid: {"raw": GERCEK_RAW, "details": {}})
+    kayitlar = nm.ham_metinleri_ekle([_ham()])
+    assert kayitlar[0]["raw"] == GERCEK_RAW
+    m = nm._notam_modeline_cevir(kayitlar[0])
+    assert m["ilgili_notam"] == {"tip": "C", "numara": "B3809/26"}
+    assert m["raw"] == GERCEK_RAW
+
+
+def test_detay_YALNIZCA_R_ve_C_icin_isteniyor(monkeypatch):
+    """Frugal olmak zorunda: detay ucu NOTAM BASINA bir istek. "N"
+    tipinde yerine gecilen bir NOTAM zaten yok."""
+    istenen = []
+    monkeypatch.setattr(nm.client, "detay_getir",
+                        lambda nid: istenen.append(nid) or {"raw": GERCEK_RAW})
+    nm.ham_metinleri_ekle([_ham("i1", "N"), _ham("i2", "R"), _ham("i3", "C")])
+    assert istenen == ["i2", "i3"]
+
+
+def test_degismemis_kayit_icin_ONBELLEKTEN_okunuyor(monkeypatch):
+    """record_updated_at aynıysa tekrar istek atmıyoruz - yoksa her
+    senkronda aynı metni yeniden çekerdik."""
+    istenen = []
+    monkeypatch.setattr(nm.client, "detay_getir",
+                        lambda nid: istenen.append(nid) or {"raw": "YENI"})
+    eski = {"i1": {"raw": GERCEK_RAW, "record_updated_at": "2026-09-24T18:18:00Z"}}
+    kayitlar = nm.ham_metinleri_ekle([_ham("i1", "C")], eski_gecmis=eski)
+    assert istenen == [], "gereksiz istek atıldı"
+    assert kayitlar[0]["raw"] == GERCEK_RAW
+
+
+def test_kayit_GUNCELLENMISSE_yeniden_cekiliyor(monkeypatch):
+    monkeypatch.setattr(nm.client, "detay_getir", lambda nid: {"raw": "YENI METIN"})
+    eski = {"i1": {"raw": GERCEK_RAW, "record_updated_at": "ESKI-ZAMAN"}}
+    kayitlar = nm.ham_metinleri_ekle([_ham("i1", "C")], eski_gecmis=eski)
+    assert kayitlar[0]["raw"] == "YENI METIN"
+
+
+def test_detay_istegi_SINIRLI(monkeypatch):
+    """Güvenlik sınırı: NOTAC beklenmedik biçimde çok kayıt döndürse
+    bile API'yi dövmeyelim."""
+    sayac = []
+    monkeypatch.setattr(nm.client, "detay_getir",
+                        lambda nid: sayac.append(nid) or {"raw": GERCEK_RAW})
+    nm.ham_metinleri_ekle([_ham(f"i{i}", "R") for i in range(10)], maks_istek=3)
+    assert len(sayac) == 3
+
+
+def test_detay_COKERSE_kayit_raw_siz_devam_ediyor(monkeypatch):
+    """Referans ikincil bir bilgi - NOTAM'ın kendisini kaybetmeye
+    değmez."""
+    def patlat(nid):
+        raise nm.client.NotamAgHatasi("koptu")
+
+    monkeypatch.setattr(nm.client, "detay_getir", patlat)
+    kayitlar = nm.ham_metinleri_ekle([_ham("i1", "C")])
+    assert kayitlar[0].get("raw") in (None, "")
+    assert nm._notam_modeline_cevir(kayitlar[0])["ilgili_notam"] is None
+
+
+def test_notamlari_getir_ZENGINLESTIRMEYI_kendisi_yapiyor(monkeypatch):
+    """MUTASYON DERSİ: ham_metinleri_ekle()'yi doğrudan çağıran testler
+    vardı ama notamlari_getir() içinden çağrıldığını kimse
+    doğrulamıyordu - satırı silmek hiçbir testi kırmıyordu.
+
+    Sıra da önemli: "raw" modele çevrilmeden ÖNCE eklenmeli, yoksa
+    referans çıkarılamaz."""
+    monkeypatch.setattr(nm.client, "notam_getir",
+                        lambda location, ek_parametreler=None: {
+                            "results": [_ham("i1", "C")], "next": None})
+    monkeypatch.setattr(nm.client, "detay_getir",
+                        lambda nid: {"raw": GERCEK_RAW})
+    kayitlar = nm.notamlari_getir("LTFJ")
+    assert kayitlar[0]["ilgili_notam"] == {"tip": "C", "numara": "B3809/26"}
+
+
+def test_zenginlestirme_ONBELLEGI_zincirin_sonuna_kadar_tasiniyor(monkeypatch):
+    """yururlukteki_ve_yaklasan_notamlar -> notamlari_getir ->
+    ham_metinleri_ekle zinciri boyunca eski geçmiş taşınmalı."""
+    monkeypatch.setattr(nm.client, "notam_getir",
+                        lambda location, ek_parametreler=None: {
+                            "results": [_ham("i1", "C")], "next": None})
+    istenen = []
+    monkeypatch.setattr(nm.client, "detay_getir",
+                        lambda nid: istenen.append(nid) or {"raw": GERCEK_RAW})
+    eski = {"i1": {"raw": GERCEK_RAW, "record_updated_at": "2026-09-24T18:18:00Z"}}
+    nm.yururlukteki_ve_yaklasan_notamlar("LTFJ", eski)
+    assert istenen == [], "önbellek zincirin sonuna ulaşmamış"

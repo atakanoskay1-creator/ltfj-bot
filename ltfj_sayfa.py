@@ -1805,7 +1805,15 @@ window.ltfjNotamIlgiliSatiri = function (n) {{
 window.ltfjNotamGecerlilik = function (n) {{
   "use strict";
   var simdi = Date.now();
-  if (n.status && n.status !== "active") {{
+  // "upcoming" DA CANLI BIR DURUM. Bu satir yalnizca "active" varken
+  // yazilmisti; NOTAC'in status sozlugu OLCULUNCE (active / upcoming /
+  // expired) yururluge girmemis kayitlarin "upcoming" tasidigi ortaya
+  // cikti ve bu kontrol onlari "diger" kutusuna atiyordu - yani
+  // Yaklasan NOTAM bolumu VERI OLDUGU HALDE bos kaliyordu.
+  // (Tarayicida yakalandi; birim testleri "active" fiksturu kullandigi
+  // icin gormemisti.)
+  var CANLI_DURUMLAR = ["active", "upcoming"];
+  if (n.status && CANLI_DURUMLAR.indexOf(String(n.status).toLowerCase()) === -1) {{
     return {{durum: "diger", etiket: n.status, vurgula: true}};
   }}
   var bas = n.effective_start ? Date.parse(n.effective_start) : NaN;
