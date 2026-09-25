@@ -14,7 +14,7 @@ VERI TABANLI TASNIF (modul geneli):
 
 DOGRULANMIS SEMA (kullanicinin 2026-09-16'da GitHub Actions'tan attigi
 gercek "GET /notam/?location=LTFJ" istegine gore, bkz. ltfj_notam_client.py):
-  her NOTAM kaydi en azindan: id, number, notam_type, status,
+  her NOTAM kaydi en azindan: id, number, notam_type, q_code, status,
   effective_start, effective_end, notam_issued, notam_updated,
   record_updated_at, text, category {code,label,description},
   tags [{name,label,description}], affected_elements [{ref,type}],
@@ -26,8 +26,17 @@ gercek "GET /notam/?location=LTFJ" istegine gore, bkz. ltfj_notam_client.py):
   "readings" NOTAC'in kendi otomatik plain-English yorumudur (raw metnin
   YERINE degil, YANINDA tutulur) - NOTAC'in kendi sitesindeki uyarisina
   gore "generated automatically and may contain errors".
+
+  NOTAMR/NOTAMC SINIRI: notam_type ("N"/"R"/"C") yapisal bir alandir ve
+  her kayitta vardir. Ama YERINE GECILEN / IPTAL EDILEN NOTAM'IN
+  NUMARASI NOTAC yanitinda AYRI BIR ALAN OLARAK YOK; "text" yalnizca
+  E) govdesini tasiyor (16 gercek LTFJ kaydinda "NOTAMR B1234/26"
+  kalibi hic gecmedi). Numara ancak metinde GERCEKTEN yaziyorsa
+  cikariliyor (bkz. ilgili_notam_referansi) - eslestirme TAHMIN
+  EDILMIYOR, cunku yanlis NOTAM'i isaret etmek bilgi degil zarar olur.
 """
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -45,6 +54,88 @@ BILGI_UYARISI = (
 class NotamServisHatasi(Exception):
     """aktif_notamlari_getir() gibi ust seviye fonksiyonlarin sardigi hata -
     cagiran taraf (ltfj_bot.py) sadece BU tek sinifi yakalamasi yeterli."""
+
+
+# --------------------------------------------------------------- Q kodu
+# ICAO Q kodunun 2-3. harfleri NOTAM'in KONUSUNU verir. Asagidaki liste
+# bir ANLAM TABLOSU DEGIL, bir GORUNURLUK listesi: LVO panelinde hangi
+# konularin listeleneceğini secer. Yaninda yazan karsiliklar insan
+# gozden gecirsin diye duruyor, urunde HICBIR YERDE gosterilmiyor -
+# kartta Q kodu ham haliyle yaziyor.
+#
+# Yanlis bir giris burada "panelde gorunur/gorunmez" demek; operasyonel
+# bir iddia uretmiyor. Yine de eksik kalirsa NOTAM'in sessizce
+# kaybolmamasi icin anahtar kelime suzgeci YEDEKTE tutuluyor (bkz.
+# ltfj_sayfa.notamLvoIliskiliMi) - iki yol BIRLESIM, biri otekini
+# devre disi birakmiyor.
+LVO_Q_KONULARI = (
+    "MR",   # pist
+    "MT",   # esik (threshold)
+    "MS",   # stopway
+    "MX",   # taksi yolu
+    "MW",   # serit/omuz
+    "MD",   # ilan edilmis mesafeler
+    "IC",   # ILS
+    "IL",   # lokalizer
+    "IG",   # glide path
+    "ID",   # ILS'e ait DME
+    "IM",   # middle marker
+    "IO",   # outer marker
+    "LA",   # yaklasma isiklandirma sistemi
+    "LC",   # pist merkez hatti isiklari
+    "LE",   # pist kenar isiklari
+    "LH",   # yuksek yogunluklu pist isiklari
+    "LP",   # PAPI
+    "LR",   # inis sahasi isiklandirmasi
+    "LT",   # esik isiklari
+    "LZ",   # dokunma bolgesi isiklari
+)
+
+
+def q_konusu(kayit: dict) -> str | None:
+    """Q kodunun KONU harfleri (2-3.), ornegin "QMRLC" -> "MR".
+
+    Bicim beklenmedikse None doner - yanlis bir dilimden konu
+    UYDURMAKTANSA "bilmiyorum" demek dogru; cagiran taraf o zaman
+    anahtar kelime yedegine duser."""
+    kod = (kayit.get("q_code") or "").strip().upper()
+    if len(kod) != 5 or not kod.startswith("Q") or not kod.isalpha():
+        return None
+    return kod[1:3]
+
+
+def lvo_ile_ilgili_mi(kayit: dict) -> bool | None:
+    """Q koduna gore LVO panelinde listelenmeli mi?
+
+    None = Q kodu yok/okunamadi, yani BU YOLLA karar verilemiyor -
+    cagiran taraf anahtar kelime yedegini kullanmali. False ile None'i
+    ayirmak onemli: False "baktim, ilgili degil", None "bakamadim".
+    """
+    konu = q_konusu(kayit)
+    if konu is None:
+        return None
+    return konu in LVO_Q_KONULARI
+
+
+# NOTAM basligindaki "NOTAMR B1234/26" / "NOTAMC B1234/26" referansi.
+# NOTAC'in GOZLENEN yanitinda bu numara AYRI BIR ALAN OLARAK YOK ve
+# "text" alani yalnizca E) govdesini tasiyor (16 gercek kayitta bu
+# kalip hic gecmedi). Yine de metinde bulunursa kullaniyoruz: bulunmadi
+# diye UYDURMUYORUZ, sadece None donuyoruz.
+ILGILI_NOTAM_KALIBI = re.compile(
+    r"\bNOTAM(?P<tip>[RC])\s+(?P<numara>[A-Z]\d{4}/\d{2})\b", re.IGNORECASE)
+
+
+def ilgili_notam_referansi(kayit: dict) -> dict | None:
+    """Bu NOTAM'in yerine gectigi (R) ya da iptal ettigi (C) NOTAM'in
+    numarasi - ham metinde GECIYORSA. Gecmiyorsa None.
+
+    notam_type ("R"/"C") ile karistirilmamali: tip NOTAC'in yapisal
+    alani ve HER ZAMAN var; referans numarasi ise cogu zaman YOK."""
+    m = ILGILI_NOTAM_KALIBI.search(kayit.get("text") or "")
+    if not m:
+        return None
+    return {"tip": m.group("tip").upper(), "numara": m.group("numara").upper()}
 
 
 def _notam_modeline_cevir(ham: dict) -> dict:
@@ -69,6 +160,13 @@ def _notam_modeline_cevir(ham: dict) -> dict:
         "notam_issued": ham.get("notam_issued"),
         "notam_updated": ham.get("notam_updated"),
         "record_updated_at": ham.get("record_updated_at"),
+        # Q KODU HAM HALIYLE TASINIYOR, cozumlenmiyor. "QMRLC" gibi bes
+        # harfli ICAO kodu; 2-3. harfler KONU (MR = pist), 4-5. harfler
+        # DURUM. Sayfa bunu oldugu gibi gosteriyor - kendi Turkce
+        # karsiligimizi UYDURMUYORUZ (yanlis bir cevirinin operasyonel
+        # maliyeti var; NOTAC'in kendi category/tags alanlari zaten
+        # insan diliyle etiket veriyor).
+        "q_code": ham.get("q_code"),
         "category_kodu": kategori.get("code"),
         "category_etiketi": kategori.get("label"),
         "tags": [t.get("name") for t in etiketler if isinstance(t, dict) and t.get("name")],
@@ -157,6 +255,9 @@ def notam_ara(
                 n.get("text") or "",
                 n.get("reading_short") or "",
                 n.get("reading_long") or "",
+                # Q kodu da aranabilir: "QMRLC" ya da "QMR" yazarak
+                # pistle ilgili NOTAM'lari suzebilmek icin.
+                n.get("q_code") or "",
                 " ".join(n.get("tags") or []),
                 " ".join(e.get("ref") or "" for e in n.get("affected_elements") or []),
             ]
@@ -221,7 +322,14 @@ def gecmisi_guncelle(eski_gecmis: dict, yeni_kayitlar: list[dict], simdi: str | 
             continue
 
         guncellendi = onceki.get("record_updated_at") != kayit.get("record_updated_at")
-        birlesmis = dict(kayit) if guncellendi else dict(onceki)
+        # MODELE YENI ALAN EKLENDIGINDE geriye donuk dolsun. Eskiden
+        # yalnizca record_updated_at'e bakiliyordu: NOTAC kaydi
+        # degistirmedigi surece saklanan kayit oldugu gibi korunuyordu,
+        # yani q_code gibi SONRADAN eklenen bir alan mevcut kayitlara
+        # HIC gelmezdi (16 kaydin hepsi Q kodsuz kalirdi ve Q koduna
+        # dayali suzgec onlari hic gormezdi).
+        eksik_alan = set(kayit) - set(onceki)
+        birlesmis = dict(kayit) if guncellendi else {**onceki, **{k: kayit[k] for k in eksik_alan}}
         birlesmis["first_seen"] = onceki.get("first_seen", simdi)
         birlesmis["last_seen"] = simdi
         if kayit.get("status") == "active":
