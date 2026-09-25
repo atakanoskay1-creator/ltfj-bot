@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:53302979",
   "id:53311210",
   "id:53313697",
   "id:53321824",
@@ -199,23 +198,16 @@
   "id:54334822",
   "id:54337560",
   "id:54339168",
-  "id:54346574"
+  "id:54346574",
+  "id:54351457"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 250520Z 05006KT 9999 FEW030 14/10 Q1020 NOSIG RMK RWY24R 04004KT 360V090 RWY06R 05006KT 020V080 RWY24L 05009KT",
+ "son_metar": "METAR LTFJ 250550Z 04008KT 9999 FEW030 16/10 Q1020 NOSIG RMK RWY24R 01004KT 330V050 RWY06R 03009KT RWY24L 04009KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-25T05:20:00+00:00",
+ "son_veri_zamani": "2026-09-25T05:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-19T08:50:00+00:00",
-   "ruzgar_hiz": 9,
-   "tavan": null,
-   "qnh": 1021,
-   "sicaklik": 25,
-   "cig_noktasi": 14
-  },
   {
    "zaman": "2026-09-19T09:20:00+00:00",
    "ruzgar_hiz": 10,
@@ -2679,13 +2671,22 @@
    "qnh": 1020,
    "sicaklik": 14,
    "cig_noktasi": 10
+  },
+  {
+   "zaman": "2026-09-25T05:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 8,
+   "tavan": null,
+   "qnh": 1020,
+   "sicaklik": 16,
+   "cig_noktasi": 10
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 250450Z 05005KT CAVOK 13/10 Q1020 NOSIG RMK RWY24R 36007KT RWY06R 07005KT RWY24L 04005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 5 knot hızla hafif rüzgâr esiyor, yan rüzgâr bileşeni çok düşük.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzeri mesafede her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, gökyüzü açık ve yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş koşulları uçuş için kısıtlayıcı değil, hava durumu stabil kalacak.",
   "TAF LTFJ 242240Z 2500/2524 03005KT CAVOK BECMG 2508/2512 04015KT FEW040 BECMG 2514/2517 04005KT CAVOK": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde başlıca açık hava beklenmektedir.\n\n- **2500/2512 UTC** Rüzgar 030° 05 knot, görüş sınırsız, bulut yok. Kademeli geçişle rüzgar 040° 15 knota artacak, 4000 ft'de seyrek bulut oluşacak.\n- **2514/2524 UTC** Rüzgar 040° 05 knota düşecek, görüş sınırsız, bulut yok.",
   "TAF LTFJ 250440Z 2506/2606 03005KT 9999 FEW035 BECMG 2506/2509 04015KT CAVOK BECMG 2515/2518 03005KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken rüzgâr ve az bulutluluk beklenmektedir.\n\n- **0506/0606 UTC** Rüzgâr 030° 5 knot, görüş 9999 metre, az bulutlu (3500 ft).\n- **0506/0509 UTC arası (kademeli geçiş)** Rüzgâr 040° 15 knot, gökyüzü açık.\n- **0515/0518 UTC arası (kademeli geçiş)** Rüzgâr 030° 5 knot.",
-  "METAR LTFJ 250520Z 05006KT 9999 FEW030 14/10 Q1020 NOSIG RMK RWY24R 04004KT 360V090 RWY06R 05006KT 020V080 RWY24L 05009KT": "**Rüzgâr:** Kuzeydoğudan hafif şekilde 6 knot hızla esiyor, yan rüzgâr bileşeni çok az.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 900 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor, rüzgâr ve görüş uçuş için uygun."
+  "METAR LTFJ 250520Z 05006KT 9999 FEW030 14/10 Q1020 NOSIG RMK RWY24R 04004KT 360V090 RWY06R 05006KT 020V080 RWY24L 05009KT": "**Rüzgâr:** Kuzeydoğudan hafif şekilde 6 knot hızla esiyor, yan rüzgâr bileşeni çok az.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 900 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor, rüzgâr ve görüş uçuş için uygun.",
+  "METAR LTFJ 250550Z 04008KT 9999 FEW030 16/10 Q1020 NOSIG RMK RWY24R 01004KT 330V050 RWY06R 03009KT RWY24L 04009KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 8 knot (yaklaşık 15 km/saat) hızında rüzgâr esiyor, yan bileşen düşük seviyede.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 900 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor, hava koşulları uçuş için uygun görünüyor."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3186,7 +3187,7 @@
   }
  },
  "notam_son_senkron": "2026-09-25T03:01:20+00:00",
- "guncelleme": "2026-09-25T05:45:51+00:00",
+ "guncelleme": "2026-09-25T06:01:22+00:00",
  "push_gonderilen": [
   "id:54339168"
  ]
