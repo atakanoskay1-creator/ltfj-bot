@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-25T03:15:49+00:00",
+ "uretildi": "2026-09-25T03:31:11+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-25T02:50:00+00:00",
-  "metin": "METAR LTFJ 250250Z 04008KT CAVOK 11/09 Q1020 NOSIG RMK RWY24R 01004KT 350V060 RWY06R 03008KT RWY24L 04006KT",
+  "zaman": "2026-09-25T03:20:00+00:00",
+  "metin": "METAR LTFJ 250320Z 04008KT CAVOK 11/09 Q1020 NOSIG RMK RWY24R 35005KT RWY06R 02008KT RWY24L 02004KT",
   "ruzgar": {
    "yon": 40,
    "hiz": 8,
@@ -43,8 +43,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 6.6,
-    "yan": 4.5,
+    "bas": 5.7,
+    "yan": 5.6,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -56,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -5.5,
-    "yan": 2.5,
+    "bas": -2.9,
+    "yan": 2.8,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -69,12 +69,12 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -2.3,
-    "yan": 3.2,
+    "bas": -1.4,
+    "yan": 4.8,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": false
@@ -95,14 +95,6 @@
   "metin": "TAF LTFJ 242240Z 2500/2524 03005KT CAVOK BECMG 2508/2512 04015KT FEW040 BECMG 2514/2517 04005KT CAVOK"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-19T06:20:00+00:00",
-   "ruzgar_hiz": 8,
-   "tavan": null,
-   "qnh": 1020,
-   "sicaklik": 21,
-   "cig_noktasi": 16
-  },
   {
    "zaman": "2026-09-19T06:50:00+00:00",
    "ruzgar_hiz": 9,
@@ -2555,6 +2547,15 @@
   },
   {
    "zaman": "2026-09-25T02:50:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 8,
+   "tavan": null,
+   "qnh": 1020,
+   "sicaklik": 11,
+   "cig_noktasi": 9
+  },
+  {
+   "zaman": "2026-09-25T03:20:00+00:00",
    "gorus": 10000,
    "ruzgar_hiz": 8,
    "tavan": null,
