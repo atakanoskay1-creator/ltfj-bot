@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-25T03:45:57+00:00",
+ "uretildi": "2026-09-25T04:01:18+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-25T03:20:00+00:00",
-  "metin": "METAR LTFJ 250320Z 04008KT CAVOK 11/09 Q1020 NOSIG RMK RWY24R 35005KT RWY06R 02008KT RWY24L 02004KT",
+  "zaman": "2026-09-25T03:50:00+00:00",
+  "metin": "METAR LTFJ 250350Z 04008KT CAVOK 12/09 Q1020 NOSIG RMK RWY24R 35006KT RWY06R 02008KT RWY24L 03004KT",
   "ruzgar": {
    "yon": 40,
    "hiz": 8,
@@ -16,7 +16,7 @@
   "cavok": true,
   "tavan": null,
   "hava": [],
-  "sicaklik": 11,
+  "sicaklik": 12,
   "cig_noktasi": 9,
   "qnh": 1020,
   "nosig": true,
@@ -56,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -2.9,
-    "yan": 2.8,
+    "bas": -3.3,
+    "yan": 2.2,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -69,8 +69,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -1.4,
-    "yan": 4.8,
+    "bas": -1.6,
+    "yan": 5.8,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -87,22 +87,14 @@
   "prs": [],
   "gorus_op": [],
   "trend": null,
-  "sis_riski": "Sis oluşum göstergesi: orta (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 2°C, rüzgâr 8 kt, gece şartları",
-  "ozet": "Rüzgâr 040° 8kt · görüş CAVOK · 11°C · QNH 1020"
+  "sis_riski": "Sis oluşum göstergesi: orta (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 3°C, rüzgâr 8 kt, gece şartları",
+  "ozet": "Rüzgâr 040° 8kt · görüş CAVOK · 12°C · QNH 1020"
  },
  "taf": {
   "zaman": "2026-09-24T22:40:00+00:00",
   "metin": "TAF LTFJ 242240Z 2500/2524 03005KT CAVOK BECMG 2508/2512 04015KT FEW040 BECMG 2514/2517 04005KT CAVOK"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-19T06:50:00+00:00",
-   "ruzgar_hiz": 9,
-   "tavan": null,
-   "qnh": 1020,
-   "sicaklik": 22,
-   "cig_noktasi": 16
-  },
   {
    "zaman": "2026-09-19T07:20:00+00:00",
    "ruzgar_hiz": 10,
@@ -2561,6 +2553,15 @@
    "tavan": null,
    "qnh": 1020,
    "sicaklik": 11,
+   "cig_noktasi": 9
+  },
+  {
+   "zaman": "2026-09-25T03:50:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 8,
+   "tavan": null,
+   "qnh": 1020,
+   "sicaklik": 12,
    "cig_noktasi": 9
   }
  ]
