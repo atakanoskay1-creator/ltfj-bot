@@ -118,24 +118,42 @@ def lvo_ile_ilgili_mi(kayit: dict) -> bool | None:
 
 
 # NOTAM basligindaki "NOTAMR B1234/26" / "NOTAMC B1234/26" referansi.
-# NOTAC'in GOZLENEN yanitinda bu numara AYRI BIR ALAN OLARAK YOK ve
-# "text" alani yalnizca E) govdesini tasiyor (16 gercek kayitta bu
-# kalip hic gecmedi). Yine de metinde bulunursa kullaniyoruz: bulunmadi
-# diye UYDURMUYORUZ, sadece None donuyoruz.
+#
+# DUZELTME (kullanici, NOTAC arayuzunden ekran goruntusuyle): daha once
+# "bu numara NOTAC'ta yok" sonucuna varmistim - YANLISTI. Dogrulayabildigim
+# tek sey BIZIM SAKLADIGIMIZ "text" alaniydi ve o yalnizca E) govdesini
+# tasiyor. NOTAC'in kendi arayuzu ise TAM orijinal metni gosteriyor:
+#
+#     B3455/26 NOTAMR B2849/26
+#      Q) LTBB/QMRXX/IV/BO /A /000/999/4054N02919E005
+#      A) LTFJ B) 2608280711 C) 2610021600
+#      E) PRESENCE SURFACE IRREGULARITIES ON RWY 06L/24R ...
+#
+# Yani numara yanitta BIR YERDE var; hangi alanda oldugunu daha
+# olcmedik (bkz. notam_kesif.py). Bu yuzden alan adi SABITLENMIYOR:
+# kaydin tum metin alanlarinda ariyoruz. Dogru alan geldigi gun kod
+# kendiliginden calisir, biz de alan adini UYDURMAMIS oluruz.
 ILGILI_NOTAM_KALIBI = re.compile(
     r"\bNOTAM(?P<tip>[RC])\s+(?P<numara>[A-Z]\d{4}/\d{2})\b", re.IGNORECASE)
 
 
 def ilgili_notam_referansi(kayit: dict) -> dict | None:
     """Bu NOTAM'in yerine gectigi (R) ya da iptal ettigi (C) NOTAM'in
-    numarasi - ham metinde GECIYORSA. Gecmiyorsa None.
+    numarasi - kaydin metin alanlarindan HERHANGI BIRINDE geciyorsa.
+    Gecmiyorsa None; TAHMIN EDILMEZ.
 
     notam_type ("R"/"C") ile karistirilmamali: tip NOTAC'in yapisal
-    alani ve HER ZAMAN var; referans numarasi ise cogu zaman YOK."""
-    m = ILGILI_NOTAM_KALIBI.search(kayit.get("text") or "")
-    if not m:
-        return None
-    return {"tip": m.group("tip").upper(), "numara": m.group("numara").upper()}
+    alani ve her kayitta var; referans numarasi ayri bir bilgidir.
+
+    Kalip, NOTAM'in KENDI numarasini degil SONRAKI numarayi yakalar:
+    "B3455/26 NOTAMR B2849/26" -> B2849/26."""
+    for deger in kayit.values():
+        if not isinstance(deger, str):
+            continue
+        m = ILGILI_NOTAM_KALIBI.search(deger)
+        if m:
+            return {"tip": m.group("tip").upper(), "numara": m.group("numara").upper()}
+    return None
 
 
 def _notam_modeline_cevir(ham: dict) -> dict:
@@ -176,6 +194,11 @@ def _notam_modeline_cevir(ham: dict) -> dict:
             if isinstance(e, dict)
         ],
         "text": ham.get("text") or "",
+        # Referans HAM kayittan cikariliyor: tam orijinal metin hangi
+        # alanda gelirse gelsin yakalansin diye (bkz.
+        # ilgili_notam_referansi). Sayfa kendi regex'ini calistirmiyor -
+        # ayni kural iki dilde iki kez yazilmis olurdu.
+        "ilgili_notam": ilgili_notam_referansi(ham),
         "reading_short": ilk_okuma.get("short"),
         "reading_long": ilk_okuma.get("long"),
         "source": KAYNAK_ETIKETI,
@@ -370,6 +393,28 @@ def notam_veri_yaz(state: dict, hedef: Path, location: str = LOCATION):
         k for k in tum_kayitlar
         if son_senkron and k.get("last_seen") == son_senkron and k.get("status") == "active"
     ]
+    # YAKLASAN: son senkronda gorulmus ama yururluk BASLANGICI henuz
+    # gelmemis kayitlar. Bunlari "aktif" listesine koymak, olmayan bir
+    # kisitlamayi varmis gibi gostermek olurdu; hic gostermemek ise
+    # "yarin pist kapaniyor" bilgisini kaybettirirdi - ayri liste.
+    #
+    # NOT: NOTAC'in VARSAYILAN sorgusu su an yalnizca yururlukteki
+    # NOTAM'lari donduruyor (olculdu: 20 kaydin hicbirinde gelecek
+    # tarihli effective_start yok), yani bu liste SIMDILIK bos kalir.
+    # Hangi sorgu parametresinin yaklasanlari getirdigi olculecek
+    # (bkz. notam_kesif.py); veri gelir gelmez burasi kendiliginden
+    # dolar, sayfa tarafinda ayrica bir is yapmak gerekmez.
+    simdi_iso = datetime.now(timezone.utc)
+    yaklasan = []
+    for k in tum_kayitlar:
+        if not son_senkron or k.get("last_seen") != son_senkron:
+            continue
+        if k.get("status") != "active":
+            continue
+        bas = _tarih_ayristir(k.get("effective_start"))
+        if bas and bas > simdi_iso:
+            yaklasan.append(k)
+    yaklasan.sort(key=lambda k: k.get("effective_start") or "")
 
     veri = {
         "istasyon": location,
@@ -378,6 +423,7 @@ def notam_veri_yaz(state: dict, hedef: Path, location: str = LOCATION):
         "uretildi": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "son_senkron": son_senkron,
         "aktif": aktif,
+        "yaklasan": yaklasan,
         "gecmis": tum_kayitlar,
     }
 
