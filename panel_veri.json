@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-25T20:45:47+00:00",
+ "uretildi": "2026-09-25T21:01:22+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-25T20:20:00+00:00",
-  "metin": "METAR LTFJ 252020Z 04007KT CAVOK 16/13 Q1018 NOSIG RMK RWY24R 01007KT RWY06R 04005KT RWY24L 02005KT",
+  "zaman": "2026-09-25T20:50:00+00:00",
+  "metin": "METAR LTFJ 252050Z 04007KT CAVOK 17/13 Q1018 NOSIG RMK RWY24R 36005KT RWY06R 03007KT RWY24L 05004KT",
   "ruzgar": {
    "yon": 40,
    "hiz": 7,
@@ -16,7 +16,7 @@
   "cavok": true,
   "tavan": null,
   "hava": [],
-  "sicaklik": 16,
+  "sicaklik": 17,
   "cig_noktasi": 13,
   "qnh": 1018,
   "nosig": true,
@@ -43,8 +43,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 4.6,
-    "yan": 2.0,
+    "bas": 5.8,
+    "yan": 3.9,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -56,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -3.6,
-    "yan": 3.5,
+    "bas": -3.9,
+    "yan": 1.0,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -69,8 +69,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -4.1,
-    "yan": 5.7,
+    "bas": -2.2,
+    "yan": 4.5,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -87,22 +87,14 @@
   "prs": [],
   "gorus_op": [],
   "trend": null,
-  "sis_riski": "Sis oluşum göstergesi: orta (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 3°C, rüzgâr 7 kt, gece şartları",
-  "ozet": "Rüzgâr 040° 7kt · görüş CAVOK · 16°C · QNH 1018"
+  "sis_riski": null,
+  "ozet": "Rüzgâr 040° 7kt · görüş CAVOK · 17°C · QNH 1018"
  },
  "taf": {
   "zaman": "2026-09-25T16:40:00+00:00",
   "metin": "TAF LTFJ 251640Z 2518/2618 04015KT CAVOK BECMG 2518/2521 04005KT PROB30 2602/2606 FEW004 BECMG 2607/2610 04015KT BECMG 2615/2617 SCT035"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-19T23:50:00+00:00",
-   "ruzgar_hiz": 5,
-   "tavan": null,
-   "qnh": 1021,
-   "sicaklik": 16,
-   "cig_noktasi": 14
-  },
   {
    "zaman": "2026-09-20T00:20:00+00:00",
    "ruzgar_hiz": 6,
@@ -2595,6 +2587,15 @@
    "tavan": null,
    "qnh": 1018,
    "sicaklik": 16,
+   "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-25T20:50:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 7,
+   "tavan": null,
+   "qnh": 1018,
+   "sicaklik": 17,
    "cig_noktasi": 13
   }
  ]

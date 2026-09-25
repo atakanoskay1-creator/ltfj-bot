@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:53470953",
   "id:53473646",
   "id:53481954",
   "id:53486536",
@@ -199,23 +198,16 @@
   "id:54523398",
   "id:54531856",
   "id:54534440",
-  "id:54542663"
+  "id:54542663",
+  "id:54545398"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 252020Z 04007KT CAVOK 16/13 Q1018 NOSIG RMK RWY24R 01007KT RWY06R 04005KT RWY24L 02005KT",
+ "son_metar": "METAR LTFJ 252050Z 04007KT CAVOK 17/13 Q1018 NOSIG RMK RWY24R 36005KT RWY06R 03007KT RWY24L 05004KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-25T20:20:00+00:00",
+ "son_veri_zamani": "2026-09-25T20:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-19T23:50:00+00:00",
-   "ruzgar_hiz": 5,
-   "tavan": null,
-   "qnh": 1021,
-   "sicaklik": 16,
-   "cig_noktasi": 14
-  },
   {
    "zaman": "2026-09-20T00:20:00+00:00",
    "ruzgar_hiz": 6,
@@ -2709,13 +2701,22 @@
    "qnh": 1018,
    "sicaklik": 16,
    "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-09-25T20:50:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 7,
+   "tavan": null,
+   "qnh": 1018,
+   "sicaklik": 17,
+   "cig_noktasi": 13
   }
  ],
  "yorum_onbellegi": {
-  "TAF LTFJ 251640Z 2518/2618 04015KT CAVOK BECMG 2518/2521 04005KT PROB30 2602/2606 FEW004 BECMG 2607/2610 04015KT BECMG 2615/2617 SCT035": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde rüzgâr değişken 4 yönden 15 düğüm, görüş sınırsız ve bulut yok ile başlayan dönem.\n\n- **2518/2521 UTC:** Rüzgâr kademeli olarak 5 düğüme düşüyor.\n- **2602/2606 UTC:** %30 ihtimalle 400 feet'te az bulut.\n- **2607/2610 UTC:** Rüzgâr kademeli olarak 15 düğüme yükseliyor.\n- **2615/2617 UTC:** Kademeli olarak 3500 feet'te dağınık bulut.",
-  "METAR LTFJ 251920Z 05006KT CAVOK 17/13 Q1019 NOSIG RMK RWY24R 05003KT 030V090 RWY06R 07004KT RWY24L 08004KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 6 knot (yaklaşık 11 km/s) hızında hafif rüzgâr esiyor, yan bileşen çok az.\n\n**Görüş:** Görüş mükemmel, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, gökyüzü açık ve yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler uçuş için kısıtlayıcı bir unsur göstermiyor; rüzgâr ve görüş koşulları elverişli.",
   "METAR LTFJ 251950Z 05007KT CAVOK 17/14 Q1019 NOSIG RMK RWY24R 05004KT 010V070 RWY06R 04007KT RWY24L 03006KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 7 knot hızla esen hafif rüzgâr, yan bileşen çok düşük.\n\n**Görüş:** Sınırsız görüş, bulut yok, uçuş için görüş açısından rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Gözlemlenen veriye göre kısıtlayıcı unsur bulunmuyor; hava koşulları uçuş için uygun.",
-  "METAR LTFJ 252020Z 04007KT CAVOK 16/13 Q1018 NOSIG RMK RWY24R 01007KT RWY06R 04005KT RWY24L 02005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 7 knot hızla esen hafif rüzgâr, yan bileşen çok düşük.\n\n**Görüş:** Görüş sınırsız, uçuş için görüş açısından hiçbir kısıtlama yok.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve hava koşullarında kısıtlayıcı unsur bulunmuyor."
+  "METAR LTFJ 252020Z 04007KT CAVOK 16/13 Q1018 NOSIG RMK RWY24R 01007KT RWY06R 04005KT RWY24L 02005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 7 knot hızla esen hafif rüzgâr, yan bileşen çok düşük.\n\n**Görüş:** Görüş sınırsız, uçuş için görüş açısından hiçbir kısıtlama yok.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve hava koşullarında kısıtlayıcı unsur bulunmuyor.",
+  "METAR LTFJ 252050Z 04007KT CAVOK 17/13 Q1018 NOSIG RMK RWY24R 36005KT RWY06R 03007KT RWY24L 05004KT": "**Rüzgâr:** Kuzey-kuzeydoğudan hafif şekilde 7 knot (yaklaşık 13 km/s) hızında esiyor, yan rüzgâr bileşeni çok düşük.\n\n**Görüş:** Tüm yönlerde sınırsız görüş var, uçuş için görüş açısından hiçbir kısıtlama yok.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, hava açık.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş açısından kısıtlayıcı unsur bulunmuyor, hava koşulları uçuş için elverişli.",
+  "TAF LTFJ 251640Z 2518/2618 04015KT CAVOK BECMG 2518/2521 04005KT PROB30 2602/2606 FEW004 BECMG 2607/2610 04015KT BECMG 2615/2617 SCT035": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde rüzgâr değişken 4 yönden 15 düğüm, görüş sınırsız ve bulut yok.\n\n- **2518/2521 UTC:** Rüzgâr kademeli olarak 4 yönden 5 düğüme düşüyor.\n- **2602/2606 UTC:** %30 ihtimalle az bulut (400 feet).\n- **2607/2610 UTC:** Rüzgâr kademeli olarak 4 yönden 15 düğüme yükseliyor.\n- **2615/2617 UTC:** Dağınık bulut (3500 feet)."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3336,10 +3337,10 @@
   }
  },
  "notam_son_senkron": "2026-09-25T18:15:48+00:00",
- "guncelleme": "2026-09-25T20:45:47+00:00",
+ "guncelleme": "2026-09-25T21:01:22+00:00",
  "push_gonderilen": [
-  "id:54339168",
+  "id:54494528",
   "id:54416753",
-  "id:54494528"
+  "id:54339168"
  ]
 }
