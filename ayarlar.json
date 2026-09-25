@@ -46,7 +46,7 @@
  "notam": {
   "_aciklama": "NOTAC_API_KEY GitHub Secret'i tanimli degilse bu bolum zaten sessizce devre disi kalir - asagidaki aktif:false ayrica kapatmak icindir.",
   "aktif": true,
-  "senkron_araligi_saat": 6,
+  "senkron_araligi_saat": 3,
   "location": "LTFJ"
  },
 

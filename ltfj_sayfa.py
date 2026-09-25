@@ -27,7 +27,7 @@ from ltfj_analiz import (TAVAN_KATMANLARI, metar_coz, ozet_satiri,
 # agir bagimlilik gelmiyor.
 from ltfj_dis_kaynak_cache import SIS_KODLARI
 from ltfj_ayarlar import (GOZLEM_BEKLENEN_DK, GOZLEM_TAZE_DK,
-                          SESSIZLIK_SAAT, YEREL_TZ)
+                          SESSIZLIK_SAAT, YEREL_TZ, notam_bayat_saat)
 import ltfj_pist as pist
 from ltfj_pist import havacilik_notlari
 from ltfj_rasat import taf_bicimle
@@ -1755,9 +1755,12 @@ window.ltfjNotamGecerlilik = function (n) {{
 // yerine GORECELI sure yaziyoruz: sayfada saatler yerel, NOTAM verisi UTC -
 // "16:00'da bitiyor" hangi saat dilimi oldugu belirtilmeden yaniltici olur,
 // "6 sa kaldı" ise saat diliminden bagimsiz dogru.
-// Senkron araligi ayarlarda 6 saat (notam.senkron_araligi_saat). Iki
-// katini gecmisse bir senkron kacmis demektir - bayat sayiyoruz.
-var NOTAM_BAYAT_MS = 12 * 3600 * 1000;
+// ESIK AYARDAN TURETILIYOR, elle yazilmiyor: senkron araliginin iki
+// katini gecmisse bir senkron kacmis demektir (bkz. ltfj_ayarlar.
+// notam_bayat_saat). Eskiden burada "12 * 3600 * 1000" sabiti vardi ve
+// yaninda "ayarlarda 6 saat" diye bir yorum duruyordu - ayar degisince
+// sabit yerinde kalir, esik 2x yerine 4x olurdu.
+var NOTAM_BAYAT_MS = {notam_bayat_saat} * 3600 * 1000;
 
 window.ltfjKalanSure = function (ms) {{
   "use strict";
@@ -4355,6 +4358,7 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
                       ikon_zil_js=json.dumps(ikon("zil")),
                       ikon_zil_kapali_js=json.dumps(ikon("zil-kapali")),
                       gozlem_taze_dk=GOZLEM_TAZE_DK,
+                      notam_bayat_saat=notam_bayat_saat(),
                       # LTFJ icin GERCEK gun dogumu/batimi
                       # (ltfj_pist._gunes_saatleri). Gun/gece karari
                       # ISTEMCIDE veriliyor - sayfa acik kalabiliyor.

@@ -38,7 +38,8 @@ import ltfj_atc_notes_cleanup
 import ltfj_notam
 import ltfj_notam_client as notam_client
 from ltfj_analiz import cozum_dokumu, fark_bul, metar_coz, ozet_satiri, uyarilar
-from ltfj_ayarlar import AYARLAR, SESSIZLIK_SAAT, YEREL_TZ, ayar
+from ltfj_ayarlar import (AYARLAR, SESSIZLIK_SAAT, YEREL_TZ, ayar,
+                          notam_senkron_araligi_saat)
 from ltfj_pist import RENK_SIMGE, havacilik_notlari
 from ltfj_rasat import AgHatasi, AyiklamaHatasi, raporlari_cek
 
@@ -146,7 +147,7 @@ def _notam_senkron_gerekli_mi(state: dict) -> bool:
         son_dt = datetime.fromisoformat(son)
     except ValueError:
         return True
-    araligi_saat = ayar("notam", "senkron_araligi_saat", varsayilan=6)
+    araligi_saat = notam_senkron_araligi_saat()
     return datetime.now(timezone.utc) - son_dt >= timedelta(hours=araligi_saat)
 
 
