@@ -12,7 +12,7 @@ TAHMIN EDILMIYOR - ayni Q kodu + ayni pist gibi bir cikarim yanlis
 NOTAM'i isaret edebilirdi."""
 import json
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -152,3 +152,133 @@ def test_sayfada_KONTROL_KARAKTERI_yok(tmp_path):
     html_metin = _sayfa(tmp_path)
     kotu = {c for c in html_metin if ord(c) < 32 and c not in "\t\n\r"}
     assert not kotu, [hex(ord(c)) for c in kotu]
+
+
+# ================================================ NOTAMR referansı (düzeltme)
+# KULLANICI DÜZELTMESİ: "bu numara NOTAC'ta yok" sonucuna varmıştım ve bu
+# YANLIŞTI. Doğrulayabildiğim tek şey BİZİM SAKLADIĞIMIZ "text" alanıydı;
+# NOTAC'ın kendi arayüzü tam orijinal metni gösteriyor:
+#
+#     B3455/26 NOTAMR B2849/26
+#      Q) LTBB/QMRXX/IV/BO /A /000/999/4054N02919E005
+#      A) LTFJ B) 2608280711 C) 2610021600
+#      E) PRESENCE SURFACE IRREGULARITIES ON RWY 06L/24R ...
+#
+# Numaranın hangi alanda geldiği henüz ölçülmedi (bkz. notam_kesif.py),
+# o yüzden alan adı SABİTLENMİYOR: tüm metin alanlarında aranıyor.
+TAM_ORIJINAL_METIN = (
+    "B3455/26 NOTAMR B2849/26\n"
+    " Q) LTBB/QMRXX/IV/BO /A /000/999/4054N02919E005\n"
+    " A) LTFJ B) 2608280711 C) 2610021600\n"
+    " E) PRESENCE SURFACE IRREGULARITIES ON RWY 06L/24R REDUCING DRIVING\n"
+    " QUALITY."
+)
+
+
+def test_NOTAC_ekranindaki_tam_metinden_referans_cikiyor():
+    """Kullanıcının paylaştığı gerçek metin birebir."""
+    assert notam.ilgili_notam_referansi({"text": TAM_ORIJINAL_METIN}) == {
+        "tip": "R", "numara": "B2849/26"}
+
+
+def test_referans_ALAN_ADINA_bagli_degil():
+    """EN ÖNEMLİSİ. Tam metin hangi alanda gelirse gelsin bulunmalı -
+    alan adını uydurmak yerine hepsine bakıyoruz."""
+    for alan in ("original_text", "raw_text", "full_text", "icao_text", "bilinmeyen_alan"):
+        kayit = {"text": "E) SADECE GOVDE", alan: TAM_ORIJINAL_METIN}
+        assert notam.ilgili_notam_referansi(kayit) == {"tip": "R", "numara": "B2849/26"}, alan
+
+
+def test_referans_NOTAMIN_KENDI_numarasini_vermiyor():
+    """Metin "B3455/26 NOTAMR B2849/26" ile başlıyor; yakalanması
+    gereken İKİNCİ numara."""
+    s = notam.ilgili_notam_referansi({"text": TAM_ORIJINAL_METIN})
+    assert s["numara"] == "B2849/26" and s["numara"] != "B3455/26"
+
+
+def test_model_ilgili_notam_alanini_tasiyor():
+    ham = {**o.RUNWAY_YUZEY_DUZENSIZLIGI, "original_text": TAM_ORIJINAL_METIN}
+    m = notam._notam_modeline_cevir(ham)
+    assert m["ilgili_notam"] == {"tip": "R", "numara": "B2849/26"}
+    # Referans yoksa alan VAR ama None - sayfa "yok" ile "bilinmiyor"u
+    # ayirmak zorunda degil, ikisi de satiri cizdirmiyor.
+    assert notam._notam_modeline_cevir(o.RUNWAY_KAPANIS)["ilgili_notam"] is None
+
+
+def test_sayfa_KENDI_regexini_calistirmiyor(tmp_path):
+    """Aynı kural iki dilde iki kez yazılmış olurdu ve JS tarafı hangi
+    alanda arandığını da sabitlerdi."""
+    html_metin = _sayfa(tmp_path)
+    blok = html_metin.split("ltfjNotamIlgiliSatiri = function")[1].split("}};")[0]
+    assert "NOTAM([RC])" not in blok, "regex kopyası JS'e geri gelmiş"
+    assert "n.ilgili_notam" in blok
+
+
+# ==================================================== yaklaşan NOTAM'lar
+def _gecmis_kaydi(numara, bas, bit, son_senkron):
+    return {"id": numara, "number": numara, "status": "active",
+            "effective_start": bas, "effective_end": bit,
+            "last_seen": son_senkron, "last_active": son_senkron,
+            "first_seen": son_senkron, "text": "X", "notam_type": "N"}
+
+
+def test_yururluge_girmemis_NOTAM_ayri_listeye_giriyor(tmp_path):
+    """Aktif listeye koymak, olmayan bir kısıtlamayı varmış gibi
+    göstermek olurdu; hiç göstermemek "yarın pist kapanıyor" bilgisini
+    kaybettirirdi."""
+    simdi = datetime.now(timezone.utc)
+    ss = simdi.isoformat(timespec="seconds")
+    state = {"notam_son_senkron": ss, "notam_gecmisi": {
+        "su-an": _gecmis_kaydi("B0001/26", (simdi - timedelta(days=1)).isoformat(),
+                               (simdi + timedelta(days=1)).isoformat(), ss),
+        "yarin": _gecmis_kaydi("B0002/26", (simdi + timedelta(days=1)).isoformat(),
+                               (simdi + timedelta(days=3)).isoformat(), ss),
+    }}
+    hedef = tmp_path / "notam_veri.json"
+    notam.notam_veri_yaz(state, hedef)
+    veri = json.loads(hedef.read_text(encoding="utf-8"))
+    assert [k["number"] for k in veri["yaklasan"]] == ["B0002/26"]
+    # Yururlukteki kayit yaklasan listesine SIZMAMALI.
+    assert "B0001/26" not in [k["number"] for k in veri["yaklasan"]]
+    # Kayit "aktif" listesinde de durabilir (NOTAC'in dondurdugu ham
+    # liste budur); sayfa onu gecerlilik kontrolüyle "baslamadi" diye
+    # aktif listeden eliyor (bkz. yururluktekiler). Buradaki iddia
+    # AYRI LISTENIN dogru doldugu.
+
+
+def test_yaklasan_bolumu_VARSAYILAN_GIZLI_ve_istemcide_suzuluyor(tmp_path):
+    """Sürekli duran boş bir başlık, "yaklaşan yok" ile "veri gelmiyor"
+    arasındaki farkı silerdi. Ayrıca sayfa saatlerce açık kalabilir ve
+    bu arada bir NOTAM yürürlüğe girer - liste istemcide yeniden
+    süzülmeli."""
+    html_metin = _sayfa(tmp_path)
+    assert 'id="notam-yaklasan-bolum" hidden' in html_metin
+    blok = html_metin.split("function yaklasanGoster()")[1].split("function aktifGoster")[0]
+    assert 'gecerlilik(n).durum === "baslamadi"' in blok
+    assert "yaklasanBolumEl.hidden = liste.length === 0" in blok
+
+
+def test_yaklasan_listesi_STATUS_DEGERINE_bagli_DEGIL(tmp_path):
+    """MUTASYON DERSİ. Önceki sürümde liste `status == "active"` şartı
+    koyuyordu ve fikstürüm de "active" kullandığı için şart geri
+    konulduğunda hiçbir test kırılmıyordu.
+
+    Oysa yaklaşan kayıtların "status" alanında hangi değeri taşıdığını
+    ÖLÇMEDİK. Değer "upcoming" olsaydı o şart listeyi SESSİZCE boş
+    bırakırdı - özellik çalışmıyor gibi görünür ama hata da vermezdi.
+
+    Şarta gerek de yok: bu listeye yalnızca son senkronda görülen
+    kayıtlar giriyor ve bot yalnızca active + upcoming sorgusu atıyor,
+    yani süresi dolmuş bir kayıt o kümeye zaten girmiyor."""
+    simdi = datetime.now(timezone.utc)
+    ss = simdi.isoformat(timespec="seconds")
+    ileri = (simdi + timedelta(days=2)).isoformat()
+    bitis = (simdi + timedelta(days=4)).isoformat()
+
+    for durum in ("active", "upcoming", "UPCOMING", "bilinmeyen-bir-deger"):
+        kayit = {**_gecmis_kaydi("B0009/26", ileri, bitis, ss), "status": durum}
+        hedef = tmp_path / f"n-{durum}.json"
+        notam.notam_veri_yaz({"notam_son_senkron": ss,
+                              "notam_gecmisi": {"x": kayit}}, hedef)
+        veri = json.loads(hedef.read_text(encoding="utf-8"))
+        assert [k["number"] for k in veri["yaklasan"]] == ["B0009/26"], durum

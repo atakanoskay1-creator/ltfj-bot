@@ -37,6 +37,7 @@ gercek "GET /notam/?location=LTFJ" istegine gore, bkz. ltfj_notam_client.py):
 """
 import json
 import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -118,24 +119,42 @@ def lvo_ile_ilgili_mi(kayit: dict) -> bool | None:
 
 
 # NOTAM basligindaki "NOTAMR B1234/26" / "NOTAMC B1234/26" referansi.
-# NOTAC'in GOZLENEN yanitinda bu numara AYRI BIR ALAN OLARAK YOK ve
-# "text" alani yalnizca E) govdesini tasiyor (16 gercek kayitta bu
-# kalip hic gecmedi). Yine de metinde bulunursa kullaniyoruz: bulunmadi
-# diye UYDURMUYORUZ, sadece None donuyoruz.
+#
+# DUZELTME (kullanici, NOTAC arayuzunden ekran goruntusuyle): daha once
+# "bu numara NOTAC'ta yok" sonucuna varmistim - YANLISTI. Dogrulayabildigim
+# tek sey BIZIM SAKLADIGIMIZ "text" alaniydi ve o yalnizca E) govdesini
+# tasiyor. NOTAC'in kendi arayuzu ise TAM orijinal metni gosteriyor:
+#
+#     B3455/26 NOTAMR B2849/26
+#      Q) LTBB/QMRXX/IV/BO /A /000/999/4054N02919E005
+#      A) LTFJ B) 2608280711 C) 2610021600
+#      E) PRESENCE SURFACE IRREGULARITIES ON RWY 06L/24R ...
+#
+# Yani numara yanitta BIR YERDE var; hangi alanda oldugunu daha
+# olcmedik (bkz. notam_kesif.py). Bu yuzden alan adi SABITLENMIYOR:
+# kaydin tum metin alanlarinda ariyoruz. Dogru alan geldigi gun kod
+# kendiliginden calisir, biz de alan adini UYDURMAMIS oluruz.
 ILGILI_NOTAM_KALIBI = re.compile(
     r"\bNOTAM(?P<tip>[RC])\s+(?P<numara>[A-Z]\d{4}/\d{2})\b", re.IGNORECASE)
 
 
 def ilgili_notam_referansi(kayit: dict) -> dict | None:
     """Bu NOTAM'in yerine gectigi (R) ya da iptal ettigi (C) NOTAM'in
-    numarasi - ham metinde GECIYORSA. Gecmiyorsa None.
+    numarasi - kaydin metin alanlarindan HERHANGI BIRINDE geciyorsa.
+    Gecmiyorsa None; TAHMIN EDILMEZ.
 
     notam_type ("R"/"C") ile karistirilmamali: tip NOTAC'in yapisal
-    alani ve HER ZAMAN var; referans numarasi ise cogu zaman YOK."""
-    m = ILGILI_NOTAM_KALIBI.search(kayit.get("text") or "")
-    if not m:
-        return None
-    return {"tip": m.group("tip").upper(), "numara": m.group("numara").upper()}
+    alani ve her kayitta var; referans numarasi ayri bir bilgidir.
+
+    Kalip, NOTAM'in KENDI numarasini degil SONRAKI numarayi yakalar:
+    "B3455/26 NOTAMR B2849/26" -> B2849/26."""
+    for deger in kayit.values():
+        if not isinstance(deger, str):
+            continue
+        m = ILGILI_NOTAM_KALIBI.search(deger)
+        if m:
+            return {"tip": m.group("tip").upper(), "numara": m.group("numara").upper()}
+    return None
 
 
 def _notam_modeline_cevir(ham: dict) -> dict:
@@ -176,20 +195,38 @@ def _notam_modeline_cevir(ham: dict) -> dict:
             if isinstance(e, dict)
         ],
         "text": ham.get("text") or "",
+        # Referans HAM kayittan cikariliyor: tam orijinal metin hangi
+        # alanda gelirse gelsin yakalansin diye (bkz.
+        # ilgili_notam_referansi). Sayfa kendi regex'ini calistirmiyor -
+        # ayni kural iki dilde iki kez yazilmis olurdu.
+        "ilgili_notam": ilgili_notam_referansi(ham),
         "reading_short": ilk_okuma.get("short"),
         "reading_long": ilk_okuma.get("long"),
         "source": KAYNAK_ETIKETI,
     }
 
 
-def aktif_notamlari_getir(location: str = LOCATION) -> list[dict]:
-    """NOTAC'tan verilen lokasyon icin TUM aktif NOTAM'lari (sayfalama
-    varsa DRF'nin verdigi "next" URL'sini takip ederek) ceker, internal
-    modele cevirir. NOTAC'in ham HTTP hatalarini (bkz. ltfj_notam_client)
-    tek bir NotamServisHatasi altinda toplar - cagiran taraf tek exception
-    sinifi yakalamasi yeterli olsun diye."""
+# NOTAC'in "status" suzgeci - OLCULDU (OPTIONS /notam/ yanitinin kendi
+# tarifi, bkz. notam_kesif.py ciktisi):
+#
+#     ?status=active|upcoming|expired|any   (varsayilan: active)
+#
+# "all" DEGIL - onu denemek HTTP hatasi verdi. Varsayilan "active"
+# oldugu icin bot bugune kadar yalnizca yururluktekileri goruyordu;
+# yaklasanlar (LTFJ'de olcum aninda 6 kayit) hic gelmiyordu.
+DURUM_AKTIF = "active"
+DURUM_YAKLASAN = "upcoming"
+
+
+def notamlari_getir(location: str = LOCATION, durum: str | None = None) -> list[dict]:
+    """NOTAC'tan verilen lokasyon (ve istege bagli yururluk durumu) icin
+    TUM NOTAM'lari (sayfalama varsa DRF'nin verdigi "next" URL'sini
+    takip ederek) ceker, internal modele cevirir.
+
+    durum=None: NOTAC'in varsayilani, yani yalnizca yururluktekiler."""
     try:
-        yanit = client.notam_getir(location)
+        yanit = client.notam_getir(
+            location, ek_parametreler={"status": durum} if durum else None)
         kayitlar = list(yanit.get("results") or [])
 
         sayfa = 1
@@ -206,6 +243,34 @@ def aktif_notamlari_getir(location: str = LOCATION) -> list[dict]:
     # API seviyesinde zaten location=LTFJ ile filtrelendi (bkz. client) -
     # bu sadece bir guvenlik agi, ana filtreleme mekanizmasi degil.
     return [n for n in modele_cevrilmis if n["location"] == location]
+
+
+def aktif_notamlari_getir(location: str = LOCATION) -> list[dict]:
+    """Yururlukteki NOTAM'lar. Geriye donuk uyumluluk icin duruyor -
+    mevcut cagiranlar (ve testleri) aynen calismaya devam etsin diye."""
+    return notamlari_getir(location)
+
+
+def yururlukteki_ve_yaklasan_notamlar(location: str = LOCATION) -> list[dict]:
+    """Yururluktekiler + henuz baslamamislar, TEK listede.
+
+    IKI AYRI SORGU: NOTAC'in status suzgeci tekil deger aliyor ve
+    varsayilani "active". "any" da var ama onu kullanmiyoruz - suresi
+    DOLMUS NOTAM'lari da getirirdi ve yerel gecmisimizi NOTAC'in
+    arsiviyle karistirirdi (bkz. modul aciklamasi: "gecmis" alani
+    SADECE bu botun gordugu kayitlardir).
+
+    Yaklasan sorgusu BASARISIZ OLURSA yururluktekiler yine donuyor -
+    yeni ve ikincil bir bilgi yuzunden ana akisi kaybetmeyiz."""
+    yururlukte = notamlari_getir(location, DURUM_AKTIF)
+    try:
+        yaklasan = notamlari_getir(location, DURUM_YAKLASAN)
+    except NotamServisHatasi as e:
+        print(f"[uyarı] yaklaşan NOTAM sorgusu başarısız: {e}", file=sys.stderr)
+        yaklasan = []
+    # Ayni NOTAM iki sorgudan da gelebilir; id'ye gore tekillestiriyoruz.
+    gorulen = {n.get("id") for n in yururlukte}
+    return yururlukte + [n for n in yaklasan if n.get("id") not in gorulen]
 
 
 # ------------------------------------------------------------- arama/filtre
@@ -370,6 +435,35 @@ def notam_veri_yaz(state: dict, hedef: Path, location: str = LOCATION):
         k for k in tum_kayitlar
         if son_senkron and k.get("last_seen") == son_senkron and k.get("status") == "active"
     ]
+    # YAKLASAN: son senkronda gorulmus ama yururluk BASLANGICI henuz
+    # gelmemis kayitlar. Bunlari "aktif" listesine koymak, olmayan bir
+    # kisitlamayi varmis gibi gostermek olurdu; hic gostermemek ise
+    # "yarin pist kapaniyor" bilgisini kaybettirirdi - ayri liste.
+    #
+    # NOTAC'in VARSAYILAN sorgusu yalnizca yururluktekileri donduruyor;
+    # yaklasanlar icin ?status=upcoming gerekiyor (OLCULDU: LTFJ'de o
+    # sorgu 6 kayit dondurdu, hepsi gelecek tarihli). Bot artik iki
+    # sorguyu da atiyor (bkz. yururlukteki_ve_yaklasan_notamlar).
+    #
+    # STATUS'A BAKMIYORUZ, BILEREK. Yaklasan kayitlarin "status" alaninda
+    # hangi degeri tasidigini HENUZ OLCMEDIK ("active" mi, "upcoming" mi).
+    # `status == "active"` sarti koysaydik, deger "upcoming" ise bu liste
+    # SESSIZCE BOS kalirdi - yani ozellik calismiyor gibi gorunurdu ama
+    # hata da vermezdi.
+    #
+    # Sarta gerek de yok: bu listeye yalnizca SON SENKRONDA GORULEN
+    # kayitlar giriyor ve biz yalnizca "active" + "upcoming" sorgusu
+    # atiyoruz (bkz. yururlukteki_ve_yaklasan_notamlar). Suresi dolmus
+    # ya da iptal edilmis bir kayit o kumeye zaten girmiyor.
+    simdi_iso = datetime.now(timezone.utc)
+    yaklasan = []
+    for k in tum_kayitlar:
+        if not son_senkron or k.get("last_seen") != son_senkron:
+            continue
+        bas = _tarih_ayristir(k.get("effective_start"))
+        if bas and bas > simdi_iso:
+            yaklasan.append(k)
+    yaklasan.sort(key=lambda k: k.get("effective_start") or "")
 
     veri = {
         "istasyon": location,
@@ -378,6 +472,7 @@ def notam_veri_yaz(state: dict, hedef: Path, location: str = LOCATION):
         "uretildi": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "son_senkron": son_senkron,
         "aktif": aktif,
+        "yaklasan": yaklasan,
         "gecmis": tum_kayitlar,
     }
 

@@ -6,6 +6,8 @@ Test verileri notam_ornekler.py'de - kullanicinin GERCEK NOTAC yanitindan
 birebir uyumlu."""
 from unittest.mock import patch
 
+import pytest
+
 import notam_ornekler as no
 
 import ltfj_notam as nm
@@ -247,3 +249,77 @@ def test_gecmisi_guncelle_withdrawn_durumu_yansitilir():
     kayitli = gecmis2[aktif["id"]]
     assert kayitli["status"] == "withdrawn"
     assert kayitli["last_active"] == "2026-09-01T00:00:00Z"  # son aktif oldugu an KORUNDU
+
+
+# ------------------------------------------------ yaklasan NOTAM sorgusu
+# OLCULDU (bkz. notam_kesif.py ciktisi, OPTIONS /notam/ tarifi):
+#     ?status=active|upcoming|expired|any   (varsayilan: active)
+# "all" DEGIL - denendi, HTTP hatasi verdi.
+def test_varsayilan_sorgu_STATUS_GONDERMIYOR(monkeypatch):
+    """NOTAC'in kendi varsayilani zaten "active" - gereksiz parametre
+    gondermiyoruz ve mevcut davranis birebir korunuyor."""
+    cagrilar = []
+
+    def sahte(location, ek_parametreler=None):
+        cagrilar.append(ek_parametreler)
+        return {"results": [], "next": None}
+
+    monkeypatch.setattr(nm.client, "notam_getir", sahte)
+    nm.notamlari_getir("LTFJ")
+    assert cagrilar == [None]
+
+
+def test_yaklasan_icin_status_upcoming_gonderiliyor(monkeypatch):
+    cagrilar = []
+
+    def sahte(location, ek_parametreler=None):
+        cagrilar.append(ek_parametreler)
+        return {"results": [], "next": None}
+
+    monkeypatch.setattr(nm.client, "notam_getir", sahte)
+    nm.notamlari_getir("LTFJ", nm.DURUM_YAKLASAN)
+    assert cagrilar == [{"status": "upcoming"}]
+
+
+def test_iki_sorgu_da_atiliyor_ve_kayitlar_TEKILLESTIRILIYOR(monkeypatch):
+    """Ayni NOTAM iki sorgudan da gelebilir; gecmise iki kez girmemeli."""
+    def kayit(no, nid):
+        return {"id": nid, "number": no, "location_code": "LTFJ", "status": "active",
+                "text": "X", "effective_start": "2026-01-01T00:00:00Z"}
+
+    durumlar = []
+
+    def sahte(location, ek_parametreler=None):
+        durum = (ek_parametreler or {}).get("status")
+        durumlar.append(durum)
+        if durum == "upcoming":
+            return {"results": [kayit("B0002/26", "i2"), kayit("B0001/26", "i1")], "next": None}
+        return {"results": [kayit("B0001/26", "i1")], "next": None}
+
+    monkeypatch.setattr(nm.client, "notam_getir", sahte)
+    sonuc = nm.yururlukteki_ve_yaklasan_notamlar("LTFJ")
+    assert durumlar == ["active", "upcoming"]
+    assert [n["number"] for n in sonuc] == ["B0001/26", "B0002/26"]
+
+
+def test_yaklasan_sorgusu_COKERSE_yururluktekiler_yine_donuyor(monkeypatch):
+    """Yeni ve İKİNCİL bir bilgi yüzünden ana akışı kaybetmeyiz."""
+    def sahte(location, ek_parametreler=None):
+        if (ek_parametreler or {}).get("status") == "upcoming":
+            raise nm.client.NotamAgHatasi("koptu")
+        return {"results": [{"id": "i1", "number": "B0001/26", "location_code": "LTFJ",
+                             "status": "active", "text": "X"}], "next": None}
+
+    monkeypatch.setattr(nm.client, "notam_getir", sahte)
+    sonuc = nm.yururlukteki_ve_yaklasan_notamlar("LTFJ")
+    assert [n["number"] for n in sonuc] == ["B0001/26"]
+
+
+def test_yururluktekiler_sorgusu_cokerse_HATA_YUKSELIYOR(monkeypatch):
+    """Ana akış sessizce boş dönmemeli - çağıran taraf bilmeli."""
+    def sahte(location, ek_parametreler=None):
+        raise nm.client.NotamAgHatasi("koptu")
+
+    monkeypatch.setattr(nm.client, "notam_getir", sahte)
+    with pytest.raises(nm.NotamServisHatasi):
+        nm.yururlukteki_ve_yaklasan_notamlar("LTFJ")

@@ -1396,6 +1396,15 @@ SABLON = """<!DOCTYPE html>
     <div id="notam-aktif-liste"><div class="notam-bos">Yükleniyor…</div></div>
   </div>
 
+  <!-- YAKLASAN: yururluge girmemis NOTAM'lar. Bolum SADECE boyle bir
+       kayit varken cizilir - surekli duran bos bir baslik, "yaklasan
+       yok" ile "veri gelmiyor" arasindaki farki silerdi. -->
+  <div class="alt-bolum" id="notam-yaklasan-bolum" hidden>
+    <div class="basrow"><span class="tip">Yaklaşan NOTAM'lar</span>
+      <span class="zaman">henüz yürürlükte değil</span></div>
+    <div id="notam-yaklasan-liste"></div>
+  </div>
+
   <div class="alt-bolum">
     <details class="kat">
     <summary>Geçmiş / Arama <span class="kat-rozet" id="notam-gecmis-sayi"></span></summary>
@@ -1781,17 +1790,16 @@ window.ltfjNotamQEtiketi = function (n) {{
 }};
 
 window.ltfjNotamIlgiliSatiri = function (n) {{
+  // REGEX PYTHON TARAFINDA. Once burada bir kopyasi vardi; ayni kural
+  // iki dilde iki kez yazilmis oluyordu ve hangi alanda arandigini da
+  // sabitliyordu. Artik ltfj_notam.ilgili_notam_referansi() ham kaydin
+  // TUM metin alanlarinda ariyor, sonucu "ilgili_notam" olarak geliyor.
   "use strict";
-  // TERS BOLU CIFT YAZILIYOR: SABLON ham (raw) bir dize DEGIL, yani
-  // "\\b" Python tarafindan BACKSPACE karakterine cevrilir ve sayfaya
-  // 0x08 olarak yazilirdi - regex sessizce hicbir seyle eslesmezdi.
-  // (Bu tam olarak basima geldi; asagidaki kontrol karakteri testi
-  // sinifin tamamini kapatiyor.)
-  var m = /\\bNOTAM([RC])\\s+([A-Z]\\d{{4}}\\/\\d{{2}})\\b/i.exec(n.text || "");
-  if (!m) return "";
-  var fiil = m[1].toUpperCase() === "C" ? "iptal ettiği" : "yerine geçtiği";
+  var i = n.ilgili_notam;
+  if (!i || !i.numara) return "";
+  var fiil = String(i.tip).toUpperCase() === "C" ? "iptal ettiği" : "yerine geçtiği";
   return '<div class="notam-ilgili">' + window.ltfjNotamKacis(fiil) +
-         " NOTAM: <b>" + window.ltfjNotamKacis(m[2].toUpperCase()) + "</b></div>";
+         " NOTAM: <b>" + window.ltfjNotamKacis(i.numara) + "</b></div>";
 }};
 
 window.ltfjNotamGecerlilik = function (n) {{
@@ -1852,6 +1860,8 @@ window.ltfjKalanSure = function (ms) {{
   }}
 
   var veri = null;
+  var yaklasanBolumEl = document.getElementById("notam-yaklasan-bolum");
+  var yaklasanEl = document.getElementById("notam-yaklasan-liste");
   var aktifEl = document.getElementById("notam-aktif-liste");
   var aktifQEl = document.getElementById("notam-aktif-q");
   var aktifKategoriEl = document.getElementById("notam-aktif-kategori");
@@ -1931,6 +1941,20 @@ window.ltfjKalanSure = function (ms) {{
     }});
   }}
 
+  function yaklasanGoster() {{
+    // Tarih kontrolu ISTEMCIDE yeniden yapiliyor: sayfa saatlerce acik
+    // kalabilir ve bu arada bir NOTAM yururluge girer. Python'un yazdigi
+    // liste o an dogruydu, simdi degil - girenler listeden dusmeli.
+    if (!yaklasanBolumEl) return;
+    var liste = ((veri && veri.yaklasan) || []).filter(function (n) {{
+      return gecerlilik(n).durum === "baslamadi";
+    }}).sort(function (a, b) {{
+      return String(a.effective_start || "").localeCompare(String(b.effective_start || ""));
+    }});
+    yaklasanBolumEl.hidden = liste.length === 0;
+    yaklasanEl.innerHTML = liste.map(notamKarti).join("");
+  }}
+
   function aktifGoster() {{
     if (!veri) return;
     // Ham UTC damgasi ("2026-09-22 19:51") GOSTERILMIYOR: sayfadaki diger
@@ -1963,6 +1987,8 @@ window.ltfjKalanSure = function (ms) {{
       aktifEl.innerHTML = '<div class="notam-bos">NOTAM verisi şu anda alınamıyor.</div>';
       return;
     }}
+
+    yaklasanGoster();
 
     var tumu = yururluktekiler();
     var gosterilecek = aktifFiltrele(tumu);
