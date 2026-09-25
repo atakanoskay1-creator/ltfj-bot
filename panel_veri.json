@@ -1,14 +1,14 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-25T00:45:50+00:00",
+ "uretildi": "2026-09-25T01:01:27+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-25T00:20:00+00:00",
-  "metin": "METAR LTFJ 250020Z 07006KT CAVOK 11/09 Q1020 NOSIG RMK RWY24R 36008KT RWY06R 05005KT 020V080 RWY24L 02003KT",
+  "zaman": "2026-09-25T00:50:00+00:00",
+  "metin": "METAR LTFJ 250050Z 07008KT CAVOK 11/09 Q1020 NOSIG RMK RWY24R 36008KT RWY06R 04008KT RWY24L 02007KT",
   "ruzgar": {
    "yon": 70,
-   "hiz": 6,
+   "hiz": 8,
    "hamle": null,
    "degisken": null
   },
@@ -30,8 +30,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 6.0,
-    "yan": 0.6,
+    "bas": 8.0,
+    "yan": 0.8,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -43,12 +43,12 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 4.8,
-    "yan": 1.2,
+    "bas": 7.3,
+    "yan": 3.3,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -56,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -2.2,
-    "yan": 2.1,
+    "bas": -5.0,
+    "yan": 4.9,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -87,22 +87,14 @@
   "prs": [],
   "gorus_op": [],
   "trend": null,
-  "sis_riski": "Sis oluşum göstergesi: orta (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 2°C, rüzgâr 6 kt, gece şartları",
-  "ozet": "Rüzgâr 070° 6kt · görüş CAVOK · 11°C · QNH 1020"
+  "sis_riski": "Sis oluşum göstergesi: orta (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 2°C, rüzgâr 8 kt, gece şartları",
+  "ozet": "Rüzgâr 070° 8kt · görüş CAVOK · 11°C · QNH 1020"
  },
  "taf": {
   "zaman": "2026-09-24T22:40:00+00:00",
   "metin": "TAF LTFJ 242240Z 2500/2524 03005KT CAVOK BECMG 2508/2512 04015KT FEW040 BECMG 2514/2517 04005KT CAVOK"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-19T03:50:00+00:00",
-   "ruzgar_hiz": 6,
-   "tavan": null,
-   "qnh": 1019,
-   "sicaklik": 15,
-   "cig_noktasi": 14
-  },
   {
    "zaman": "2026-09-19T04:20:00+00:00",
    "ruzgar_hiz": 5,
@@ -2552,6 +2544,15 @@
    "zaman": "2026-09-25T00:20:00+00:00",
    "gorus": 10000,
    "ruzgar_hiz": 6,
+   "tavan": null,
+   "qnh": 1020,
+   "sicaklik": 11,
+   "cig_noktasi": 9
+  },
+  {
+   "zaman": "2026-09-25T00:50:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 8,
    "tavan": null,
    "qnh": 1020,
    "sicaklik": 11,
