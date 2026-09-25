@@ -40,17 +40,41 @@ def test_ilk_calismada_notam_son_senkron_yoksa_senkron_gerekir(monkeypatch):
     assert b._notam_senkron_gerekli_mi({"notam_son_senkron": None}) is True
 
 
+def _aralik(monkeypatch, saat):
+    """Aralik artik `ayar()`tan DEGIL notam_senkron_araligi_saat()'ten
+    geliyor (tek kaynak). _sahte_ayar ile "senkron_araligi_saat": 6
+    yazmak bu yuzden ARTIK HICBIR SEY YAPMIYOR - o iki test gercek
+    ayarlar.json degeriyle (3 saat) calisip tesadufen yesil kaliyordu.
+    Fikstur dogru yere baglandi."""
+    monkeypatch.setattr(b, "notam_senkron_araligi_saat", lambda: saat)
+
+
 def test_arali_dolmadiysa_senkron_atlanir(monkeypatch):
-    monkeypatch.setattr(b, "ayar", _sahte_ayar({"aktif": True, "senkron_araligi_saat": 6}))
+    monkeypatch.setattr(b, "ayar", _sahte_ayar({"aktif": True}))
     monkeypatch.setattr(b.notam_client, "api_anahtari_var_mi", lambda: True)
+    _aralik(monkeypatch, 6)
     son = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat(timespec="seconds")
     assert b._notam_senkron_gerekli_mi({"notam_son_senkron": son}) is False
 
 
 def test_arali_dolduysa_senkron_gerekir(monkeypatch):
-    monkeypatch.setattr(b, "ayar", _sahte_ayar({"aktif": True, "senkron_araligi_saat": 6}))
+    monkeypatch.setattr(b, "ayar", _sahte_ayar({"aktif": True}))
     monkeypatch.setattr(b.notam_client, "api_anahtari_var_mi", lambda: True)
+    _aralik(monkeypatch, 6)
     son = (datetime.now(timezone.utc) - timedelta(hours=7)).isoformat(timespec="seconds")
+    assert b._notam_senkron_gerekli_mi({"notam_son_senkron": son}) is True
+
+
+def test_gating_ARALIGI_TAKIP_EDIYOR(monkeypatch):
+    """Ayni yas, iki farkli aralik -> iki farkli karar. Sabit bir 6
+    kalsaydi bu test 3 saatlik ayarda yanlis cevap verirdi."""
+    monkeypatch.setattr(b, "ayar", _sahte_ayar({"aktif": True}))
+    monkeypatch.setattr(b.notam_client, "api_anahtari_var_mi", lambda: True)
+    son = (datetime.now(timezone.utc) - timedelta(hours=4)).isoformat(timespec="seconds")
+
+    _aralik(monkeypatch, 6)
+    assert b._notam_senkron_gerekli_mi({"notam_son_senkron": son}) is False
+    _aralik(monkeypatch, 3)
     assert b._notam_senkron_gerekli_mi({"notam_son_senkron": son}) is True
 
 

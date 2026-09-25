@@ -100,9 +100,11 @@ VARSAYILAN = {
         # (bkz. ltfj_notam_client.api_anahtari_var_mi()); "aktif": False
         # anahtar tanimli olsa bile ozelligi kapatmak icin ayrica bir anahtar.
         "aktif": True,
-        # NOTAM METAR kadar sik degismiyor - varsayilan olarak 6 saatte bir
+        # NOTAM METAR kadar sik degismiyor - varsayilan olarak 3 saatte bir
         # senkronize ediyoruz (API kredisini gereksiz tuketmemek icin).
-        "senkron_araligi_saat": 6,
+        # BU DEGERI DOGRUDAN OKUMA: notam_senkron_araligi_saat() kullan -
+        # web sayfasinin bayatlik esigi de bu degerden TURETILIYOR.
+        "senkron_araligi_saat": 3,
         "location": "LTFJ",
     },
     "atc_notes": {
@@ -186,3 +188,33 @@ def ayar(*yol, varsayilan=None):
             return varsayilan
         d = d[k]
     return d
+
+
+def notam_senkron_araligi_saat() -> int:
+    """NOTAM senkron araligi - TEK KAYNAK.
+
+    Ayni sayi EVVELCE UC YERDE duruyordu: VARSAYILAN, ltfj_bot'taki
+    `varsayilan=6` ve web sayfasinin JS'indeki `NOTAM_BAYAT_MS = 12 *
+    3600 * 1000` ("6 saatin iki kati" diye ELLE yazilmis). Ayar 6'dan
+    3'e cekilirken ucuncusu sessizce yerinde kalirdi: esik 2x degil 4x
+    olur, yani NOTAC erisilemez oldugunda sayfa bayatligi 6 saat yerine
+    12 saat sonra soylerdi. Kullanici da ekranda duran eski NOTAM
+    listesine bakmaya devam ederdi.
+
+    Sayi artik yalnizca burada; bayatlik esigi de bundan turetiliyor
+    (bkz. notam_bayat_saat)."""
+    deger = ayar("notam", "senkron_araligi_saat",
+                 varsayilan=VARSAYILAN["notam"]["senkron_araligi_saat"])
+    # Bozuk/anlamsiz bir deger (0, negatif, sayi olmayan) senkronu her
+    # kosuda tetikleyip API'yi doverdi - varsayilana donuyoruz.
+    if not isinstance(deger, (int, float)) or isinstance(deger, bool) or deger <= 0:
+        return VARSAYILAN["notam"]["senkron_araligi_saat"]
+    return deger
+
+
+def notam_bayat_saat() -> float:
+    """Web sayfasinin "NOTAM listesi bayat" esigi: senkron araliginin IKI
+    KATI. Bir senkron kacmak olagan (kosu gecikmesi, gecici ag hatasi),
+    ikisini birden kacirmak degil - ayni "2x kadans" mantigi
+    GOZLEM_TAZE_DK'da da kullanildi."""
+    return notam_senkron_araligi_saat() * 2
