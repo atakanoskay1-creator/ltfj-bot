@@ -1,14 +1,14 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-25T15:15:59+00:00",
+ "uretildi": "2026-09-25T15:31:11+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-25T14:50:00+00:00",
-  "metin": "METAR LTFJ 251450Z 04015KT 9999 FEW035 20/12 Q1018 NOSIG RMK RWY24R 03015KT RWY06R 03016KT RWY24L 04014KT",
+  "zaman": "2026-09-25T15:20:00+00:00",
+  "metin": "METAR LTFJ 251520Z 04013KT 9999 FEW035 20/13 Q1018 NOSIG RMK RWY24R 03014KT RWY06R 03016KT RWY24L 04013KT",
   "ruzgar": {
    "yon": 40,
-   "hiz": 15,
+   "hiz": 13,
    "hamle": null,
    "degisken": null
   },
@@ -17,7 +17,7 @@
   "tavan": null,
   "hava": [],
   "sicaklik": 20,
-  "cig_noktasi": 12,
+  "cig_noktasi": 13,
   "qnh": 1018,
   "nosig": true,
   "renk": [
@@ -30,8 +30,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 13.7,
-    "yan": 6.1,
+    "bas": 11.9,
+    "yan": 5.3,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -56,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -12.8,
-    "yan": 5.7,
+    "bas": -11.9,
+    "yan": 5.3,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -69,8 +69,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -12.4,
-    "yan": 8.4,
+    "bas": -11.6,
+    "yan": 7.9,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -82,7 +82,7 @@
   ],
   "kuyruk_limiti": 10,
   "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi",
-  "tercih_pist": "06L",
+  "tercih_pist": "06R",
   "rvr": [],
   "prs": [
    "24L, 24R için arka rüzgâr 10 kt üstü"
@@ -90,21 +90,13 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 040° 15kt · görüş 10+ km · 20°C · QNH 1018"
+  "ozet": "Rüzgâr 040° 13kt · görüş 10+ km · 20°C · QNH 1018"
  },
  "taf": {
   "zaman": "2026-09-25T10:40:00+00:00",
   "metin": "TAF LTFJ 251040Z 2512/2612 06015KT 9999 FEW040 BECMG 2516/2519 04005KT CAVOK PROB30 2602/2606 SCT010 BECMG 2607/2610 04015KT"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-19T18:20:00+00:00",
-   "ruzgar_hiz": 9,
-   "tavan": null,
-   "qnh": 1022,
-   "sicaklik": 20,
-   "cig_noktasi": 15
-  },
   {
    "zaman": "2026-09-19T18:50:00+00:00",
    "ruzgar_hiz": 7,
@@ -2587,6 +2579,15 @@
    "qnh": 1018,
    "sicaklik": 20,
    "cig_noktasi": 12
+  },
+  {
+   "zaman": "2026-09-25T15:20:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 13,
+   "tavan": null,
+   "qnh": 1018,
+   "sicaklik": 20,
+   "cig_noktasi": 13
   }
  ]
 }
