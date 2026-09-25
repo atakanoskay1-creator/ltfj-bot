@@ -2,8 +2,8 @@
  "istasyon": "LTFJ",
  "kaynak": "NOTAC",
  "bilgi_uyarisi": "Bilgi amaçlıdır. Operasyon öncesi güncel resmî NOTAM/PIB kontrol edilmelidir.",
- "uretildi": "2026-09-25T11:45:47+00:00",
- "son_senkron": "2026-09-25T09:01:21+00:00",
+ "uretildi": "2026-09-25T12:01:21+00:00",
+ "son_senkron": "2026-09-25T12:01:21+00:00",
  "aktif": [
   {
    "id": "190a947d-aebc-414b-9ea6-f06bb1fbf7a1",
@@ -34,8 +34,9 @@
    "reading_long": "Runway 06L/24R has surface irregularities that reduce driving quality, from 28 Aug 2026 07:11 to 2 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMRXX"
   },
   {
    "id": "8f9209b8-706f-48bd-9ddd-cd1af0f77ddc",
@@ -67,8 +68,9 @@
    "reading_long": "Runway 06L/24R is temporarily closed to departing and arriving traffic due to runway maintenance during scheduled times between 29 March and 24 October 2026. Departing pilots must request start-up and push-back clearance at least 25 minutes before the runway closure time.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMRLC"
   },
   {
    "id": "463c68a0-9237-48a4-b175-e0b31bc25f9a",
@@ -93,8 +95,9 @@
    "reading_long": "The aeronautical information supplement 06/13 for this aerodrome is cancelled.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMRXX"
   },
   {
    "id": "1c3eee71-187e-4f92-9105-d08f243b9880",
@@ -126,8 +129,9 @@
    "reading_long": "Taxiway R2 is closed to traffic due to construction works from 26 Aug 2026 14:10 to 28 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMXLC"
   },
   {
    "id": "a3796b51-d1d2-49bd-987c-eb54c2ff8775",
@@ -153,8 +157,9 @@
    "reading_long": "Taxiway A1 is closed to traffic from 12 Aug 2026 15:08 to 28 Oct 2026 16:00 UTC. Follow air traffic control instructions.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMXLC"
   },
   {
    "id": "f9db43bf-d607-4f29-bcd5-254720849fe3",
@@ -180,8 +185,9 @@
    "reading_long": "Taxiway R1 is open for towing only, from 28 Aug 2026 07:10 to 2 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMXLT"
   },
   {
    "id": "d2bdf929-01c8-4c19-a9dc-9bed024e0bb1",
@@ -205,8 +211,9 @@
    "reading_long": "The RNAV (GNSS) standard instrument departures and arrivals at this aerodrome are mandatory for P-RNAV approved aircraft. Arriving aircraft must include waypoints TETSA, PAZAR, OTSAN, ELVON, DEKEK, TURKO, GELBU or ATVEP as the last element of their flight plan. Departing aircraft must include waypoints MARMA, GOLDO, VADEN, IBLAL, MAKOL, MOPIN, PIMAV or EDASA as the first element.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QGAXX"
   },
   {
    "id": "d249e29b-245c-49c8-ae22-90e8d6e0ebb4",
@@ -236,8 +243,9 @@
    "reading_long": "The sequenced flashing lights on runway 24L are unserviceable between 690 and 900 metres from the threshold, due to an electrical failure, from 26 Aug 2026 13:51 to 26 Sep 2026 14:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QLFAS"
   },
   {
    "id": "dbd0d4b7-eb26-4faf-9e00-83682f67d5a1",
@@ -263,8 +271,9 @@
    "reading_long": "A four-point area on apron 9 is closed to traffic from 12 Aug 2026 15:17 to 28 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMNLC"
   },
   {
    "id": "6937a0ed-1f72-46d5-a9c3-b6d038516467",
@@ -292,8 +301,9 @@
    "reading_long": "De-icing apron 2 is closed to traffic due to construction from 12 Aug 2026 15:15 to 28 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMNLC"
   },
   {
    "id": "10758841-dfdb-4546-b1cf-a7f42fc2b3a5",
@@ -319,8 +329,9 @@
    "reading_long": "An area on apron 9 is designated for irregular parking due to construction work, from 12 Aug 2026 08:00 to 27 Oct 2026 14:00 UTC. The area is a four-point polygon.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMNXX"
   },
   {
    "id": "a35454ab-ad65-4084-a747-9f78d51c128f",
@@ -350,8 +361,9 @@
    "reading_long": "Grass cutting works are taking place along the edge of runway 06L/24R and the edges of all taxiways. Follow aerodrome control tower instructions.",
    "source": "NOTAC",
    "first_seen": "2026-09-17T12:01:55+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QFAHW"
   },
   {
    "id": "e32d2692-e7b1-4bb5-94af-e4b3e76bc0e2",
@@ -376,8 +388,9 @@
    "reading_long": "Grass cutting is taking place at the edges of all taxiways connected to runways 06R and 24L. Follow air traffic control instructions.",
    "source": "NOTAC",
    "first_seen": "2026-09-21T13:31:08+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QFAHG"
   },
   {
    "id": "405b444f-22d1-4cb0-852c-241d6c9afeda",
@@ -409,8 +422,9 @@
    "reading_long": "Taxiway K1 is closed to traffic from 24 Sep 2026 07:00 to 3 Oct 2026 16:00 UTC due to construction works.",
    "source": "NOTAC",
    "first_seen": "2026-09-24T08:40:55+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMXLC"
   },
   {
    "id": "47df5ed0-34d4-4b28-a147-eb312613b619",
@@ -435,34 +449,9 @@
    "reading_long": "This notice has been cancelled; a new notice will follow.",
    "source": "NOTAC",
    "first_seen": "2026-09-24T20:45:54+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
-  },
-  {
-   "id": "c87ca5f5-0510-476f-88b4-c3926408c242",
-   "number": "B3819/26",
-   "notam_type": "N",
-   "location": "LTFJ",
-   "status": "active",
-   "effective_start": "2026-09-25T06:52:00Z",
-   "effective_end": "2026-09-25T10:00:00Z",
-   "notam_issued": "2026-09-25T06:56:00Z",
-   "notam_updated": "2026-09-25T06:56:00Z",
-   "record_updated_at": "2026-09-25T07:01:34.094839Z",
-   "category_kodu": "NAVAID",
-   "category_etiketi": "Navaid",
-   "tags": [
-    "navaid",
-    "unserviceable"
-   ],
-   "affected_elements": [],
-   "text": "NDB SAB 347KHZ U/S.",
-   "reading_short": "The SAB radio beacon is unserviceable.",
-   "reading_long": "The SAB radio beacon on 347 kHz is unserviceable from 25 Sep 2026 06:52 to 25 Sep 2026 10:00 UTC.",
-   "source": "NOTAC",
-   "first_seen": "2026-09-25T09:01:21+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMRXX"
   },
   {
    "id": "b6786d51-0a36-4767-b003-d29c941f1c51",
@@ -494,8 +483,9 @@
    "reading_long": "Taxiway M1 is closed to traffic due to painting works from 25 Sep 2026 06:45 to 25 Sep 2026 13:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-25T09:01:21+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMXLC"
   },
   {
    "id": "1912d98b-2e94-4e47-9490-57166cdbafbb",
@@ -538,8 +528,9 @@
    "reading_long": "The stopbar lights on taxiways E, G, C6 and C11 are unserviceable due to electrical work, from 25 Sep 2026 08:00 to 14:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-25T09:01:21+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMOXX"
   }
  ],
  "gecmis": [
@@ -572,8 +563,9 @@
    "reading_long": "Runway 06L/24R has surface irregularities that reduce driving quality, from 28 Aug 2026 07:11 to 2 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMRXX"
   },
   {
    "id": "8f9209b8-706f-48bd-9ddd-cd1af0f77ddc",
@@ -605,8 +597,9 @@
    "reading_long": "Runway 06L/24R is temporarily closed to departing and arriving traffic due to runway maintenance during scheduled times between 29 March and 24 October 2026. Departing pilots must request start-up and push-back clearance at least 25 minutes before the runway closure time.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMRLC"
   },
   {
    "id": "463c68a0-9237-48a4-b175-e0b31bc25f9a",
@@ -631,8 +624,9 @@
    "reading_long": "The aeronautical information supplement 06/13 for this aerodrome is cancelled.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMRXX"
   },
   {
    "id": "1c3eee71-187e-4f92-9105-d08f243b9880",
@@ -664,8 +658,9 @@
    "reading_long": "Taxiway R2 is closed to traffic due to construction works from 26 Aug 2026 14:10 to 28 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMXLC"
   },
   {
    "id": "a3796b51-d1d2-49bd-987c-eb54c2ff8775",
@@ -691,8 +686,9 @@
    "reading_long": "Taxiway A1 is closed to traffic from 12 Aug 2026 15:08 to 28 Oct 2026 16:00 UTC. Follow air traffic control instructions.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMXLC"
   },
   {
    "id": "f9db43bf-d607-4f29-bcd5-254720849fe3",
@@ -718,8 +714,9 @@
    "reading_long": "Taxiway R1 is open for towing only, from 28 Aug 2026 07:10 to 2 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMXLT"
   },
   {
    "id": "d2bdf929-01c8-4c19-a9dc-9bed024e0bb1",
@@ -743,8 +740,9 @@
    "reading_long": "The RNAV (GNSS) standard instrument departures and arrivals at this aerodrome are mandatory for P-RNAV approved aircraft. Arriving aircraft must include waypoints TETSA, PAZAR, OTSAN, ELVON, DEKEK, TURKO, GELBU or ATVEP as the last element of their flight plan. Departing aircraft must include waypoints MARMA, GOLDO, VADEN, IBLAL, MAKOL, MOPIN, PIMAV or EDASA as the first element.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QGAXX"
   },
   {
    "id": "d249e29b-245c-49c8-ae22-90e8d6e0ebb4",
@@ -774,8 +772,9 @@
    "reading_long": "The sequenced flashing lights on runway 24L are unserviceable between 690 and 900 metres from the threshold, due to an electrical failure, from 26 Aug 2026 13:51 to 26 Sep 2026 14:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QLFAS"
   },
   {
    "id": "dbd0d4b7-eb26-4faf-9e00-83682f67d5a1",
@@ -801,8 +800,9 @@
    "reading_long": "A four-point area on apron 9 is closed to traffic from 12 Aug 2026 15:17 to 28 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMNLC"
   },
   {
    "id": "6937a0ed-1f72-46d5-a9c3-b6d038516467",
@@ -830,8 +830,9 @@
    "reading_long": "De-icing apron 2 is closed to traffic due to construction from 12 Aug 2026 15:15 to 28 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMNLC"
   },
   {
    "id": "10758841-dfdb-4546-b1cf-a7f42fc2b3a5",
@@ -857,8 +858,9 @@
    "reading_long": "An area on apron 9 is designated for irregular parking due to construction work, from 12 Aug 2026 08:00 to 27 Oct 2026 14:00 UTC. The area is a four-point polygon.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMNXX"
   },
   {
    "id": "a35454ab-ad65-4084-a747-9f78d51c128f",
@@ -888,8 +890,9 @@
    "reading_long": "Grass cutting works are taking place along the edge of runway 06L/24R and the edges of all taxiways. Follow aerodrome control tower instructions.",
    "source": "NOTAC",
    "first_seen": "2026-09-17T12:01:55+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QFAHW"
   },
   {
    "id": "e32d2692-e7b1-4bb5-94af-e4b3e76bc0e2",
@@ -914,8 +917,9 @@
    "reading_long": "Grass cutting is taking place at the edges of all taxiways connected to runways 06R and 24L. Follow air traffic control instructions.",
    "source": "NOTAC",
    "first_seen": "2026-09-21T13:31:08+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QFAHG"
   },
   {
    "id": "405b444f-22d1-4cb0-852c-241d6c9afeda",
@@ -947,8 +951,9 @@
    "reading_long": "Taxiway K1 is closed to traffic from 24 Sep 2026 07:00 to 3 Oct 2026 16:00 UTC due to construction works.",
    "source": "NOTAC",
    "first_seen": "2026-09-24T08:40:55+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMXLC"
   },
   {
    "id": "47df5ed0-34d4-4b28-a147-eb312613b619",
@@ -973,34 +978,9 @@
    "reading_long": "This notice has been cancelled; a new notice will follow.",
    "source": "NOTAC",
    "first_seen": "2026-09-24T20:45:54+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
-  },
-  {
-   "id": "c87ca5f5-0510-476f-88b4-c3926408c242",
-   "number": "B3819/26",
-   "notam_type": "N",
-   "location": "LTFJ",
-   "status": "active",
-   "effective_start": "2026-09-25T06:52:00Z",
-   "effective_end": "2026-09-25T10:00:00Z",
-   "notam_issued": "2026-09-25T06:56:00Z",
-   "notam_updated": "2026-09-25T06:56:00Z",
-   "record_updated_at": "2026-09-25T07:01:34.094839Z",
-   "category_kodu": "NAVAID",
-   "category_etiketi": "Navaid",
-   "tags": [
-    "navaid",
-    "unserviceable"
-   ],
-   "affected_elements": [],
-   "text": "NDB SAB 347KHZ U/S.",
-   "reading_short": "The SAB radio beacon is unserviceable.",
-   "reading_long": "The SAB radio beacon on 347 kHz is unserviceable from 25 Sep 2026 06:52 to 25 Sep 2026 10:00 UTC.",
-   "source": "NOTAC",
-   "first_seen": "2026-09-25T09:01:21+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMRXX"
   },
   {
    "id": "b6786d51-0a36-4767-b003-d29c941f1c51",
@@ -1032,8 +1012,9 @@
    "reading_long": "Taxiway M1 is closed to traffic due to painting works from 25 Sep 2026 06:45 to 25 Sep 2026 13:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-25T09:01:21+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMXLC"
   },
   {
    "id": "1912d98b-2e94-4e47-9490-57166cdbafbb",
@@ -1074,6 +1055,33 @@
    "text": "STOPBAR LIGHTS OF TWY E, TWY G, TWY C6 AND TWY C11 U/S DUE TO \r\nELECTRIC WORK",
    "reading_short": "Stopbar lights on several taxiways are unserviceable.",
    "reading_long": "The stopbar lights on taxiways E, G, C6 and C11 are unserviceable due to electrical work, from 25 Sep 2026 08:00 to 14:00 UTC.",
+   "source": "NOTAC",
+   "first_seen": "2026-09-25T09:01:21+00:00",
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMOXX"
+  },
+  {
+   "id": "c87ca5f5-0510-476f-88b4-c3926408c242",
+   "number": "B3819/26",
+   "notam_type": "N",
+   "location": "LTFJ",
+   "status": "active",
+   "effective_start": "2026-09-25T06:52:00Z",
+   "effective_end": "2026-09-25T10:00:00Z",
+   "notam_issued": "2026-09-25T06:56:00Z",
+   "notam_updated": "2026-09-25T06:56:00Z",
+   "record_updated_at": "2026-09-25T07:01:34.094839Z",
+   "category_kodu": "NAVAID",
+   "category_etiketi": "Navaid",
+   "tags": [
+    "navaid",
+    "unserviceable"
+   ],
+   "affected_elements": [],
+   "text": "NDB SAB 347KHZ U/S.",
+   "reading_short": "The SAB radio beacon is unserviceable.",
+   "reading_long": "The SAB radio beacon on 347 kHz is unserviceable from 25 Sep 2026 06:52 to 25 Sep 2026 10:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-25T09:01:21+00:00",
    "last_seen": "2026-09-25T09:01:21+00:00",

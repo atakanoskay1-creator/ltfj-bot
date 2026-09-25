@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:53376724",
   "id:53384576",
   "id:53387347",
   "id:53395421",
@@ -199,23 +198,16 @@
   "id:54412108",
   "id:54414891",
   "id:54416753",
-  "id:54424052"
+  "id:54424052",
+  "id:54429185"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 251120Z 05012KT 010V090 9999 FEW035 23/11 Q1018 NOSIG RMK RWY24R 02012KT 350V050 RWY06R 02014KT RWY24L 04013KT 360V070",
+ "son_metar": "METAR LTFJ 251150Z 04011KT 010V080 9999 FEW035 24/11 Q1018 NOSIG RMK RWY24R 04010KT 360V110 RWY06R 03012KT 350V060 RWY24L 02011KT 350V060",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-25T11:20:00+00:00",
+ "son_veri_zamani": "2026-09-25T11:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-19T14:50:00+00:00",
-   "ruzgar_hiz": 17,
-   "tavan": null,
-   "qnh": 1020,
-   "sicaklik": 23,
-   "cig_noktasi": 14
-  },
   {
    "zaman": "2026-09-19T15:20:00+00:00",
    "ruzgar_hiz": 15,
@@ -2691,13 +2683,22 @@
    "qnh": 1018,
    "sicaklik": 23,
    "cig_noktasi": 11
+  },
+  {
+   "zaman": "2026-09-25T11:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 11,
+   "tavan": null,
+   "qnh": 1018,
+   "sicaklik": 24,
+   "cig_noktasi": 11
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 251050Z 04011KT 010V070 9999 FEW035 24/11 Q1018 NOSIG RMK RWY24R 03011KT RWY06R 03012KT RWY24L 02011KT": "**Rüzgâr:** Kuzey-kuzeydoğu yönünden 11 knot (yaklaşık 20 km/saat) şiddette, 10 ile 70 derece arasında değişken rüzgâr var.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için görüş açısından rahat koşullar var.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 3500 feet (1050 metre) yükseklikte, yağış yok ve hava olayı beklenmemiyor.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı unsur oluşturmuyor; rapor saatinden sonraki 2 saatte hava koşullarında önemli değişiklik öngörülmüyor.",
   "TAF LTFJ 250440Z 2506/2606 03005KT 9999 FEW035 BECMG 2506/2509 04015KT CAVOK BECMG 2515/2518 03005KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken rüzgâr ve az bulutluluk beklenmektedir.\n\n- **0506/0606 UTC** Rüzgâr 030° 5 knot, görüş 9999 metre, az bulut 3500 feet.\n- **0506/0509 UTC arası (kademeli geçiş)** Rüzgâr 040° 15 knot, gökyüzü açık.\n- **0515/0518 UTC arası (kademeli geçiş)** Rüzgâr 030° 5 knot.",
   "TAF LTFJ 251040Z 2512/2612 06015KT 9999 FEW040 BECMG 2516/2519 04005KT CAVOK PROB30 2602/2606 SCT010 BECMG 2607/2610 04015KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde rüzgâr kuzeyden 15 düğüm, görüş 10 km ve üzeri, 4000 feet'te az bulutlu hava beklenmektedir.\n\n- **2516/2519 UTC:** Rüzgâr kuzeyden 5 düğüme düşecek, görüş ve bulut koşulları temiz hava seviyesine geçecek.\n- **2602/2606 UTC:** %30 ihtimalle 1000 feet'te dağınık bulutluluk.\n- **2607/2610 UTC:** Rüzgâr kuzeyden 15 düğüme yükselecek.",
-  "METAR LTFJ 251120Z 05012KT 010V090 9999 FEW035 23/11 Q1018 NOSIG RMK RWY24R 02012KT 350V050 RWY06R 02014KT RWY24L 04013KT 360V070": "**Rüzgâr:** Kuzey-kuzeydoğu yönünden 12 knot (yaklaşık 22 km/s) hızla esen rüzgâr, yönü 10° ile 90° arasında değişiyor ve pistte yan rüzgâr bileşeni 3 knot.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu hava, bulutlar yaklaşık 3500 feet (1050 metre) yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler içinde uçuşu kısıtlayan önemli unsur bulunmuyor; rüzgâr, görüş ve hava koşulları normal operasyon için uygun."
+  "METAR LTFJ 251120Z 05012KT 010V090 9999 FEW035 23/11 Q1018 NOSIG RMK RWY24R 02012KT 350V050 RWY06R 02014KT RWY24L 04013KT 360V070": "**Rüzgâr:** Kuzey-kuzeydoğu yönünden 12 knot (yaklaşık 22 km/s) hızla esen rüzgâr, yönü 10° ile 90° arasında değişiyor ve pistte yan rüzgâr bileşeni 3 knot.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu hava, bulutlar yaklaşık 3500 feet (1050 metre) yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler içinde uçuşu kısıtlayan önemli unsur bulunmuyor; rüzgâr, görüş ve hava koşulları normal operasyon için uygun.",
+  "METAR LTFJ 251150Z 04011KT 010V080 9999 FEW035 24/11 Q1018 NOSIG RMK RWY24R 04010KT 360V110 RWY06R 03012KT 350V060 RWY24L 02011KT 350V060": "**Rüzgâr:** Kuzey-kuzeydoğu yönünden 11 knot hızla esiyor, yönü 10 ile 80 derece arasında değişiyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 3500 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş açısından belirgin kısıtlama yok, hava durumu önümüzdeki 2 saatte önemli ölçüde değişmeyecek."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -2729,8 +2730,9 @@
    "reading_long": "Runway 06L/24R has surface irregularities that reduce driving quality, from 28 Aug 2026 07:11 to 2 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMRXX"
   },
   "8f9209b8-706f-48bd-9ddd-cd1af0f77ddc": {
    "id": "8f9209b8-706f-48bd-9ddd-cd1af0f77ddc",
@@ -2762,8 +2764,9 @@
    "reading_long": "Runway 06L/24R is temporarily closed to departing and arriving traffic due to runway maintenance during scheduled times between 29 March and 24 October 2026. Departing pilots must request start-up and push-back clearance at least 25 minutes before the runway closure time.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMRLC"
   },
   "463c68a0-9237-48a4-b175-e0b31bc25f9a": {
    "id": "463c68a0-9237-48a4-b175-e0b31bc25f9a",
@@ -2788,8 +2791,9 @@
    "reading_long": "The aeronautical information supplement 06/13 for this aerodrome is cancelled.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMRXX"
   },
   "1c3eee71-187e-4f92-9105-d08f243b9880": {
    "id": "1c3eee71-187e-4f92-9105-d08f243b9880",
@@ -2821,8 +2825,9 @@
    "reading_long": "Taxiway R2 is closed to traffic due to construction works from 26 Aug 2026 14:10 to 28 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMXLC"
   },
   "a3796b51-d1d2-49bd-987c-eb54c2ff8775": {
    "id": "a3796b51-d1d2-49bd-987c-eb54c2ff8775",
@@ -2848,8 +2853,9 @@
    "reading_long": "Taxiway A1 is closed to traffic from 12 Aug 2026 15:08 to 28 Oct 2026 16:00 UTC. Follow air traffic control instructions.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMXLC"
   },
   "f9db43bf-d607-4f29-bcd5-254720849fe3": {
    "id": "f9db43bf-d607-4f29-bcd5-254720849fe3",
@@ -2875,8 +2881,9 @@
    "reading_long": "Taxiway R1 is open for towing only, from 28 Aug 2026 07:10 to 2 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMXLT"
   },
   "d2bdf929-01c8-4c19-a9dc-9bed024e0bb1": {
    "id": "d2bdf929-01c8-4c19-a9dc-9bed024e0bb1",
@@ -2900,8 +2907,9 @@
    "reading_long": "The RNAV (GNSS) standard instrument departures and arrivals at this aerodrome are mandatory for P-RNAV approved aircraft. Arriving aircraft must include waypoints TETSA, PAZAR, OTSAN, ELVON, DEKEK, TURKO, GELBU or ATVEP as the last element of their flight plan. Departing aircraft must include waypoints MARMA, GOLDO, VADEN, IBLAL, MAKOL, MOPIN, PIMAV or EDASA as the first element.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QGAXX"
   },
   "d249e29b-245c-49c8-ae22-90e8d6e0ebb4": {
    "id": "d249e29b-245c-49c8-ae22-90e8d6e0ebb4",
@@ -2931,8 +2939,9 @@
    "reading_long": "The sequenced flashing lights on runway 24L are unserviceable between 690 and 900 metres from the threshold, due to an electrical failure, from 26 Aug 2026 13:51 to 26 Sep 2026 14:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QLFAS"
   },
   "dbd0d4b7-eb26-4faf-9e00-83682f67d5a1": {
    "id": "dbd0d4b7-eb26-4faf-9e00-83682f67d5a1",
@@ -2958,8 +2967,9 @@
    "reading_long": "A four-point area on apron 9 is closed to traffic from 12 Aug 2026 15:17 to 28 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMNLC"
   },
   "6937a0ed-1f72-46d5-a9c3-b6d038516467": {
    "id": "6937a0ed-1f72-46d5-a9c3-b6d038516467",
@@ -2987,8 +2997,9 @@
    "reading_long": "De-icing apron 2 is closed to traffic due to construction from 12 Aug 2026 15:15 to 28 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMNLC"
   },
   "10758841-dfdb-4546-b1cf-a7f42fc2b3a5": {
    "id": "10758841-dfdb-4546-b1cf-a7f42fc2b3a5",
@@ -3014,8 +3025,9 @@
    "reading_long": "An area on apron 9 is designated for irregular parking due to construction work, from 12 Aug 2026 08:00 to 27 Oct 2026 14:00 UTC. The area is a four-point polygon.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMNXX"
   },
   "a35454ab-ad65-4084-a747-9f78d51c128f": {
    "id": "a35454ab-ad65-4084-a747-9f78d51c128f",
@@ -3045,8 +3057,9 @@
    "reading_long": "Grass cutting works are taking place along the edge of runway 06L/24R and the edges of all taxiways. Follow aerodrome control tower instructions.",
    "source": "NOTAC",
    "first_seen": "2026-09-17T12:01:55+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QFAHW"
   },
   "c087b78d-a787-43ef-92cd-c95fe20ccf83": {
    "id": "c087b78d-a787-43ef-92cd-c95fe20ccf83",
@@ -3134,8 +3147,9 @@
    "reading_long": "Grass cutting is taking place at the edges of all taxiways connected to runways 06R and 24L. Follow air traffic control instructions.",
    "source": "NOTAC",
    "first_seen": "2026-09-21T13:31:08+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QFAHG"
   },
   "405b444f-22d1-4cb0-852c-241d6c9afeda": {
    "id": "405b444f-22d1-4cb0-852c-241d6c9afeda",
@@ -3167,8 +3181,9 @@
    "reading_long": "Taxiway K1 is closed to traffic from 24 Sep 2026 07:00 to 3 Oct 2026 16:00 UTC due to construction works.",
    "source": "NOTAC",
    "first_seen": "2026-09-24T08:40:55+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMXLC"
   },
   "47df5ed0-34d4-4b28-a147-eb312613b619": {
    "id": "47df5ed0-34d4-4b28-a147-eb312613b619",
@@ -3193,8 +3208,9 @@
    "reading_long": "This notice has been cancelled; a new notice will follow.",
    "source": "NOTAC",
    "first_seen": "2026-09-24T20:45:54+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMRXX"
   },
   "c87ca5f5-0510-476f-88b4-c3926408c242": {
    "id": "c87ca5f5-0510-476f-88b4-c3926408c242",
@@ -3252,8 +3268,9 @@
    "reading_long": "Taxiway M1 is closed to traffic due to painting works from 25 Sep 2026 06:45 to 25 Sep 2026 13:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-25T09:01:21+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMXLC"
   },
   "1912d98b-2e94-4e47-9490-57166cdbafbb": {
    "id": "1912d98b-2e94-4e47-9490-57166cdbafbb",
@@ -3296,14 +3313,15 @@
    "reading_long": "The stopbar lights on taxiways E, G, C6 and C11 are unserviceable due to electrical work, from 25 Sep 2026 08:00 to 14:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-25T09:01:21+00:00",
-   "last_seen": "2026-09-25T09:01:21+00:00",
-   "last_active": "2026-09-25T09:01:21+00:00"
+   "last_seen": "2026-09-25T12:01:21+00:00",
+   "last_active": "2026-09-25T12:01:21+00:00",
+   "q_code": "QMOXX"
   }
  },
- "notam_son_senkron": "2026-09-25T09:01:21+00:00",
- "guncelleme": "2026-09-25T11:45:47+00:00",
+ "notam_son_senkron": "2026-09-25T12:01:21+00:00",
+ "guncelleme": "2026-09-25T12:01:23+00:00",
  "push_gonderilen": [
-  "id:54416753",
-  "id:54339168"
+  "id:54339168",
+  "id:54416753"
  ]
 }
