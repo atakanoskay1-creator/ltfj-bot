@@ -108,9 +108,36 @@ def test_aktif_liste_suresi_dolmuslari_ayikliyor(tmp_path):
     assert 'gecerlilik(n).durum === "yururlukte"' in html
 
 
-def test_filtre_secenekleri_sadece_yururluktekilerden_uretiliyor(tmp_path):
+def test_upcoming_notamlar_ayri_listede_gosteriliyor(tmp_path):
+    html = _sayfa(tmp_path)
+    assert "Upcoming NOTAM'lar" in html
+    assert 'id="notam-upcoming-liste"' in html
+    assert 'id="notam-upcoming-sayi"' in html
+    assert "function yaklasanlar()" in html
+    assert 'gecerlilik(n).durum === "baslamadi"' in html
+    assert "upcomingGosterilecek.map(notamKarti)" in html
+
+
+def test_notam_numarasi_kaynaktaki_number_alanindan_etiketli_gosteriliyor(tmp_path):
+    html = _sayfa(tmp_path)
+    assert "NOTAM NO:" in html
+    assert 'esc(n.number || "—")' in html
+
+
+def test_notamc_aktif_ve_upcoming_listelerinden_filtrelenmiyor(tmp_path):
+    """N/R/C ayrimi rozet icindir; C kaydi liste seciminde elenmemeli."""
+    html = _sayfa(tmp_path)
+    yaklasan_govde = html.split("function yaklasanlar()", 1)[1].split("function aktifFiltrele", 1)[0]
+    yururlukte_govde = html.split("function yururluktekiler()", 1)[1].split("function yaklasanlar", 1)[0]
+    assert "n.notam_type" not in yaklasan_govde
+    assert "n.notam_type" not in yururlukte_govde
+    assert '"C": {ad: "NOTAMC"' in html
+
+
+def test_filtre_secenekleri_aktif_ve_upcoming_notamlardan_uretiliyor(tmp_path):
     html = _sayfa(tmp_path)
     assert "function aktifFiltreSecenekleriDoldur()" in html
+    assert "yururluktekiler().concat(yaklasanlar())" in html
     # Secenekler her veri yuklemesinde YENIDEN kurulur; eskiden secenek
     # eklemesi temizlenmedigi icin yinelenme riski vardi.
     assert "while (el.options.length > 1) el.remove(1);" in html

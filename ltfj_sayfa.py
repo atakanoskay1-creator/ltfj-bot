@@ -983,6 +983,8 @@ SABLON = """<!DOCTYPE html>
   .notam-ust {{ display:flex; align-items:center; gap:8px; flex-wrap:wrap;
                 margin-bottom:6px; }}
   .notam-no {{ font-weight:650; font-family:var(--mono); }}
+  .notam-no-etiket {{ color:var(--soluk); font-family:var(--sans); font-size:var(--f1);
+    font-weight:600; letter-spacing:.03em; }}
   .notam-etiket {{
     padding:2px 8px; border-radius:999px; font-size:var(--f1); font-weight:600;
     background:var(--kod-bg); border:1px solid var(--cizgi); color:var(--soluk);
@@ -1394,6 +1396,9 @@ SABLON = """<!DOCTYPE html>
       <button type="button" id="notam-aktif-temizle">Temizle</button>
     </div>
     <div id="notam-aktif-liste"><div class="notam-bos">Yükleniyor…</div></div>
+    <div class="basrow" style="margin-top:16px;"><span class="tip">Upcoming NOTAM'lar</span>
+      <span class="zaman" id="notam-upcoming-sayi"></span></div>
+    <div id="notam-upcoming-liste"><div class="notam-bos">Yükleniyor…</div></div>
   </div>
 
   <div class="alt-bolum">
@@ -1853,6 +1858,8 @@ window.ltfjKalanSure = function (ms) {{
 
   var veri = null;
   var aktifEl = document.getElementById("notam-aktif-liste");
+  var upcomingEl = document.getElementById("notam-upcoming-liste");
+  var upcomingSayiEl = document.getElementById("notam-upcoming-sayi");
   var aktifQEl = document.getElementById("notam-aktif-q");
   var aktifKategoriEl = document.getElementById("notam-aktif-kategori");
   var aktifElemanEl = document.getElementById("notam-aktif-eleman");
@@ -1883,7 +1890,8 @@ window.ltfjKalanSure = function (ms) {{
     return (
       '<div class="notam-kart">' +
       '<div class="notam-ust">' + aktifNoktasi +
-      '<span class="notam-no">' + esc(n.number || "—") + "</span>" +
+      '<span class="notam-no"><span class="notam-no-etiket">NOTAM NO:</span> ' +
+      esc(n.number || "—") + "</span>" +
       window.ltfjNotamTipEtiketi(n) + window.ltfjNotamQEtiketi(n) +
       kategori + etiketler + pistler +
       '<span class="notam-durum' + (g.vurgula ? " notam-durum-gecmis" : "") + '">' +
@@ -1907,6 +1915,19 @@ window.ltfjKalanSure = function (ms) {{
       return gecerlilik(n).durum === "yururlukte";
     }}).sort(function (a, b) {{
       return (a.number || "").localeCompare(b.number || "");
+    }});
+  }}
+
+  // NOTAC son senkron yanitinda gelecekte baslayacak kayitlari da
+  // `status: active` ile donduruyor. Bunlar aktif listeden kaybolmasin;
+  // ayri Upcoming listesinde, kaynaktaki kendi `number` alaniyla gorunsun.
+  // notam_type burada filtrelenmez: N/R kadar C (NOTAMC) de korunur.
+  function yaklasanlar() {{
+    return (veri.aktif || []).filter(function (n) {{
+      return gecerlilik(n).durum === "baslamadi";
+    }}).sort(function (a, b) {{
+      return (a.effective_start || "").localeCompare(b.effective_start || "") ||
+             (a.number || "").localeCompare(b.number || "");
     }});
   }}
 
@@ -1961,11 +1982,15 @@ window.ltfjKalanSure = function (ms) {{
     if (!veri.son_senkron) {{
       aktifSayiEl.textContent = "";
       aktifEl.innerHTML = '<div class="notam-bos">NOTAM verisi şu anda alınamıyor.</div>';
+      upcomingSayiEl.textContent = "";
+      upcomingEl.innerHTML = '<div class="notam-bos">NOTAM verisi şu anda alınamıyor.</div>';
       return;
     }}
 
     var tumu = yururluktekiler();
     var gosterilecek = aktifFiltrele(tumu);
+    var upcomingTumu = yaklasanlar();
+    var upcomingGosterilecek = aktifFiltrele(upcomingTumu);
 
     aktifSayiEl.textContent = !tumu.length
       ? "aktif yok"
@@ -1980,12 +2005,26 @@ window.ltfjKalanSure = function (ms) {{
     }} else {{
       aktifEl.innerHTML = gosterilecek.map(notamKarti).join("");
     }}
+
+    upcomingSayiEl.textContent = !upcomingTumu.length
+      ? "upcoming yok"
+      : (upcomingGosterilecek.length === upcomingTumu.length
+          ? upcomingTumu.length + " upcoming"
+          : upcomingGosterilecek.length + " / " + upcomingTumu.length + " upcoming");
+
+    if (!upcomingTumu.length) {{
+      upcomingEl.innerHTML = '<div class="notam-bos">Upcoming NOTAM bulunmuyor.</div>';
+    }} else if (!upcomingGosterilecek.length) {{
+      upcomingEl.innerHTML = '<div class="notam-bos">Filtreye uyan upcoming NOTAM yok.</div>';
+    }} else {{
+      upcomingEl.innerHTML = upcomingGosterilecek.map(notamKarti).join("");
+    }}
   }}
 
-  // Filtre secenekleri SADECE yururlukteki NOTAM'larda gercekten bulunan
+  // Filtre secenekleri aktif ve upcoming NOTAM'larda gercekten bulunan
   // degerlerden uretilir - bos sonuc veren secenek listelenmez.
   function aktifFiltreSecenekleriDoldur() {{
-    var liste = yururluktekiler();
+    var liste = yururluktekiler().concat(yaklasanlar());
     function doldur(el, degerler) {{
       var secili = el.value;
       while (el.options.length > 1) el.remove(1);
@@ -2393,7 +2432,7 @@ window.ltfjKalanSure = function (ms) {{
     }}
     var no = document.createElement("span");
     no.className = "notam-no";
-    no.textContent = n.number || "—";
+    no.textContent = "NOTAM NO: " + (n.number || "—");
     ust.appendChild(no);
     kart.appendChild(ust);
     var metin = document.createElement("div");
