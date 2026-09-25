@@ -14,6 +14,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import ltfj_lvo_farkindalik as farkindalik
+import ltfj_notam
 import ltfj_lvo_referans as lvo
 import ltfj_gorus_gecis_tablo as gecis_tablo
 import ltfj_sis_olasilik as sis_olasilik
@@ -961,6 +962,20 @@ SABLON = """<!DOCTYPE html>
     background:rgba(234,179,8,.12); border:1px solid rgba(234,179,8,.4);
     border-radius:10px; padding:10px 12px; margin-bottom:14px; font-size:var(--f2);
   }}
+  /* Tip (NOTAMR/NOTAMC) ve Q kodu rozetleri: ikisi de VERI, yorum
+     degil. Durum renkleri KULLANILMIYOR - bunlar bir seviye/uyari
+     bildirmiyor, yalnizca NOTAM'in kimligini anlatiyor. */
+  .notam-tip {{
+    font-family:var(--mono); font-size:var(--f1); font-weight:650;
+    padding:1px .4em; border-radius:4px;
+    background:var(--etkilesim); color:var(--metin);
+  }}
+  .notam-q {{
+    font-family:var(--mono); font-size:var(--f1);
+    padding:1px .4em; border-radius:4px;
+    background:var(--etkilesim); color:var(--soluk);
+  }}
+  .notam-ilgili {{ font-size:var(--f2); color:var(--soluk); margin:2px 0 4px; }}
   .notam-kart {{
     border-bottom:1px solid var(--cizgi); padding:12px 0;
   }}
@@ -1724,6 +1739,61 @@ window.ltfjGecenSure = function (ms) {{
 // gibi bir deger tarih penceresinden BAGIMSIZ olarak gecerlidir (iptal
 // edilmis bir NOTAM tarihi gecmemis olsa da yururlukte degildir).
 // effective_end bos olan NOTAM kalicidir (ornegin G4445/14), suresi dolmaz.
+// NOTAM TIPI (N/R/C) ve Q KODU - iki NOTAM listesi de (Aktif/arama ve
+// LVO paneli) ayni yardimcilari kullaniyor.
+//
+// NOTAMR/NOTAMC HANGI NOTAM'I etkiliyor? notam_type alani NOTAC'in
+// YAPISAL alani ve her kayitta var ("N" yeni, "R" yerine gecen, "C"
+// iptal). Ama YERINE GECTIGI NOTAM'IN NUMARASI NOTAC'in gozlenen
+// yanitinda AYRI BIR ALAN OLARAK YOK ve "text" yalnizca E) govdesini
+// tasiyor - 16 gercek kayitta "NOTAMR B1234/26" kalibi hic gecmedi.
+// Bu yuzden numara ancak metinde GERCEKTEN yaziyorsa gosteriliyor;
+// yoksa satir hic cizilmiyor. Eslestirmeyi TAHMIN ETMIYORUZ (ayni Q
+// kodu + ayni pist gibi bir cikarim yanlis NOTAM'i isaret edebilirdi).
+window.ltfjNotamKacis = function (s) {{
+  "use strict";
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {{
+    return {{"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}}[c];
+  }});
+}};
+
+window.ltfjNotamTipEtiketi = function (n) {{
+  "use strict";
+  // "N" (yeni) icin rozet YOK: her kartta duran bir rozet bilgi
+  // tasimaz, yalnizca gurultu olur. Dikkat ceken R ve C.
+  var tipler = {{
+    "R": {{ad: "NOTAMR", baslik: "Önceki bir NOTAM'ın yerine geçti"}},
+    "C": {{ad: "NOTAMC", baslik: "Bir NOTAM'ı iptal ediyor"}},
+  }};
+  var bilgi = tipler[(n.notam_type || "").toUpperCase()];
+  if (!bilgi) return "";
+  return '<span class="notam-tip" title="' + window.ltfjNotamKacis(bilgi.baslik) +
+         '">' + bilgi.ad + "</span>";
+}};
+
+window.ltfjNotamQEtiketi = function (n) {{
+  "use strict";
+  // Q kodu HAM gosteriliyor - kendi Turkce karsiligimizi uydurmuyoruz.
+  var kod = (n.q_code || "").trim().toUpperCase();
+  if (!kod) return "";
+  return '<span class="notam-q" title="ICAO Q kodu (NOTAC verisi)">' +
+         window.ltfjNotamKacis(kod) + "</span>";
+}};
+
+window.ltfjNotamIlgiliSatiri = function (n) {{
+  "use strict";
+  // TERS BOLU CIFT YAZILIYOR: SABLON ham (raw) bir dize DEGIL, yani
+  // "\\b" Python tarafindan BACKSPACE karakterine cevrilir ve sayfaya
+  // 0x08 olarak yazilirdi - regex sessizce hicbir seyle eslesmezdi.
+  // (Bu tam olarak basima geldi; asagidaki kontrol karakteri testi
+  // sinifin tamamini kapatiyor.)
+  var m = /\\bNOTAM([RC])\\s+([A-Z]\\d{{4}}\\/\\d{{2}})\\b/i.exec(n.text || "");
+  if (!m) return "";
+  var fiil = m[1].toUpperCase() === "C" ? "iptal ettiği" : "yerine geçtiği";
+  return '<div class="notam-ilgili">' + window.ltfjNotamKacis(fiil) +
+         " NOTAM: <b>" + window.ltfjNotamKacis(m[2].toUpperCase()) + "</b></div>";
+}};
+
 window.ltfjNotamGecerlilik = function (n) {{
   "use strict";
   var simdi = Date.now();
@@ -1814,10 +1884,12 @@ window.ltfjKalanSure = function (ms) {{
       '<div class="notam-kart">' +
       '<div class="notam-ust">' + aktifNoktasi +
       '<span class="notam-no">' + esc(n.number || "—") + "</span>" +
+      window.ltfjNotamTipEtiketi(n) + window.ltfjNotamQEtiketi(n) +
       kategori + etiketler + pistler +
       '<span class="notam-durum' + (g.vurgula ? " notam-durum-gecmis" : "") + '">' +
       esc(g.etiket) + "</span></div>" +
       ozet +
+      window.ltfjNotamIlgiliSatiri(n) +
       "<details><summary style=\\"cursor:pointer; font-size:var(--f2); color:var(--soluk);\\">Ham NOTAM metni</summary>" +
       '<div class="notam-metin">' + esc(n.text || "") + "</div></details>" +
       '<div class="notam-kaynak">Kaynak: NOTAC · geçerlilik: ' +
@@ -2051,6 +2123,12 @@ window.ltfjKalanSure = function (ms) {{
   var STALE_ESIK_DK = 30;   // SADECE veri tazeliği göstergesi - operasyonel bir minima DEĞİL
   var AWOS_PISTLER = ["06R", "24R"];
   var AWOS_POZISYONLAR = ["TDZ", "MID", "STOP-END"];
+  // Q KODU BIRINCIL SUZGEC. Anahtar kelime listesi YEDEKTE kaliyor:
+  // Q kodu olmayan (ornegin modele q_code eklenmeden once senkronlanmis)
+  // ya da bicimi okunamayan kayitlar sessizce kaybolmasin diye. Ikisi
+  // BIRLESIM calisiyor - panelde bir NOTAM'in eksik kalmasi, fazladan
+  // bir NOTAM gorunmesinden daha pahali.
+  var LVO_Q_KONULARI = {lvo_q_konulari_json};   // ltfj_notam.LVO_Q_KONULARI ile AYNI kaynak
   var LVO_NOTAM_ANAHTAR_KELIMELER = [
     "runway", "rwy", "ils", "localizer", "glide", "approach light", "yaklaşma işık",
     "runway light", "pist ışık", "taxiway", "taksi yolu", "stop bar", "rvr", "awos",
@@ -2325,7 +2403,17 @@ window.ltfjKalanSure = function (ms) {{
     return kart;
   }}
 
+  function qKonusu(n) {{
+    // "QMRLC" -> "MR". Bicim beklenmedikse null: yanlis bir dilimden
+    // konu uydurmaktansa "bilmiyorum" deyip yedege dusmek dogru.
+    var kod = (n.q_code || "").trim().toUpperCase();
+    if (kod.length !== 5 || kod.charAt(0) !== "Q" || !/^[A-Z]{{5}}$/.test(kod)) return null;
+    return kod.substring(1, 3);
+  }}
+
   function notamLvoIliskiliMi(n) {{
+    var konu = qKonusu(n);
+    if (konu !== null && LVO_Q_KONULARI.indexOf(konu) !== -1) return true;
     var alanlar = [n.text, n.reading_short, n.reading_long, n.category_etiketi]
       .concat(n.tags || [])
       .filter(Boolean).join(" ").toLowerCase();
@@ -4395,6 +4483,7 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
                       sekme_cubugu_html=_sekme_cubugu_html(
                           _sis_olasilik_rozeti(guncel_cozum, gecmis, simdi)),
                       rvr_esikleri_json=json.dumps(lvo.RVR_ESIKLERI, ensure_ascii=False),
+                      lvo_q_konulari_json=json.dumps(list(ltfj_notam.LVO_Q_KONULARI)),
                       vfr_html=_vfr_sekmesi_html(guncel_cozum)),
         encoding="utf-8")
     print(f"  web sayfası yazıldı: {hedef.name}")
