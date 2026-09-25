@@ -2750,8 +2750,8 @@
    "reading_long": "Runway 06L/24R has surface irregularities that reduce driving quality, from 28 Aug 2026 07:11 to 2 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
-   "last_active": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
+   "last_active": "2026-09-25T22:10:32+00:00",
    "q_code": "QMRXX",
    "raw": "B3455/26 NOTAMR B2849/26\r Q) LTBB/QMRXX/IV/BO /A /000/999/4054N02919E005\r A) LTFJ B) 2608280711 C) 2610021600\r E) PRESENCE SURFACE IRREGULARITIES ON RWY 06L/24R REDUCING DRIVING \r QUALITY.",
    "ilgili_notam": {
@@ -2789,8 +2789,8 @@
    "reading_long": "Runway 06L/24R is temporarily closed to departing and arriving traffic due to runway maintenance during scheduled times between 29 March and 24 October 2026. Departing pilots must request start-up and push-back clearance at least 25 minutes before the runway closure time.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
-   "last_active": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
+   "last_active": "2026-09-25T22:10:32+00:00",
    "q_code": "QMRLC",
    "raw": "",
    "ilgili_notam": null
@@ -2818,8 +2818,8 @@
    "reading_long": "The aeronautical information supplement 06/13 for this aerodrome is cancelled.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
-   "last_active": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
+   "last_active": "2026-09-25T22:10:32+00:00",
    "q_code": "QMRXX",
    "raw": "",
    "ilgili_notam": null
@@ -2854,8 +2854,8 @@
    "reading_long": "Taxiway R2 is closed to traffic due to construction works from 26 Aug 2026 14:10 to 28 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
-   "last_active": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
+   "last_active": "2026-09-25T22:10:32+00:00",
    "q_code": "QMXLC",
    "raw": "",
    "ilgili_notam": null
@@ -2884,8 +2884,8 @@
    "reading_long": "Taxiway A1 is closed to traffic from 12 Aug 2026 15:08 to 28 Oct 2026 16:00 UTC. Follow air traffic control instructions.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
-   "last_active": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
+   "last_active": "2026-09-25T22:10:32+00:00",
    "q_code": "QMXLC",
    "raw": "B3200/26 NOTAMR B2084/26\r Q) LTBB/QMXLC/IV/BO /A /000/999/4054N02919E005\r A) LTFJ B) 2608121508 C) 2610281600\r E) TWY -A1- CLSD TO TFC.\r ADVISE ATC INSTRUCTION.",
    "ilgili_notam": {
@@ -2917,8 +2917,8 @@
    "reading_long": "Taxiway R1 is open for towing only, from 28 Aug 2026 07:10 to 2 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
-   "last_active": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
+   "last_active": "2026-09-25T22:10:32+00:00",
    "q_code": "QMXLT",
    "raw": "B3456/26 NOTAMR B2847/26\r Q) LTBB/QMXLT/IV/M  /A /000/999/4054N02919E005\r A) LTFJ B) 2608280710 C) 2610021600\r E) TWY-R1- OPN FOR ONLY TOWING.",
    "ilgili_notam": {
@@ -2948,8 +2948,8 @@
    "reading_long": "The RNAV (GNSS) standard instrument departures and arrivals at this aerodrome are mandatory for P-RNAV approved aircraft. Arriving aircraft must include waypoints TETSA, PAZAR, OTSAN, ELVON, DEKEK, TURKO, GELBU or ATVEP as the last element of their flight plan. Departing aircraft must include waypoints MARMA, GOLDO, VADEN, IBLAL, MAKOL, MOPIN, PIMAV or EDASA as the first element.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
-   "last_active": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
+   "last_active": "2026-09-25T22:10:32+00:00",
    "q_code": "QGAXX",
    "raw": "",
    "ilgili_notam": null
@@ -2982,8 +2982,8 @@
    "reading_long": "The sequenced flashing lights on runway 24L are unserviceable between 690 and 900 metres from the threshold, due to an electrical failure, from 26 Aug 2026 13:51 to 26 Sep 2026 14:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
-   "last_active": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
+   "last_active": "2026-09-25T22:10:32+00:00",
    "q_code": "QLFAS",
    "raw": "",
    "ilgili_notam": null
@@ -3012,8 +3012,8 @@
    "reading_long": "A four-point area on apron 9 is closed to traffic from 12 Aug 2026 15:17 to 28 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
-   "last_active": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
+   "last_active": "2026-09-25T22:10:32+00:00",
    "q_code": "QMNLC",
    "raw": "B3203/26 NOTAMR B2081/26\r Q) LTBB/QMNLC/IV/NBO/A /000/999/4054N02919E005\r A) LTFJ B) 2608121517 C) 2610281600\r E) APRON-9 CLSD TO TFC FOLLOWING AREA:\r 405259.75N 0291817.01E\r 405308.36N 0291841.05E\r 405300.30N 0291845.80E\r 405251.84N 0291822.50E",
    "ilgili_notam": {
@@ -3047,8 +3047,8 @@
    "reading_long": "De-icing apron 2 is closed to traffic due to construction from 12 Aug 2026 15:15 to 28 Oct 2026 16:00 UTC.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
-   "last_active": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
+   "last_active": "2026-09-25T22:10:32+00:00",
    "q_code": "QMNLC",
    "raw": "B3202/26 NOTAMR B2082/26\r Q) LTBB/QMNLC/IV/NBO/A /000/999/4054N02919E005\r A) LTFJ B) 2608121515 C) 2610281600\r E) DE-ICING APRON-2 CLSD DUE TO CONST.",
    "ilgili_notam": {
@@ -3080,8 +3080,8 @@
    "reading_long": "An area on apron 9 is designated for irregular parking due to construction work, from 12 Aug 2026 08:00 to 27 Oct 2026 14:00 UTC. The area is a four-point polygon.",
    "source": "NOTAC",
    "first_seen": "2026-09-16T23:40:50+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
-   "last_active": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
+   "last_active": "2026-09-25T22:10:32+00:00",
    "q_code": "QMNXX",
    "raw": "B3182/26 NOTAMR B2133/26\r Q) LTBB/QMNXX/IV/NBO/A /000/999/4054N02919E005\r A) LTFJ B) 2608120800 C) 2610271400\r E) BELOW AREA ON APRON-9 SHALL BE USED FOR IRREGULAR PARKING DUE TO \r CONST WORK:\r 405252.44N 0291803.17E\r 405256.18N 0291813.42E\r 405250.03N 0291817.26E\r 405246.26N 0291807.01E",
    "ilgili_notam": {
@@ -3117,8 +3117,8 @@
    "reading_long": "Grass cutting works are taking place along the edge of runway 06L/24R and the edges of all taxiways. Follow aerodrome control tower instructions.",
    "source": "NOTAC",
    "first_seen": "2026-09-17T12:01:55+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
-   "last_active": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
+   "last_active": "2026-09-25T22:10:32+00:00",
    "q_code": "QFAHW",
    "raw": "",
    "ilgili_notam": null
@@ -3209,8 +3209,8 @@
    "reading_long": "Grass cutting is taking place at the edges of all taxiways connected to runways 06R and 24L. Follow air traffic control instructions.",
    "source": "NOTAC",
    "first_seen": "2026-09-21T13:31:08+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
-   "last_active": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
+   "last_active": "2026-09-25T22:10:32+00:00",
    "q_code": "QFAHG",
    "raw": "",
    "ilgili_notam": null
@@ -3245,8 +3245,8 @@
    "reading_long": "Taxiway K1 is closed to traffic from 24 Sep 2026 07:00 to 3 Oct 2026 16:00 UTC due to construction works.",
    "source": "NOTAC",
    "first_seen": "2026-09-24T08:40:55+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
-   "last_active": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
+   "last_active": "2026-09-25T22:10:32+00:00",
    "q_code": "QMXLC",
    "raw": "",
    "ilgili_notam": null
@@ -3274,8 +3274,8 @@
    "reading_long": "This notice has been cancelled; a new notice will follow.",
    "source": "NOTAC",
    "first_seen": "2026-09-24T20:45:54+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
-   "last_active": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
+   "last_active": "2026-09-25T22:10:32+00:00",
    "q_code": "QMRXX",
    "raw": "B3810/26 NOTAMC B3809/26\r Q) LTBB/QMRXX/IV/BO /A /000/999/4054N02919E005\r A) LTFJ B) 2609241818\r E) NOTAM CNL. NEW NOTAM TO FLW.",
    "ilgili_notam": {
@@ -3421,7 +3421,7 @@
    "reading_long": "Runway 06L/24R is temporarily closed to departing and arriving traffic due to runway maintenance. The closure applies on specific days and times between 25 October 2026 and 27 March 2027, with exceptions on certain dates when the closure is not applied.",
    "source": "NOTAC",
    "first_seen": "2026-09-25T21:48:05+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
    "last_active": null
   },
   "39507c0b-7fd5-48f9-b9d7-05cde7c83d47": {
@@ -3457,8 +3457,8 @@
    "reading_long": "Runway 06R/24L is closed to landing and take-off traffic from 25 Sep 2026 22:00 to 26 Sep 2026 02:00 UTC, due to tire wiping works.",
    "source": "NOTAC",
    "first_seen": "2026-09-25T21:48:05+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
-   "last_active": null
+   "last_seen": "2026-09-25T22:10:32+00:00",
+   "last_active": "2026-09-25T22:10:32+00:00"
   },
   "72c17122-ad01-4e32-bf1d-b2560bafa716": {
    "id": "72c17122-ad01-4e32-bf1d-b2560bafa716",
@@ -3491,7 +3491,7 @@
    "reading_long": "Runway 06L/24R is open to traffic; see NOTAM B7835/25.",
    "source": "NOTAC",
    "first_seen": "2026-09-25T21:48:05+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
    "last_active": null
   },
   "a8fbd9b6-8732-4a2a-9f3b-2596c495cb76": {
@@ -3519,7 +3519,7 @@
    "reading_long": "The aerodrome's instrument approach and departure procedures are being updated, effective 29 October 2026.",
    "source": "NOTAC",
    "first_seen": "2026-09-25T21:48:05+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
    "last_active": null
   },
   "8995e757-c85f-4029-95a9-d33c7c8d7b03": {
@@ -3547,7 +3547,7 @@
    "reading_long": "The published local aerodrome regulations, flight procedures and several instrument approach charts for this aerodrome are being updated, effective 1 October 2026.",
    "source": "NOTAC",
    "first_seen": "2026-09-25T21:48:05+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
    "last_active": null
   },
   "a1ce0373-ee7e-4853-a7a4-dec21d9be6a1": {
@@ -3581,15 +3581,15 @@
    "reading_long": "A mobile crane is present 550 metres before the threshold on the left side of the runway 06R approach surface. The crane is 40 metres tall, with its top at 109 metres above sea level. Advise air traffic control of instructions.",
    "source": "NOTAC",
    "first_seen": "2026-09-25T21:48:05+00:00",
-   "last_seen": "2026-09-25T21:48:05+00:00",
+   "last_seen": "2026-09-25T22:10:32+00:00",
    "last_active": null
   }
  },
- "notam_son_senkron": "2026-09-25T21:48:05+00:00",
- "guncelleme": "2026-09-25T22:01:19+00:00",
+ "notam_son_senkron": "2026-09-25T22:10:32+00:00",
+ "guncelleme": "2026-09-25T22:10:33+00:00",
  "push_gonderilen": [
-  "id:54416753",
   "id:54339168",
-  "id:54494528"
+  "id:54494528",
+  "id:54416753"
  ]
 }
