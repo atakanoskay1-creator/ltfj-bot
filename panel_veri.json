@@ -1,6 +1,6 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-25T17:01:25+00:00",
+ "uretildi": "2026-09-25T17:15:57+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
@@ -91,8 +91,8 @@
   "ozet": "Rüzgâr 040° 10kt · görüş 10+ km · 18°C · QNH 1019"
  },
  "taf": {
-  "zaman": "2026-09-25T10:40:00+00:00",
-  "metin": "TAF LTFJ 251040Z 2512/2612 06015KT 9999 FEW040 BECMG 2516/2519 04005KT CAVOK PROB30 2602/2606 SCT010 BECMG 2607/2610 04015KT"
+  "zaman": "2026-09-25T16:40:00+00:00",
+  "metin": "TAF LTFJ 251640Z 2518/2618 04015KT CAVOK BECMG 2518/2521 04005KT PROB30 2602/2606 FEW004 BECMG 2607/2610 04015KT BECMG 2615/2617 SCT035"
  },
  "gecmis": [
   {
