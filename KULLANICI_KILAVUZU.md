@@ -1,74 +1,179 @@
-# LTFJ Bot — Kullanıcı Kılavuzu
+# LTFJ Hava Durumu Sayfası — Kullanım Kılavuzu
 
-Bu kılavuz, LTFJ (İstanbul Sabiha Gökçen) hava durumu sayfasını, ATC panelini ve bildirimleri kullanmak isteyenler içindir. Depoyu kendi hesabında çalıştırma adımları için [Kurulum](#9-kendi-kopyanı-kurma) bölümüne bak.
+Bu kılavuz, İstanbul Sabiha Gökçen hava durumu sayfasını ilk kez açan kullanıcılar içindir. Ekrandaki bilgileri nasıl okuyacağınızı, aradığınız bilgiye hangi sekmeden ulaşacağınızı ve sayfadaki düğmeleri nasıl kullanacağınızı anlatır.
 
-> **Kullanım sınırı:** Bu proje eğitim, simülasyon ve hobi amaçlıdır. Veriler gecikebilir, eksik veya hatalı olabilir. Uçuş planlaması ve gerçek ATC operasyonlarında kullanılamaz. METAR/TAF, NOTAM, AWOS, ATIS ve ilgili prosedürler için yetkili resmî kaynakları kullan.
+## İlk kullanım: nereden başlamalıyım?
 
-## 1. Sayfaları açma
+1. **Verinin zamanına bakın.** Başlığın altında son METAR, TAF ve NOTAM bilgisinin ne kadar eski olduğunu kontrol edin.
+2. **Dört ana değeri okuyun:** GÖRÜŞ, TAVAN, RÜZGÂR ve SPREAD.
+3. **Durum** sekmesinde son raporu ve açıklamalarını inceleyin.
+4. İleriye dönük eğilim için **Beklenti**, geçmiş verilerden hesaplanan olasılıklar için **İstatistik** sekmesine geçin.
+5. İhtiyacınıza göre **LVO** veya **NOTAM** sekmesini açın.
 
-GitHub Pages etkinse ana sayfa `https://atakanoskay1-creator.github.io/ltfj-bot/`, ATC paneli `https://atakanoskay1-creator.github.io/ltfj-bot/panel.html` adresindedir. Başka bir hesaptaki fork için kullanıcı adını ve gerekirse depo adını değiştir. Pages açılmamışsa bu adresler çalışmaz; [Kurulum](#9-kendi-kopyanı-kurma) bölümündeki Pages adımını uygula.
+> Sayfa bilgilendirme, eğitim ve simülasyon amaçlıdır. Gerçek uçuş ve ATC kararlarında güncel resmî kaynaklar kullanılmalıdır.
 
-Ana sayfadaki **Yenile** düğmesi sayfayı yeniden yükler. Veri, botun son başarılı çalışmasına bağlıdır; sayfayı yenilemek tek başına yeni METAR çekmez. Üstteki **CANLI / GECİKMELİ / VERİ KESİNTİSİ** etiketi ile METAR, TAF ve NOTAM yaşlarını kontrol et. Saatlerde `Z` UTC'yi, `yerel` Türkiye saatini ifade eder. Bu etiket açık kalan sayfada da güncellenir.
+## 1. Sayfada gezinme ve bilgilerin zamanı
 
-## 2. Ana sayfayı okuma
+Beş ana sekme vardır: **Durum · Beklenti · İstatistik · LVO · NOTAM**. Bir sekmeye dokunduğunuzda ilgili bölüm açılır. Telefonda sekmeler üstte, geniş ekranlarda soldadır. Telefonda bir sekme görünmüyorsa sekme çubuğunu yatay kaydırın. Son seçtiğiniz sekme aynı tarayıcıda hatırlanır.
 
-Sayfanın başındaki **GÖRÜŞ · TAVAN · RÜZGÂR · SPREAD** alanı son ölçümü özetler. *Spread*, sıcaklık ile çiy noktası arasındaki farktır; tek başına sis oluşacağının garantisi değildir. BLU/WHT/GRN/YLO/AMB/RED rozeti projenin kendi durum sınıflamasıdır, resmî yaklaşma veya LVO kategorisi değildir.
+Açıklama, grafik veya ham rapor başlıklarından bazıları katlıdır. Başlığa basarak içeriği açabilir, tekrar basarak kapatabilirsiniz.
 
-Telefonda sekmeler üstte yataydır; dar ekranda yana kaydırılabilir. Geniş ekranda sol tarafta görünürler:
+### Güncellik göstergeleri
 
-| Sekme | Ne gösterir? | Nasıl kullanılır? |
-| --- | --- | --- |
-| **Durum** | Son METAR/SPECI, TAF, çözümleme, pist/rüzgâr bileşenleri ve son 6 saatin eğilimleri. | Rapor saatini ve ham bülteni açarak yorumu kontrol et; geçmiş grafiklerini gerektiğinde genişlet. |
-| **Beklenti** | Open-Meteo kaynaklı saatlik model tahmini. | Model çıktısının yaşını kontrol et; TAF yerine kullanma. Veri alınamadığında sekme bunu açıklar. |
-| **İstatistik** | Önümüzdeki 3 saatte görüşün 1000 m altına düşmesine ilişkin istatistiksel olasılık, tavan istatistiği ve geçmiş görüş geçiş süreleri. | Olasılığı geçmiş örüntülere dayalı tahmin olarak oku; kesin saat veya resmî sis tahmini sayma. |
-| **LVO** | Farkındalık notları, elle girilen AWOS RVR, ilişkili NOTAM ve açılabilir doküman referansı. | Kaynak ve zamanları ayrı ayrı kontrol et; panel LVO/CAT II kararı vermez. |
-| **NOTAM** | Botun aldığı aktif NOTAM listesi ve yerel geçmiş araması. | Numara/pist/anahtar kelimeyle ara, filtrele; resmî NOTAM/PIB ile doğrula. |
-
-Sayfanın sağındaki **VFR** düğmesi son METAR/SPECI görüşünü **5000 m**, tavanını **1500 ft** eşiğiyle karşılaştırır. Düğmeye basınca hangi eşiklerin sağlanmadığı görünür. Bu gösterge buluttan uzaklık, trafik, izinler ve diğer uçuş şartlarını değerlendirmez; resmî VFR uygunluğu kararı değildir.
-
-## 3. NOTAM arama
-
-**NOTAM → Aktif NOTAM'lar** bölümünde numara, pist veya kelime yaz; kategori ve eleman filtrelerini seç. **Temizle** filtreleri sıfırlar. **Geçmiş / Arama** başlığını açarak tarih aralığı ve yürürlük durumu ile yalnızca botun bugüne kadar kaydettiği NOTAM'larda ara. Bu arşiv eksiksiz tarihçe değildir. Liste eski veya erişilemiyor uyarısı gösteriyorsa ona güvenme. Kaynak NOTAC adlı üçüncü taraf servistir; operasyon öncesi resmî NOTAM/PIB gereklidir.
-
-## 4. LVO ve elle AWOS RVR girişi
-
-**LVO** sekmesinde **B) AWOS RVR** altında pisti (**06R** veya **24R**) seç; mevcutsa **TDZ**, **MID** ve **STOP-END** değerlerini metre cinsinden girip **SAVE AWOS RVR** düğmesine bas. En az bir değer gereklidir. Girilen değerler paylaşımlı Firebase veritabanına yazılır; diğer ziyaretçiler görür. Değerleri yalnızca doğru kaynaktan, güncel zamanı bilerek gir. **CLEAR** seçili piste ait girilmiş değerlerin tamamını onaydan sonra siler.
-
-**A) Farkındalık Notları** ölçümler ile eşiklere dair bilgilendirici karşılaştırmalar, **C)** ilgili NOTAM'lar, katlı **D) Doküman Referansı** ise statik metin içerir. Statik metnin güncelliğini resmî yayınlardan ayrıca doğrula. Firebase kurulmamışsa manuel kayıt kullanılamaz; diğer sekmeler etkilenmez.
-
-## 5. ATC Notes
-
-Sağ alttaki **ATC Notes** düğmesini aç, **+ NOT EKLE**'ye bas, adını ve notunu yazıp **Kaydet**'i seç. Notlar ortak görünür, kimlik doğrulaması yapılmaz ve oluşturulduktan 48 saat sonra temizlenir. Gizli, kişisel veya operasyonel talimat niteliğinde bilgi yazma. Firebase yapılandırılmamışsa not panosu kullanılamaz.
-
-## 6. ATC paneli
-
-`panel.html` sayfasında **KULE** ve **YAKLAŞMA** düğmeleri widget'ları farklı öncelik sırasına koyar. Widget'ları tutamaçtan sürükleyebilir veya **▲ / ▼** ile sıralayabilir, **✕** ile gizleyebilir, üstteki **Gizli:** alanından geri getirebilirsin. Tercihler yalnızca kullandığın tarayıcıda saklanır; rol düğmesine yeniden basmak ilgili hazır düzene döner.
-
-Panel `panel_veri.json` verisini yaklaşık **60 saniyede bir** tekrar okur; **Yenile** düğmesi beklemeden okumayı dener. Üstteki tazelik/bayat veri uyarısını kontrol et. Tekrar okuma botu tetiklemez; veri bot çalışınca üretilir. Panel de yalnızca eğitim/simülasyon içindir.
-
-## 7. Bildirimler
-
-**Telegram:** Bot, `ayarlar.json` yapılandırmasına göre yeni SPECI, TAF, düzeltme, dikkat eşiği ve önemli renk değişimlerini iletebilir. Varsayılan ayarda rutin METAR ayrı bildirim olarak gizlidir; sabit durum mesajı açıktır. Hangi olayların iletileceği, sessiz saatler ve mesaj ayrıntısı depo sahibinin ayarlarına bağlıdır. Telegram'da mesaj gelmiyorsa önce botun son Actions koşusuna ve doğru sohbet kimliğine bak.
-
-**Tarayıcı bildirimleri:** Ana sayfada **Bildirimlere izin ver** görünüyorsa düğmeye basıp tarayıcı iznini onayla. Bu kanal SPECI, TAF, AMD/COR, durumun kötüleşmesi ve yeni NOTAM için tasarlanmıştır; rutin METAR için değildir. Düğme yoksa veya bildirim gelmiyorsa tarayıcı desteği/izinleri ile Firebase ve VAPID kurulumunu kontrol et. Depo sahibi **Actions → Push testi (elle) → Run workflow** ile kayıtlı cihazlara test gönderebilir. Telefon ve tarayıcıların bildirim davranışı farklı olabilir.
-
-## 8. Sık karşılaşılan durumlar
-
-| Durum | Kontrol |
+| Ekranda gördüğünüz | Nasıl okunmalı? |
 | --- | --- |
-| **GECİKMELİ / VERİ KESİNTİSİ** | METAR yaşı ve son Actions koşusuna bak. Sayfa yenilemesi veri üretmez. GitHub zamanlayıcısı gecikebilir; README'deki dış tetikleme açıklamasına bak. |
-| **Beklenti verisi eski/yok** | Tahmin kaynağı ve **Dış kaynak önbelleği** Actions koşusunu kontrol et. Eski model çıktısını güncel TAF sayma. |
-| **NOTAM yok/eski** | NOTAC anahtarı, NOTAM senkron zamanı ve son bot koşusunu kontrol et. Aktif listede olmaması resmî kaynakta NOTAM olmadığı anlamına gelmez. |
-| **AWOS kaydetme/temizleme veya ATC Notes çalışmıyor** | Firebase URL'si, ilgili Secrets ve yayınlanmış güncel `firebase-rules.json` kurallarını kontrol et. |
-| **Panel güncellenmiyor** | `panel_veri.json` dosyasının son bot koşusunda üretildiğini ve panelde bayatlık uyarısı olup olmadığını kontrol et. |
-| **Telegram veya push gelmiyor** | `ayarlar.json` bildirim tercihlerini ve Actions loglarını kontrol et; push için **Push testi (elle)** kullan. |
+| **CANLI** | Ekrandaki son gözlem, sayfanın güncellik eşiği içindedir. Sürekli sensör yayını anlamına gelmez. |
+| **GECİKMELİ** | Son gözlem beklenenden eskidir. Önce Yenile'ye basın ve rapor saatini yeniden kontrol edin. |
+| **VERİ KESİNTİSİ / VERİ YOK** | Güncel gözlem alınamıyor veya gözlem zamanı bilinmiyor. Gösterilen eski değerleri yeni ölçüm saymayın. |
+| **METAR / TAF / NOTAM yanında geçen süre** | Her bilgi kaynağının yaşını ayrı ayrı gösterir. Birinin güncel olması diğerlerinin de güncel olduğu anlamına gelmez. |
+| **Sayfa zamanı** | Sayfanın hazırlanma zamanıdır; raporun ölçüm/yayın zamanından farklı olabilir. |
 
-## 9. Kendi kopyanı kurma
+**Yenile** düğmesi, yayımlanmış son sayfayı açar. Bastığınızda rapor saati değişmiyorsa yeni bilgi henüz sayfaya yansımamış olabilir. Sayfa açıkken de yeni gözlemleri belirli aralıklarla kontrol eder; yine de rapor saatine bakın. Formlara yazdığınız değerleri kaydetmeden elle yenilemeyin.
 
-1. Depoyu GitHub hesabına **Fork** et. **Settings → Actions → General** bölümünde Actions'ın çalışabildiğini ve workflow için **Read and write permissions** verildiğini kontrol et; iş akışı üretilen sayfayı ve durumu depoya yazıyor.
-2. Telegram'da **BotFather** ile bot oluştur ve mesaj göndereceği sohbetin `chat_id` değerini edin. **Settings → Secrets and variables → Actions → Repository secrets** altında `TELEGRAM_BOT_TOKEN` ve `TELEGRAM_CHAT_ID` ekle. Yapay zekâ yorumunu kullanacaksan `ANTHROPIC_API_KEY` ekle; anahtar yoksa bu yorum üretilmez.
-3. **Actions → LTFJ bildirim → Run workflow** ile ilk çalıştırmayı başlat. Sonuç ve hata nedenleri için koşu loglarını incele. Ardından **Settings → Pages** altında **Deploy from a branch**, `main` ve kök klasörü seç. Sayfa adresi GitHub Pages ekranında görünür.
-4. Gerekiyorsa `ayarlar.json` içindeki eşik, Telegram, mesaj, web ve NOTAM seçeneklerini düzenle. Anahtarları dosyaya koyma. NOTAM için `NOTAC_API_KEY`; ATC Notes ve manuel RVR için README'deki Firebase kurulumu gerekir. Tarayıcı bildirimleri için ayrıca uyumlu VAPID anahtar çifti ve güncel Firebase kuralları gerekir.
-5. Düzenli güncelleme için Actions'ın zamanlanmış koşularını izle. Dakika hassasiyetinde dış tetikleme istersen README'deki `repository_dispatch` örneklerini kullan; tetikleyici erişim anahtarını gizli tut. Kurulumun ayrıntıları ve tüm Secrets listesi [README](README.md) içindedir.
+**Saat örneği:** `09:50Z (12:50 yerel)` aynı anı iki biçimde gösterir. `Z`, UTC saatidir; parantez içi Türkiye saatidir. Beklenti tablosunun saatleri yereldir.
 
-_Kılavuz, deponun 25 Eylül 2026 tarihindeki arayüzü ve yapılandırmasına göre hazırlanmıştır._
+## 2. Üstteki dört ana değer
+
+| Alan | Anlamı | Okuma örneği |
+| --- | --- | --- |
+| **GÖRÜŞ** | Son rapordaki yatay görüş. Birimine dikkat edin: metre veya kilometre olabilir. | `10+ km`, 10 km ve üzeri demektir; tam 10 km ölçümü anlamına gelmez. |
+| **TAVAN** | Rapordan belirlenen bulut tavanı, feet (ft) olarak gösterilir. | `500 ft` bir yüksekliktir. “Tavan yok” ifadesini gökyüzünün tamamen bulutsuz olduğu şeklinde okumayın. |
+| **RÜZGÂR** | Rüzgârın geldiği yön ve knot (kt) cinsinden hızı. Hamle varsa ayrıca belirtilir. | `050°/10 kt`, 050 dereceden 10 knot rüzgâr demektir. `G`, hamleyi belirtir. |
+| **SPREAD** | Sıcaklık ile çiy noktası arasındaki fark. | Sıcaklık 12°C, çiy noktası 10°C ise spread 2°C'dir. Tek başına sisin oluşacağını söylemez. |
+
+Bu alanların yanındaki küçük çizgiler geçmiş değişimi gösterir. Gelecek saatlerin tahmini için **Beklenti** sekmesine geçin. Çizgi yoksa bunu “değer sabit” olarak yorumlamayın; yeterli geçmiş veri bulunmayabilir.
+
+**BLU, WHT, GRN, YLO, AMB, RED** rozetleri görüş ve tavana göre oluşturulan durum seviyeleridir. BLU'dan RED'e doğru koşullar daha sınırlayıcıdır. Renkle birlikte sayısal değeri de okuyun; bu rozetler tek başına pist, yaklaşma veya uçuş izni belirlemez.
+
+## 3. Durum: şu anda ne bildiriliyor?
+
+**Durum** sekmesinde son METAR/SPECI, TAF, açıklamalar ve geçmiş eğilimler yer alır.
+
+1. Raporun **tipini ve saatini** kontrol edin. METAR/SPECI gözlemi, TAF ileriye dönük havalimanı tahminini gösterir.
+2. Açıklama bölümünü okuyun. Ayrıntıyı kontrol etmek için raporun **ham metnine** bakın.
+3. Pist/rüzgâr çizimini ve bileşenlerini incelerken hangi pist yönünün gösterildiğine dikkat edin. Sayfadaki pist değerlendirmesi, o anda kullanılan pistin resmî bildirimi değildir.
+4. **Geçmiş eğilim · son 6 saat** başlığını açın. Grafikler son saatlerdeki değişimi incelemek içindir; tahmin olarak okunmamalıdır.
+
+## 4. Beklenti: önümüzdeki saatler nasıl görünüyor?
+
+**Beklenti** sekmesinde saatler sütunlarda, hava değişkenleri satırlarda gösterilir. Aynı satırı soldan sağa izleyerek saatler arasındaki değişimi karşılaştırın. Tablo ekrana sığmıyorsa yatay kaydırın.
+
+| Satır veya işaret | Anlamı |
+| --- | --- |
+| **spread — °C** | Modelin beklediği sıcaklık–çiy noktası farkı. |
+| **görüş — km** | Modelin beklediği görüş. `10+`, 10 km ve üzeridir. |
+| **rüzgâr — kt** | Modelin beklediği rüzgâr hızı. |
+| **alçak bulut — %** | Alçak seviyedeki bulut örtüsü oranı; bulut tavanı yüksekliği değildir. |
+| **sınır tabakası — m** | Veri mevcutsa gösterilen model değişkenidir; bulut tavanıyla karıştırmayın. |
+| Saatin altındaki **sis** işareti | Modelin o saat için sis öngördüğünü belirtir. Gerçekleşmiş gözlem değildir. |
+| **—** | O hücre için veri yoktur; sıfır demek değildir. |
+
+Başlıkta “... saat önceki model çıktısı” yazıyorsa tahminin yaşını dikkate alın. Bu bölüm Open-Meteo model çıktısıdır. Havalimanının yayımlanmış TAF'ını **Durum** sekmesinde okuyabilirsiniz.
+
+## 5. İstatistik: olasılıkları ve süreleri nasıl okumalıyım?
+
+### İstatistiksel sis olasılığı
+
+Büyük yüzde, **önümüzdeki 3 saat içinde görüşün 1000 m altına düşmesine ilişkin model olasılığını** gösterir. Örneğin `%30`, modelin bu olay için hesapladığı olasılıktır; “3 saatin %30'u sisli geçecek” veya “30 dakika sonra sis başlayacak” anlamına gelmez. Örnek sayı açıklama içindir, güncel tahmin değildir.
+
+**Düşük/yüksek** gibi etiketler sonucu özetler. Ekranda görünen `%0` veya `%0.0` değerini, yuvarlama ve model belirsizliği nedeniyle olayın imkânsız olduğu şeklinde yorumlamayın.
+
+**Sis eğilimi** alanı gösteriliyorsa mevcut koşulların sis oluşumuna uygunluğuna ilişkin ek ipucu verir. Bunu büyük olasılık yüzdesiyle aynı ölçü olarak okumayın. **İki modelin bağlantısını gör** düğmesi açıklayıcı görseli açar; **Kapat** ile geri dönersiniz.
+
+### Tavan istatistiği
+
+Bu bölüm gösterildiğinde oranlar geçmişte benzer koşullarda görülen sonuçları özetler. Mevcut ölçüm veya belirli bir saatte gerçekleşeceği kesinleşmiş tahmin değildir. Oranın yanında yazan koşulları ve açıklamaları birlikte okuyun.
+
+### Görüş geçiş süreleri
+
+Tabloda **Düşme** ve **Toparlanma** satırlarının altında hangi görüş değerleri arasındaki geçişin incelendiği yazar. Süreler **saat** cinsindendir.
+
+- **%10 / %25 / %75:** Geçmiş olayların ilgili yüzdesinin bu süre içinde veya daha kısa sürede tamamlandığını gösterir.
+- **Medyan:** Geçmiş olayların ortanca süresidir. Şimdiki olayın kalan süresi değildir.
+- **n:** O satırın hesabına giren olay sayısıdır.
+- **0.5 saat:** Kullanılan gözlem aralığı nedeniyle “yarım saat veya daha kısa” olarak okunmalıdır.
+
+## 6. NOTAM: arama ve filtreleme
+
+### Aktif NOTAM'ları bulma
+
+1. **NOTAM** sekmesini açın ve listenin güncellenme zamanına bakın.
+2. **Numara, pist, anahtar kelime…** alanına aradığınızı yazın. Örneğin `06R` yazarak bu ifadeyi içeren kayıtları arayabilirsiniz.
+3. İsterseniz **Tüm kategoriler** ve **Tüm elemanlar** menülerinden filtre seçin. Birden fazla filtre birlikte sonucu daraltır.
+4. İlgili kaydın açıklamasını, tarihlerini ve varsa **Ham NOTAM metni** bölümünü açıp okuyun.
+5. **Temizle** düğmesi filtreleri kaldırır; NOTAM kayıtlarını silmez.
+
+### Geçmişte arama
+
+**Geçmiş / Arama** başlığını açın. Kelime, tarih aralığı ve **Yürürlükte / Süresi dolmuş / Henüz başlamamış** filtreleriyle arayın. Tarih aralığı, NOTAM'ın geçerlilik dönemiyle ilişkili kayıtları süzer.
+
+Bu arama, sayfanın bugüne kadar biriktirdiği kayıtları kapsar. **Sonuç bulunamadı** mesajı, o konuda hiçbir zaman NOTAM yayımlanmadığı anlamına gelmez. “Liste eski olabilir” veya veri alınamadı uyarısı varsa listenin güncelliği doğrulanamamıştır.
+
+## 7. LVO: bölüm sırası ve RVR girişi
+
+**LVO** sekmesinde dört bölüm bulunur:
+
+| Bölüm | Nasıl kullanılır? |
+| --- | --- |
+| **A) Farkındalık Notları** | METAR, TAF ve girilmiş RVR'ın eşiklerle karşılaştırılmasına ilişkin notları okuyun. Her notun hangi kaynağa dayandığını ayırt edin. |
+| **B) AWOS RVR** | Kullanıcılar tarafından elle girilmiş pist görüş menzillerini ve zamanlarını görüntüleyin; yeni değer gerekiyorsa aşağıdaki formu kullanın. |
+| **C) LVO Related NOTAM** | Düşük görüşle ilişkili olabilecek NOTAM'ları inceleyin. |
+| **D) Doküman Referansı** | Başlığa basarak referans metnini açın; tekrar basarak kapatın. |
+
+### RVR değeri kaydetme
+
+1. **Runway** menüsünden **06R** veya **24R** seçin.
+2. Elinizdeki değerleri **metre** cinsinden ilgili alanlara yazın: **TDZ** teker koyma bölgesi, **MID** orta bölüm, **STOP-END** pistin son bölümü.
+3. Bilmediğiniz alanları boş bırakın. En az bir alan doldurulmalıdır; bilinmeyen değer yerine `0` yazmayın.
+4. **SAVE AWOS RVR** düğmesine basın.
+5. Kaydın listede doğru pist, konum ve değerle göründüğünü kontrol edin.
+
+Buradaki kayıtlar diğer ziyaretçilerle paylaşılır. **MANUAL AWOS**, elle girilmiş bilgi anlamına gelir; bu alan kendiliğinden AWOS sensöründen veri aldığını göstermez. METAR görüşünü RVR yerine girmeyin.
+
+**CLEAR**, seçili piste ait kayıtların tamamını onaydan sonra siler. İşlem ortak listeyi etkiler. Yalnızca formu boşaltmak için bu düğmeyi kullanmayın.
+
+Panelde “LVO şartları oluşabilir” gibi bir ifade görülmesi, LVO'nun başlatıldığı veya bir yaklaşmanın kullanılabilir olduğu anlamına gelmez.
+
+## 8. Sağdaki VFR göstergesi
+
+Sağ kenardaki **VFR** düğmesine basın. Açılan panel, son METAR/SPECI'deki görüş ve tavanın sayfadaki eşikleri sağlayıp sağlamadığını açıklar.
+
+- **Yeşil:** Görüş/tavan karşılaştırmasında eşik altı durum bulunmamıştır.
+- **Kırmızı:** Görüş veya tavan eşiğinin altında değer vardır. Ayrıntıda nedenini okuyun.
+- Veri yetersizse göstergeye kesin sonuç gibi yaklaşmayın.
+
+Sayfanın karşılaştırdığı eşikler **5000 m görüş** ve **1500 ft tavan**dır. Bu gösterge buluttan uzaklık, izinler ve diğer uçuş şartlarını değerlendirmez. Paneli sağ üstteki kapatma düğmesiyle kapatabilirsiniz.
+
+## 9. ATC Notes: ortak notları okuma ve ekleme
+
+1. Sağ alttaki not simgesine basarak **ATC Notes** panelini açın.
+2. Paylaşılmış notları ve zamanlarını okuyun.
+3. Not eklemek için **+ NOT EKLE** düğmesine basın.
+4. **Adınız** ve **Not** alanlarını doldurun; **Kaydet**'e basın. Vazgeçerseniz **İptal**'i seçin.
+5. Yeni notunuzun listede göründüğünü kontrol edin.
+
+Notlar sayfayı kullanan diğer kişilere de görünür. Yazılan adın kimliği doğrulanmaz. Notlar 48 saatlik geçici paylaşımlardır; kalıcı kayıt veya resmî talimat olarak kullanılmaz. Paylaşılmasını istemediğiniz kişisel bilgileri yazmayın.
+
+## 10. Tarayıcı bildirimlerini açma
+
+Üst bölümde **Bildirimlere izin ver** düğmesi görünüyorsa basın ve tarayıcının izin sorusunu onaylayın. Başarılı olduğunda **Bildirimler açık** yazısını kontrol edin.
+
+- **İzin verilmedi:** Bu site için bildirim iznini tarayıcınızın site ayarlarından kontrol edin.
+- **Bildirimler (tekrar dene):** Bağlantınızı kontrol edip yeniden deneyin.
+- **Düğme görünmüyor:** Özellik o cihazda veya sayfada kullanılamıyor olabilir.
+
+Bildirimler SPECI, yeni TAF, düzeltmeler, durumun kötüleşmesi ve yeni NOTAM gibi olaylar için gönderilebilir. Her rutin METAR için bildirim beklemeyin. **Bildirimler açık** yazması her koşulda teslimat garantisi değildir; raporların zamanını sayfadan da kontrol edin.
+
+## 11. Bir şey çalışmıyorsa
+
+| Karşılaştığınız durum | Yapabileceğiniz işlem |
+| --- | --- |
+| Değerler eski görünüyor | **Yenile**'ye basın ve rapor saatini kontrol edin. Eski kalıyorsa bir süre sonra tekrar bakın. |
+| Beklenti veya istatistik görünmüyor | Bölümdeki açıklamayı okuyun. Eksik bilgi “risk yok” anlamına gelmez. |
+| NOTAM araması boş | **Temizle** ile filtreleri kaldırın, daha kısa bir kelime veya daha geniş tarih aralığı deneyin. |
+| RVR kaydolmuyor | Pist seçimini, en az bir sayı girdiğinizi ve metre birimini kontrol edin. Hata mesajını okuyun. |
+| Not kaydolmuyor | Ad ve not alanlarının dolu olduğunu, bağlantınızı ve hata mesajını kontrol edin. |
+| “Yapılandırılmamış” yazıyor | İlgili özellik şu anda kullanılamıyor. Sayfa sorumlusuna bildirin. |
+| Sorun devam ediyor | Sayfa sorumlusuna hangi bölümde, saat kaçta, hangi işlemi yaparken sorun yaşadığınızı ve ekrandaki hata mesajını iletin. |
+
+_Kılavuz tarihi: 25 Eylül 2026._
