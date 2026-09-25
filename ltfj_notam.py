@@ -195,6 +195,10 @@ def _notam_modeline_cevir(ham: dict) -> dict:
             if isinstance(e, dict)
         ],
         "text": ham.get("text") or "",
+        # TAM ORIJINAL NOTAM METNI - yalnizca DETAY ucunda geliyor ve
+        # yalnizca gerekeni cekiyoruz (bkz. ham_metinleri_ekle). Liste
+        # ucundan gelen kayitlarda bos kalir; "text" yine E) govdesidir.
+        "raw": ham.get("raw") or "",
         # Referans HAM kayittan cikariliyor: tam orijinal metin hangi
         # alanda gelirse gelsin yakalansin diye (bkz.
         # ilgili_notam_referansi). Sayfa kendi regex'ini calistirmiyor -
@@ -218,7 +222,8 @@ DURUM_AKTIF = "active"
 DURUM_YAKLASAN = "upcoming"
 
 
-def notamlari_getir(location: str = LOCATION, durum: str | None = None) -> list[dict]:
+def notamlari_getir(location: str = LOCATION, durum: str | None = None,
+                    eski_gecmis: dict | None = None) -> list[dict]:
     """NOTAC'tan verilen lokasyon (ve istege bagli yururluk durumu) icin
     TUM NOTAM'lari (sayfalama varsa DRF'nin verdigi "next" URL'sini
     takip ederek) ceker, internal modele cevirir.
@@ -239,10 +244,64 @@ def notamlari_getir(location: str = LOCATION, durum: str | None = None) -> list[
     except client.NotamHatasi as e:
         raise NotamServisHatasi(str(e)) from e
 
+    # SIRA ONEMLI: "raw" modele cevrilmeden ONCE ekleniyor, cunku
+    # ilgili_notam referansi ham kaydin metin alanlarindan cikariliyor.
+    ham_metinleri_ekle(kayitlar, eski_gecmis)
     modele_cevrilmis = [_notam_modeline_cevir(k) for k in kayitlar if isinstance(k, dict)]
     # API seviyesinde zaten location=LTFJ ile filtrelendi (bkz. client) -
     # bu sadece bir guvenlik agi, ana filtreleme mekanizmasi degil.
     return [n for n in modele_cevrilmis if n["location"] == location]
+
+
+# Tek senkronda atilabilecek AZAMI detay istegi. Guvenlik siniri:
+# NOTAC beklenmedik bicimde cok kayit dondurse bile API'yi dovmeyelim.
+MAKS_DETAY_ISTEK = 30
+
+
+def ham_metinleri_ekle(ham_kayitlar: list[dict], eski_gecmis: dict | None = None,
+                       maks_istek: int = MAKS_DETAY_ISTEK) -> list[dict]:
+    """R/C tipindeki kayitlara DETAY ucundan "raw" (tam orijinal NOTAM
+    metni) ekler - "hangi NOTAM'in yerine gecti" bilgisi orada.
+
+    FRUGAL, BILEREK: detay ucu NOTAM BASINA bir istek demek. Her kayit
+    icin cekseydik senkron basina ~21 istek olurdu (gunde 8 senkron =
+    ~170). Bunun yerine:
+      - yalnizca notam_type R ya da C olanlar (otekilerde referans yok),
+      - record_updated_at degismediyse ONBELLEKTEN (yerel gecmisten),
+      - ve toplamda maks_istek ile sinirli.
+    Olcum: 15 aktif kaydin 6'si R/C - yani ilk senkronda ~6 istek,
+    sonrakilerde yalnizca yeni/degismis olanlar icin.
+
+    Detay istegi BASARISIZ OLURSA o kayit "raw"siz devam eder: referans
+    ikincil bir bilgi, NOTAM'in kendisini kaybetmeye degmez."""
+    eski = eski_gecmis or {}
+    istek = 0
+    for kayit in ham_kayitlar:
+        if not isinstance(kayit, dict):
+            continue
+        if (kayit.get("notam_type") or "").upper() not in ("R", "C"):
+            continue
+        nid = kayit.get("id")
+        if not nid:
+            continue
+        onceki = eski.get(nid) or {}
+        if (onceki.get("raw")
+                and onceki.get("record_updated_at") == kayit.get("record_updated_at")):
+            kayit["raw"] = onceki["raw"]
+            continue
+        if istek >= maks_istek:
+            print(f"[uyarı] detay isteği sınırı ({maks_istek}) doldu; "
+                  "kalan NOTAM'lar ham metinsiz devam ediyor.", file=sys.stderr)
+            break
+        istek += 1
+        try:
+            detay = client.detay_getir(nid)
+        except client.NotamHatasi as e:
+            print(f"[uyarı] {kayit.get('number')} detayı alınamadı: {e}", file=sys.stderr)
+            continue
+        if isinstance(detay, dict) and detay.get("raw"):
+            kayit["raw"] = detay["raw"]
+    return ham_kayitlar
 
 
 def aktif_notamlari_getir(location: str = LOCATION) -> list[dict]:
@@ -251,7 +310,8 @@ def aktif_notamlari_getir(location: str = LOCATION) -> list[dict]:
     return notamlari_getir(location)
 
 
-def yururlukteki_ve_yaklasan_notamlar(location: str = LOCATION) -> list[dict]:
+def yururlukteki_ve_yaklasan_notamlar(location: str = LOCATION,
+                                      eski_gecmis: dict | None = None) -> list[dict]:
     """Yururluktekiler + henuz baslamamislar, TEK listede.
 
     IKI AYRI SORGU: NOTAC'in status suzgeci tekil deger aliyor ve
@@ -262,9 +322,9 @@ def yururlukteki_ve_yaklasan_notamlar(location: str = LOCATION) -> list[dict]:
 
     Yaklasan sorgusu BASARISIZ OLURSA yururluktekiler yine donuyor -
     yeni ve ikincil bir bilgi yuzunden ana akisi kaybetmeyiz."""
-    yururlukte = notamlari_getir(location, DURUM_AKTIF)
+    yururlukte = notamlari_getir(location, DURUM_AKTIF, eski_gecmis)
     try:
-        yaklasan = notamlari_getir(location, DURUM_YAKLASAN)
+        yaklasan = notamlari_getir(location, DURUM_YAKLASAN, eski_gecmis)
     except NotamServisHatasi as e:
         print(f"[uyarı] yaklaşan NOTAM sorgusu başarısız: {e}", file=sys.stderr)
         yaklasan = []

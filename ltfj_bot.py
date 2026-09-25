@@ -162,7 +162,12 @@ def notam_senkronize(state: dict):
         # YAKLASANLAR DA CEKILIYOR. NOTAC'in varsayilani yalnizca
         # yururluktekiler; "yarin pist kapaniyor" bilgisi bu yuzden hic
         # gelmiyordu (bkz. ltfj_notam.yururlukteki_ve_yaklasan_notamlar).
-        aktif = ltfj_notam.yururlukteki_ve_yaklasan_notamlar(location)
+        # eski_gecmis ONBELLEK OLARAK geciliyor: tam orijinal NOTAM
+        # metni ("raw") yalnizca detay ucunda ve NOTAM basina bir
+        # istek demek; degismemis kayitlar icin yerel gecmisten
+        # okunuyor (bkz. ltfj_notam.ham_metinleri_ekle).
+        aktif = ltfj_notam.yururlukteki_ve_yaklasan_notamlar(
+            location, state.get("notam_gecmisi"))
     except ltfj_notam.NotamServisHatasi as e:
         print(f"[uyarı] NOTAM senkronizasyonu başarısız: {e}", file=sys.stderr)
         return

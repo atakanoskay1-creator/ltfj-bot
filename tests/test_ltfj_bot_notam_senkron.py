@@ -100,7 +100,10 @@ def test_senkronize_basarili_gecmisi_ve_zamani_gunceller(monkeypatch):
     aktif_kayit = {"id": "abc-123", "record_updated_at": "2026-09-16T10:00:00+00:00"}
     with patch.object(ltfj_notam, "yururlukteki_ve_yaklasan_notamlar", return_value=[aktif_kayit]) as sahte_getir:
         b.notam_senkronize(state)
-    sahte_getir.assert_called_once_with("LTFJ")
+    # Yerel gecmis ONBELLEK olarak geciliyor: tam orijinal NOTAM metni
+    # ("raw") NOTAM basina bir detay istegi demek, degismemis kayitlar
+    # icin tekrar cekilmemeli (bkz. ltfj_notam.ham_metinleri_ekle).
+    sahte_getir.assert_called_once_with("LTFJ", {})
     assert "abc-123" in state["notam_gecmisi"]
     assert state["notam_son_senkron"] is not None
 
