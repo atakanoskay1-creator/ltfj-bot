@@ -32,7 +32,7 @@ def _kayit(nid, number="A0001/26", text="Örnek NOTAM metni"):
 
 
 def test_ilk_senkronizasyonda_hic_push_gonderilmiyor(monkeypatch, sahte_notam_ortami):
-    monkeypatch.setattr(bot.ltfj_notam, "aktif_notamlari_getir",
+    monkeypatch.setattr(bot.ltfj_notam, "yururlukteki_ve_yaklasan_notamlar",
                         lambda loc: [_kayit("n1"), _kayit("n2")])
     state = {}   # notam_gecmisi yok - bu bir ilk senkronizasyon
 
@@ -43,7 +43,7 @@ def test_ilk_senkronizasyonda_hic_push_gonderilmiyor(monkeypatch, sahte_notam_or
 
 
 def test_ikinci_senkronizasyonda_yeni_notam_push_atiyor(monkeypatch, sahte_notam_ortami):
-    monkeypatch.setattr(bot.ltfj_notam, "aktif_notamlari_getir",
+    monkeypatch.setattr(bot.ltfj_notam, "yururlukteki_ve_yaklasan_notamlar",
                         lambda loc: [_kayit("n1"), _kayit("n2", number="A0002/26")])
     eski_zaman = "2026-09-19T00:00:00+00:00"
     state = {"notam_gecmisi": {"n1": {**_kayit("n1"), "first_seen": eski_zaman,
@@ -62,7 +62,7 @@ def test_mevcut_notam_tekrar_push_atmiyor(monkeypatch, sahte_notam_ortami):
     """Zaten gorulmus (gecmiste olan) bir NOTAM her senkronizasyonda tekrar
     tekrar bildirim ATMAMALI - sadece GERCEKTEN yeni id'ler icin gonderilir."""
     eski_zaman = "2026-09-19T00:00:00+00:00"
-    monkeypatch.setattr(bot.ltfj_notam, "aktif_notamlari_getir",
+    monkeypatch.setattr(bot.ltfj_notam, "yururlukteki_ve_yaklasan_notamlar",
                         lambda loc: [_kayit("n1")])
     state = {"notam_gecmisi": {"n1": {**_kayit("n1"), "first_seen": eski_zaman,
                                        "last_seen": eski_zaman, "last_active": eski_zaman}},

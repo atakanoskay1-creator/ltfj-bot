@@ -37,6 +37,7 @@ gercek "GET /notam/?location=LTFJ" istegine gore, bkz. ltfj_notam_client.py):
 """
 import json
 import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -205,14 +206,27 @@ def _notam_modeline_cevir(ham: dict) -> dict:
     }
 
 
-def aktif_notamlari_getir(location: str = LOCATION) -> list[dict]:
-    """NOTAC'tan verilen lokasyon icin TUM aktif NOTAM'lari (sayfalama
-    varsa DRF'nin verdigi "next" URL'sini takip ederek) ceker, internal
-    modele cevirir. NOTAC'in ham HTTP hatalarini (bkz. ltfj_notam_client)
-    tek bir NotamServisHatasi altinda toplar - cagiran taraf tek exception
-    sinifi yakalamasi yeterli olsun diye."""
+# NOTAC'in "status" suzgeci - OLCULDU (OPTIONS /notam/ yanitinin kendi
+# tarifi, bkz. notam_kesif.py ciktisi):
+#
+#     ?status=active|upcoming|expired|any   (varsayilan: active)
+#
+# "all" DEGIL - onu denemek HTTP hatasi verdi. Varsayilan "active"
+# oldugu icin bot bugune kadar yalnizca yururluktekileri goruyordu;
+# yaklasanlar (LTFJ'de olcum aninda 6 kayit) hic gelmiyordu.
+DURUM_AKTIF = "active"
+DURUM_YAKLASAN = "upcoming"
+
+
+def notamlari_getir(location: str = LOCATION, durum: str | None = None) -> list[dict]:
+    """NOTAC'tan verilen lokasyon (ve istege bagli yururluk durumu) icin
+    TUM NOTAM'lari (sayfalama varsa DRF'nin verdigi "next" URL'sini
+    takip ederek) ceker, internal modele cevirir.
+
+    durum=None: NOTAC'in varsayilani, yani yalnizca yururluktekiler."""
     try:
-        yanit = client.notam_getir(location)
+        yanit = client.notam_getir(
+            location, ek_parametreler={"status": durum} if durum else None)
         kayitlar = list(yanit.get("results") or [])
 
         sayfa = 1
@@ -229,6 +243,34 @@ def aktif_notamlari_getir(location: str = LOCATION) -> list[dict]:
     # API seviyesinde zaten location=LTFJ ile filtrelendi (bkz. client) -
     # bu sadece bir guvenlik agi, ana filtreleme mekanizmasi degil.
     return [n for n in modele_cevrilmis if n["location"] == location]
+
+
+def aktif_notamlari_getir(location: str = LOCATION) -> list[dict]:
+    """Yururlukteki NOTAM'lar. Geriye donuk uyumluluk icin duruyor -
+    mevcut cagiranlar (ve testleri) aynen calismaya devam etsin diye."""
+    return notamlari_getir(location)
+
+
+def yururlukteki_ve_yaklasan_notamlar(location: str = LOCATION) -> list[dict]:
+    """Yururluktekiler + henuz baslamamislar, TEK listede.
+
+    IKI AYRI SORGU: NOTAC'in status suzgeci tekil deger aliyor ve
+    varsayilani "active". "any" da var ama onu kullanmiyoruz - suresi
+    DOLMUS NOTAM'lari da getirirdi ve yerel gecmisimizi NOTAC'in
+    arsiviyle karistirirdi (bkz. modul aciklamasi: "gecmis" alani
+    SADECE bu botun gordugu kayitlardir).
+
+    Yaklasan sorgusu BASARISIZ OLURSA yururluktekiler yine donuyor -
+    yeni ve ikincil bir bilgi yuzunden ana akisi kaybetmeyiz."""
+    yururlukte = notamlari_getir(location, DURUM_AKTIF)
+    try:
+        yaklasan = notamlari_getir(location, DURUM_YAKLASAN)
+    except NotamServisHatasi as e:
+        print(f"[uyarı] yaklaşan NOTAM sorgusu başarısız: {e}", file=sys.stderr)
+        yaklasan = []
+    # Ayni NOTAM iki sorgudan da gelebilir; id'ye gore tekillestiriyoruz.
+    gorulen = {n.get("id") for n in yururlukte}
+    return yururlukte + [n for n in yaklasan if n.get("id") not in gorulen]
 
 
 # ------------------------------------------------------------- arama/filtre
@@ -398,18 +440,25 @@ def notam_veri_yaz(state: dict, hedef: Path, location: str = LOCATION):
     # kisitlamayi varmis gibi gostermek olurdu; hic gostermemek ise
     # "yarin pist kapaniyor" bilgisini kaybettirirdi - ayri liste.
     #
-    # NOT: NOTAC'in VARSAYILAN sorgusu su an yalnizca yururlukteki
-    # NOTAM'lari donduruyor (olculdu: 20 kaydin hicbirinde gelecek
-    # tarihli effective_start yok), yani bu liste SIMDILIK bos kalir.
-    # Hangi sorgu parametresinin yaklasanlari getirdigi olculecek
-    # (bkz. notam_kesif.py); veri gelir gelmez burasi kendiliginden
-    # dolar, sayfa tarafinda ayrica bir is yapmak gerekmez.
+    # NOTAC'in VARSAYILAN sorgusu yalnizca yururluktekileri donduruyor;
+    # yaklasanlar icin ?status=upcoming gerekiyor (OLCULDU: LTFJ'de o
+    # sorgu 6 kayit dondurdu, hepsi gelecek tarihli). Bot artik iki
+    # sorguyu da atiyor (bkz. yururlukteki_ve_yaklasan_notamlar).
+    #
+    # STATUS'A BAKMIYORUZ, BILEREK. Yaklasan kayitlarin "status" alaninda
+    # hangi degeri tasidigini HENUZ OLCMEDIK ("active" mi, "upcoming" mi).
+    # `status == "active"` sarti koysaydik, deger "upcoming" ise bu liste
+    # SESSIZCE BOS kalirdi - yani ozellik calismiyor gibi gorunurdu ama
+    # hata da vermezdi.
+    #
+    # Sarta gerek de yok: bu listeye yalnizca SON SENKRONDA GORULEN
+    # kayitlar giriyor ve biz yalnizca "active" + "upcoming" sorgusu
+    # atiyoruz (bkz. yururlukteki_ve_yaklasan_notamlar). Suresi dolmus
+    # ya da iptal edilmis bir kayit o kumeye zaten girmiyor.
     simdi_iso = datetime.now(timezone.utc)
     yaklasan = []
     for k in tum_kayitlar:
         if not son_senkron or k.get("last_seen") != son_senkron:
-            continue
-        if k.get("status") != "active":
             continue
         bas = _tarih_ayristir(k.get("effective_start"))
         if bas and bas > simdi_iso:

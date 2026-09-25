@@ -256,3 +256,29 @@ def test_yaklasan_bolumu_VARSAYILAN_GIZLI_ve_istemcide_suzuluyor(tmp_path):
     blok = html_metin.split("function yaklasanGoster()")[1].split("function aktifGoster")[0]
     assert 'gecerlilik(n).durum === "baslamadi"' in blok
     assert "yaklasanBolumEl.hidden = liste.length === 0" in blok
+
+
+def test_yaklasan_listesi_STATUS_DEGERINE_bagli_DEGIL(tmp_path):
+    """MUTASYON DERSİ. Önceki sürümde liste `status == "active"` şartı
+    koyuyordu ve fikstürüm de "active" kullandığı için şart geri
+    konulduğunda hiçbir test kırılmıyordu.
+
+    Oysa yaklaşan kayıtların "status" alanında hangi değeri taşıdığını
+    ÖLÇMEDİK. Değer "upcoming" olsaydı o şart listeyi SESSİZCE boş
+    bırakırdı - özellik çalışmıyor gibi görünür ama hata da vermezdi.
+
+    Şarta gerek de yok: bu listeye yalnızca son senkronda görülen
+    kayıtlar giriyor ve bot yalnızca active + upcoming sorgusu atıyor,
+    yani süresi dolmuş bir kayıt o kümeye zaten girmiyor."""
+    simdi = datetime.now(timezone.utc)
+    ss = simdi.isoformat(timespec="seconds")
+    ileri = (simdi + timedelta(days=2)).isoformat()
+    bitis = (simdi + timedelta(days=4)).isoformat()
+
+    for durum in ("active", "upcoming", "UPCOMING", "bilinmeyen-bir-deger"):
+        kayit = {**_gecmis_kaydi("B0009/26", ileri, bitis, ss), "status": durum}
+        hedef = tmp_path / f"n-{durum}.json"
+        notam.notam_veri_yaz({"notam_son_senkron": ss,
+                              "notam_gecmisi": {"x": kayit}}, hedef)
+        veri = json.loads(hedef.read_text(encoding="utf-8"))
+        assert [k["number"] for k in veri["yaklasan"]] == ["B0009/26"], durum

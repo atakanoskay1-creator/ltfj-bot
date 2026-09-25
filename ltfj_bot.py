@@ -159,7 +159,10 @@ def notam_senkronize(state: dict):
         return
     location = ayar("notam", "location", varsayilan="LTFJ")
     try:
-        aktif = ltfj_notam.aktif_notamlari_getir(location)
+        # YAKLASANLAR DA CEKILIYOR. NOTAC'in varsayilani yalnizca
+        # yururluktekiler; "yarin pist kapaniyor" bilgisi bu yuzden hic
+        # gelmiyordu (bkz. ltfj_notam.yururlukteki_ve_yaklasan_notamlar).
+        aktif = ltfj_notam.yururlukteki_ve_yaklasan_notamlar(location)
     except ltfj_notam.NotamServisHatasi as e:
         print(f"[uyarı] NOTAM senkronizasyonu başarısız: {e}", file=sys.stderr)
         return

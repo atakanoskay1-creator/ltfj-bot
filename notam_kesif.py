@@ -117,12 +117,61 @@ def yaklasanlari_dene():
         print(f"  {etiket:34s} count={y.get('count')!s:>5}  sayfa={len(sonuclar):>3}  "
               f"gelecek tarihli={ileri}")
 
+    # ARTIK TAHMIN LISTESI DEGIL: OPTIONS yaniti suzgeci kendisi tarif
+    # etti (?status=active|upcoming|expired|any, varsayilan active) ve
+    # ?status=upcoming olculdu - 6 kayit, hepsi gelecek tarihli.
     olc("(parametresiz - mevcut davranış)", None)
-    for ek in ({"status": "upcoming"}, {"status": "all"}, {"upcoming": "true"},
-               {"include_upcoming": "true"}, {"active": "false"},
-               {"is_active": "false"}, {"future": "true"},
-               {"effective_start__gte": simdi.strftime("%Y-%m-%d")}):
-        olc(str(ek), ek)
+    for durum in ("active", "upcoming", "expired", "any"):
+        olc(f"status={durum}", {"status": durum})
+
+
+def detay_ucunu_dene(sonuclar: list):
+    """LISTE ucunda bulunamadi. DRF'de liste ve DETAY serileştiricileri
+    genelde FARKLIDIR: detay ucu cogu zaman daha fazla alan doner.
+    NOTAC'in web arayuzu tam orijinal metni gosterdigine gore metin bir
+    yerde var - once burada ariyoruz."""
+    _baslik("5) DETAY UCU: /notam/{id}/ DAHA FAZLA ALAN DONUYOR MU?")
+    ilk = sonuclar[0]
+    nid = ilk.get("id")
+    if not nid:
+        print("  id yok, denenemiyor"); return
+    try:
+        detay = client._istek_at(f"{client.BASE_URL}/notam/{nid}/", None,
+                                 client.VARSAYILAN_TIMEOUT)
+    except Exception as e:
+        print(f"  detay ucu alinamadi: {e.__class__.__name__}: {e}")
+        return
+    if not isinstance(detay, dict):
+        print("  beklenmedik yanit tipi:", type(detay).__name__); return
+    yeni_alanlar = sorted(set(detay) - set(ilk))
+    print(f"  {ilk.get('number')} · detayda FAZLADAN olan alanlar: {yeni_alanlar or 'yok'}")
+    for alan in yeni_alanlar:
+        print(f"    {alan}: {str(detay[alan])[:220]!r}")
+    ham = json.dumps(detay, ensure_ascii=False)
+    print("  detayda NOTAMR/NOTAMC geciyor mu:",
+          "EVET" if ("NOTAMR" in ham.upper() or "NOTAMC" in ham.upper()) else "hayir")
+    if "NOTAMR" in ham.upper() or "NOTAMC" in ham.upper():
+        for alan, deger in detay.items():
+            if isinstance(deger, str) and ("NOTAMR" in deger.upper() or "NOTAMC" in deger.upper()):
+                print(f"    ✓ alan={alan!r}: {deger[:220]!r}")
+
+
+def durum_sozlugunu_dok():
+    """Yaklasan kayitlarin "status" alani hangi degeri tasiyor? Kod bu
+    degere BAGLI OLMASIN diye zaten sarta koymadik (bkz.
+    ltfj_notam.notam_veri_yaz), ama bilmek dogrulamayi kolaylastirir."""
+    _baslik("6) status ALANI HANGI DEGERLERI ALIYOR?")
+    for durum in (None, "active", "upcoming", "expired", "any"):
+        ek = {"status": durum} if durum else None
+        try:
+            y = client.notam_getir(LOCATION, ek_parametreler=ek)
+        except Exception as e:
+            print(f"  status={durum!s:10s} HATA: {e.__class__.__name__}")
+            continue
+        degerler = sorted({(k.get("status") or "?") for k in (y.get("results") or [])})
+        tipler = sorted({(k.get("notam_type") or "?") for k in (y.get("results") or [])})
+        print(f"  status={durum!s:10s} count={y.get('count')!s:>5} "
+              f"status degerleri={degerler} notam_type={tipler}")
 
 
 def main():
@@ -136,6 +185,9 @@ def main():
         orijinal_metni_ara(sonuclar)
     secenekleri_dok()
     yaklasanlari_dene()
+    if sonuclar:
+        detay_ucunu_dene(sonuclar)
+    durum_sozlugunu_dok()
     print("\nBitti. Çıktıyı olduğu gibi paylaş - koda buna göre karar vereceğiz.")
     return 0
 
