@@ -106,11 +106,40 @@ def _istek_at(url: str, params: dict | None, timeout: int) -> dict:
         raise NotamAyiklamaHatasi(f"NOTAC yanıtı geçerli JSON değil: {e}") from e
 
 
-def notam_getir(location: str = "LTFJ", timeout: int = VARSAYILAN_TIMEOUT) -> dict:
+def notam_getir(location: str = "LTFJ", timeout: int = VARSAYILAN_TIMEOUT,
+                ek_parametreler: dict | None = None) -> dict:
     """Verilen lokasyon icin NOTAC'in HAM (parse edilmemis) ILK SAYFA JSON
     yanitini dondurur: {"count", "next", "previous", "results": [...]}.
-    Sonraki sayfalar icin sayfa_getir(yanit["next"]) kullanilir."""
-    return _istek_at(f"{BASE_URL}/notam/", {"location": location}, timeout)
+    Sonraki sayfalar icin sayfa_getir(yanit["next"]) kullanilir.
+
+    ek_parametreler: sorguya eklenecek ek alanlar (ornegin yaklasan
+    NOTAM'lari da istemek icin). Varsayilan cagri DEGISMEZ - bu argumani
+    vermeyen mevcut kod aynen eskisi gibi calisir."""
+    params = {"location": location}
+    if ek_parametreler:
+        params.update(ek_parametreler)
+    return _istek_at(f"{BASE_URL}/notam/", params, timeout)
+
+
+def secenekleri_getir(timeout: int = VARSAYILAN_TIMEOUT) -> dict:
+    """OPTIONS /notam/ - DRF genelde bu yanitta desteklenen SUZGEC
+    parametrelerini tarif eder. Hangi sorgu parametresinin "yaklasan"
+    NOTAM'lari getirdigini TAHMIN ETMEK yerine servise sormak icin."""
+    anahtar = _api_anahtari()
+    try:
+        r = requests.options(
+            f"{BASE_URL}/notam/",
+            headers={"Authorization": f"Bearer {anahtar}", "Accept": "application/json"},
+            timeout=timeout,
+        )
+    except requests.RequestException as e:
+        raise NotamAgHatasi(f"NOTAC'a ulaşılamadı: {e.__class__.__name__}") from e
+    if r.status_code >= 400:
+        raise NotamAyiklamaHatasi(f"OPTIONS beklenmeyen durum ({r.status_code})")
+    try:
+        return r.json()
+    except ValueError as e:
+        raise NotamAyiklamaHatasi(f"OPTIONS yanıtı JSON değil: {e}") from e
 
 
 def sayfa_getir(sayfa_url: str, timeout: int = VARSAYILAN_TIMEOUT) -> dict:

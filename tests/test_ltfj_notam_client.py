@@ -153,3 +153,48 @@ def test_notam_getir_standart_sayfalama_zarfini_donduruyor(monkeypatch):
     with patch("requests.get", return_value=yanit):
         sonuc = nc.notam_getir("LTFJ")
     assert sonuc == ham
+
+
+# ------------------------------------------------- kesif icin eklenenler
+def test_ek_parametreler_sorguya_ekleniyor_varsayilan_cagri_DEGISMIYOR(monkeypatch):
+    """Yaklasan NOTAM'lari hangi parametrenin getirdigini OLCEBILMEK icin
+    (bkz. notam_kesif.py) sorguya ek alan gecilebilmeli - ama argumani
+    vermeyen MEVCUT kod aynen eskisi gibi calismali."""
+    monkeypatch.setenv("NOTAC_API_KEY", "lb_" + "a" * 40)
+    yanit = _sahte_yanit(200, json_deger={"count": 0, "results": []})
+
+    with patch("requests.get", return_value=yanit) as mock_get:
+        nc.notam_getir("LTFJ")
+    assert mock_get.call_args.kwargs["params"] == {"location": "LTFJ"}
+
+    with patch("requests.get", return_value=yanit) as mock_get:
+        nc.notam_getir("LTFJ", ek_parametreler={"status": "upcoming"})
+    assert mock_get.call_args.kwargs["params"] == {"location": "LTFJ", "status": "upcoming"}
+
+
+def test_ek_parametreler_location_u_EZEMEZ_mi_diye_bak(monkeypatch):
+    """Belgelenmis davranis: ek parametreler location'in UZERINE yazar.
+    Bu bilerek boyle (kesif sirasinda baska bir lokasyonu denemek
+    gerekebilir) - testin amaci davranisi KAYIT ALTINA almak."""
+    monkeypatch.setenv("NOTAC_API_KEY", "lb_" + "a" * 40)
+    yanit = _sahte_yanit(200, json_deger={"count": 0, "results": []})
+    with patch("requests.get", return_value=yanit) as mock_get:
+        nc.notam_getir("LTFJ", ek_parametreler={"location": "LTBA"})
+    assert mock_get.call_args.kwargs["params"] == {"location": "LTBA"}
+
+
+def test_OPTIONS_anahtari_gonderiyor_ve_JSON_dondurur(monkeypatch):
+    """OPTIONS /notam/ - DRF genelde desteklenen suzgecleri burada tarif
+    eder. Parametre adini TAHMIN ETMEK yerine servise sormak icin."""
+    monkeypatch.setenv("NOTAC_API_KEY", "lb_" + "b" * 40)
+    yanit = _sahte_yanit(200, json_deger={"name": "Notam List", "actions": {}})
+    with patch("requests.options", return_value=yanit) as mock_opt:
+        assert nc.secenekleri_getir() == {"name": "Notam List", "actions": {}}
+    assert mock_opt.call_args.args[0].endswith("/notam/")
+    assert mock_opt.call_args.kwargs["headers"]["Authorization"].startswith("Bearer ")
+
+
+def test_OPTIONS_anahtar_yoksa_yetki_hatasi(monkeypatch):
+    monkeypatch.delenv("NOTAC_API_KEY", raising=False)
+    with pytest.raises(nc.NotamYetkiHatasi):
+        nc.secenekleri_getir()
