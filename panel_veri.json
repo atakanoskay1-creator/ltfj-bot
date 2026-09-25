@@ -1,16 +1,19 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-25T09:15:58+00:00",
+ "uretildi": "2026-09-25T09:26:49+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-25T08:50:00+00:00",
-  "metin": "METAR LTFJ 250850Z 05010KT 9999 FEW035 22/10 Q1019 NOSIG RMK RWY24R 04009KT 010V070 RWY06R 04009KT 360V080 RWY24L 04009KT 360V070",
+  "zaman": "2026-09-25T09:20:00+00:00",
+  "metin": "METAR LTFJ 250920Z 06010KT 020V100 9999 FEW035 22/10 Q1019 NOSIG RMK RWY24R 03009KT RWY06R 05009KT 010V090 RWY24L 05009KT 020V080",
   "ruzgar": {
-   "yon": 50,
+   "yon": 60,
    "hiz": 10,
    "hamle": null,
-   "degisken": null
+   "degisken": [
+    20,
+    100
+   ]
   },
   "gorus": 9999,
   "cavok": false,
@@ -30,12 +33,12 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 9.7,
-    "yan": 2.4,
+    "bas": 10.0,
+    "yan": 0.7,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": false,
+    "degisken": true,
     "kaynak": "alan rüzgârından",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -43,8 +46,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 8.2,
-    "yan": 3.7,
+    "bas": 8.7,
+    "yan": 2.2,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -56,8 +59,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -8.2,
-    "yan": 3.7,
+    "bas": -8.7,
+    "yan": 2.2,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -69,12 +72,12 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -8.2,
-    "yan": 3.7,
+    "bas": -7.5,
+    "yan": 5.0,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": false
@@ -88,21 +91,13 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 050° 10kt · görüş 10+ km · 22°C · QNH 1019"
+  "ozet": "Rüzgâr 060° 10kt (değişken 020°–100°) · görüş 10+ km · 22°C · QNH 1019"
  },
  "taf": {
   "zaman": "2026-09-25T04:40:00+00:00",
   "metin": "TAF LTFJ 250440Z 2506/2606 03005KT 9999 FEW035 BECMG 2506/2509 04015KT CAVOK BECMG 2515/2518 03005KT"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-19T12:20:00+00:00",
-   "ruzgar_hiz": 12,
-   "tavan": null,
-   "qnh": 1020,
-   "sicaklik": 26,
-   "cig_noktasi": 14
-  },
   {
    "zaman": "2026-09-19T12:50:00+00:00",
    "ruzgar_hiz": 15,
@@ -2567,6 +2562,15 @@
   },
   {
    "zaman": "2026-09-25T08:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 10,
+   "tavan": null,
+   "qnh": 1019,
+   "sicaklik": 22,
+   "cig_noktasi": 10
+  },
+  {
+   "zaman": "2026-09-25T09:20:00+00:00",
    "gorus": 9999,
    "ruzgar_hiz": 10,
    "tavan": null,
