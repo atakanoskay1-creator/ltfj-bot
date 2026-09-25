@@ -131,15 +131,39 @@ def state_yaz(state: dict):
 
 
 # ------------------------------------------------------------------ notam ---
+# GitHub Actions'ta boolean girdi "true"/"false" DIZESI olarak geliyor;
+# zamanlanmis kosularda ise hic gelmiyor (bos dize). Duz bool() yanlis
+# olurdu: bool("false") -> True, yani kutu isaretlenmemisken de zorlama
+# devreye girerdi.
+DOGRU_DEGERLER = ("1", "true", "yes", "evet", "on")
+
+
+def _cevre_bayragi(ad: str) -> bool:
+    return os.environ.get(ad, "").strip().lower() in DOGRU_DEGERLER
+
+
 def _notam_senkron_gerekli_mi(state: dict) -> bool:
     """NOTAM senkronizasyonu METAR'dan BAGIMSIZ, seyrek araliklarla calisir -
     NOTAC API kredisini gereksiz tuketmemek icin (bkz. ayarlar.json::notam.
     senkron_araligi_saat). Anahtar tanimli degilse ya da ozellik kapaliysa
-    sessizce atlanir; bu METAR akisini hicbir sekilde etkilemez."""
+    sessizce atlanir; bu METAR akisini hicbir sekilde etkilemez.
+
+    NOTAM_ZORLA_SENKRON: is akisini Actions'tan elle calistirirken
+    isaretlenen kutu (bkz. .github/workflows/ltfj.yml). YALNIZCA sure
+    kapisini atlar - "ozellik kapali" ve "API anahtari yok" sartlari
+    KORUNUR, cunku onlar bir bekleme degil bir onkosul; zorlamak
+    anlamsiz istek atmak olurdu.
+
+    Neden gerekti: sure kapisi kosunun NASIL basladigina bakmiyordu,
+    yani elle tetiklenen bir kosu da atlaniyordu. "Az once NOTAM
+    yayimlandi, simdi cek" demenin bir yolu yoktu."""
     if not ayar("notam", "aktif", varsayilan=True):
         return False
     if not notam_client.api_anahtari_var_mi():
         return False
+    if _cevre_bayragi("NOTAM_ZORLA_SENKRON"):
+        print("  NOTAM senkronu ELLE ZORLANDI (süre kapısı atlandı).")
+        return True
     son = state.get("notam_son_senkron")
     if not son:
         return True

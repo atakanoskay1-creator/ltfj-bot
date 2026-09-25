@@ -10,6 +10,12 @@ on:
     - cron: "10,25,40,55 * * * *"
   # Actions sekmesinden elle calistirmak icin
   workflow_dispatch:
+    inputs:
+      notam_zorla:
+        description: "NOTAM senkronunu zorla (3 saatlik süre kapısını atla)"
+        type: boolean
+        required: false
+        default: false
   repository_dispatch:
     types: [run-ltfj-bot]
 # state dosyasini repoya geri yazabilmek icin
@@ -32,6 +38,9 @@ jobs:
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       NOTAC_API_KEY: ${{ secrets.NOTAC_API_KEY }}
+      # Zamanlanmis kosularda BOS gelir (girdi yok) -> zorlama kapali.
+      # Elle calistirirken kutu isaretlenirse "true" dizesi gelir.
+      NOTAM_ZORLA_SENKRON: ${{ inputs.notam_zorla }}
       FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
       FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
       VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
