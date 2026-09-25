@@ -176,11 +176,21 @@ def test_zorlama_API_ANAHTARI_YOKKEN_calismiyor(monkeypatch):
 
 def test_is_akisi_kutuyu_ortam_degiskenine_BAGLIYOR():
     """Kod tarafı hazır olup iş akışı bağlanmasaydı kutu hiçbir şey
-    yapmazdı - sessizce."""
-    import yaml
+    yapmazdı - sessizce.
+
+    YAML AYRISTIRICISI KULLANILMIYOR: ilk surum PyYAML ile okuyordu ve
+    CI'da patladi - test ortaminda kurulu degil (bkz.
+    requirements-dev.txt). Iki satirlik bir baglantiyi dogrulamak icin
+    testlere bagimlilik eklemek orantisiz; iddialar zaten METIN
+    duzeyinde (girdi tanimi + ortam degiskeni satiri)."""
     from pathlib import Path
-    d = yaml.safe_load(Path(".github/workflows/ltfj.yml").read_text(encoding="utf-8"))
-    tetik = d[True] if True in d else d["on"]
-    assert "notam_zorla" in tetik["workflow_dispatch"]["inputs"]
-    assert tetik["workflow_dispatch"]["inputs"]["notam_zorla"]["default"] is False
-    assert d["jobs"]["bildir"]["env"]["NOTAM_ZORLA_SENKRON"] == "${{ inputs.notam_zorla }}"
+    metin = Path(".github/workflows/ltfj.yml").read_text(encoding="utf-8")
+
+    assert "notam_zorla:" in metin, "workflow_dispatch girdisi yok"
+    # Girdi blogu: "notam_zorla:" satirindan sonraki ilk birkac satir.
+    blok = "\n".join(metin.split("notam_zorla:")[1].splitlines()[:5])
+    assert "type: boolean" in blok, blok
+    assert "default: false" in blok, "varsayilan ACIK olmamali"
+
+    # Kutu -> ortam degiskeni baglantisi.
+    assert "NOTAM_ZORLA_SENKRON: ${{ inputs.notam_zorla }}" in metin
