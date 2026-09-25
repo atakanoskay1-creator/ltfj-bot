@@ -212,7 +212,25 @@ def notam_senkronize(state: dict):
     # (ltfj_bot'un METAR tarafindaki "ilk_calisma" ile ayni ilke).
     if eski_gecmis:
         for nid in set(yeni_gecmis) - eski_idler:
-            notam_push_gonder(yeni_gecmis[nid])
+            kayit = yeni_gecmis[nid]
+            notam_push_gonder(kayit)
+            # Yururlukte DEGILSE isaretle: yururluge girdiginde ikinci
+            # bir bildirim atilacak. Zaten yururlukteyken gorulen bir
+            # NOTAM icin o ikinci bildirimin anlami yok.
+            if not ltfj_notam.yururlukte_mi(kayit):
+                kayit["push_yaklasan"] = True
+
+        # YURURLUGE GIRENLER. Ilk bildirim "iki gun sonra basliyor"
+        # diyordu; o an geldiginde bunu soyleyen bir sey olmaliydi.
+        # Yalnizca daha once YAKLASAN diye bildirdiklerimiz icin ve
+        # yalnizca BIR KEZ (push_yururluk isareti).
+        for nid in eski_idler & set(yeni_gecmis):
+            kayit = yeni_gecmis[nid]
+            if not kayit.get("push_yaklasan") or kayit.get("push_yururluk"):
+                continue
+            if ltfj_notam.yururlukte_mi(kayit):
+                notam_yururluge_girdi_push(kayit)
+                kayit["push_yururluk"] = True
 
 
 def atc_notes_temizligini_calistir() -> int | None:
@@ -617,17 +635,56 @@ def push_bildirimi_gonder(rapor: dict, cozum: dict | None, renk_bilgisi: tuple |
     _push_gonder_guvenli(_push_baslik(rapor), _push_govde(rapor, cozum, renk_bilgisi), rapor["tip"])
 
 
-def _notam_push_govde(kayit: dict) -> str:
+def _notam_zaman_damgasi(deger: str | None) -> str:
+    """NOTAM tarihini sayfadakiyle AYNI kurala gore yazar: UTC, yaninda
+    parantezle yerel. Okunamazsa bos dize - uydurma bir zaman
+    yazmaktansa satiri hic koymamak dogru."""
+    try:
+        z = datetime.fromisoformat((deger or "").replace("Z", "+00:00"))
+    except ValueError:
+        return ""
+    return f"{z:%d.%m %H:%MZ} ({z.astimezone(YEREL_TZ):%H:%M} yerel)"
+
+
+def _notam_push_govde(kayit: dict, yururlukte: bool) -> str:
+    """YURURLUGE GIRIS ZAMANI GOVDEYE GIRIYOR. Once yalnizca numara +
+    metin vardi; yaklasan NOTAM'lar da cekilmeye baslayinca bu YANILTICI
+    oldu - telefona "pist kapaniyor" bildirimi dusuyor ama NOTAM iki gun
+    sonra basliyor olabiliyordu. Baslangic zamani ICAO'nun B) alaninda,
+    yani effective_start'ta; metinde her zaman gecmiyor."""
     satirlar = []
     if kayit.get("number"):
         satirlar.append(kayit["number"])
+    if not yururlukte:
+        damga = _notam_zaman_damgasi(kayit.get("effective_start"))
+        satirlar.append(f"Yürürlüğe giriyor: {damga}" if damga
+                        else "Henüz yürürlükte değil.")
     if kayit.get("text"):
         satirlar.append(kayit["text"][:180])
     return "\n".join(satirlar) if satirlar else "Yeni bir NOTAM yayınlandı."
 
 
 def notam_push_gonder(kayit: dict) -> None:
-    _push_gonder_guvenli(f"📋 {ICAO} Yeni NOTAM", _notam_push_govde(kayit), "NOTAM")
+    """Yeni GORULEN NOTAM. Baslik yururlukte olup olmadigini SOYLUYOR -
+    ikisi ayni baslikla gitseydi okuyan ayirt edemezdi."""
+    yururlukte = ltfj_notam.yururlukte_mi(kayit)
+    baslik = (f"📋 {ICAO} Yeni NOTAM" if yururlukte
+              else f"🕐 {ICAO} Yaklaşan NOTAM")
+    _push_gonder_guvenli(baslik, _notam_push_govde(kayit, yururlukte), "NOTAM")
+
+
+def notam_yururluge_girdi_push(kayit: dict) -> None:
+    """Daha once "yaklasan" diye bildirilen NOTAM ARTIK YURURLUKTE.
+    Ayri bir bildirim: ilk bildirim "iki gun sonra" diyordu, o anin
+    geldigini soyleyen bir sey olmaliydi."""
+    satirlar = [kayit.get("number") or "", "Şu an yürürlükte."]
+    bitis = _notam_zaman_damgasi(kayit.get("effective_end"))
+    if bitis:
+        satirlar.append(f"Bitiş: {bitis}")
+    if kayit.get("text"):
+        satirlar.append(kayit["text"][:180])
+    _push_gonder_guvenli(f"▶️ {ICAO} NOTAM yürürlükte",
+                         "\n".join(s for s in satirlar if s), "NOTAM")
 
 
 def bildirim_karari(rapor, dikkat, renk_degisti) -> tuple[bool, bool]:

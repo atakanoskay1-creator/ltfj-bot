@@ -257,6 +257,11 @@ def notamlari_getir(location: str = LOCATION, durum: str | None = None,
 # NOTAC beklenmedik bicimde cok kayit dondurse bile API'yi dovmeyelim.
 MAKS_DETAY_ISTEK = 30
 
+# Bota ait, NOTAC'tan GELMEYEN alanlar - gecmis guncellenirken
+# korunurlar (bkz. gecmisi_guncelle). Hangi bildirimin atildigini
+# bunlar tutuyor; kaybolurlarsa bildirim tekrarlanir.
+YEREL_ISARETLER = ("push_yaklasan", "push_yururluk")
+
 
 def ham_metinleri_ekle(ham_kayitlar: list[dict], eski_gecmis: dict | None = None,
                        maks_istek: int = MAKS_DETAY_ISTEK) -> list[dict]:
@@ -455,6 +460,13 @@ def gecmisi_guncelle(eski_gecmis: dict, yeni_kayitlar: list[dict], simdi: str | 
         # dayali suzgec onlari hic gormezdi).
         eksik_alan = set(kayit) - set(onceki)
         birlesmis = dict(kayit) if guncellendi else {**onceki, **{k: kayit[k] for k in eksik_alan}}
+        # BOTUN KENDI TUTTUGU isaretler NOTAC'tan gelmez; kayit
+        # guncellenince (guncellendi=True) dict(kayit) onlari SILERDI ve
+        # ayni bildirim tekrar giderdi. Bunlar hep onceki kayittan
+        # tasiniyor.
+        for isaret in YEREL_ISARETLER:
+            if isaret in onceki:
+                birlesmis[isaret] = onceki[isaret]
         birlesmis["first_seen"] = onceki.get("first_seen", simdi)
         birlesmis["last_seen"] = simdi
         if kayit.get("status") == "active":
@@ -470,6 +482,18 @@ def gecmisi_guncelle(eski_gecmis: dict, yeni_kayitlar: list[dict], simdi: str | 
 
 
 # ----------------------------------------------------------------- web veri
+def yururlukte_mi(kayit: dict, an: datetime | None = None) -> bool:
+    """NOTAM VERILEN ANDA yururlukte mi? (baslangic gelmis, bitis
+    gecmemis). Baslangic okunamiyorsa yururlukte SAYMIYORUZ - "emin
+    degilim" durumunda bildirim atmak yanlis alarm uretir."""
+    an = an or datetime.now(timezone.utc)
+    bas = _tarih_ayristir(kayit.get("effective_start"))
+    if bas is None or bas > an:
+        return False
+    bit = _tarih_ayristir(kayit.get("effective_end"))
+    return bit is None or bit > an
+
+
 def notam_veri_yaz(state: dict, hedef: Path, location: str = LOCATION):
     """MOD 5 (web arayuzu) icin index.html'in fetch() ile okudugu ayri bir
     JSON dosyasi uretir - panel_veri.json'un ltfj_panel.py::panel_verisi_yaz
