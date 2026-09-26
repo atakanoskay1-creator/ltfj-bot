@@ -296,3 +296,95 @@ def test_notam_cumle_YOKSA_ham_govdeye_dusuyor(sayfa):
     görünmez kılmak demek."""
     js = sayfa.split("function notamKarti(n)")[1].split("function kisaZaman")[0]
     assert "n.reading_short || n.text" in js
+
+
+# ===================================================== sıralama ve çipler
+
+def _js(sayfa, bas, son):
+    return sayfa.split(bas)[1].split(son)[0]
+
+
+def test_siralama_secenekleri_var(sayfa):
+    assert 'id="notam-aktif-siralama"' in sayfa
+    for deger in ("kapanis", "bitis", "yeni", "numara"):
+        assert f'value="{deger}"' in sayfa, deger
+
+
+def test_siralama_UYDURMA_kritiklik_ICERMIYOR(sayfa):
+    """notac'ın 'Most critical first' sıralaması kendi modeli ve bize
+    gelen 24 alanın hiçbirinde karşılığı yok. Uydurma bir ciddiyet
+    sırası yazmak, bu sayfadan yeni sökülen renk ölçeğinin aynısı
+    olurdu. Seçeneklerin adı ne yaptığını söylemeli."""
+    blok = _js(sayfa, 'id="notam-aktif-siralama"', "</select>")
+    for yasak in ("kritik", "öncelik", "önem", "ciddiyet", "risk"):
+        assert yasak not in blok.lower(), yasak
+
+
+def test_kapali_tanimi_NOTAMIN_KENDI_soyledigi(sayfa):
+    """İki işaret, ikisi de veriden: ICAO Q kodunun 4-5. harfleri 'LC'
+    ve NOTAC'ın kendi 'closure' etiketi. Q kodu 45 kayıtta 3'ünde
+    gelmiyor, o yüzden tek başına yeterli değil."""
+    fn = _js(sayfa, "function kapaliMi(n)", "function zamanSayisi")
+    assert 'substring(3, 5) === "LC"' in fn
+    assert '"closure"' in fn
+
+
+def test_kapanislar_once_YALNIZCA_IKI_obek(sayfa):
+    """Üç katmanlı bir 'kapalı > hizmet dışı > öteki' sırası yazmak,
+    NOTAC'ın söylemediği bir önem sırası uydurmak olurdu."""
+    fn = _js(sayfa, "function sirala(liste)", "\n  function yaklasanGoster")
+    assert "kapaliMi(a) ? 0 : 1" in fn
+    assert "unserviceable" not in fn, "ikinci bir ciddiyet katmani eklenmis"
+
+
+def test_eksik_tarih_SONA_gidiyor(sayfa):
+    """0 ya da Infinity vermek kaydı bir uca yapıştırıp 'en yakın
+    biten' ya da 'en yeni' gibi gösterirdi."""
+    fn = _js(sayfa, "function tariheGore(a, b, alan, artan)", "\n  function numarayaGore")
+    assert "if (x === null) return 1;" in fn
+    assert "if (y === null) return -1;" in fn
+
+
+def test_kategori_CIP_grubu_select_DEGIL(sayfa):
+    assert '<div class="notam-cipler" id="notam-aktif-kategori"' in sayfa
+    assert '<select id="notam-aktif-kategori"' not in sayfa
+
+
+def test_ciplerde_SAYAC_var(sayfa):
+    fn = _js(sayfa, "function aktifFiltreSecenekleriDoldur()", "\n  function aramaCalistir")
+    assert "sayi.textContent = kategoriler[ad];" in fn
+    assert "(kategoriler[n.category_etiketi] || 0) + 1" in fn
+
+
+def test_SIFIR_sayili_kategori_CIZILMIYOR(sayfa):
+    """notac tüm kategori sözlüğünü bildiği için 'Navaid 0' yazabiliyor;
+    biz bilmiyoruz. Olmayan bir kategoriyi 0 ile listelemek 'bu
+    havalimanında hiç olmaz' diye okunurdu."""
+    fn = _js(sayfa, "function aktifFiltreSecenekleriDoldur()", "\n  function aramaCalistir")
+    # Cipler SADECE veride bulunan kategorilerden turetiliyor.
+    assert "Object.keys(kategoriler)" in fn
+    assert "0" not in fn.split("adlar.forEach")[1].split("});")[0]
+
+
+def test_ayni_cipe_tekrar_basmak_SUZGECI_KALDIRIR(sayfa):
+    fn = _js(sayfa, "function aktifFiltreSecenekleriDoldur()", "\n  function aramaCalistir")
+    assert '(aktifKategori === ad) ? "" : ad' in fn
+
+
+def test_kaybolan_kategori_secimi_DUSURULUYOR(sayfa):
+    """Veri yenilenince o kategori artık yoksa süzgeç açık kalır, liste
+    boş görünür ve kullanıcı nedenini göremezdi."""
+    fn = _js(sayfa, "function aktifFiltreSecenekleriDoldur()", "\n  function aramaCalistir")
+    assert 'if (aktifKategori && adlar.indexOf(aktifKategori) === -1) aktifKategori = "";' in fn
+
+
+def test_temizle_SIRALAMAYI_sifirlamiyor(sayfa):
+    """Sıralama bir süzgeç değil, görünüm tercihi."""
+    fn = _js(sayfa, 'getElementById("notam-aktif-temizle").addEventListener', "}});")
+    assert "aktifKategori" in fn and "aktifSiralamaEl" not in fn
+
+
+def test_cip_grubunda_OLU_change_dinleyicisi_yok(sayfa):
+    """Kategori artık <select> değil; eski 'change' dinleyicisi kalsaydı
+    hiç tetiklenmeyen ölü kod olurdu."""
+    assert 'aktifKategoriEl.addEventListener("change"' not in sayfa

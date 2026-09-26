@@ -1178,6 +1178,23 @@ SABLON = """<!DOCTYPE html>
     font-family:var(--mono); font-size:var(--f1); color:var(--sessiz);
   }}
   .notam-etiketler {{ display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }}
+  /* Kategori cipleri - dokunma hedefi icin 32px yukseklik. */
+  .notam-cipler {{ display:flex; flex-wrap:wrap; gap:6px; margin:-6px 0 14px; }}
+  .notam-cip {{
+    display:inline-flex; align-items:center; gap:6px; min-height:32px;
+    padding:4px 11px; border-radius:999px; cursor:pointer;
+    font:inherit; font-size:var(--f2); font-weight:600;
+    background:var(--kod-bg); border:1px solid var(--cizgi);
+    color:var(--soluk);
+  }}
+  .notam-cip:hover {{ color:var(--metin); border-color:var(--sessiz); }}
+  .notam-cip[aria-pressed="true"] {{
+    background:var(--baglanti); border-color:var(--baglanti); color:var(--bg);
+  }}
+  /* Sayac: secili cipte de okunur kalmali - kendi zemini yok, yalnizca
+     opaklik dusuyor, yani her iki durumda da metin renginden turuyor. */
+  .notam-cip b {{ font-family:var(--mono); font-weight:650; opacity:.75; }}
+  .notam-cip[aria-pressed="true"] b {{ opacity:.85; }}
   .notam-ham > summary {{
     cursor:pointer; list-style:none; font-size:var(--f1); font-weight:700;
     letter-spacing:.08em; text-transform:uppercase; color:var(--soluk);
@@ -1614,10 +1631,33 @@ SABLON = """<!DOCTYPE html>
       ham NOTAM metnidir.</div>
     <div class="notam-arama" id="notam-aktif-filtre">
       <input type="text" id="notam-aktif-q" placeholder="Numara, pist, anahtar kelime…">
-      <select id="notam-aktif-kategori"><option value="">Tüm kategoriler</option></select>
+      <!-- SIRALAMA. notac'ta "Most critical first" var; onun kritiklik
+           siralamasi KENDI modeli ve bize gelen alanlarda karsiligi
+           YOK (45 kayitta rank/score benzeri hicbir alan bulunmadi).
+           Uydurma bir ciddiyet siralamasi yazmak, bu sayfadan daha
+           yeni sokulen renk olceginin aynisi olurdu. Onun yerine
+           ADI NE YAPTIGINI SOYLEYEN secenekler: "Kapanislar once"
+           NOTAM'in KENDI soyledigine bakar (ICAO Q kodu kosul harfleri
+           "LC" = closed, ya da NOTAC'in "closure" etiketi), bir
+           onem sirasi uretmez. -->
+      <select id="notam-aktif-siralama" aria-label="Sıralama">
+        <option value="kapanis">Kapanışlar önce</option>
+        <option value="bitis">Bitişi yakın önce</option>
+        <option value="yeni">En yeni önce</option>
+        <option value="numara">Numaraya göre</option>
+      </select>
       <select id="notam-aktif-eleman"><option value="">Tüm elemanlar</option></select>
       <button type="button" id="notam-aktif-temizle">Temizle</button>
     </div>
+    <!-- KATEGORI CIPLERI, sayaclariyla. Eskiden bir <select> idi: kac
+         pist NOTAM'i oldugunu gormek icin acip saymak gerekiyordu.
+         notac'taki gibi sayilar cipin uzerinde - dagilim tek bakista.
+         SIFIR SAYILI KATEGORI CIZILMEZ: notac tum sozlugunu bildigi
+         icin "Navaid 0" yazabiliyor, biz NOTAC'in kategori sozlugunun
+         tamamini bilmiyoruz; olmayan bir kategoriyi 0 ile listelemek
+         "bu havalimaninda hic olmaz" gibi okunurdu. -->
+    <div class="notam-cipler" id="notam-aktif-kategori"
+         role="group" aria-label="Kategori süzgeci"></div>
     <div id="notam-aktif-liste"><div class="notam-bos">Yükleniyor…</div></div>
   </div>
 
@@ -2111,6 +2151,11 @@ window.ltfjKalanSure = function (ms) {{
   var aktifQEl = document.getElementById("notam-aktif-q");
   var aktifKategoriEl = document.getElementById("notam-aktif-kategori");
   var aktifElemanEl = document.getElementById("notam-aktif-eleman");
+  var aktifSiralamaEl = document.getElementById("notam-aktif-siralama");
+  // Kategori artik bir <select> DEGIL cip grubu; secim DOM'da degil
+  // burada tutuluyor. Cipler her veri yenilenisinde yeniden ciziliyor
+  // ve o sirada bir <select>'in value'su gibi kendiliginden korunmazdi.
+  var aktifKategori = "";
   var aktifSayiEl = document.getElementById("notam-aktif-sayi");
   var senkronEl = document.getElementById("notam-senkron-zamani");
   var sonucEl = document.getElementById("notam-arama-sonuc");
@@ -2191,7 +2236,7 @@ window.ltfjKalanSure = function (ms) {{
 
   function aktifFiltrele(liste) {{
     var q = aktifQEl.value.trim().toLowerCase();
-    var kat = aktifKategoriEl.value;
+    var kat = aktifKategori;
     var eleman = aktifElemanEl.value;
     return liste.filter(function (n) {{
       if (kat && n.category_etiketi !== kat) return false;
@@ -2208,6 +2253,60 @@ window.ltfjKalanSure = function (ms) {{
       }}
       return true;
     }});
+  }}
+
+  // KAPALI MI? Uydurma degil - NOTAM'in KENDI soyledigi iki isaret:
+  // (1) ICAO Q kodunun 4-5. harfleri "LC" (closed); (2) NOTAC'in
+  // kendi verdigi "closure" etiketi. Ikisinden biri yetiyor: Q kodu
+  // gelmeyen kayitlar var (45'te 3), etiket ise hepsinde var.
+  function kapaliMi(n) {{
+    var kod = (n.q_code || "").toUpperCase();
+    if (kod.length === 5 && kod.substring(3, 5) === "LC") return true;
+    return (n.tags || []).indexOf("closure") !== -1;
+  }}
+
+  function zamanSayisi(iso) {{
+    var t = Date.parse(iso || "");
+    return isNaN(t) ? null : t;
+  }}
+
+  // Eksik tarih HER ZAMAN SONA. Ne 0 ne Infinity: ikisi de kaydi bir
+  // uca yapistirip "en yakin biten" ya da "en yeni" gibi gosterirdi.
+  function tariheGore(a, b, alan, artan) {{
+    var x = zamanSayisi(a[alan]), y = zamanSayisi(b[alan]);
+    if (x === null && y === null) return 0;
+    if (x === null) return 1;
+    if (y === null) return -1;
+    return artan ? x - y : y - x;
+  }}
+
+  function numarayaGore(a, b) {{
+    return (a.number || "").localeCompare(b.number || "");
+  }}
+
+  function sirala(liste) {{
+    var mod = aktifSiralamaEl ? aktifSiralamaEl.value : "kapanis";
+    var kopya = liste.slice();
+    if (mod === "bitis") {{
+      kopya.sort(function (a, b) {{
+        return tariheGore(a, b, "effective_end", true) || numarayaGore(a, b);
+      }});
+    }} else if (mod === "yeni") {{
+      kopya.sort(function (a, b) {{
+        return tariheGore(a, b, "effective_start", false) || numarayaGore(a, b);
+      }});
+    }} else if (mod === "numara") {{
+      kopya.sort(numarayaGore);
+    }} else {{
+      // KAPANISLAR ONCE: yalnizca IKI obek (kapali / digerleri). Uc
+      // katmanli bir "kapali > hizmet disi > oteki" sirasi yazmak,
+      // NOTAC'in soylemedigi bir onem sirasi UYDURMAK olurdu.
+      kopya.sort(function (a, b) {{
+        var fa = kapaliMi(a) ? 0 : 1, fb = kapaliMi(b) ? 0 : 1;
+        return fa - fb || numarayaGore(a, b);
+      }});
+    }}
+    return kopya;
   }}
 
   function yaklasanGoster() {{
@@ -2260,7 +2359,7 @@ window.ltfjKalanSure = function (ms) {{
     yaklasanGoster();
 
     var tumu = yururluktekiler();
-    var gosterilecek = aktifFiltrele(tumu);
+    var gosterilecek = sirala(aktifFiltrele(tumu));
 
     aktifSayiEl.textContent = !tumu.length
       ? "aktif yok"
@@ -2281,26 +2380,58 @@ window.ltfjKalanSure = function (ms) {{
   // degerlerden uretilir - bos sonuc veren secenek listelenmez.
   function aktifFiltreSecenekleriDoldur() {{
     var liste = yururluktekiler();
-    function doldur(el, degerler) {{
-      var secili = el.value;
-      while (el.options.length > 1) el.remove(1);
-      degerler.sort().forEach(function (d) {{
-        var o = document.createElement("option");
-        o.value = d; o.textContent = d;
-        el.appendChild(o);
-      }});
-      // Veri yenilenince kullanicinin secimi hala gecerliyse KORUNUR.
-      el.value = degerler.indexOf(secili) !== -1 ? secili : "";
-    }}
     var kategoriler = {{}}, elemanlar = {{}};
     liste.forEach(function (n) {{
-      if (n.category_etiketi) kategoriler[n.category_etiketi] = true;
+      if (n.category_etiketi) {{
+        kategoriler[n.category_etiketi] = (kategoriler[n.category_etiketi] || 0) + 1;
+      }}
       (n.affected_elements || []).forEach(function (e) {{
         if (e.ref) elemanlar[e.ref] = true;
       }});
     }});
-    doldur(aktifKategoriEl, Object.keys(kategoriler));
-    doldur(aktifElemanEl, Object.keys(elemanlar));
+
+    // --- eleman <select>'i (degismedi) ---
+    var elemanSecili = aktifElemanEl.value;
+    while (aktifElemanEl.options.length > 1) aktifElemanEl.remove(1);
+    var elemanListesi = Object.keys(elemanlar).sort();
+    elemanListesi.forEach(function (d) {{
+      var o = document.createElement("option");
+      o.value = d; o.textContent = d;
+      aktifElemanEl.appendChild(o);
+    }});
+    aktifElemanEl.value = elemanListesi.indexOf(elemanSecili) !== -1 ? elemanSecili : "";
+
+    // --- kategori CIPLERI, sayaclariyla ---
+    var adlar = Object.keys(kategoriler).sort(function (a, b) {{
+      // COK OLAN ONCE. Alfabetik sirada "Apron 3" ile "Runway 4"
+      // arasinda hangisinin agir bastigi ancak sayilar okunarak
+      // anlasiliyordu; siralama o isi kendisi yapsin.
+      return kategoriler[b] - kategoriler[a] || a.localeCompare(b);
+    }});
+    // Secili kategori veri yenilenince artik yoksa secim DUSURULUR -
+    // yoksa hicbir kayda uymayan bir suzgec acik kalir ve liste bos
+    // gorunur, kullanici da nedenini goremez.
+    if (aktifKategori && adlar.indexOf(aktifKategori) === -1) aktifKategori = "";
+    aktifKategoriEl.innerHTML = "";
+    adlar.forEach(function (ad) {{
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "notam-cip";
+      b.setAttribute("aria-pressed", ad === aktifKategori ? "true" : "false");
+      b.appendChild(document.createTextNode(ad));
+      var sayi = document.createElement("b");
+      sayi.textContent = kategoriler[ad];
+      b.appendChild(sayi);
+      b.addEventListener("click", function () {{
+        // AYNI CIPE TEKRAR BASMAK SUZGECI KALDIRIR. Cip grubunda
+        // "hepsi" diye ayri bir dugme yok; olsaydi hem yer yerdi hem
+        // de secili olmayan durumu iki ayri bicimde anlatirdi.
+        aktifKategori = (aktifKategori === ad) ? "" : ad;
+        aktifFiltreSecenekleriDoldur();
+        aktifGoster();
+      }});
+      aktifKategoriEl.appendChild(b);
+    }});
   }}
 
   function aramaCalistir() {{
@@ -2373,12 +2504,20 @@ window.ltfjKalanSure = function (ms) {{
   // olmasina ragmen govde baslikla ayni kartta, kullanici yanlislikla
   // katlamasin.
   aktifQEl.addEventListener("input", aktifGoster);
-  aktifKategoriEl.addEventListener("change", aktifGoster);
+  // Kategori artik <select> degil cip grubu: "change" olayi YOK, her
+  // cip kendi dinleyicisini aktifFiltreSecenekleriDoldur icinde
+  // baglıyor. Burada eski "change" dinleyicisi kalsaydi sessizce hic
+  // tetiklenmeyen olu kod olurdu.
   aktifElemanEl.addEventListener("change", aktifGoster);
+  aktifSiralamaEl.addEventListener("change", aktifGoster);
   document.getElementById("notam-aktif-temizle").addEventListener("click", function () {{
     aktifQEl.value = "";
-    aktifKategoriEl.value = "";
+    aktifKategori = "";
     aktifElemanEl.value = "";
+    // SIRALAMA SIFIRLANMIYOR: bir suzgec degil, GORUNUM tercihi.
+    // "Temizle" suzgecleri kaldirir; kullanicinin sectigi sirayi da
+    // geri almak, istemedigi bir seyi degistirmek olurdu.
+    aktifFiltreSecenekleriDoldur();
     aktifGoster();
   }});
 

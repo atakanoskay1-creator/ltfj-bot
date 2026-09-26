@@ -126,8 +126,11 @@ def test_filtre_secenekleri_sadece_yururluktekilerden_uretiliyor(tmp_path):
     html = _sayfa(tmp_path)
     assert "function aktifFiltreSecenekleriDoldur()" in html
     # Secenekler her veri yuklemesinde YENIDEN kurulur; eskiden secenek
-    # eklemesi temizlenmedigi icin yinelenme riski vardi.
-    assert "while (el.options.length > 1) el.remove(1);" in html
+    # eklemesi temizlenmedigi icin yinelenme riski vardi. Kategori artik
+    # <select> degil cip grubu oldugu icin iki ayri temizleme var:
+    # eleman listesinde option'lar, kategoride tum cipler.
+    assert "while (aktifElemanEl.options.length > 1) aktifElemanEl.remove(1);" in html
+    assert 'aktifKategoriEl.innerHTML = "";' in html
 
 
 def test_filtreler_notam_bolumunun_icinde(tmp_path):
