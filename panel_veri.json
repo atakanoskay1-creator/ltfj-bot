@@ -1,20 +1,20 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-26T21:24:35+00:00",
+ "uretildi": "2026-09-26T21:54:41+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-26T21:20:00+00:00",
-  "metin": "METAR LTFJ 262120Z 04011KT 9999 SCT025 19/15 Q1018 NOSIG RMK RWY24R 02008KT RWY06R 04010KT RWY24L 03005KT",
+  "zaman": "2026-09-26T21:50:00+00:00",
+  "metin": "METAR LTFJ 262150Z 05010KT 9999 SCT025 BKN080 19/15 Q1018 NOSIG RMK RWY24R 04008KT RWY06R 06005KT RWY24L 05007KT",
   "ruzgar": {
-   "yon": 40,
-   "hiz": 11,
+   "yon": 50,
+   "hiz": 10,
    "hamle": null,
    "degisken": null
   },
   "gorus": 9999,
   "cavok": false,
-  "tavan": null,
+  "tavan": 8000,
   "hava": [],
   "sicaklik": 19,
   "cig_noktasi": 15,
@@ -30,8 +30,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 10.0,
-    "yan": 4.5,
+    "bas": 9.7,
+    "yan": 2.4,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -43,8 +43,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 9.1,
-    "yan": 4.1,
+    "bas": 5.0,
+    "yan": 0.4,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -56,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -4.1,
-    "yan": 2.8,
+    "bas": -6.8,
+    "yan": 1.7,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -69,8 +69,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -5.7,
-    "yan": 5.6,
+    "bas": -7.3,
+    "yan": 3.3,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -88,21 +88,13 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 040° 11kt · görüş 10+ km · 19°C · QNH 1018"
+  "ozet": "Rüzgâr 050° 10kt · görüş 10+ km · tavan 8000 ft · 19°C · QNH 1018"
  },
  "taf": {
   "zaman": "2026-09-26T16:40:00+00:00",
   "metin": "TAF LTFJ 261640Z 2618/2718 05014KT 9999 SCT030 BKN180 PROB30 TEMPO 2622/2702 -SHRA BKN030 TEMPO 2705/2709 -SHRA BKN030 BKN080 TEMPO 2711/2715 -SHRA FEW020CB BKN025 BECMG 2715/2718 -SHRA BKN028 BKN080"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-21T00:50:00+00:00",
-   "ruzgar_hiz": 4,
-   "tavan": null,
-   "qnh": 1018,
-   "sicaklik": 18,
-   "cig_noktasi": 17
-  },
   {
    "zaman": "2026-09-21T01:20:00+00:00",
    "ruzgar_hiz": 4,
@@ -2643,6 +2635,15 @@
    "gorus": 9999,
    "ruzgar_hiz": 11,
    "tavan": null,
+   "qnh": 1018,
+   "sicaklik": 19,
+   "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-26T21:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 10,
+   "tavan": 8000,
    "qnh": 1018,
    "sicaklik": 19,
    "cig_noktasi": 15
