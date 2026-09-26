@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:53597371",
   "id:53600689",
   "id:53605562",
   "id:53614203",
@@ -199,23 +198,16 @@
   "id:54652977",
   "id:54658075",
   "id:54668505",
-  "id:54674403"
+  "id:54674403",
+  "id:54683096"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 260650Z 04010KT CAVOK 20/16 Q1018 NOSIG RMK RWY24R 04008KT RWY06R 04009KT RWY24L 03006KT",
+ "son_metar": "METAR LTFJ 260720Z 04010KT CAVOK 21/17 Q1018 NOSIG RMK RWY24R 05007KT 350V070 RWY06R 04008KT RWY24L 06008KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-26T06:50:00+00:00",
+ "son_veri_zamani": "2026-09-26T07:20:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-20T10:20:00+00:00",
-   "ruzgar_hiz": 16,
-   "tavan": null,
-   "qnh": 1022,
-   "sicaklik": 25,
-   "cig_noktasi": 15
-  },
   {
    "zaman": "2026-09-20T10:50:00+00:00",
    "ruzgar_hiz": 14,
@@ -2730,13 +2722,22 @@
    "qnh": 1018,
    "sicaklik": 20,
    "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-26T07:20:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 10,
+   "tavan": null,
+   "qnh": 1018,
+   "sicaklik": 21,
+   "cig_noktasi": 17
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 260550Z 05009KT CAVOK 19/16 Q1018 NOSIG RMK RWY24R 03007KT 360V070 RWY06R 03008KT RWY24L 02008KT": "**Rüzgâr:** Kuzeydoğudan 9 knot (yaklaşık 17 km/s) hızında rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş sınırsız, uçuş için rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok.\n\n**Uçuşa etkisi:** Raporlanan veriler içinde uçuşu kısıtlayan bir unsur yoktur.",
   "METAR LTFJ 260620Z 05010KT CAVOK 20/16 Q1018 NOSIG RMK RWY24R 03008KT 360V070 RWY06R 03009KT RWY24L 03008KT": "**Rüzgâr:** Kuzeydoğudan 10 knot (yaklaşık 18 km/s) hızında rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** Görüş sınırsız, uçuş için açık ve temiz hava koşulları var.\n\n**Gökyüzü:** Bulut bildirilmemiş, gökyüzü açık ve yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları uygun ve önümüzdeki 2 saatte önemli değişiklik beklenmiyyor.",
   "METAR LTFJ 260650Z 04010KT CAVOK 20/16 Q1018 NOSIG RMK RWY24R 04008KT RWY06R 04009KT RWY24L 03006KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 10 düğüm hızında rüzgâr esiyor, yan bileşen düşük seviyede.\n\n**Görüş:** Görüş mükemmel, ufuk çizgisine kadar her şey net görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı unsur oluşturmuyor, hava koşulları elverişli.",
-  "TAF LTFJ 260440Z 2606/2706 04006KT CAVOK BECMG 2608/2612 04016KT BECMG 2614/2618 SCT035 TEMPO 2615/2619 04016G26KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 26-27 Haziran döneminde başlangıçta açık hava, sonra orta bulutluluk ve rüzgar artışı beklenmektedir.\n\n- **0606-0612 UTC:** Rüzgar kademeli olarak 16 knota çıkacaktır.\n- **0614-0618 UTC:** 3500 feet'te saçınık bulut beklenmektedir; bu dönemde geçici olarak rüzgar 26 knot esneme ile 16 knot hızında esecektir."
+  "TAF LTFJ 260440Z 2606/2706 04006KT CAVOK BECMG 2608/2612 04016KT BECMG 2614/2618 SCT035 TEMPO 2615/2619 04016G26KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 26-27 Haziran döneminde başlangıçta açık hava, sonra orta bulutluluk ve rüzgar artışı beklenmektedir.\n\n- **0606-0612 UTC:** Rüzgar kademeli olarak 16 knota çıkacaktır.\n- **0614-0618 UTC:** 3500 feet'te saçınık bulut beklenmektedir; bu dönemde geçici olarak rüzgar 26 knot esneme ile 16 knot hızında esecektir.",
+  "METAR LTFJ 260720Z 04010KT CAVOK 21/17 Q1018 NOSIG RMK RWY24R 05007KT 350V070 RWY06R 04008KT RWY24L 06008KT": "Rüzgâr: Kuzey-kuzeydoğudan 10 düğüm hızında rüzgâr esiyor, yan bileşen düşük seviyede.\n\nGörüş: Görüş mükemmel, ufuk çizgisine kadar açık ve temiz.\n\nGökyüzü: Bulut bildirilmemiş, gökyüzü açık.\n\nUçuşa etkisi: Gözlemlenen veriler uçuş için kısıtlayıcı bir unsur göstermemektedir."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3604,12 +3605,12 @@
   }
  },
  "notam_son_senkron": "2026-09-26T07:15:49+00:00",
- "guncelleme": "2026-09-26T07:15:50+00:00",
+ "guncelleme": "2026-09-26T07:31:06+00:00",
  "push_gonderilen": [
   "id:54339168",
+  "id:54570097",
   "id:54645856",
-  "id:54494528",
   "id:54416753",
-  "id:54570097"
+  "id:54494528"
  ]
 }
