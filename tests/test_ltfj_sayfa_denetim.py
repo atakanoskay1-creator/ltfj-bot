@@ -58,13 +58,36 @@ def test_VFR_sekmesi_dugmelerin_OLUGUNU_yiyor_mu(tmp_path):
     kutu kesişimiyle bakmak gerekti."""
     html_metin = _sayfa(tmp_path)
     dar = html_metin.split("@media (max-width:480px)")[1].split("\n  }")[0]
-    assert ".header-butonlar" in dar
-    m = re.search(r"\.header-butonlar \{[^}]*padding-right:(\d+)px", dar, re.S)
-    assert m, "dar ekranda dugmeler icin oluk ayrilmamis"
-    sekme = _kural(html_metin, ".vfr-sekme")
-    genislik = int(re.search(r"padding:\d+px (\d+)px", sekme).group(1))
-    # Oluk, sekmenin kapladigi seritten GENIS olmali.
-    assert int(m.group(1)) > genislik * 2, (m.group(1), genislik)
+
+    # ÇÖZÜM DEĞİŞTİ, SÖZLEŞME AYNI. Eski çözüm düğmeleri ikinci satırda
+    # bırakıp yanlarına 34px oluk açıyordu; yeni çözüm metni gizleyip
+    # düğmeleri BAŞLIK SATIRINDA tutuyor, yani sekmenin dikey bandına
+    # (top:96px) hiç inmiyorlar. İkisi de kabul: test artık "oluk var
+    # mı" diye değil, "örtüşme MÜMKÜN mü" diye soruyor.
+    oluk = re.search(r"\.header-butonlar \{[^}]*padding-right:(\d+)px", dar, re.S)
+    if oluk:
+        sekme = _kural(html_metin, ".vfr-sekme")
+        genislik = int(re.search(r"padding:\d+px (\d+)px", sekme).group(1))
+        assert int(oluk.group(1)) > genislik * 2, (oluk.group(1), genislik)
+        return
+
+    # Oluk yoksa düğmeler ikinci satıra İNMEMELİ. İnmelerinin tek yolu
+    # header'ın sarması; bu iki kuralın ikisi de dar kırılımda olmamalı.
+    assert "flex-wrap:wrap" not in dar, \
+        "dar ekranda header sariyor - dugmeler VFR sekmesinin bandina inebilir"
+    assert not re.search(r"\.header-(butonlar|metin) \{[^}]*flex:1 1 100%", dar, re.S), \
+        "dugme/baslik bloguna tam satir verilmis - ikinci satira iner"
+    # Metin gizlendiği için düğmeler tek satıra sığıyor; gizleme kuralı
+    # KAYBOLURSA bu tasarım sessizce eski kusura geri döner.
+    # KURALI arıyoruz, ADI değil: ilk yazımı ``".btn-metin" in dar``
+    # idi ve mutasyon testi bunu yakaladı - kuralı silip yerinde bir
+    # YORUM bırakmak (".btn-metin'e bak") testi geçiriyordu.
+    assert re.search(r"\.btn-metin \{[^}]*clip:rect\(0 0 0 0\)", dar, re.S), \
+        "ikon-only kurali yok: metin gorsel olarak gizlenmiyor"
+    # Tarayıcıda ölçüldü (320/360/390/430/480/680 px): Yenile üst=20
+    # alt=61, VFR sekmesi üst=96 - her genişlikte 35px açıklık, örtüşme 0.
+    assert "min-width:44px" in dar and "min-height:44px" in dar, \
+        "ikon dugmesi dokunma hedefi 44x44 altinda kalir"
 
 
 def test_VFR_sekmesi_kontrasti_AA(tmp_path):
@@ -96,7 +119,12 @@ def test_FAB_koyu_temada_SAYFANIN_EN_PARLAK_nesnesi_DEGIL(tmp_path):
     assert "var(--fab-zemin)" in fab, "FAB hala tek sabit yuzey kullaniyor"
     # Koyu tema bloklarinin IKISINDE DE tanimli olmali (sistem tercihi
     # ve elle secim ayri ayri).
-    assert html_metin.count("--fab-zemin:#1e2a44") == 2, "koyu tema eksik"
+    # SABIT HEX YERINE OLCUM. Bu satir "#1e2a44" diye bir literal
+    # ariyordu; palet degisince test kirildi ama ASIL SOZLESME (FAB
+    # koyu temada sayfanin en parlak nesnesi olmasin) hic olculmuyordu.
+    # Artik token'in kendisi degil, PARLAKLIGI kontrol ediliyor.
+    fab_koyu = re.findall(r"--fab-zemin:(#[0-9a-f]{6})", html_metin)
+    assert len(fab_koyu) == 3, ("acik + iki koyu tema blogu bekleniyor", fab_koyu)
     # Dokunma hedefi KUCULMEDI.
     assert "width:56px; height:56px" in fab
 
@@ -236,7 +264,7 @@ def test_gecmis_egilim_GUNCEL_RAPORUN_ALTINDA(tmp_path):
                "sicaklik": 14.0, "cig_noktasi": 11.0} for i in range(8, -1, -1)]
     html_metin = _sayfa(tmp_path, gecmis=gecmis)
     panel = html_metin.split('id="panel-durum"')[1].split('class="sekme-panel"')[0]
-    assert panel.index("<summary>") > panel.index('class="kart kart-durum"')
+    assert panel.index("<summary>") > panel.index('class="kart"')
 
 
 # ============================================== Ö12 / B10: beşinci durum

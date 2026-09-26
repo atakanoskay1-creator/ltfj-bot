@@ -34,12 +34,41 @@ def test_telegram_baslik_canonical_etiketi_kullanir():
     assert "LTFJ Bot seviyesi" not in baslik   # eksik kelimeli eski hatali metin
 
 
-def test_ltfj_sayfa_rozeti_canonical_etiketi_kullanir():
-    import ltfj_sayfa as s
-    rapor = {"tip": "METAR", "duzeltme": None, "zaman": None, "metin": o.NORMAL, "icao": "LTFJ"}
-    kart = s._kart(rapor)
-    assert RENK_ETIKETI in kart
+def test_ltfj_sayfa_RENK_KODUNU_GOSTERMIYOR():
+    """SÖZLEŞME TERSİNE ÇEVRİLDİ. Eskiden bu test sayfadaki renk
+    rozetinin Telegram ile AYNI etiketi kullandığını doğruluyordu.
+    Artık sayfa o ölçeği hiç göstermiyor: BLU/WHT/GRN/YLO/AMB/RED bota
+    özgü bir ciddiyet ölçeğiydi ve gösterildiği her yerde "resmî bir
+    ICAO CAT kategorisi değildir" diye kendini yalanlamak zorundaydı.
+    Sayfanın durum göstergesi artık VFR/IFR (ICAO Annex 2, Tablo 3-1).
 
+    TELEGRAM TARAFI DEĞİŞMEDİ - orada ölçek çalışmaya devam ediyor.
+    Bu test ikisini birden kilitliyor: sayfada YOK, Telegram'da VAR."""
+    from datetime import datetime, timezone
+    from pathlib import Path as _P
+    import tempfile
+    from ltfj_sayfa import sayfa_yaz
+
+    metin = "METAR LTFJ 161250Z 06010KT 9999 SCT025 BKN040 18/12 Q1015 NOSIG"
+    with tempfile.TemporaryDirectory() as d:
+        hedef = _P(d) / "i.html"
+        sayfa_yaz([{"tip": "METAR", "icao": "LTFJ", "metin": metin,
+                    "zaman": datetime(2026, 9, 16, 12, 50, tzinfo=timezone.utc)}],
+                  [], hedef, {}, "", "")
+        sayfa = hedef.read_text(encoding="utf-8")
+
+    for kod in ("BLU", "WHT", "GRN", "YLO", "AMB"):
+        assert kod not in sayfa, f"renk kodu {kod} hala sayfada"
+    # "RED" bir alt dize olarak masum kelimelerde gecebilir; kendi
+    # basina bir rozet/kod olarak gecmemeli.
+    assert ">RED<" not in sayfa and "RED ·" not in sayfa
+    assert RENK_ETIKETI not in sayfa, "renk olceginin etiketi hala sayfada"
+
+    # Telegram tarafi AYNEN duruyor.
+    import ltfj_pist
+    assert ltfj_pist.renk_durumu({"gorus": 500, "tavan": 200})[0] in (
+        "BLU", "WHT", "GRN", "YLO", "AMB", "RED")
+    assert set(ltfj_pist.RENK_SIMGE) == {"BLU", "WHT", "GRN", "YLO", "AMB", "RED"}
 
 def test_panel_json_renk_etiketi_alanini_tasir():
     rapor = {"tip": "METAR", "duzeltme": None, "zaman": None, "metin": o.NORMAL}
