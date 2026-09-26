@@ -877,6 +877,16 @@ SABLON = """<!DOCTYPE html>
   .coz-pencere {{ font-size:var(--f1); color:var(--soluk);
                   font-family:var(--mono); }}
   .coz-grup:first-of-type {{ margin-top:4px; }}
+  /* Katlanır çözümleme başlığı - ham metin katlayıcısıyla AYNI dil. */
+  .cozum-kat > summary {{
+    cursor:pointer; list-style:none; font-size:var(--f1); font-weight:700;
+    letter-spacing:.09em; text-transform:uppercase; color:var(--soluk);
+    padding:2px 0;
+  }}
+  .cozum-kat > summary::-webkit-details-marker {{ display:none; }}
+  .cozum-kat > summary::after {{ content:" +"; font-weight:400; }}
+  .cozum-kat[open] > summary::after {{ content:" −"; }}
+  .cozum-kat > summary:hover {{ color:var(--metin); }}
   /* Ham metin artık KATLI: kaynak her zaman erişilebilir ama
      varsayılan görünüm değil. */
   .ham-kat {{ margin-top:14px; }}
@@ -1140,7 +1150,7 @@ SABLON = """<!DOCTYPE html>
   }}
   .notam-ilgili {{ font-size:var(--f2); color:var(--soluk); margin:2px 0 4px; }}
   .notam-kart {{
-    border-bottom:1px solid var(--cizgi); padding:12px 0;
+    border-bottom:1px solid var(--cizgi); padding:14px 0 15px;
   }}
   .notam-kart:last-child {{ border-bottom:none; }}
   .notam-ust {{ display:flex; align-items:center; gap:8px; flex-wrap:wrap;
@@ -1149,6 +1159,42 @@ SABLON = """<!DOCTYPE html>
   .notam-etiket {{
     padding:2px 8px; border-radius:999px; font-size:var(--f1); font-weight:600;
     background:var(--kod-bg); border:1px solid var(--cizgi); color:var(--soluk);
+  }}
+  /* Kategori (Runway/Taxiway/Apron...) NOTAM'in NE HAKKINDA oldugunu
+     soyluyor - oteki etiketlerden bir adim one cikiyor ama DURUM
+     RENGI ALMIYOR: "Runway" bir uyari degil, bir konu basligi. */
+  .notam-kategori {{
+    padding:2px 8px; border-radius:999px; font-size:var(--f1); font-weight:650;
+    border:1px solid var(--baglanti); color:var(--baglanti);
+  }}
+  /* KARTIN ASIL OGESI: duz dil cumlesi. Govde puntosunda ve ana metin
+     renginde - eskiden kucuk gri yazidaydi ve ustundeki cip duvari
+     onu bastiriyordu. */
+  .notam-cumle {{
+    font-size:var(--f3); line-height:1.45; color:var(--metin);
+    margin:2px 0 6px; text-wrap:pretty;
+  }}
+  .notam-kunye {{
+    font-family:var(--mono); font-size:var(--f1); color:var(--sessiz);
+  }}
+  .notam-etiketler {{ display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }}
+  .notam-ham > summary {{
+    cursor:pointer; list-style:none; font-size:var(--f1); font-weight:700;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--soluk);
+    margin-top:8px; padding:2px 0;
+  }}
+  .notam-ham > summary::-webkit-details-marker {{ display:none; }}
+  .notam-ham > summary::after {{ content:" +"; font-weight:400; }}
+  .notam-ham[open] > summary::after {{ content:" −"; }}
+  .notam-ham > summary:hover {{ color:var(--metin); }}
+  /* Otomatik ozet notu: KARTTA DEGIL BOLUM BASINDA, bir kez.
+     ADI ".notam-uyari" OLAMAZ - o ad sayfada dort yerde kullanilan
+     SARI BILGI KUTUSUNUN kurali; ayni adi verince bu sessiz dipnot
+     da sari cerceveli bir uyari olarak ciziliyordu. */
+  .notam-not {{
+    font-size:var(--f1); color:var(--soluk); margin:0 0 12px;
+    padding-left:10px; border-left:2px solid var(--cizgi);
+    line-height:1.5;
   }}
   .notam-durum {{ font-size:var(--f2); color:var(--soluk); margin-left:auto; }}
   /* Suresi dolmus / henuz baslamamis NOTAM'in durum etiketi - soluk griden
@@ -1167,14 +1213,12 @@ SABLON = """<!DOCTYPE html>
     display:inline-block;
   }}
   .notam-ok.acik {{ transform:rotate(90deg); }}
-  .notam-ozet {{ font-size:var(--f3); margin:4px 0; }}
   .notam-metin {{
     background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:8px;
     padding:10px; font-size:var(--f2); line-height:1.5; margin-top:6px;
     font-family:var(--mono); white-space:pre-wrap;
     word-break:break-word;
   }}
-  .notam-kaynak {{ font-size:var(--f1); color:var(--soluk); margin-top:6px; }}
   .notam-bos {{ color:var(--soluk); font-size:var(--f3); padding:8px 0; }}
   .notam-arama {{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }}
   .notam-arama input, .notam-arama select {{
@@ -1561,6 +1605,13 @@ SABLON = """<!DOCTYPE html>
   <div class="alt-bolum">
     <div class="basrow"><span class="tip">Aktif NOTAM'lar</span>
       <span class="zaman" id="notam-senkron-zamani"></span></div>
+    <!-- UYARI BURADA, BIR KEZ. Eskiden her kartin ozet cumlesinin
+         sonunda parantez icinde tekrarlaniyordu; 28 kartlik bir
+         listede 28 kez yaziliyor ve okunmasi gereken cumleyi
+         bastiriyordu. Bir kez soylenmesi yetiyor, kaybolmuyor. -->
+    <div class="notam-not">Düz metin özetler NOTAC tarafından otomatik
+      üretilir ve hata içerebilir — bağlayıcı olan, her kartın altındaki
+      ham NOTAM metnidir.</div>
     <div class="notam-arama" id="notam-aktif-filtre">
       <input type="text" id="notam-aktif-q" placeholder="Numara, pist, anahtar kelime…">
       <select id="notam-aktif-kategori"><option value="">Tüm kategoriler</option></select>
@@ -2067,39 +2118,63 @@ window.ltfjKalanSure = function (ms) {{
 
   var gecerlilik = window.ltfjNotamGecerlilik;
 
+  // NOTAC'IN SIRASI. Kart eskiden tersten diziliyordu: once numara,
+  // tip, Q kodu, kategori, BUTUN etiketler ve BUTUN etkilenen pistler
+  // tek bir cip duvarinda; duz dil ozeti ise altta, kucuk gri yazida
+  // ve her kartta tekrarlanan bir parantez uyarisiyla ("NOTAC otomatik
+  // ozeti - hata icerebilir") beraber. 28 kartta o uyari 28 kez
+  // yaziliyordu ve okunmasi gereken asil cumleyi bastiriyordu.
+  //
+  // Simdi: ust satir KIMLIK (numara + tip + kategori), sonra CUMLE -
+  // kartin en buyuk ogesi, cunku okunan o -, sonra sessiz bir kunye
+  // satiri (Q kodu, yururluk), en altta etiketler. Uyari kartta degil
+  // BOLUM BASINDA, bir kez (bkz. .notam-not).
   function notamKarti(n) {{
-    var etiketler = (n.tags || []).map(function (t) {{
+    var etiketler = (n.tags || []).concat(
+      (n.affected_elements || []).map(function (e) {{ return e.ref; }})
+    ).filter(Boolean).map(function (t) {{
       return '<span class="notam-etiket">' + esc(t) + "</span>";
     }}).join("");
     var kategori = n.category_etiketi
-      ? '<span class="notam-etiket">' + esc(n.category_etiketi) + "</span>" : "";
-    var pistler = (n.affected_elements || []).map(function (e) {{
-      return e.ref ? '<span class="notam-etiket">' + esc(e.ref) + "</span>" : "";
-    }}).join("");
-    var ozet = n.reading_short
-      ? '<div class="notam-ozet">' + esc(n.reading_short) +
-        ' <span style="color:var(--soluk); font-size:var(--f2);">(NOTAC otomatik özeti — hata içerebilir)</span></div>'
-      : "";
+      ? '<span class="notam-kategori">' + esc(n.category_etiketi) + "</span>" : "";
     var g = gecerlilik(n);
+    // Cumle YOKSA ham E) govdesine duseriz - bos birakmak NOTAM'i
+    // gorunmez kilmak demek olurdu.
+    var cumle = esc(n.reading_short || n.text || "");
     // Yesil nokta SADECE su anda gercekten yururlukte olan NOTAM'a konur.
     var aktifNoktasi = g.durum === "yururlukte"
       ? '<span class="notam-aktif-nokta" title="Şu anda yürürlükte"></span>' : "";
+    var kunye = [];
+    if (n.q_code) kunye.push("Q " + esc(n.q_code));
+    kunye.push(esc(kisaZaman(n.effective_start)) + " → " +
+               esc(kisaZaman(n.effective_end)));
     return (
       '<div class="notam-kart">' +
       '<div class="notam-ust">' + aktifNoktasi +
       '<span class="notam-no">' + esc(n.number || "—") + "</span>" +
-      window.ltfjNotamTipEtiketi(n) + window.ltfjNotamQEtiketi(n) +
-      kategori + etiketler + pistler +
+      window.ltfjNotamTipEtiketi(n) + kategori +
       '<span class="notam-durum' + (g.vurgula ? " notam-durum-gecmis" : "") + '">' +
       esc(g.etiket) + "</span></div>" +
-      ozet +
+      '<div class="notam-cumle">' + cumle + "</div>" +
       window.ltfjNotamIlgiliSatiri(n) +
-      "<details><summary style=\\"cursor:pointer; font-size:var(--f2); color:var(--soluk);\\">Ham NOTAM metni</summary>" +
+      '<div class="notam-kunye">' + kunye.join(" · ") + "</div>" +
+      (etiketler ? '<div class="notam-etiketler">' + etiketler + "</div>" : "") +
+      "<details class=\\"notam-ham\\"><summary>Ham NOTAM metni</summary>" +
       '<div class="notam-metin">' + esc(n.text || "") + "</div></details>" +
-      '<div class="notam-kaynak">Kaynak: NOTAC · geçerlilik: ' +
-      esc(n.effective_start || "—") + " → " + esc(n.effective_end || "—") + "</div>" +
       "</div>"
     );
+  }}
+
+  // Kunyedeki tarihler ISO damga olarak basiliyordu
+  // ("2026-08-28T07:11:00Z") - sayfadaki hicbir baska zaman o bicimde
+  // degil ve tek basina kunye satirini iki katina cikariyordu.
+  function kisaZaman(iso) {{
+    if (!iso) return "—";
+    var d = new Date(iso);
+    if (isNaN(d)) return iso;
+    var ik = function (x) {{ return (x < 10 ? "0" : "") + x; }};
+    return ik(d.getUTCDate()) + "." + ik(d.getUTCMonth() + 1) + " " +
+           ik(d.getUTCHours()) + ":" + ik(d.getUTCMinutes()) + "Z";
   }}
 
   // Aktif listeye giren kayitlar: NOTAC'in son senkronda dondurduklerinden
@@ -2617,7 +2692,7 @@ window.ltfjKalanSure = function (ms) {{
     ust.appendChild(no);
     kart.appendChild(ust);
     var metin = document.createElement("div");
-    metin.className = "notam-ozet";
+    metin.className = "notam-cumle";
     metin.textContent = n.reading_short || n.text || "";
     kart.appendChild(metin);
     return kart;
@@ -2722,7 +2797,7 @@ window.ltfjKalanSure = function (ms) {{
     kart.appendChild(ust);
 
     var metin = document.createElement("div");
-    metin.className = "notam-ozet";
+    metin.className = "notam-cumle";
     metin.textContent = veri.text || "";
     kart.appendChild(metin);
 
@@ -3999,7 +4074,16 @@ def _taf_cozum_html(metin: str) -> str:
     bolumler = cozumle.taf_bolumleri(metin)
     if not bolumler:
         return ""
-    parcalar = ['<div class="cozum"><div class="coz-bas">Tahmin</div>']
+    # TAF ÇÖZÜMLEMESİ VARSAYILAN OLARAK KATLI, METAR'INKİ AÇIK.
+    # İkisi aynı değil: METAR "şu an ne var" - bir bakışta okunur ve
+    # kısadır. TAF ise 24 saatlik bir tahmin, beş-altı değişim grubu,
+    # ölçülen 2000+ piksel. Açık bıraktığımızda sayfanın en uzun bloğu
+    # oluyor ve altındaki her şeyi (geçmiş eğilim, dipnot) ekrandan
+    # itiyordu. Kapalı başlıyor ama BAŞLIK KAÇ GRUP olduğunu söylüyor -
+    # yani katlanmış şeyin ne olduğu görünüyor, "aç da gör" değil.
+    grup_sayisi = len(bolumler)
+    parcalar = ['<details class="cozum cozum-kat"><summary>'
+                f'Çözümleme · {grup_sayisi} grup</summary>']
     for b in bolumler:
         parcalar.append(
             f'<div class="coz-grup"><span class="coz-etiket">'
@@ -4007,7 +4091,7 @@ def _taf_cozum_html(metin: str) -> str:
             + (f'<span class="coz-pencere">{html.escape(b["pencere"])}</span>'
                if b["pencere"] else "") + "</div>")
         parcalar.append(_cozum_satirlari_html(b["satirlar"]))
-    return "".join(parcalar) + "</div>"
+    return "".join(parcalar) + "</details>"
 
 
 def _pist_diyagrami_html(cozum: dict, metin: str, tercih: str | None) -> str:

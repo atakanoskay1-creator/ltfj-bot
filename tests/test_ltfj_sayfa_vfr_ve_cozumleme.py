@@ -212,3 +212,87 @@ def test_marka_tonu_ANLAMSAL_durum_renklerinden_ayirt_edilebilir(sayfa, koyu):
 def test_marka_tonu_grafik_cizgisinde_kullaniliyor(sayfa):
     grafik = sayfa.split("\n  .grafik {")[1].split("}")[0]
     assert "var(--marka)" in grafik
+
+
+# ===================================================== TAF katlanır
+
+def test_TAF_cozumlemesi_VARSAYILAN_KATLI(sayfa):
+    """24 saatlik tahmin beş-altı grup sürüyor; açık bırakıldığında
+    sayfanın en uzun bloğu oluyor ve altındaki her şeyi ekrandan
+    itiyordu."""
+    assert '<details class="cozum cozum-kat">' in sayfa
+    assert "<summary>Çözümleme · " in sayfa
+    # details'te "open" YOK - kapalı başlıyor.
+    kat = sayfa.split('<details class="cozum cozum-kat"')[1][:40]
+    assert "open" not in kat
+
+
+def test_TAF_katlisi_KAC_GRUP_oldugunu_soyluyor(sayfa):
+    """Katlanmış şeyin ne olduğu görünmeli; boş bir 'Çözümleme +'
+    başlığı 'aç da gör' demektir."""
+    import re as _re
+    m = _re.search(r"<summary>Çözümleme · (\d+) grup</summary>", sayfa)
+    assert m and int(m.group(1)) >= 2, "grup sayisi basliga yazilmiyor"
+
+
+def test_METAR_cozumlemesi_ACIK_kaliyor(sayfa):
+    """METAR 'şu an ne var' - kısa ve bir bakışta okunur; onu
+    katlamak asıl bilgiyi bir dokunuş arkasına saklardı."""
+    assert '<div class="cozum">' in sayfa
+
+
+# ===================================================== NOTAM kartı
+
+def test_notam_karti_CUMLEYI_one_cikariyor(sayfa):
+    """notac'ın sırası: kimlik satırı, sonra düz dil cümlesi kartın
+    en büyük öğesi olarak. Eskiden cümle küçük gri yazıdaydı ve
+    üstündeki çip duvarı onu bastırıyordu."""
+    js = sayfa.split("function notamKarti(n)")[1].split("function kisaZaman")[0]
+    assert '"notam-cumle"' in js
+    # Cumle, kimlik satirindan SONRA geliyor.
+    assert js.index('"notam-ust"') < js.index('"notam-cumle"')
+    # Etiketler cumleden SONRA.
+    assert js.index('"notam-cumle"') < js.index('"notam-etiketler"')
+
+
+def test_notam_ozet_uyarisi_KARTTA_TEKRARLANMIYOR(sayfa):
+    """28 kartlık bir listede kart başına bir uyarı = 28 tekrar.
+    Uyarı bölüm başında, bir kez."""
+    assert sayfa.count("NOTAC otomatik özeti") == 0
+    assert sayfa.count('class="notam-not"') == 1
+    assert "bağlayıcı olan, her kartın altındaki" in sayfa
+
+
+def test_notam_not_SARI_UYARI_KUTUSU_bicimini_almiyor(sayfa):
+    """AD ÇAKIŞMASI: ilk yazımda bu dipnota '.notam-uyari' demiştim -
+    o ad sayfada dört yerde kullanılan sarı bilgi kutusunun kuralı ve
+    sessiz dipnotum ekranda sarı çerçeveli bir uyarı olarak çiziliyordu.
+    Tarayıcıda yakalandı, testte kilitleniyor."""
+    assert '.notam-not {' in sayfa
+    not_kural = sayfa.split("\n  .notam-not {")[1].split("}")[0]
+    assert "var(--cizgi)" in not_kural
+    assert "dikkat" not in not_kural and "uyari" not in not_kural
+
+
+def test_notam_kunyesinde_ISO_damga_YOK(sayfa):
+    """Geçerlilik tarihleri ISO damga olarak basılıyordu
+    ('2026-08-28T07:11:00Z') - sayfadaki hiçbir başka zaman o biçimde
+    değil ve künye satırını tek başına iki katına çıkarıyordu."""
+    js = sayfa.split("function notamKarti(n)")[1].split("function kisaZaman")[0]
+    assert "kisaZaman(n.effective_start)" in js
+    assert "esc(n.effective_start" not in js
+
+
+def test_notam_Q_kodu_CIP_degil_KUNYE_satirinda(sayfa):
+    """Q kodu bir kimlik alanı, bir rozet değil - üst satırdaki çip
+    duvarını büyütüyordu."""
+    js = sayfa.split("function notamKarti(n)")[1].split("function kisaZaman")[0]
+    assert "ltfjNotamQEtiketi" not in js
+    assert '"Q " + esc(n.q_code)' in js
+
+
+def test_notam_cumle_YOKSA_ham_govdeye_dusuyor(sayfa):
+    """reading_short gelmezse kart boş kalmamalı - boş kart, NOTAM'ı
+    görünmez kılmak demek."""
+    js = sayfa.split("function notamKarti(n)")[1].split("function kisaZaman")[0]
+    assert "n.reading_short || n.text" in js
