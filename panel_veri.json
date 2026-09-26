@@ -1,14 +1,14 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-26T12:45:52+00:00",
+ "uretildi": "2026-09-26T13:01:26+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-26T12:20:00+00:00",
-  "metin": "METAR LTFJ 261220Z 04018KT CAVOK 24/12 Q1016 NOSIG RMK RWY24R 03015KT RWY06R 05017KT RWY24L 04016KT",
+  "zaman": "2026-09-26T12:50:00+00:00",
+  "metin": "METAR LTFJ 261250Z 04016KT CAVOK 24/13 Q1017 NOSIG RMK RWY24R 04016KT RWY06R 03019KT RWY24L 04017KT",
   "ruzgar": {
    "yon": 40,
-   "hiz": 18,
+   "hiz": 16,
    "hamle": null,
    "degisken": null
   },
@@ -17,8 +17,8 @@
   "tavan": null,
   "hava": [],
   "sicaklik": 24,
-  "cig_noktasi": 12,
-  "qnh": 1016,
+  "cig_noktasi": 13,
+  "qnh": 1017,
   "nosig": true,
   "renk": [
    "BLU",
@@ -30,8 +30,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 16.4,
-    "yan": 7.3,
+    "bas": 14.6,
+    "yan": 6.5,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -43,8 +43,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 16.5,
-    "yan": 4.1,
+    "bas": 15.7,
+    "yan": 10.7,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -56,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -14.6,
-    "yan": 6.5,
+    "bas": -15.5,
+    "yan": 6.9,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -69,8 +69,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -12.4,
-    "yan": 8.4,
+    "bas": -14.6,
+    "yan": 6.5,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -90,21 +90,13 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 040° 18kt · görüş CAVOK · 24°C · QNH 1016"
+  "ozet": "Rüzgâr 040° 16kt · görüş CAVOK · 24°C · QNH 1017"
  },
  "taf": {
   "zaman": "2026-09-26T10:40:00+00:00",
   "metin": "TAF LTFJ 261040Z 2612/2712 05015KT CAVOK BECMG 2619/2622 SCT035 BKN100 PROB30 TEMPO 2622/2702 -SHRA BKN030 TEMPO 2704/2708 -SHRA BKN030 BKN080 PROB40 TEMPO 2708/2712 4000 SHRA FEW020CB BKN025"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-20T15:50:00+00:00",
-   "ruzgar_hiz": 12,
-   "tavan": null,
-   "qnh": 1021,
-   "sicaklik": 22,
-   "cig_noktasi": 16
-  },
   {
    "zaman": "2026-09-20T16:20:00+00:00",
    "ruzgar_hiz": 14,
@@ -2630,6 +2622,15 @@
    "qnh": 1016,
    "sicaklik": 24,
    "cig_noktasi": 12
+  },
+  {
+   "zaman": "2026-09-26T12:50:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 16,
+   "tavan": null,
+   "qnh": 1017,
+   "sicaklik": 24,
+   "cig_noktasi": 13
   }
  ]
 }
