@@ -155,8 +155,15 @@ def test_RENK_SIMGE_TELEGRAM_tarafinda_KALIYOR():
 
 def test_ikonlar_currentColor_kullaniyor(tmp_path):
     """Sabit renk verilseydi ikon koyu temada ya da uyarı renginde
-    yanlış çizilirdi."""
-    css = _sayfa(tmp_path).split(".ikon {")[1].split("}")[0]
+    yanlış çizilirdi.
+
+    KURAL BULUCUSU DEĞİŞTİ: eskiden ``split(".ikon {")[1]`` idi ve bu
+    dosyadaki İLK ".ikon {" geçişini alıyordu - yani taban kuralından
+    önce gelen HERHANGİ bir türev kural (".header-butonlar .ikon {")
+    testi sessizce yanlış gövdeye bakmaya başlatıyordu. Taban kural
+    iki boşluk girintili ve satır başındadır; bulucu artık onu
+    arıyor."""
+    css = _sayfa(tmp_path).split("\n  .ikon {")[1].split("}")[0]
     assert "stroke:currentColor" in css
 
 

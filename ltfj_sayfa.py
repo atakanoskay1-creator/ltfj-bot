@@ -224,8 +224,13 @@ SABLON = """<!DOCTYPE html>
     /* #f8fafc -> #eef2f7: kartlar (beyaz) zeminden daha net
        ayrissin. Kontrast metin/zemin oranlarini DUSURMEZ -
        metin kart uzerinde duruyor, zemin degismedi. */
-    --bg:#eef2f7; --panel:#e6ecf3; --kart:#ffffff; --etkilesim:#e6ecf3;
-    --cizgi:#e2e8f0; --kod-bg:#f1f5f9;
+    /* DUZ TUVAL. Onceki sema gri zemin + beyaz kart idi; derinlik
+       yuzey basamagindan geliyordu. Yogun veri arayuzunde o basamak
+       her bloga bir kutu daha ekliyor. Artik tuval BEYAZ, ayrim TEK
+       PIKSELLIK CIZGIDEN ve bosluktan geliyor; hiyerarsiyi kutu
+       degil TIPOGRAFI tasiyor. */
+    --bg:#f9fafc; --panel:#f1f4f9; --kart:#ffffff; --etkilesim:#eef2f7;
+    --cizgi:#e4e9f0; --kod-bg:#f4f7fa;
     /* metin */
     --metin:#0f172a; --soluk:#64748b; --sessiz:#94a3b8; --vurgu:#0f172a;
     /* anlamsal - durum anlatir */
@@ -251,8 +256,15 @@ SABLON = """<!DOCTYPE html>
        Koyu temada golge yok - siyah uzerine golge gorunmez ve
        parlaklik eklemek gece kullanimini bozardi; orada derinlik
        yuzey basamaklarindan (--bg < --panel < --kart) geliyor. */
-    --golge:0 1px 2px rgba(15,23,42,.04), 0 2px 8px rgba(15,23,42,.05);
-    --golge-yukari:0 2px 4px rgba(15,23,42,.05), 0 6px 20px rgba(15,23,42,.07);
+    /* Kart golgesi TEK KATMANA indi. Onceden iki katmanliydi (2px +
+       8px bulanma) ve kartlara kagit hissi veriyordu. Yuzey adimi da
+       kuculunce (bkz. --bg) o golge kartin ASIL ayirici ogesi olurdu;
+       oysa ayrimi --cizgi tasimali. Kalan 1px yalnizca kenarligi
+       oturtuyor.
+       --golge-yukari SILINDI: tek tuketicisi ".su-an .hero" idi, hero
+       artik kart degil. Kullanilmayan token tasarim sisteminde
+       "kullanilabilir" gibi durup yanlis yere cagrilir. */
+    --golge:0 1px 2px rgba(15,23,42,.04);
     --iyi:#166534;    --iyi-zemin:#22c55e26;    --iyi-dolu:#22c55e;
     --dikkat:#b45309; --dikkat-zemin:#f59e0b26; --dikkat-dolu:#f59e0b;
     --uyari:#ef4444;  --uyari-zemin:#ef444426;  --uyari-metin:#b91c1c;
@@ -272,33 +284,40 @@ SABLON = """<!DOCTYPE html>
     --f4:1.125rem;   /* 18px - bolum basligi, h1               */
     --f5:1.375rem;   /* 22px - vurgu (dar ekranda hero)        */
     --f6:1.75rem;    /* 28px - hero                            */
+    /* 7. ADIM SADECE DURUM KODU ICIN. Sayfada tek bir birincil
+       metrik var (BLU/WHT/.../RED) ve olcegin tepesinde hero
+       sayilariyla AYNI puntoda duruyordu - yani "en onemli" ile
+       "onemli" ayni agirlikta. Bir adim ustu o farki geri veriyor. */
+    --f7:2.375rem;   /* 38px - durum kodu (tek birincil metrik) */
     /* olcek */
-    --r1:8px; --r2:12px; --r3:16px;
+    --r1:6px; --r2:10px; --r3:14px;
   }}
   /* Koyu tema iki yerde tanimli olmak ZORUNDA: biri sistem tercihi, oteki
      elle secim (data-theme). Ikisi ayni listeyi tasir - listeyi TOKEN'a
      indirgemenin asil kazanci da bu: artik tek satir kopyalaniyor. */
   @media (prefers-color-scheme: dark) {{
     :root:not([data-theme="light"]) {{
-      --bg:#0b1220; --panel:#0f1729; --kart:#111a2e; --etkilesim:#1e2a44;
-      --cizgi:#1e2a44; --kod-bg:#0a1120;
+      --bg:#080d16; --panel:#0d1421; --kart:#0e1524; --etkilesim:#1a2334;
+      --cizgi:#1b2436; --kod-bg:#0b111d;
       --metin:#e8eefc; --soluk:#8fa0bf; --sessiz:#64748b; --vurgu:#e8eefc;
       --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
       --bilgi:#60a5fa;
       --marka:#b39ddb;
       --fab-zemin:#1e2a44; --fab-metin:#e8eefc; --fab-cizgi:#31405f;
-      --golge:none; --golge-yukari:none;
+      /* Koyu temada golge GORUNMEZ; ayrimi yuzey adimi tasiyor. */
+      --golge:none;
     }}
   }}
   :root[data-theme="dark"] {{
-    --bg:#0b1220; --panel:#0f1729; --kart:#111a2e; --etkilesim:#1e2a44;
-    --cizgi:#1e2a44; --kod-bg:#0a1120;
+    --bg:#080d16; --panel:#0d1421; --kart:#0e1524; --etkilesim:#1a2334;
+    --cizgi:#1b2436; --kod-bg:#0b111d;
     --metin:#e8eefc; --soluk:#8fa0bf; --sessiz:#64748b; --vurgu:#e8eefc;
     --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
     --bilgi:#60a5fa;
     --marka:#b39ddb;
     --fab-zemin:#1e2a44; --fab-metin:#e8eefc; --fab-cizgi:#31405f;
-    --golge:none; --golge-yukari:none;
+    /* Koyu temada golge GORUNMEZ; ayrimi yuzey adimi tasiyor. */
+    --golge:none;
   }}
   /* Hareket azaltma tercihi: isletim sisteminde acan kullanici icin tum
      gecis ve animasyonlar durur. Sayfa islevini KAYBETMEZ - donen ok yine
@@ -321,11 +340,17 @@ SABLON = """<!DOCTYPE html>
     font:var(--f3)/1.62 "IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,
          "Segoe UI",Roboto,sans-serif;
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
-    padding:24px 16px 48px;
+    /* Rakamlar SABIT GENISLIKTE. Eskiden bu ozellik dokuz ayri
+       kuralda tek tek veriliyordu; aradaki her oge (pist satirlari,
+       tahmin tablosu, NOTAM tarihleri) oransal rakam kullaniyor ve
+       degerler degisince sutun yatayda oynuyordu. Kokten verince
+       sayfadaki her sayi hizali. */
+    font-variant-numeric:tabular-nums;
+    padding:20px 16px 40px;
   }}
   .sar {{ max-width:680px; margin:0 auto; }}
   header {{
-    margin-bottom:20px; display:flex; align-items:flex-start;
+    margin-bottom:2px; display:flex; align-items:center;
     justify-content:space-between; gap:12px;
   }}
   .header-metin {{ min-width:0; }}
@@ -344,20 +369,32 @@ SABLON = """<!DOCTYPE html>
   button.yenile:disabled {{ opacity:.6; cursor:default; }}
   .header-butonlar {{ display:flex; gap:8px; flex-shrink:0; }}
   @media (max-width:480px) {{
-    header {{ flex-wrap:wrap; }}
-    .header-metin {{ flex:1 1 100%; }}
-    /* VFR SEKMESININ OLUGUNU AYIR. Sekme position:fixed, sag kenarda
-       ve 29px genis; bu kirilimin altinda dugmeler ikinci satira inip
-       tam sekmenin dikey bandina (96-144px) denk geliyordu. Olculdu:
-       390px'te "Yenile"nin sag 13px'i sekmenin altinda kaliyordu -
-       yani dugmenin o seridine basan parmak Yenile'yi degil VFR
-       panelini aciyordu. 481px ve ustunde dugmeler ust satirda kaldigi
-       icin (y=24-63) dikey ortusme zaten yok; bu yuzden dolgu SADECE
-       burada. */
-    .header-butonlar {{
-      flex:1 1 100%; justify-content:flex-end; padding-right:34px;
+    /* METIN GIZLENIR, IKON KALIR. Eskiden dugmeler ikinci satira
+       iniyordu ve bu iki sey demekti: (1) birincil metrigin ustunde
+       tam bir satiri iki EYLEM yiyordu, (2) o satir tam olarak VFR
+       sekmesinin dikey bandina (y=96-144) denk geldigi icin sag ucuna
+       basan parmak Yenile'yi degil VFR panelini aciyordu - eski cozum
+       34px dolgu koymakti. Ikona inince ikisi de kendiliginden bitti:
+       dugmeler basligin YANINDA (y=20-56), sekme bandinin ustunde.
+       Erisilebilirlik kaybi yok - metin GORSEL olarak gizleniyor,
+       agactan silinmiyor (bkz. .btn-metin). */
+    /* Metin GORSEL olarak gizleniyor, agactan SILINMIYOR: dugmenin
+       erisilebilir adi hala "Yenile" / "Bildirimler" (ekran okuyucu,
+       ses komutu, otomasyon). display:none olsaydi ad kaybolurdu. */
+    .btn-metin {{
+      position:absolute; width:1px; height:1px; overflow:hidden;
+      clip:rect(0 0 0 0); white-space:nowrap;
     }}
-    button.yenile {{ padding:8px 10px; font-size:var(--f2); }}
+    /* IKON DUGMESI DOKUNMA HEDEFI. Yalnizca dolgu verilince olculen
+       kutu 33x41 cikiyordu - WCAG 2.2 AA tabanini (24x24) geciyor ama
+       tek elle, yururken, eldivenle kullanilan bir ekranda dar. 44x44
+       acikca zorlaniyor; ikon ortada kaliyor. */
+    button.yenile {{
+      padding:9px; font-size:var(--f2);
+      min-width:44px; min-height:44px;
+      display:inline-flex; align-items:center; justify-content:center;
+    }}
+    button.yenile .ikon {{ margin-right:0; }}
   }}
   /* YAPISKAN UST = ozet serit + sekme cubugu, TEK sticky blok.
      Ikisini ayri ayri yapiskan yapmak, sekme cubuguna "serit ne kadar
@@ -369,8 +406,7 @@ SABLON = """<!DOCTYPE html>
   /* SU AN blogu - hero'nun yeni evi. Kart icinde degil, sayfanin
      tepesinde; kenarlik kartlarla ayni dilde ama baslik satiri yok
      (sekme cubugu ve baslik zaten baglami veriyor). */
-  .su-an {{ margin:10px 0 0; }}
-  .su-an .hero {{ margin:0; }}
+  .su-an {{ margin:0; }}
   /* Serit, hero gorunurken GIZLI. .js sinifi <head>'de ekleniyor, yani
      JS varsa serit hic cizilmeden basliyor - acilista yanip sonme yok.
      JS yoksa kural hic uygulanmaz ve ikisi de gorunur kalir. */
@@ -505,7 +541,47 @@ SABLON = """<!DOCTYPE html>
   h1 {{ display:flex; align-items:baseline; gap:9px; flex-wrap:wrap; }}
   .ust-kod {{ font-weight:700; letter-spacing:.03em; }}
   .ust-ad {{ font-size:.72em; font-weight:500; color:var(--soluk); }}
-  .ust-durum-sat {{ display:flex; align-items:center; gap:12px; margin-top:5px; }}
+  /* ---- DURUM BANDI ----
+     Ust-sol bolge: goz once buraya gider, bu yuzden sayfanin TEK
+     birincil metrigi burada. Ustte ve altta tek piksel cizgi var,
+     kutu YOK - agirligi punto tasiyor. */
+  .durum-bandi {{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px; flex-wrap:wrap;
+    padding:14px 0 13px; margin:0 0 2px;
+    border-top:1px solid var(--cizgi); border-bottom:1px solid var(--cizgi);
+  }}
+  .durum-kod-blok {{ display:flex; align-items:center; gap:11px; min-width:0; }}
+  /* Renk KARE olarak duruyor, harflerin ARKASINDA degil: beyaz-uzeri-renk
+     rozet AMB/YLO gibi acik tonlarda kontrast sinirinda kaliyordu ve
+     "kodu oku" ile "rengi gor" ayni piksele yigilmisti. Ayirinca kod
+     metni --metin tonunda (yani her temada AA'nin cok ustunde) kaliyor,
+     renk de kendi isini bozulmadan yapiyor. */
+  .durum-fiti {{
+    width:14px; height:34px; border-radius:3px; flex:0 0 auto;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);
+  }}
+  .durum-kod {{
+    font-size:var(--f7); font-weight:700; line-height:1;
+    letter-spacing:-.01em; color:var(--metin);
+  }}
+  .durum-ad {{ display:flex; flex-direction:column; gap:2px; min-width:0; }}
+  .durum-ad-metin {{
+    font-size:var(--f3); font-weight:600; color:var(--metin); line-height:1.2;
+  }}
+  /* Resmi CAT kategorisi SANILMASIN diye kaynak etiketi kodun DIBINDE,
+     dip notta degil (bkz. ltfj_pist.RENK_ETIKETI). */
+  .durum-kaynak {{
+    font-size:var(--f1); color:var(--soluk); letter-spacing:.02em;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }}
+  .durum-sag {{
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    margin-left:auto;
+  }}
+  @media (max-width:480px) {{
+    .durum-sag {{ flex-basis:100%; margin-left:0; }}
+  }}
   .ust-durum {{
     display:inline-flex; align-items:center; gap:6px;
     font-size:var(--f1); font-weight:700; letter-spacing:.09em; color:var(--soluk);
@@ -526,10 +602,12 @@ SABLON = """<!DOCTYPE html>
   .ust-saat:empty {{ display:none; }}
 
   /* ---- VERI TAZELIGI SERIDI ---- */
+  /* Kutu KALKTI: bu satir hero'nun dipnotu, kendi basina bir blok
+     degil. Panel zemini + kenarlik onu hero ile ayni agirliga
+     cikariyordu. */
   .veri-serit {{
-    display:flex; flex-wrap:wrap; gap:6px 16px; margin:0 0 16px;
-    padding:8px 12px; background:var(--panel); border:1px solid var(--cizgi);
-    border-radius:var(--r1); font-family:var(--mono); font-size:var(--f1);
+    display:flex; flex-wrap:wrap; gap:6px 16px; margin:0 0 14px;
+    padding:0; font-family:var(--mono); font-size:var(--f1);
     color:var(--sessiz);
   }}
   .veri-oge {{ display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }}
@@ -545,13 +623,30 @@ SABLON = """<!DOCTYPE html>
   /* ---- MEVCUT KOSULLAR (hero) ----
      Telefonda 2x2, >=560px'te tek sirada dort. 1px bosluklar arka plan
      renginden geliyor - ayrik kenarlik yerine tek izgara cizgisi. */
+  /* Kutulu izgara yerine HAIRLINE SERIT. Onceki bicimde dort olcunun
+     her biri kendi kartindaydi: 1 dis kenarlik + 3 ic ayirici + kose
+     yaricapi + golge. Gorsel yuk kutulardan geliyordu, sayidan degil.
+     Simdi kutu yok - ayirici tek dikey cizgi, olcu dogrudan tuvalde. */
   .hero {{
-    display:grid; grid-template-columns:repeat(2,1fr); gap:1px;
-    background:var(--cizgi); border:1px solid var(--cizgi);
-    border-radius:var(--r1); overflow:hidden; margin:10px 0 12px;
+    display:grid; grid-template-columns:repeat(2,1fr);
+    margin:0 0 14px; border-bottom:1px solid var(--cizgi);
   }}
   @media (min-width:560px) {{ .hero {{ grid-template-columns:repeat(4,1fr); }} }}
-  .hero-oge {{ background:var(--kart); padding:10px 12px 8px; color:var(--soluk); }}
+  .hero-oge {{
+    background:transparent; padding:13px 14px 12px; color:var(--soluk);
+    border-right:1px solid var(--cizgi);
+  }}
+  /* Sag kenarin disarida cizgi birakmamasi icin: telefonda 2 sutun
+     (2. ve 4. hucre), genis ekranda 4 sutun (4. hucre). */
+  .hero-oge:nth-child(2n) {{ border-right:0; }}
+  @media (min-width:560px) {{
+    .hero-oge:nth-child(2n) {{ border-right:1px solid var(--cizgi); }}
+    .hero-oge:nth-child(4n) {{ border-right:0; }}
+  }}
+  /* Telefonda iki satir olusuyor - ust satirin altina ayirici. */
+  @media (max-width:559px) {{
+    .hero-oge:nth-child(-n+2) {{ border-bottom:1px solid var(--cizgi); }}
+  }}
   /* Ö6: 9.9px + --sessiz = ACIK temada 2.56:1, koyuda 3.64:1 - ikisi de
      AA'nin (4.5) altinda. Bunlar sayfadaki EN BUYUK dort sayinin ne
      oldugunu soyleyen etiketler; gunes altinda rakam gorunup etiketi
@@ -634,11 +729,14 @@ SABLON = """<!DOCTYPE html>
   /* PIST DIYAGRAMI - pist ekseni + ruzgar oku + bilesen okumasi.
      Renkler NOTR: bu bir durum gostergesi degil, bir GEOMETRI. Tek
      istisna kuyruk limiti asimi, o da metinle birlikte. */
+  /* IC ICE KUTU KALDIRILDI. Diyagram zaten bir kartin icinde
+     duruyordu; kendi zemini + kenarligi + yaricapi ikinci bir cerceve
+     uretiyordu (kart -> kutu -> SVG). Ayirmak icin tek ust/alt cizgi
+     yeter; kazanilan yatay 24px dar ekranda dogrudan diyagrama gidiyor. */
   .pist-diyagram {{
     display:flex; align-items:center; gap:14px; flex-wrap:wrap;
-    margin:12px 0; padding:10px 12px;
-    background:var(--kod-bg); border:1px solid var(--cizgi);
-    border-radius:var(--r2);
+    margin:14px 0; padding:12px 0;
+    border-top:1px solid var(--cizgi); border-bottom:1px solid var(--cizgi);
   }}
   /* 1:1 CIZILIYOR. Onceden viewBox 180 birim 132px'e sigdiriliyordu
      (olcek .73) ve 11 birimlik uc adlari ekranda 8.1px'e dusuyordu -
@@ -709,12 +807,10 @@ SABLON = """<!DOCTYPE html>
   .js[data-sekme="lvo"]        #panel-lvo,
   .js[data-sekme="notam"]      #panel-notam {{ display:block; }}
   .kart {{
-    background:var(--kart); border:1px solid var(--cizgi); border-radius:14px;
-    padding:18px; margin-bottom:16px; box-shadow:var(--golge);
+    background:var(--kart); border:1px solid var(--cizgi);
+    border-radius:var(--r2); padding:18px; margin-bottom:14px;
+    box-shadow:var(--golge);
   }}
-  /* "SU AN" blogu sayfanin en onemli ogesi - yuzey hiyerarsisinde de
-     en ustte dursun. */
-  .su-an .hero {{ box-shadow:var(--golge-yukari); }}
   .basrow {{ display:flex; align-items:center; gap:10px; flex-wrap:wrap;
              margin-bottom:12px; }}
   .tip {{ font-weight:650; font-size:var(--f4); }}
@@ -753,7 +849,18 @@ SABLON = """<!DOCTYPE html>
   footer {{
     color:var(--soluk); font-size:var(--f2); margin-top:28px;
     text-align:left; text-wrap:pretty;
+    border-top:1px solid var(--cizgi); padding-top:14px;
   }}
+  .kapsam > summary {{
+    cursor:pointer; list-style:none; font-size:var(--f1); font-weight:700;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--soluk);
+    padding:4px 0;
+  }}
+  .kapsam > summary::-webkit-details-marker {{ display:none; }}
+  .kapsam > summary::after {{ content:" +"; font-weight:400; }}
+  .kapsam[open] > summary::after {{ content:" −"; }}
+  .kapsam > summary:hover {{ color:var(--metin); }}
+  .kapsam-govde {{ margin-top:8px; }}
   a {{ color:inherit; }}
   .panel-link {{
     display:inline-block; margin-top:12px; padding:7px 14px; border-radius:8px;
@@ -1259,38 +1366,42 @@ SABLON = """<!DOCTYPE html>
 <header>
   <div class="header-metin">
     <h1><span class="ust-kod">{icao}</span><span class="ust-ad">İstanbul Sabiha Gökçen</span></h1>
-    <!-- Durum gostergesi SUNUCUDA degil ISTEMCIDE hesaplanir: sayfa
-         saatlerce acik kalabiliyor ve sunucuda yazilan "canli" etiketi
-         zamanla yalan olurdu. data-gozlem en yeni METAR/SPECI zamani. -->
-    <div class="ust-durum-sat">
-      <span class="ust-durum" id="ust-durum" data-gozlem="{son_gozlem_iso}"
-            role="status"></span>
-      <span class="ust-saat" id="ust-saat" title="Eşgüdümlü Evrensel Zaman"></span>
-      <!-- Gun/gece: sis penceresi gece-sabah oldugu icin bu BILGI,
-           dekor degil. Metni JS dolduruyor (sayfa acik kalabilir). -->
-      <span class="ust-faz" id="ust-faz"></span>
-    </div>
   </div>
   <div class="header-butonlar">
     <!-- Ikon ve metin AYRI: JS yalnizca metni degistirir. textContent
          dugmenin tamamini ezseydi SVG ikon da silinirdi. -->
     <button type="button" class="yenile" id="bildirim-izin-btn" hidden>
-      <span id="bildirim-ikon">{ikon_zil}</span><span id="bildirim-metin">Bildirimler</span></button>
+      <span id="bildirim-ikon">{ikon_zil}</span><span class="btn-metin"
+      id="bildirim-metin">Bildirimler</span></button>
     <button type="button" class="yenile" id="sayfa-yenile-btn">
-      {ikon_yenile}Yenile</button>
+      {ikon_yenile}<span class="btn-metin">Yenile</span></button>
   </div>
 </header>
+<!-- DURUM BANDI - sayfanin TEK birincil metrigi.
+     Renk kodu (BLU..RED) eskiden iki yerde, ikisi de ikincil boyutta
+     duruyordu: METAR kartinin icinde bir rozet ve yapiskan seritte
+     kucuk bir cip. Yani "su an durum ne?" sorusunun cevabi sayfanin
+     en buyuk ogesi DEGILDI; en buyuk dort oge ona GIREN olculerdi.
+     Artik kod tepede ve olcegin en ust adiminda; olculer bir adim
+     altta. Renk TEK TASIYICI DEGIL - kodun harfleri ve yanindaki
+     Turkce karsiligi ayni bilgiyi metinle de veriyor.
+     Tazelik gostergesi SUNUCUDA degil ISTEMCIDE hesaplanir: sayfa
+     saatlerce acik kalabiliyor ve sunucuda yazilan "canli" etiketi
+     zamanla yalan olurdu. data-gozlem en yeni METAR/SPECI zamani. -->
+<div class="durum-bandi">
+{durum_kodu_html}
+  <div class="durum-sag">
+    <span class="ust-durum" id="ust-durum" data-gozlem="{son_gozlem_iso}"
+          role="status"></span>
+    <span class="ust-saat" id="ust-saat" title="Eşgüdümlü Evrensel Zaman"></span>
+    <!-- Gun/gece: sis penceresi gece-sabah oldugu icin bu BILGI,
+         dekor degil. Metni JS dolduruyor (sayfa acik kalabilir). -->
+    <span class="ust-faz" id="ust-faz"></span>
+  </div>
+</div>
 <!-- Veri tazeligi seridi: hangi kaynak ne kadar eski. Brief'in istedigi
      "DATA STATUS" bolumunun sikistirilmis hali - dekoratif bir "LIVE"
      etiketi yerine OLCULEN yaslar. -->
-<div class="veri-serit">
-  <span class="veri-oge"><b>METAR</b><time id="veri-metar"
-        data-zaman="{son_gozlem_iso}"></time></span>
-  <span class="veri-oge"><b>TAF</b><time id="veri-taf"
-        data-zaman="{son_taf_iso}"></time></span>
-  <span class="veri-oge"><b>NOTAM</b><span id="veri-notam">—</span></span>
-  <span class="veri-oge veri-kaynak">MGM · sayfa {guncelleme}</span>
-</div>
 <!-- SU AN blogu: dort ana olcu, sayfanin tepesinde ve KART DISINDA.
      Ayni dort olcu eskiden hem burada (serit) hem de METAR kartinin
      icinde (hero) vardi - ikisi ayni ekranda, farkli bicimlerde. Artik
@@ -1300,6 +1411,14 @@ SABLON = """<!DOCTYPE html>
      (asagidaki IntersectionObserver). JS yoksa ikisi de gorunur -
      eski davranis, bilgi kaybi yok. -->
 <div class="su-an" id="su-an">{hero_html}</div>
+<div class="veri-serit">
+  <span class="veri-oge"><b>METAR</b><time id="veri-metar"
+        data-zaman="{son_gozlem_iso}"></time></span>
+  <span class="veri-oge"><b>TAF</b><time id="veri-taf"
+        data-zaman="{son_taf_iso}"></time></span>
+  <span class="veri-oge"><b>NOTAM</b><span id="veri-notam">—</span></span>
+  <span class="veri-oge veri-kaynak">MGM · sayfa {guncelleme}</span>
+</div>
 <div class="yapiskan-ust">
 {ozet_serit_html}
 {sekme_cubugu_html}
@@ -1481,6 +1600,14 @@ SABLON = """<!DOCTYPE html>
 
 {vfr_html}
 <footer>
+  <!-- Uyari metni SILINMEDI, KATLANDI. Her ekranda acik duran 8 satirlik
+       gri blok sayfanin en uzun tek metniydi ve ilk okumadan sonra sifir
+       bilgi tasiyordu; ama iceriden biri "bu resmi mi?" diye sordugunda
+       elde olmasi sart. details ile ikisi de saglaniyor - ozet satiri
+       kapsamin VAR oldugunu soyluyor, ayrinti bir dokunus uzakta. -->
+  <details class="kapsam">
+  <summary>Kapsam ve sınırlar</summary>
+  <div class="kapsam-govde">
   Bu sayfa otomatik üretilir. Operasyonel kullanım için resmî kaynaklara başvurun.
   Renk rozetleri (BLU/WHT/GRN/YLO/AMB/RED) resmî bir ICAO CAT I/II/III kategorisi
   değil, bu botun kendi durum seviyesidir. "Meteorolojik tercih" bir ATC pist
@@ -1489,6 +1616,8 @@ SABLON = """<!DOCTYPE html>
   (48 saat) bir not panosudur; resmî bir bilgi kaynağı değildir. VFR sekmesi
   son METAR/SPECI'nin görüş/tavan değerlerini ICAO Annex 2 eşikleriyle
   karşılaştıran bilgilendirici bir göstergedir; resmî VFR/IFR tespiti değildir.
+  </div>
+  </details>
 </footer>
 </div>
 <script>
@@ -4236,6 +4365,31 @@ def _sekme_cubugu_html(sis_yuzde: str = "") -> str:
             'aria-label="Sayfa bölümleri">' + "".join(parcalar) + "</nav>")
 
 
+def _durum_kodu_html(notlar: dict | None) -> str:
+    """Sayfanın tepesindeki renk kodu bloğu (BLU/WHT/GRN/YLO/AMB/RED).
+
+    Kod ZATEN iki yerde vardı - METAR kartının rozeti ve yapışkan
+    şeridin çipi - ama ikisi de ikincil boyuttaydı. Bu üçüncü bir
+    hesap DEĞİL: aynı ``havacilik_notlari`` çıktısını kullanır, yani
+    üç gösterim birbirinden sessizce sapamaz.
+
+    Renk tek taşıyıcı değildir: kodun harfleri ve Türkçe karşılığı
+    aynı bilgiyi metinle de verir (renk körlüğü / tek renkli baskı).
+    Kod yoksa boş döner - blok çizilmez, uydurulmaz."""
+    if not (notlar and notlar.get("renk")):
+        return ""
+    kod, aciklama = notlar["renk"]
+    return (
+        '  <div class="durum-kod-blok">\n'
+        f'    <span class="durum-fiti" aria-hidden="true" style="background:'
+        f'{RENK_KODU.get(kod, "#64748b")}"></span>\n'
+        f'    <span class="durum-kod">{html.escape(kod)}</span>\n'
+        '    <span class="durum-ad">'
+        f'<span class="durum-ad-metin">{html.escape(aciklama)}</span>'
+        f'<span class="durum-kaynak">{html.escape(pist.RENK_ETIKETI)}</span>'
+        '</span>\n  </div>')
+
+
 def _ozet_serit_html(cozum: dict | None, notlar: dict | None) -> str:
     """Sayfanın üstünde YAPIŞKAN duran tek satırlık durum özeti.
 
@@ -4501,6 +4655,7 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
                       push_vapid_public_key=json.dumps(push_vapid_public_key or ""),
                       ozet_serit_html=_ozet_serit_html(
                           guncel_cozum, guncel_notlar),
+                      durum_kodu_html=_durum_kodu_html(guncel_notlar),
                       # Hero artik kartin degil SAYFANIN ogesi: guncel
                       # cozumden bir kez uretilip tepeye konuyor.
                       hero_html=(_hero_html(guncel_cozum, gecmis, simdi)
