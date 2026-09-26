@@ -31,6 +31,7 @@ from ltfj_ayarlar import (GOZLEM_BEKLENEN_DK, GOZLEM_TAZE_DK,
                           SESSIZLIK_SAAT, YEREL_TZ, notam_bayat_saat)
 import ltfj_pist as pist
 from ltfj_pist import havacilik_notlari
+import ltfj_cozumle as cozumle
 from ltfj_rasat import taf_bicimle
 
 # ltfj_bot.py::ETIKET/_yorumu_bicimle ile AYNI etiket kumesi - ama bu web'e
@@ -39,10 +40,18 @@ from ltfj_rasat import taf_bicimle
 # (Telegram icin) zaten hesaplanmis metin okunur (bkz. _kart/sayfa_yaz).
 _ETIKET = re.compile(r"^(Rüzgâr|Görüş|Gökyüzü|Uçuşa etkisi|Genel|Dikkat)\s*:\s*(.+)$")
 
-RENK_KODU = {
-    "BLU": "#3b82f6", "WHT": "#94a3b8", "GRN": "#22c55e",
-    "YLO": "#eab308", "AMB": "#f97316", "RED": "#ef4444",
-}
+# RENK_KODU (BLU/WHT/GRN/YLO/AMB/RED -> hex) BURADAN KALDIRILDI.
+# Sebep: o kodlar botun KENDI urettigi bir ciddiyet olcegiydi ve sayfanin
+# dip notu her seferinde "resmi bir ICAO CAT I/II/III kategorisi degildir"
+# diye uyarmak zorunda kaliyordu. Bir gosterge, var olmak icin kendi
+# aleyhine bir dipnota ihtiyac duyuyorsa yanlis gostergedir. Sayfanin
+# tepesinde artik VFR/IFR var: uydurma degil, ICAO Annex 2 Tablo 3-1
+# esikleri (bkz. ltfj_vfr) ve ZATEN hesaplanan bir deger.
+#
+# ESIKLER (ltfj_pist.RENK_DURUMLARI) YERINDE DURUYOR ve dusuk gorus/tavan
+# sayisini hala vurguluyor (bkz. _olcu_bandi) - kalkan sey OLCEGIN ADI,
+# olcegin kendisi degil. Telegram tarafi da degismedi: RENK_SIMGE ve
+# renk_durumu orada calismaya devam ediyor.
 
 def _gunes_iso(an: datetime) -> tuple[str, str]:
     """LTFJ gun dogumu/batimi, ISO damga olarak (yoksa bos dize).
@@ -212,9 +221,9 @@ SABLON = """<!DOCTYPE html>
      ANLAMSAL RENKLER durum anlatir, dekorasyon degildir. "-zemin" varyanti
      rozet/kutu arka plani, duz olani metin/kenarlik icindir.
 
-     NOT: RENK_KODU (BLU/WHT/GRN/YLO/AMB/RED) BURAYA TASINMADI - o bir
-     HAVACILIK DURUM KODU, arayuz rengi degil; Telegram tarafiyla ayni
-     kavrami paylasiyor ve tema degistirince degismemeli. */
+     NOT: havacilik durum kodu olcegi SAYFADAN TAMAMEN KALKTI; yalnizca
+     Telegram tarafinda yasiyor (bkz. ltfj_pist). Sayfanin durum
+     gostergesi ICAO Annex 2 esiklerinden gelen VFR/IFR. */
   :root {{
     /* Mono yigini eskiden 6 ayri yerde KOPYALANMISTI - biri guncellenip
        otekiler unutulabilirdi. Tek kaynak. */
@@ -224,11 +233,8 @@ SABLON = """<!DOCTYPE html>
     /* #f8fafc -> #eef2f7: kartlar (beyaz) zeminden daha net
        ayrissin. Kontrast metin/zemin oranlarini DUSURMEZ -
        metin kart uzerinde duruyor, zemin degismedi. */
-    /* DUZ TUVAL. Onceki sema gri zemin + beyaz kart idi; derinlik
-       yuzey basamagindan geliyordu. Yogun veri arayuzunde o basamak
-       her bloga bir kutu daha ekliyor. Artik tuval BEYAZ, ayrim TEK
-       PIKSELLIK CIZGIDEN ve bosluktan geliyor; hiyerarsiyi kutu
-       degil TIPOGRAFI tasiyor. */
+    /* DUZ TUVAL. Derinlik yuzey basamagindan degil TEK PIKSELLIK
+       CIZGIDEN geliyor; hiyerarsiyi kutu degil TIPOGRAFI tasiyor. */
     --bg:#f9fafc; --panel:#f1f4f9; --kart:#ffffff; --etkilesim:#eef2f7;
     --cizgi:#e4e9f0; --kod-bg:#f4f7fa;
     /* metin */
@@ -250,7 +256,23 @@ SABLON = """<!DOCTYPE html>
        normal-gorus tabani 15): en yakin durum rengine 15.8;
        kontrast acik yuzeyde 8.98, koyuda 7.24 (cizgi icin
        gereken 3:1'in cok ustunde). */
-    --marka:#5b21b6;
+    /* AKSAN TONU - ANLAM TASIMAZ. Grafik cizgisi, secili sekme
+       gostergesi ve odak halkasi icin; durum ASLA bu tonla anlatilmaz.
+       MOR -> TURKUAZ: olculdu (OKLab DeltaE, rehberin normal-gorus
+       tabani 15). Mordun (#b39ddb) koyu temada bilgi mavisine
+       (#60a5fa) uzakligi 10.6 - yani TABANIN ALTINDA; daha once "en
+       yakin durum rengine 15.8" demistim, o olcum bilgi mavisini
+       kapsamiyormus. Turkuazin en yakin durum rengine normal-gorus
+       uzakligi 18.4, yani tabanin ustunde. Protanopide kirmiziya 3.3
+       ile yaklasiyor (mor 4.8 veriyordu) ama esik asimi sayfada HER
+       ZAMAN kelimeyle de yaziliyor ("esik alti"), yani o kanalda renk
+       tek tasiyici degil. Kontrast: acik yuzeyde 3.74:1, koyuda
+       4.94:1 - grafik cizgisi icin gereken 3:1'in ustunde. */
+    --marka:#0d9488;
+    /* Baglanti/vurgu METNI ayri token: metin AA'si 4.5:1 ister,
+       --marka acik temada 3.74 veriyor (cizgi icin yeterli, metin icin
+       degil). Olculdu: #0f766e acik yuzeyde 5.47:1. */
+    --baglanti:#0f766e;
     --fab-zemin:#0f172a; --fab-metin:#f8fafc; --fab-cizgi:transparent;
     /* Kart golgesi: acik temada kagit degil KONSOL hissi icin.
        Koyu temada golge yok - siyah uzerine golge gorunmez ve
@@ -285,9 +307,9 @@ SABLON = """<!DOCTYPE html>
     --f5:1.375rem;   /* 22px - vurgu (dar ekranda hero)        */
     --f6:1.75rem;    /* 28px - hero                            */
     /* 7. ADIM SADECE DURUM KODU ICIN. Sayfada tek bir birincil
-       metrik var (BLU/WHT/.../RED) ve olcegin tepesinde hero
-       sayilariyla AYNI puntoda duruyordu - yani "en onemli" ile
-       "onemli" ayni agirlikta. Bir adim ustu o farki geri veriyor. */
+       metrik var (VFR/IFR) ve olcegin tepesinde hero sayilariyla AYNI
+       puntoda duruyordu - yani "en onemli" ile "onemli" ayni
+       agirlikta. Bir adim ustu o farki geri veriyor. */
     --f7:2.375rem;   /* 38px - durum kodu (tek birincil metrik) */
     /* olcek */
     --r1:6px; --r2:10px; --r3:14px;
@@ -297,25 +319,29 @@ SABLON = """<!DOCTYPE html>
      indirgemenin asil kazanci da bu: artik tek satir kopyalaniyor. */
   @media (prefers-color-scheme: dark) {{
     :root:not([data-theme="light"]) {{
-      --bg:#080d16; --panel:#0d1421; --kart:#0e1524; --etkilesim:#1a2334;
-      --cizgi:#1b2436; --kod-bg:#0b111d;
-      --metin:#e8eefc; --soluk:#8fa0bf; --sessiz:#64748b; --vurgu:#e8eefc;
+      --bg:#0f1419; --panel:#141b23; --kart:#171f29; --etkilesim:#1f2833;
+      --cizgi:#2a3540; --kod-bg:#10161d;
+      --metin:#e6edf3; --soluk:#8b98a5; --sessiz:#6b7684; --vurgu:#e6edf3;
       --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
       --bilgi:#60a5fa;
-      --marka:#b39ddb;
-      --fab-zemin:#1e2a44; --fab-metin:#e8eefc; --fab-cizgi:#31405f;
+      --marka:#0d9488;
+      /* Koyu zeminde baglanti metni daha parlak bir adim: #2dd4bf 9.94:1. */
+      --baglanti:#2dd4bf;
+      --fab-zemin:#1f2833; --fab-metin:#e6edf3; --fab-cizgi:#3a4654;
       /* Koyu temada golge GORUNMEZ; ayrimi yuzey adimi tasiyor. */
       --golge:none;
     }}
   }}
   :root[data-theme="dark"] {{
-    --bg:#080d16; --panel:#0d1421; --kart:#0e1524; --etkilesim:#1a2334;
-    --cizgi:#1b2436; --kod-bg:#0b111d;
-    --metin:#e8eefc; --soluk:#8fa0bf; --sessiz:#64748b; --vurgu:#e8eefc;
+    --bg:#0f1419; --panel:#141b23; --kart:#171f29; --etkilesim:#1f2833;
+    --cizgi:#2a3540; --kod-bg:#10161d;
+    --metin:#e6edf3; --soluk:#8b98a5; --sessiz:#6b7684; --vurgu:#e6edf3;
     --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
     --bilgi:#60a5fa;
-    --marka:#b39ddb;
-    --fab-zemin:#1e2a44; --fab-metin:#e8eefc; --fab-cizgi:#31405f;
+    --marka:#0d9488;
+    /* Koyu zeminde baglanti metni daha parlak bir adim: #2dd4bf 9.94:1. */
+    --baglanti:#2dd4bf;
+    --fab-zemin:#1f2833; --fab-metin:#e6edf3; --fab-cizgi:#3a4654;
     /* Koyu temada golge GORUNMEZ; ayrimi yuzey adimi tasiyor. */
     --golge:none;
   }}
@@ -421,12 +447,6 @@ SABLON = """<!DOCTYPE html>
     margin:0; padding:9px 12px;
     background:var(--kart); border:1px solid var(--cizgi); border-radius:12px;
     font-size:var(--f2); font-variant-numeric:tabular-nums;
-  }}
-  /* Renk kodu rozeti kart rozetiyle AYNI gorunsun (.rozet ile ayni
-     yazi rengi) - iki farkli gorsel dil ayni seyi anlatmasin. */
-  .ozet-renk {{
-    padding:2px 8px; border-radius:999px; color:#fff;
-    font-weight:700; font-size:var(--f2); letter-spacing:.02em;
   }}
   .ozet-oge {{ color:var(--metin); white-space:nowrap; }}
   /* Ayirici nokta: ogeler arasinda, ilkinden once DEGIL. */
@@ -551,16 +571,10 @@ SABLON = """<!DOCTYPE html>
     padding:14px 0 13px; margin:0 0 2px;
     border-top:1px solid var(--cizgi); border-bottom:1px solid var(--cizgi);
   }}
-  .durum-kod-blok {{ display:flex; align-items:center; gap:11px; min-width:0; }}
-  /* Renk KARE olarak duruyor, harflerin ARKASINDA degil: beyaz-uzeri-renk
-     rozet AMB/YLO gibi acik tonlarda kontrast sinirinda kaliyordu ve
-     "kodu oku" ile "rengi gor" ayni piksele yigilmisti. Ayirinca kod
-     metni --metin tonunda (yani her temada AA'nin cok ustunde) kaliyor,
-     renk de kendi isini bozulmadan yapiyor. */
-  .durum-fiti {{
-    width:14px; height:34px; border-radius:3px; flex:0 0 auto;
-    box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);
-  }}
+  .durum-blok {{ display:flex; align-items:center; gap:11px; min-width:0; }}
+  /* Uçuş kuralı noktası: kart içindeki VFR sekmesiyle AYNI sınıf
+     (.vfr-nokta), yani iki gösterge sessizce farklı renge kayamaz. */
+  .durum-blok .vfr-nokta {{ width:13px; height:13px; }}
   .durum-kod {{
     font-size:var(--f7); font-weight:700; line-height:1;
     letter-spacing:-.01em; color:var(--metin);
@@ -706,26 +720,6 @@ SABLON = """<!DOCTYPE html>
     font-size:var(--f1); color:var(--soluk); letter-spacing:.02em;
     white-space:nowrap;
   }}
-  /* BANT GOSTERGESI - degerin BLU..RED bandinda NEREDE durdugu.
-     Kutular kotuden iyiye (solda RED) dizilir; dolu kutu bulundugu
-     bandi gosterir. Renk TEK TASIYICI DEGIL: konum + kod metni. */
-  .bant {{
-    display:flex; align-items:center; gap:2px; margin-top:6px;
-  }}
-  .bant-kutu {{
-    flex:1 1 0; height:3px; border-radius:2px; background:var(--cizgi);
-  }}
-  .bant-aktif {{ background:var(--soluk); }}
-  .bant-dikkat .bant-aktif {{ background:var(--dikkat); }}
-  .bant-uyari .bant-aktif {{ background:var(--uyari-metin); }}
-  .bant-kod {{
-    flex:0 0 auto; margin-left:5px; font-family:var(--mono);
-    font-size:var(--f1); font-weight:700; color:var(--soluk);
-    letter-spacing:.02em;
-  }}
-  .bant-dikkat .bant-kod {{ color:var(--dikkat); }}
-  .bant-uyari .bant-kod {{ color:var(--uyari-metin); }}
-
   /* PIST DIYAGRAMI - pist ekseni + ruzgar oku + bilesen okumasi.
      Renkler NOTR: bu bir durum gostergesi degil, bir GEOMETRI. Tek
      istisna kuyruk limiti asimi, o da metinle birlikte. */
@@ -794,7 +788,6 @@ SABLON = """<!DOCTYPE html>
   }}
   .ozet-ikincil {{ font-size:var(--f2); color:var(--soluk); margin:0 0 10px; }}
   /* Durum rengi kartin sol kenarinda - liste taranirken once goze carpar. */
-  .kart.kart-durum {{ border-left:3px solid var(--durum-renk, var(--cizgi)); }}
   @media (max-width:480px) {{
     .hero-deger {{ font-size:var(--f5); }}
     .hero-oge {{ padding:9px 10px 7px; }}
@@ -834,6 +827,69 @@ SABLON = """<!DOCTYPE html>
   td {{ padding:7px 0; border-bottom:1px solid var(--cizgi); }}
   td:first-child {{ color:var(--soluk); width:42%; }}
   tr:last-child td {{ border-bottom:none; }}
+  /* ---- ÇÖZÜMLEME (token -> anlam) ----
+     Ham METAR bir <pre> bloğuydu: okuyabilen için yeterli, okuyamayan
+     için duvar. Artık her grup solda monospace bir jeton, sağda ne
+     dediği. Jeton sütunu SABİT GENİŞLİKTE - değişken olsaydı her satır
+     farklı yerden başlar, göz her satırda yeniden hizalanmak zorunda
+     kalırdı. */
+  .cozum {{ margin-top:12px; }}
+  .coz-bas {{
+    font-size:var(--f1); font-weight:700; letter-spacing:.09em;
+    text-transform:uppercase; color:var(--soluk); margin-bottom:6px;
+  }}
+  .coz-satir {{
+    display:flex; align-items:flex-start; gap:10px;
+    padding:6px 0; border-bottom:1px solid var(--cizgi);
+  }}
+  .coz-satir:last-child {{ border-bottom:none; }}
+  .jeton {{
+    flex:0 0 auto; min-width:92px; text-align:center;
+    font-family:var(--mono); font-size:var(--f1); line-height:1.7;
+    background:var(--kod-bg); border:1px solid var(--cizgi);
+    border-radius:4px; padding:0 6px; color:var(--metin);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    max-width:100%;
+  }}
+  /* RMK: etiket üstte, ham kuyruk altta ve TAM GENİŞLİKTE. */
+  .coz-dik {{ flex-direction:column; align-items:stretch; gap:6px; }}
+  .jeton-genis {{
+    min-width:0; width:100%; text-align:left; white-space:pre-wrap;
+    word-break:break-word; line-height:1.55; padding:6px 8px;
+    color:var(--soluk);
+  }}
+  .coz-metin {{ display:flex; flex-direction:column; min-width:0; }}
+  .coz-metin b {{ font-size:var(--f2); font-weight:650; }}
+  .coz-metin span {{ font-size:var(--f2); color:var(--soluk); }}
+  .coz-bilinmiyor .jeton {{ border-style:dashed; color:var(--soluk); }}
+  .coz-bilinmiyor .coz-metin span {{ font-style:italic; }}
+  /* TAF değişim grubu başlığı - notac'taki gibi ince kenarlıklı bir
+     etiket; aksan tonu DURUM anlatmaz, yalnızca yapıyı gösterir. */
+  .coz-grup {{
+    display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
+    margin:14px 0 6px;
+  }}
+  .coz-etiket {{
+    font-size:var(--f1); font-weight:650; letter-spacing:.03em;
+    color:var(--baglanti); border:1px solid var(--baglanti);
+    border-radius:999px; padding:2px 9px;
+  }}
+  .coz-pencere {{ font-size:var(--f1); color:var(--soluk);
+                  font-family:var(--mono); }}
+  .coz-grup:first-of-type {{ margin-top:4px; }}
+  /* Ham metin artık KATLI: kaynak her zaman erişilebilir ama
+     varsayılan görünüm değil. */
+  .ham-kat {{ margin-top:14px; }}
+  .ham-kat > summary {{
+    cursor:pointer; list-style:none; font-size:var(--f1); font-weight:700;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--soluk);
+    padding:2px 0;
+  }}
+  .ham-kat > summary::-webkit-details-marker {{ display:none; }}
+  .ham-kat > summary::after {{ content:" +"; font-weight:400; }}
+  .ham-kat[open] > summary::after {{ content:" −"; }}
+  .ham-kat > summary:hover {{ color:var(--metin); }}
+
   pre {{
     background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:10px;
     padding:12px; overflow-x:auto; font-size:var(--f2); line-height:1.5;
@@ -1378,13 +1434,12 @@ SABLON = """<!DOCTYPE html>
   </div>
 </header>
 <!-- DURUM BANDI - sayfanin TEK birincil metrigi.
-     Renk kodu (BLU..RED) eskiden iki yerde, ikisi de ikincil boyutta
-     duruyordu: METAR kartinin icinde bir rozet ve yapiskan seritte
-     kucuk bir cip. Yani "su an durum ne?" sorusunun cevabi sayfanin
-     en buyuk ogesi DEGILDI; en buyuk dort oge ona GIREN olculerdi.
-     Artik kod tepede ve olcegin en ust adiminda; olculer bir adim
-     altta. Renk TEK TASIYICI DEGIL - kodun harfleri ve yanindaki
-     Turkce karsiligi ayni bilgiyi metinle de veriyor.
+     Ucus kurali (VFR/IFR) sayfanin tek birincil metrigi. Eskiden
+     burada botun kendi urettigi bir ciddiyet olcegi vardi ve dip notu
+     her seferinde "resmi bir kategori degildir" diye kendini
+     yalanliyordu; yerini ICAO Annex 2 Tablo 3-1 esiklerinden gelen,
+     sayfada ZATEN hesaplanan bir deger aldi. Renk TEK TASIYICI DEGIL -
+     nokta renginin yaninda harfler ve tam cumle de duruyor.
      Tazelik gostergesi SUNUCUDA degil ISTEMCIDE hesaplanir: sayfa
      saatlerce acik kalabiliyor ve sunucuda yazilan "canli" etiketi
      zamanla yalan olurdu. data-gozlem en yeni METAR/SPECI zamani. -->
@@ -1609,9 +1664,11 @@ SABLON = """<!DOCTYPE html>
   <summary>Kapsam ve sınırlar</summary>
   <div class="kapsam-govde">
   Bu sayfa otomatik üretilir. Operasyonel kullanım için resmî kaynaklara başvurun.
-  Renk rozetleri (BLU/WHT/GRN/YLO/AMB/RED) resmî bir ICAO CAT I/II/III kategorisi
-  değil, bu botun kendi durum seviyesidir. "Meteorolojik tercih" bir ATC pist
-  ataması değildir. NOTAM bölümü NOTAC kaynaklıdır, resmî NOTAM/PIB'in yerine
+  Sayfanın üstündeki VFR/IFR göstergesi son METAR/SPECI'nin görüş ve tavan
+  değerlerini ICAO Annex 2 Tablo 3-1 eşikleriyle karşılaştıran bilgilendirici
+  bir göstergedir; resmî bir VFR/IFR tespiti değildir. METAR ve TAF
+  çözümlemeleri otomatiktir — bağlayıcı olan ham metindir, her kartın altında
+  duruyor. "Meteorolojik tercih" bir ATC pist ataması değildir. NOTAM bölümü NOTAC kaynaklıdır, resmî NOTAM/PIB'in yerine
   geçmez. ATC Notes bölümü kimlik doğrulaması olmayan, paylaşımlı ve geçici
   (48 saat) bir not panosudur; resmî bir bilgi kaynağı değildir. VFR sekmesi
   son METAR/SPECI'nin görüş/tavan değerlerini ICAO Annex 2 eşikleriyle
@@ -3831,38 +3888,12 @@ def _olcu_bant_kodu(cozum: dict, anahtar: str) -> str | None:
     return "RED"
 
 
-# Iyiden kotuye - gosterge bunu TERS cizer (kotu solda) ki "asagi
-# dogru bozuluyor" okumasi soldan saga olsun.
-BANT_SIRASI = tuple(k for k, _, _ in pist.RENK_DURUMLARI) + ("RED",)
-
-
-def _bant_gostergesi_html(cozum: dict, anahtar: str) -> str:
-    """Degerin BLU..RED bandinda NEREDE durdugunu KONUMLA gosterir.
-
-    NEDEN: renk tek tasiyici olmasin. Esik asimi zaten sayiyi boyuyor
-    (bkz. _olcu_bandi) ama renk korlugunde, tek renkli baskida ve gunes
-    altinda renk zayif bir kanal. Konum her kosulda okunur.
-
-    Ayrica "bir sonraki esige ne kadar var" sorusunu cevapliyor - sayi
-    tek basina bunu soylemiyor.
-
-    UYDURMA YOK: bantlar ltfj_pist.RENK_DURUMLARI'nin kendisi; ara deger
-    interpolasyonu YAPILMIYOR, yalnizca hangi bantta oldugu isaretleniyor."""
-    kod = _olcu_bant_kodu(cozum, anahtar)
-    if kod is None:
-        return ""
-    band = _olcu_bandi(cozum, anahtar)
-    sinif = f" bant-{band}" if band else ""
-    kutular = []
-    for b in BANT_SIRASI[::-1]:                 # kotuden iyiye: RED -> BLU
-        aktif = " bant-aktif" if b == kod else ""
-        kutular.append(f'<span class="bant-kutu{aktif}"></span>')
-    ad = {"gorus": "Görüş", "tavan": "Tavan"}.get(anahtar, anahtar)
-    return (f'<div class="bant{sinif}" role="img" '
-            f'aria-label="{ad} durum bandı: {kod}" '
-            f'title="{ad} bandı: {kod} — ölçek ltfj_pist.RENK_DURUMLARI">'
-            + "".join(kutular)
-            + f'<span class="bant-kod">{kod}</span></div>')
+# BANT GÖSTERGESİ (_bant_gostergesi_html, BANT_SIRASI) KALDIRILDI.
+# Altı kutuluk o şerit değerin BLU..RED ölçeğinde nerede durduğunu
+# gösteriyordu ve yanında kodun adını yazıyordu. Ölçeğin adı gidince
+# geriye efsanesi olmayan altı kutu kalırdı - okuyana hiçbir şey
+# söylemeyen bir süs. Eşiğe ne kadar kaldığı bilgisi ise sayının
+# kendi vurgusunda (bkz. _olcu_bandi) duruyor.
 
 
 def _olcu_bandi(cozum: dict, anahtar: str) -> str:
@@ -3912,9 +3943,71 @@ def _hero_html(cozum: dict, gecmis: list, simdi: datetime) -> str:
             f'<div class="{sinif}">{html.escape(deger)}'
             + (f'<span class="hero-birim">{birim}</span>' if birim else "")
             + '</div>'
-            + _bant_gostergesi_html(cozum, anahtar)
             + (kiv or '<div class="hero-yok">eğilim verisi yok</div>') + "</div>")
     return '<div class="hero">' + "".join(hucreler) + "</div>"
+
+
+def _cozum_satirlari_html(satirlar: list[dict]) -> str:
+    """Çözülmüş grupları token → anlam satırları olarak çizer.
+
+    Çözülemeyen gruplar ATILMAZ: ham hâliyle, "çözümlenemedi" etiketiyle
+    kalırlar. Okuyanın gördüğü liste raporun TAMAMI olmalı - eksik bir
+    liste, tam sanıldığı için ham metinden daha tehlikelidir."""
+    parcalar = []
+    for sat in satirlar:
+        jeton = f'<code class="jeton">{html.escape(sat["token"])}</code>'
+        # RMK SATIRI DİK DİZİLİR. Ötekilerde jeton kısa bir koddur
+        # ("04008KT") ve sabit genişlikli bir sütunda durur; RMK'nın
+        # jetonu ise METAR'ın tüm kuyruğunu taşıyor. Aynı yatay düzene
+        # sokunca o uzun metin dar sütuna sıkışıp satır satır kırılıyor,
+        # yanındaki açıklama da tek kelimelik bir şeride düşüyordu.
+        if sat["ad"] == "Notlar":
+            parcalar.append(
+                f'<div class="coz-satir coz-dik">'
+                f'<div class="coz-metin"><b>{html.escape(sat["ad"])}</b>'
+                f'<span>{html.escape(sat["aciklama"])}</span></div>'
+                f'<code class="jeton jeton-genis">'
+                f'{html.escape(sat["token"])}</code></div>')
+            continue
+        if sat["cozuldu"]:
+            parcalar.append(
+                f'<div class="coz-satir">{jeton}'
+                f'<div class="coz-metin"><b>{html.escape(sat["ad"])}</b>'
+                f'<span>{html.escape(sat["aciklama"])}</span></div></div>')
+        else:
+            parcalar.append(
+                f'<div class="coz-satir coz-bilinmiyor">{jeton}'
+                f'<div class="coz-metin"><span>çözümlenemedi — '
+                f'ham hâliyle gösteriliyor</span></div></div>')
+    return "".join(parcalar)
+
+
+def _metar_cozum_html(metin: str) -> str:
+    """METAR/SPECI'nin satır satır Türkçe karşılığı."""
+    satirlar = cozumle.metar_satirlari(metin)
+    if not satirlar:
+        return ""
+    return ('<div class="cozum"><div class="coz-bas">Gözlem</div>'
+            + _cozum_satirlari_html(satirlar) + "</div>")
+
+
+def _taf_cozum_html(metin: str) -> str:
+    """TAF'ın değişim gruplarına bölünmüş Türkçe karşılığı.
+
+    Her grup KENDİ başlığı ve geçerlilik penceresiyle gelir; "PROB30
+    TEMPO" gibi birleşik başlıklar tek parçadır (bkz. ltfj_cozumle)."""
+    bolumler = cozumle.taf_bolumleri(metin)
+    if not bolumler:
+        return ""
+    parcalar = ['<div class="cozum"><div class="coz-bas">Tahmin</div>']
+    for b in bolumler:
+        parcalar.append(
+            f'<div class="coz-grup"><span class="coz-etiket">'
+            f'{html.escape(b["baslik"])}</span>'
+            + (f'<span class="coz-pencere">{html.escape(b["pencere"])}</span>'
+               if b["pencere"] else "") + "</div>")
+        parcalar.append(_cozum_satirlari_html(b["satirlar"]))
+    return "".join(parcalar) + "</div>"
 
 
 def _pist_diyagrami_html(cozum: dict, metin: str, tercih: str | None) -> str:
@@ -4070,34 +4163,17 @@ def _kart(rapor: dict, yorum_onbellegi: dict | None = None,
     else:
         zaman = ""
 
-    rozet = ""
-    if notlar and notlar["renk"]:
-        kod, aciklama = notlar["renk"]
-        # title tooltip: bu resmi bir ICAO CAT I/II/III kategorisi degil,
-        # botun kendi durum seviyesi - etiket ltfj_pist.RENK_ETIKETI'den
-        # (notlar["renk_etiketi"]) geliyor, burada ayrica sabit metin
-        # olarak YAZMIYORUZ ki diger ekranlarla (Telegram, ATC panel)
-        # sessizce farklilasmasin.
-        rozet = (f'<span class="rozet" title="{html.escape(notlar["renk_etiketi"])} — '
-                 f'resmî ICAO CAT I/II/III kategorisi değildir" '
-                 f'style="background:{RENK_KODU.get(kod, "#64748b")}">'
-                 # RENK_SIMGE (emoji daire) YERINE SVG: rozet zaten renk
-                 # kodunun kendi rengini arka plan olarak tasiyor, emoji
-                 # daire uzerine binen ikinci bir renk katmaniydi ve
-                 # platformdan platforma bambaska ciziliyordu. RENK_SIMGE
-                 # Telegram tarafinda KALIYOR - orada SVG yok.
-                 f'{ikon("nokta", "ikon rozet-nokta")}{kod} · '
-                 f'{html.escape(aciklama)}</span>')
-
-    # Sol kenarda durum rengi: rozet kaliyor ama kart listesini taramak
-    # anliklasiyor. Renk TEK BASINA anlam tasimiyor - rozet metni de var.
-    kenar = ""
-    if notlar and notlar["renk"]:
-        kenar = (f' kart-durum" style="--durum-renk:'
-                 f'{RENK_KODU.get(notlar["renk"][0], "#64748b")}')
-    p = [f'<div class="kart{kenar}"><div class="basrow">'
+    # RENK ROZETI ("BLU · çok iyi") ve SOL KENAR RENGI KALDIRILDI.
+    # İkisi de ltfj_pist.renk_durumu()'nun ürettiği, bota ÖZGÜ bir
+    # ciddiyet ölçeğini gösteriyordu; rozetin title'ı her seferinde
+    # "resmî ICAO CAT I/II/III kategorisi değildir" diye kendini
+    # yalanlamak zorundaydı. Sayfanın durum sinyali artık tepedeki
+    # VFR/IFR bandı (bkz. _vfr_bandi_html) - ICAO Annex 2 Tablo 3-1.
+    # notlar["renk"] HESAPLANMAYA DEVAM EDİYOR: Telegram tarafı
+    # kullanıyor, sayfa yalnızca GÖSTERMİYOR.
+    p = [f'<div class="kart"><div class="basrow">'
          f'<span class="tip">{html.escape(ad)}</span>'
-         f'<span class="zaman">{html.escape(zaman)}</span>{rozet}</div>']
+         f'<span class="zaman">{html.escape(zaman)}</span></div>']
 
     if yorum:
         # Yorum KATLI gelir: METAR/TAF kartlari sayfanin %43'unu kapliyordu
@@ -4165,8 +4241,15 @@ def _kart(rapor: dict, yorum_onbellegi: dict | None = None,
         if pist_kaynagi:
             p.append(f'<div class="pist-kaynak">{ikon("ucak")} {html.escape(pist_kaynagi)}</div>')
 
+    # ÇÖZÜMLEME ÖNCE, HAM METİN SONRA VE KATLANIR. Ham METAR/TAF
+    # sayfadan KALKMADI - kaynak metin her zaman erişilebilir olmalı,
+    # çözümleyici de yanılabilir. Ama artık varsayılan görünüm o değil:
+    # ekranda önce ne dediği, isteyene ne yazdığı var.
+    p.append(_taf_cozum_html(rapor["metin"]) if tip == "TAF"
+             else _metar_cozum_html(rapor["metin"]))
     govde = taf_bicimle(rapor["metin"]) if tip == "TAF" else rapor["metin"]
-    p.append(f"<pre>{html.escape(govde)}</pre></div>")
+    p.append('<details class="ham-kat"><summary>Ham metin</summary>'
+             f"<pre>{html.escape(govde)}</pre></details></div>")
     return "".join(p)
 
 
@@ -4365,28 +4448,39 @@ def _sekme_cubugu_html(sis_yuzde: str = "") -> str:
             'aria-label="Sayfa bölümleri">' + "".join(parcalar) + "</nav>")
 
 
-def _durum_kodu_html(notlar: dict | None) -> str:
-    """Sayfanın tepesindeki renk kodu bloğu (BLU/WHT/GRN/YLO/AMB/RED).
+def _vfr_bandi_html(cozum: dict | None) -> str:
+    """Sayfanın tepesindeki uçuş kuralı göstergesi: VFR / IFR.
 
-    Kod ZATEN iki yerde vardı - METAR kartının rozeti ve yapışkan
-    şeridin çipi - ama ikisi de ikincil boyuttaydı. Bu üçüncü bir
-    hesap DEĞİL: aynı ``havacilik_notlari`` çıktısını kullanır, yani
-    üç gösterim birbirinden sessizce sapamaz.
+    BURADA ESKİDEN BLU/WHT/GRN/YLO/AMB/RED VARDI. O ölçek bota özgüydü
+    ve gösterildiği her yerde "resmî bir ICAO CAT I/II/III kategorisi
+    değildir" diye bir dipnotla dengelenmek zorundaydı. VFR/IFR ise
+    uydurma değil: ICAO Annex 2 Tablo 3-1 eşikleri, ve bu hesap sayfada
+    ZATEN vardı (kenardaki VFR sekmesi). Yani yeni bir yargı katmanı
+    EKLENMEDİ, var olan yargı katmanı uydurma olanın yerine geçti.
 
-    Renk tek taşıyıcı değildir: kodun harfleri ve Türkçe karşılığı
-    aynı bilgiyi metinle de verir (renk körlüğü / tek renkli baskı).
-    Kod yoksa boş döner - blok çizilmez, uydurulmaz."""
-    if not (notlar and notlar.get("renk")):
+    Renk tek taşıyıcı değil: nokta rengiyle birlikte "VFR"/"IFR" harfleri
+    ve altındaki tam cümle aynı bilgiyi metinle de veriyor.
+
+    Çözüm yoksa boş döner - blok çizilmez, uydurulmaz."""
+    if cozum is None:
         return ""
-    kod, aciklama = notlar["renk"]
+    sonuc = vfr.vfr_degerlendir(cozum)
+    if sonuc["vfr"] is True:
+        kod, nokta, alt = "VFR", "yesil", "VFR şartları sağlanıyor"
+    elif sonuc["vfr"] is False:
+        # "IFR" DEMEK, "VFR DEĞİL" demekten daha kısa ve kulede okunan
+        # dil bu - ama altındaki cümle neyin ölçüldüğünü açıkça yazıyor,
+        # çünkü bu bir IFR TESPİTİ değil, VFR eşiklerinin karşılanmaması.
+        kod, nokta, alt = "IFR", "kirmizi", "VFR şartları sağlanmıyor"
+    else:
+        kod, nokta, alt = "—", "bilinmiyor", "Görüş bilgisi yok — değerlendirilemiyor"
     return (
-        '  <div class="durum-kod-blok">\n'
-        f'    <span class="durum-fiti" aria-hidden="true" style="background:'
-        f'{RENK_KODU.get(kod, "#64748b")}"></span>\n'
-        f'    <span class="durum-kod">{html.escape(kod)}</span>\n'
+        '  <div class="durum-blok">\n'
+        f'    <span class="vfr-nokta {nokta}" aria-hidden="true"></span>\n'
+        f'    <span class="durum-kod">{kod}</span>\n'
         '    <span class="durum-ad">'
-        f'<span class="durum-ad-metin">{html.escape(aciklama)}</span>'
-        f'<span class="durum-kaynak">{html.escape(pist.RENK_ETIKETI)}</span>'
+        f'<span class="durum-ad-metin">{html.escape(alt)}</span>'
+        '<span class="durum-kaynak">ICAO Annex 2, Tablo 3-1 — bilgi amaçlı</span>'
         '</span>\n  </div>')
 
 
@@ -4427,12 +4521,6 @@ def _ozet_serit_html(cozum: dict | None, notlar: dict | None) -> str:
             return on + deger + "°"
         return deger + (f" {birim}" if birim else "")
 
-    rozet = ""
-    if notlar and notlar.get("renk"):
-        kod, _ = notlar["renk"]
-        rozet = (f'<span class="ozet-renk" style="background:'
-                 f'{RENK_KODU.get(kod, "#64748b")}">{html.escape(kod)}</span>')
-
     # (deger, tooltip) - serit kisa olmak zorunda, ne olduklari
     # title'da duruyor; ekran okuyucu da bunu okur.
     ogeler = [
@@ -4441,7 +4529,7 @@ def _ozet_serit_html(cozum: dict | None, notlar: dict | None) -> str:
         (_kisa("_ruzgar"), "Rüzgâr (yön/hız, G=hamle)"),
         (_kisa("_spread", "Δ"), "Spread (sıcaklık − çiy noktası)"),
     ]
-    return ('<div class="ozet-serit" id="ozet-serit">' + rozet
+    return ('<div class="ozet-serit" id="ozet-serit">'
             + "".join(f'<span class="ozet-oge" title="{html.escape(t)}">'
                       f"{html.escape(d)}</span>" for d, t in ogeler)
             + "</div>")
@@ -4655,7 +4743,7 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
                       push_vapid_public_key=json.dumps(push_vapid_public_key or ""),
                       ozet_serit_html=_ozet_serit_html(
                           guncel_cozum, guncel_notlar),
-                      durum_kodu_html=_durum_kodu_html(guncel_notlar),
+                      durum_kodu_html=_vfr_bandi_html(guncel_cozum),
                       # Hero artik kartin degil SAYFANIN ogesi: guncel
                       # cozumden bir kez uretilip tepeye konuyor.
                       hero_html=(_hero_html(guncel_cozum, gecmis, simdi)

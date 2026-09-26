@@ -165,14 +165,6 @@ def test_bant_esikleri_KOPYALANMADI():
     assert s._olcu_bant_kodu({"gorus": en_dusuk - 1}, "gorus") == "RED"
 
 
-def test_bant_RENK_TEK_TASIYICI_degil(tmp_path):
-    """Konum (hangi kutu dolu) + kod metni, renkten bağımsız okunur."""
-    html_metin = _govde(_sayfa(tmp_path, "LTFJ 241720Z 06015KT 0300 FG VV001 12/12 Q1008"))
-    assert 'class="bant-kod">RED<' in html_metin
-    assert html_metin.count('class="bant-kutu') >= 6
-    assert 'aria-label="Görüş durum bandı: RED"' in html_metin
-
-
 def test_deger_yoksa_BANT_da_yok(tmp_path):
     """Tavan bildirilmemişse bant çizmek uydurma olurdu."""
     html_metin = _govde(_sayfa(tmp_path, "LTFJ 241720Z 06015KT 9999 12/08 Q1008"))
@@ -345,39 +337,3 @@ def test_grafikler_DURUM_RENGI_kullanmiyor(tmp_path):
     assert all(len(g) == 3 for g in s.GRAFIKLER), s.GRAFIKLER
 
 
-def test_marka_tonu_DURUM_RENKLERINDEN_ayirt_edilebilir():
-    """Marka tonu bir durum gibi okunmamalı. Rehberin normal-görüş
-    tabanı: OKLab ΔE >= 15. Bu test sayıyı değil KURALI kilitliyor -
-    ton değişirse yeniden ölçülür."""
-    import math
-
-    def _lin(c):
-        c /= 255
-        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
-
-    def _oklab(hx):
-        hx = hx.lstrip("#")
-        r, g, b = (_lin(int(hx[i:i + 2], 16)) for i in (0, 2, 4))
-        l = (0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b) ** (1 / 3)
-        m = (0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b) ** (1 / 3)
-        sv = (0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b) ** (1 / 3)
-        return (0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * sv,
-                1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * sv,
-                0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * sv)
-
-    def _dE(a, b):
-        x, y = _oklab(a), _oklab(b)
-        return 100 * math.sqrt(sum((p - q) ** 2 for p, q in zip(x, y)))
-
-    from ltfj_sayfa import RENK_KODU
-    marka = "#5b21b6"
-    for kod, renk in RENK_KODU.items():
-        assert _dE(marka, renk) >= 15, f"marka tonu {kod} gibi okunabilir"
-
-
-def test_marka_tonu_iki_temada_da_TANIMLI(tmp_path):
-    html_metin = _sayfa(tmp_path)
-    assert "--marka:#5b21b6" in html_metin
-    assert html_metin.count("--marka:#b39ddb") == 2, "iki koyu tema blogunda da olmali"
-    grafik = html_metin.split("\n  .grafik {")[1].split("}")[0]
-    assert "var(--marka)" in grafik

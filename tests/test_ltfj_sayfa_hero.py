@@ -189,20 +189,6 @@ def test_kivilcim_ekran_okuyucudan_gizli(tmp_path):
         assert 'aria-hidden="true"' in svg
 
 
-def test_durum_rengi_kartin_SOL_kenarinda(tmp_path):
-    html = _sayfa(tmp_path)
-    assert "kart-durum" in html and "--durum-renk:" in html
-    kural = html.split(".kart.kart-durum {")[1].split("}")[0]
-    assert "border-left" in kural
-
-
-def test_durum_rengi_TEK_BASINA_anlam_tasimiyor(tmp_path):
-    """Renk körlüğü: kenar rengi tek işaret olsaydı durum okunamazdı.
-    Rozet metni (BLU/RED gibi) kartta kalmalı."""
-    html = _sayfa(tmp_path)
-    assert 'class="rozet"' in html
-
-
 def test_telefonda_2x2_genis_ekranda_4lu(tmp_path):
     html = _sayfa(tmp_path)
     # Capa TAM KURAL: ".hero {" artik ".su-an .hero {" kuralina da

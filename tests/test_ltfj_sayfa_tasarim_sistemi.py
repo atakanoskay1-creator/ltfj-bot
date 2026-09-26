@@ -153,10 +153,3 @@ def test_hareket_azaltma_destekleniyor(tmp_path):
 
 
 # ------------------------------------ havacilik renk kodu AYRI kalmali
-def test_havacilik_renk_kodu_TEMAYA_bagli_DEGIL():
-    """RENK_KODU (BLU/WHT/GRN/YLO/AMB/RED) bir HAVACILIK DURUM KODU, arayüz
-    rengi değil. Telegram tarafıyla aynı kavramı paylaşıyor; tema
-    değiştirince RED'in kırmızılığı değişmemeli."""
-    assert set(s.RENK_KODU) == {"BLU", "WHT", "GRN", "YLO", "AMB", "RED"}
-    for kod, deger in s.RENK_KODU.items():
-        assert deger.startswith("#"), f"{kod} token'a bağlanmış - tema ile değişir"

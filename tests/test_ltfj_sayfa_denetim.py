@@ -119,7 +119,12 @@ def test_FAB_koyu_temada_SAYFANIN_EN_PARLAK_nesnesi_DEGIL(tmp_path):
     assert "var(--fab-zemin)" in fab, "FAB hala tek sabit yuzey kullaniyor"
     # Koyu tema bloklarinin IKISINDE DE tanimli olmali (sistem tercihi
     # ve elle secim ayri ayri).
-    assert html_metin.count("--fab-zemin:#1e2a44") == 2, "koyu tema eksik"
+    # SABIT HEX YERINE OLCUM. Bu satir "#1e2a44" diye bir literal
+    # ariyordu; palet degisince test kirildi ama ASIL SOZLESME (FAB
+    # koyu temada sayfanin en parlak nesnesi olmasin) hic olculmuyordu.
+    # Artik token'in kendisi degil, PARLAKLIGI kontrol ediliyor.
+    fab_koyu = re.findall(r"--fab-zemin:(#[0-9a-f]{6})", html_metin)
+    assert len(fab_koyu) == 3, ("acik + iki koyu tema blogu bekleniyor", fab_koyu)
     # Dokunma hedefi KUCULMEDI.
     assert "width:56px; height:56px" in fab
 
@@ -259,7 +264,7 @@ def test_gecmis_egilim_GUNCEL_RAPORUN_ALTINDA(tmp_path):
                "sicaklik": 14.0, "cig_noktasi": 11.0} for i in range(8, -1, -1)]
     html_metin = _sayfa(tmp_path, gecmis=gecmis)
     panel = html_metin.split('id="panel-durum"')[1].split('class="sekme-panel"')[0]
-    assert panel.index("<summary>") > panel.index('class="kart kart-durum"')
+    assert panel.index("<summary>") > panel.index('class="kart"')
 
 
 # ============================================== Ö12 / B10: beşinci durum

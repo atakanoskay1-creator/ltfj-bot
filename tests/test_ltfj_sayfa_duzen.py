@@ -118,7 +118,7 @@ def test_gecmis_egilim_GUNCEL_RAPORUN_ALTINDA(tmp_path):
     """6 saatlik gecmis, su anki gozlemden ONCE okunmamali."""
     html = _sayfa(tmp_path)
     panel = html.split('id="panel-durum"')[1].split('class="sekme-panel"')[0]
-    assert panel.index("<summary>") > panel.index('class="kart kart-durum"')
+    assert panel.index("<summary>") > panel.index('class="kart"')
 
 
 def test_trend_grafikleri_SILINMEDI(tmp_path):

@@ -101,21 +101,6 @@ def test_cozum_yoksa_serit_hic_basilmiyor(tmp_path):
 
 
 # --------------------------------------------------------------- rozet
-def test_renk_rozeti_kart_rozetiyle_ayni_hesaptan_geliyor(tmp_path):
-    """REGRESYON riski: rozet burada YENIDEN hesaplansaydi (esikler
-    kopyalanarak) ust serit ile kart sessizce farklilasabilirdi."""
-    import ltfj_pist
-    from ltfj_analiz import metar_coz
-    cozum = metar_coz("METAR " + METAR)
-    notlar = ltfj_pist.havacilik_notlari(cozum, METAR, SIMDI)
-    kod = notlar["renk"][0]
-
-    html = _sayfa(tmp_path, [_rapor(METAR)])
-    serit = html.split('class="ozet-serit"')[1].split("</div>")[0]
-    assert f">{kod}<" in serit
-    assert s.RENK_KODU[kod] in serit
-
-
 def test_renk_yoksa_rozet_cizilmiyor():
     assert "ozet-renk" not in s._ozet_serit_html({"gorus": 9999}, None)
     assert "ozet-renk" not in s._ozet_serit_html({"gorus": 9999}, {"renk": None})
