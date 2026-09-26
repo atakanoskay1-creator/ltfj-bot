@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:53614203",
   "id:53617132",
   "id:53625153",
   "id:53627674",
@@ -199,23 +198,16 @@
   "id:54674403",
   "id:54683096",
   "id:54685790",
-  "id:54693853"
+  "id:54693853",
+  "id:54696811"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 260820Z 05011KT 9999 FEW026 BKN180 23/15 Q1018 NOSIG RMK RWY24R 05010KT 010V080 RWY06R 04012KT RWY24L 04011KT",
+ "son_metar": "METAR LTFJ 260850Z 03014KT CAVOK 23/14 Q1018 NOSIG RMK RWY24R 04009KT RWY06R 04013KT RWY24L 06012KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-26T08:20:00+00:00",
+ "son_veri_zamani": "2026-09-26T08:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-20T11:50:00+00:00",
-   "ruzgar_hiz": 14,
-   "tavan": null,
-   "qnh": 1021,
-   "sicaklik": 26,
-   "cig_noktasi": 15
-  },
   {
    "zaman": "2026-09-20T12:20:00+00:00",
    "ruzgar_hiz": 17,
@@ -2733,13 +2725,22 @@
    "qnh": 1018,
    "sicaklik": 23,
    "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-26T08:50:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 14,
+   "tavan": null,
+   "qnh": 1018,
+   "sicaklik": 23,
+   "cig_noktasi": 14
   }
  ],
  "yorum_onbellegi": {
-  "TAF LTFJ 260440Z 2606/2706 04006KT CAVOK BECMG 2608/2612 04016KT BECMG 2614/2618 SCT035 TEMPO 2615/2619 04016G26KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 26-27 Haziran döneminde başlangıçta açık hava, sonra orta bulutluluk ve rüzgar artışı beklenmektedir.\n\n- **0606-0612 UTC:** Rüzgar kademeli olarak 16 knota çıkacaktır.\n- **0614-0618 UTC:** 3500 feet'te saçınık bulut beklenmektedir; bu dönemde geçici olarak rüzgar 26 knot esneme ile 16 knot hızında esecektir.",
-  "METAR LTFJ 260720Z 04010KT CAVOK 21/17 Q1018 NOSIG RMK RWY24R 05007KT 350V070 RWY06R 04008KT RWY24L 06008KT": "Rüzgâr: Kuzey-kuzeydoğudan 10 düğüm hızında rüzgâr esiyor, yan bileşen düşük seviyede.\n\nGörüş: Görüş mükemmel, ufuk çizgisine kadar açık ve temiz.\n\nGökyüzü: Bulut bildirilmemiş, gökyüzü açık.\n\nUçuşa etkisi: Gözlemlenen veriler uçuş için kısıtlayıcı bir unsur göstermemektedir.",
   "METAR LTFJ 260750Z 07011KT 9999 FEW030 BKN180 22/15 Q1018 NOSIG RMK RWY24R 06008KT 020V080 RWY06R 05012KT RWY24L 05012KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 11 düğüm hızında rüzgâr esiyor, yan bileşen çok az.\n\n**Görüş:** 10 kilometre ve daha fazla görüş var, uçuş için rahat.\n\n**Gökyüzü:** Az bulutlu, 3000 metre civarında az bulut; daha yüksekte 18000 metre civarında çok bulut; yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur göstermiyor, rüzgâr ve görüş uçuş için uygun.",
-  "METAR LTFJ 260820Z 05011KT 9999 FEW026 BKN180 23/15 Q1018 NOSIG RMK RWY24R 05010KT 010V080 RWY06R 04012KT RWY24L 04011KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 11 düğüm hızında rüzgâr esiyor, yan bileşen çok az.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat.\n\n**Gökyüzü:** Düşük seviyede az bulutlu (yaklaşık 800 metre), yüksek seviyede çok bulutlu (yaklaşık 5500 metre), yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor; rüzgâr, görüş ve hava koşulları normal operasyon için uygun."
+  "METAR LTFJ 260820Z 05011KT 9999 FEW026 BKN180 23/15 Q1018 NOSIG RMK RWY24R 05010KT 010V080 RWY06R 04012KT RWY24L 04011KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 11 düğüm hızında rüzgâr esiyor, yan bileşen çok az.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat.\n\n**Gökyüzü:** Düşük seviyede az bulutlu (yaklaşık 800 metre), yüksek seviyede çok bulutlu (yaklaşık 5500 metre), yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor; rüzgâr, görüş ve hava koşulları normal operasyon için uygun.",
+  "METAR LTFJ 260850Z 03014KT CAVOK 23/14 Q1018 NOSIG RMK RWY24R 04009KT RWY06R 04013KT RWY24L 06012KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 14 knot hızla esen rüzgâr var, yan bileşen düşük seviyelerde.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzeri, uçuş için rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, açık gökyüz, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları uçuş için uygun.",
+  "TAF LTFJ 260440Z 2606/2706 04006KT CAVOK BECMG 2608/2612 04016KT BECMG 2614/2618 SCT035 TEMPO 2615/2619 04016G26KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı için 26-27 Haziran döneminde başlangıçta açık hava, sonra orta bulutluluk ve rüzgar artışı beklenmektedir.\n\n- **0606-0706 UTC:** Rüzgar 040° 6 knot, görüş sınırsız, bulut yok.\n- **0608-0612 UTC:** Rüzgar 040° 16 knota kademeli olarak artacak.\n- **0614-0618 UTC:** Orta bulutluluk 3500 feet seviyesinde.\n- **0615-0619 UTC (geçici):** Rüzgar 040° 16 knot, gust 26 knota ulaşacak."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3607,12 +3608,12 @@
   }
  },
  "notam_son_senkron": "2026-09-26T07:15:49+00:00",
- "guncelleme": "2026-09-26T08:45:51+00:00",
+ "guncelleme": "2026-09-26T09:01:18+00:00",
  "push_gonderilen": [
-  "id:54570097",
   "id:54494528",
   "id:54416753",
+  "id:54339168",
   "id:54645856",
-  "id:54339168"
+  "id:54570097"
  ]
 }
