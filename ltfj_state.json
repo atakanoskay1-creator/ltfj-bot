@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:53650394",
   "id:53652136",
   "id:53659690",
   "id:53661956",
@@ -199,23 +198,16 @@
   "id:54734562",
   "id:54745254",
   "id:54751715",
-  "id:54760172"
+  "id:54760172",
+  "id:54762770"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 261320Z 04018KT CAVOK 24/14 Q1017 NOSIG RMK RWY24R 03018KT RWY06R 02020KT RWY24L 04018KT",
+ "son_metar": "METAR LTFJ 261350Z 05020KT CAVOK 23/13 Q1017 NOSIG RMK RWY24R 03018KT RWY06R 03020KT RWY24L 05018KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-26T13:20:00+00:00",
+ "son_veri_zamani": "2026-09-26T13:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-20T16:50:00+00:00",
-   "ruzgar_hiz": 12,
-   "tavan": null,
-   "qnh": 1021,
-   "sicaklik": 21,
-   "cig_noktasi": 17
-  },
   {
    "zaman": "2026-09-20T17:20:00+00:00",
    "ruzgar_hiz": 10,
@@ -2743,13 +2735,22 @@
    "qnh": 1017,
    "sicaklik": 24,
    "cig_noktasi": 14
+  },
+  {
+   "zaman": "2026-09-26T13:50:00+00:00",
+   "gorus": 10000,
+   "ruzgar_hiz": 20,
+   "tavan": null,
+   "qnh": 1017,
+   "sicaklik": 23,
+   "cig_noktasi": 13
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 261220Z 04018KT CAVOK 24/12 Q1016 NOSIG RMK RWY24R 03015KT RWY06R 05017KT RWY24L 04016KT": "**Rüzgâr:** Kuzey-kuzeydoğu yönünden 18 knot (yaklaşık 33 km/s) rüzgâr esiyor, yan bileşen hafif düzeyde.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzeri, uçuş için rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Raporlanan veriler içinde uçuşu kısıtlayan unsur bulunmuyor, hava koşulları uygun.",
   "METAR LTFJ 261250Z 04016KT CAVOK 24/13 Q1017 NOSIG RMK RWY24R 04016KT RWY06R 03019KT RWY24L 04017KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 16 knot (yaklaşık 30 km/s) hızında rüzgâr esiyor, yan bileşen hafif.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzeri, uçuş için rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları uçuş için uygun.",
   "TAF LTFJ 261040Z 2612/2712 05015KT CAVOK BECMG 2619/2622 SCT035 BKN100 PROB30 TEMPO 2622/2702 -SHRA BKN030 TEMPO 2704/2708 -SHRA BKN030 BKN080 PROB40 TEMPO 2708/2712 4000 SHRA FEW020CB BKN025": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde rüzgâr 050° yönünden 15 knot, görüş sınırsız başlayıp kademeli olarak bulutlanma beklenmektedir.\n\n- **2619/2622 UTC:** Kademeli geçişle 3500 ft'de parçalı, 10000 ft'de kırık bulutlanma.\n- **2622/2702 UTC:** %30 ihtimalle hafif sağanak, 3000 ft'de kırık bulutlanma.\n- **2704/2708 UTC:** Hafif sağanak, 3000 ft'de kırık, 8000 ft'de kırık bulutlanma.\n- **2708/2712 UTC:** %40 ihtimalle 4000 m görüş, sağanak, 2000 ft'de az bulut ve gök gürültülü bulut, 2500 ft'de kırık bulutlanma.",
-  "METAR LTFJ 261320Z 04018KT CAVOK 24/14 Q1017 NOSIG RMK RWY24R 03018KT RWY06R 02020KT RWY24L 04018KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 18 knot hızla esen rüzgâr, yan bileşen hafif düzeydedir.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzeri mesafede her şey açıkça görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, hava açık ve temiz.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş koşulları uçuş için kısıtlayıcı değildir, hava durumu stabil kalacaktır."
+  "METAR LTFJ 261320Z 04018KT CAVOK 24/14 Q1017 NOSIG RMK RWY24R 03018KT RWY06R 02020KT RWY24L 04018KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 18 knot hızla esen rüzgâr, yan bileşen hafif düzeydedir.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzeri mesafede her şey açıkça görülüyor.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, hava açık ve temiz.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş koşulları uçuş için kısıtlayıcı değildir, hava durumu stabil kalacaktır.",
+  "METAR LTFJ 261350Z 05020KT CAVOK 23/13 Q1017 NOSIG RMK RWY24R 03018KT RWY06R 03020KT RWY24L 05018KT": "**Rüzgâr:** Kuzeydoğudan 20 knot (yaklaşık 37 km/saat) hızla esen rüzgâr, yan bileşeni hafif düzeyde.\n\n**Görüş:** Görüş mükemmel, 10 kilometre ve üzeri, uçuş için rahat koşullar.\n\n**Gökyüzü:** Bulut bildirilmemiş, yağış yok, açık hava.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı unsur oluşturmuyor, hava koşulları uçuş için elverişli."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3617,13 +3618,13 @@
   }
  },
  "notam_son_senkron": "2026-09-26T13:31:10+00:00",
- "guncelleme": "2026-09-26T13:45:49+00:00",
+ "guncelleme": "2026-09-26T14:01:20+00:00",
  "push_gonderilen": [
-  "id:54722352",
-  "id:54570097",
-  "id:54494528",
-  "id:54645856",
+  "id:54339168",
   "id:54416753",
-  "id:54339168"
+  "id:54494528",
+  "id:54722352",
+  "id:54645856",
+  "id:54570097"
  ]
 }
