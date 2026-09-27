@@ -1,0 +1,6 @@
+# Botun calisma zamani bagimliliklari (.github/workflows/ltfj.yml kurar).
+# Bu dosyanin ozeti pip onbellegi anahtaridir: paket eklenip cikarilinca
+# onbellek kendiliginden yenilenir.
+requests
+firebase-admin
+pywebpush
