@@ -2,7 +2,7 @@
  "istasyon": "LTFJ",
  "kaynak": "NOTAC",
  "bilgi_uyarisi": "Bilgi amaçlıdır. Operasyon öncesi güncel resmî NOTAM/PIB kontrol edilmelidir.",
- "uretildi": "2026-09-27T05:55:49+00:00",
+ "uretildi": "2026-09-27T06:24:40+00:00",
  "son_senkron": "2026-09-27T05:55:49+00:00",
  "aktif": [
   {
@@ -472,40 +472,6 @@
   }
  ],
  "yaklasan": [
-  {
-   "id": "a1ce0373-ee7e-4853-a7a4-dec21d9be6a1",
-   "number": "B3831/26",
-   "notam_type": "N",
-   "location": "LTFJ",
-   "status": "upcoming",
-   "effective_start": "2026-09-27T06:00:00Z",
-   "effective_end": "2026-09-27T15:00:00Z",
-   "notam_issued": "2026-09-25T16:23:00Z",
-   "notam_updated": "2026-09-25T16:23:00Z",
-   "record_updated_at": "2026-09-25T16:31:31.213531Z",
-   "q_code": "QOBCE",
-   "category_kodu": "OBSTACLE",
-   "category_etiketi": "Obstacle",
-   "tags": [
-    "crane",
-    "obstacle"
-   ],
-   "affected_elements": [
-    {
-     "ref": "06R",
-     "type": "RWY"
-    }
-   ],
-   "text": "PRESENCE MOBILE CRANE BEFORE 550 METERS TO THR AT THE LEFT SIDE \r\nOF RWY 06R APCH SURFACE WITH THE FOLLOWING PROPERTIES:\r\nCOORDINATE      : 405319.30N 0291745.60E\r\nCRANE HEIGHT    : 40 METERS\r\nELEVATION AT TOP: 109 METERS\r\n-ADVISE ATC INSTRUCTIONS-",
-   "raw": "",
-   "ilgili_notam": null,
-   "reading_short": "A mobile crane is present near the approach to runway 06R.",
-   "reading_long": "A mobile crane is present 550 metres before the threshold on the left side of the runway 06R approach surface. The crane is 40 metres tall, with its top at 109 metres above sea level. Advise air traffic control of instructions.",
-   "source": "NOTAC",
-   "first_seen": "2026-09-25T21:48:05+00:00",
-   "last_seen": "2026-09-27T05:55:49+00:00",
-   "last_active": null
-  },
   {
    "id": "8995e757-c85f-4029-95a9-d33c7c8d7b03",
    "number": "A3739/26",
