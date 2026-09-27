@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:53828400",
   "id:53835085",
   "id:53838148",
   "id:53843421",
@@ -199,23 +198,16 @@
   "id:54954407",
   "id:54947445",
   "id:54959554",
-  "id:54970282"
+  "id:54970282",
+  "id:54976529"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 270620Z 06009KT 9999 SCT030 BKN080 20/15 Q1018 NOSIG RMK RWY24R 04007KT RWY06R 05008KT RWY24L 05008KT",
+ "son_metar": "METAR LTFJ 270650Z 04012KT 9999 SCT030 BKN080 21/15 Q1018 NOSIG RMK RWY24R 04012KT RWY06R 05015KT RWY24L 04013KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-27T06:20:00+00:00",
+ "son_veri_zamani": "2026-09-27T06:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-21T09:50:00+00:00",
-   "ruzgar_hiz": 8,
-   "tavan": null,
-   "qnh": 1016,
-   "sicaklik": 25,
-   "cig_noktasi": 18
-  },
   {
    "zaman": "2026-09-21T10:20:00+00:00",
    "ruzgar_hiz": 8,
@@ -2777,13 +2769,22 @@
    "qnh": 1018,
    "sicaklik": 20,
    "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-27T06:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 12,
+   "tavan": 8000,
+   "qnh": 1018,
+   "sicaklik": 21,
+   "cig_noktasi": 15
   }
  ],
  "yorum_onbellegi": {
-  "TAF LTFJ 270440Z 2706/2806 05015KT 9999 SCT030 BKN080 TEMPO 2706/2710 -SHRA FEW018TCU BKN025 BKN080 BECMG 2716/2718 -SHRA BKN025 BKN080 BECMG 2718/2721 02018G28KT TEMPO 2718/2722 4000 SHRA FEW018CB BKN025 TEMPO 2802/2806 4000 SHRA FEW018CB BKN025": "**LTFJ — İstanbul Sabiha Gökçen Havalimanı Hava Tahmini**\n\n**Genel:** 27–28 Haziran döneminde değişken bulutlu hava, geçici sağanak ve gümrük bulutları beklenmektedir.\n\n- **0706–1010 UTC:** Rüzgar 050°/15 kt, görüş 9999 m, orta bulutlar 3000 ft, kalın bulutlar 8000 ft.\n- **0706–1010 UTC (geçici):** Hafif sağanak, az bulut 1800 ft'de gümrük bulutları, orta bulutlar 2500 ft, kalın bulutlar 8000 ft.\n- **1618–2121 UTC (kademeli geçiş):** Hafif sağanak, orta bulutlar 2500 ft, kalın bulutlar 8000 ft; ardından rüzgar 020°/18 kt, şiddetli rüzgar 28 kt.\n- **1818–2222 UTC (geçici):** Görüş 4000 m, sağanak, az bulut 1800 ft'de gümrük bulutları, orta bulutlar 2500 ft.\n- **0202–0606 UTC (geçici):** Görüş 4000 m, sağanak, az bulut 1800 ft'de gümrük bulutları, orta bulutlar 2500 ft.",
-  "METAR LTFJ 270520Z 04010KT 9999 SCT030 BKN080 19/15 Q1017 NOSIG RMK RWY24R 02008KT RWY06R 03011KT RWY24L 02006KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 10 knot hızla esen rüzgâr, yan bileşen çok az.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi, uçuş için rahat koşullar.\n\n**Gökyüzü:** 3000 feet yükseklikte parçalı bulutlar, 8000 feet yükseklikte çok bulutlu katman, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermemektedir.",
   "METAR LTFJ 270550Z 04011KT 9999 SCT030 BKN080 20/15 Q1017 NOSIG RMK RWY24R 03007KT 360V060 RWY06R 04009KT RWY24L 03007KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 11 knot (yaklaşık 20 km/saat) hızında rüzgâr esiyor, yan bileşen düşük seviyede.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede görüş mükemmel, uçuş için rahat koşullar.\n\n**Gökyüzü:** 3000 feet (yaklaşık 900 metre) yükseklikte parçalı bulutlar, 8000 feet (yaklaşık 2400 metre) yükseklikte çok bulutlu; yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor, rüzgâr ve görüş uçuş için uygun seviyelerde.",
-  "METAR LTFJ 270620Z 06009KT 9999 SCT030 BKN080 20/15 Q1018 NOSIG RMK RWY24R 04007KT RWY06R 05008KT RWY24L 05008KT": "**Rüzgâr:** Kuzeydoğudan 9 knot (yaklaşık 17 km/saat) hızında hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla mesafeden net görünürlük var, uçuş için rahat koşullar.\n\n**Gökyüzü:** 3000 feet (yaklaşık 900 metre) yükseklikte parçalı bulutlar, 8000 feet (yaklaşık 2400 metre) yükseklikte çok bulutlu katman var; yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor; rüzgâr, görüş ve hava olayları operasyonel sınırlar içindedir."
+  "METAR LTFJ 270620Z 06009KT 9999 SCT030 BKN080 20/15 Q1018 NOSIG RMK RWY24R 04007KT RWY06R 05008KT RWY24L 05008KT": "**Rüzgâr:** Kuzeydoğudan 9 knot (yaklaşık 17 km/saat) hızında hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla mesafeden net görünürlük var, uçuş için rahat koşullar.\n\n**Gökyüzü:** 3000 feet (yaklaşık 900 metre) yükseklikte parçalı bulutlar, 8000 feet (yaklaşık 2400 metre) yükseklikte çok bulutlu katman var; yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor; rüzgâr, görüş ve hava olayları operasyonel sınırlar içindedir.",
+  "METAR LTFJ 270650Z 04012KT 9999 SCT030 BKN080 21/15 Q1018 NOSIG RMK RWY24R 04012KT RWY06R 05015KT RWY24L 04013KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 12 düğüm hızında rüzgâr esiyor, yan bileşen hafif.\n\n**Görüş:** 10 kilometre ve daha fazla görüş var, uçuş için rahat.\n\n**Gökyüzü:** 3000 feet yükseklikte parçalı bulutlar, 8000 feet yükseklikte çok bulutlu, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları operasyonel olarak uygun.",
+  "TAF LTFJ 270440Z 2706/2806 05015KT 9999 SCT030 BKN080 TEMPO 2706/2710 -SHRA FEW018TCU BKN025 BKN080 BECMG 2716/2718 -SHRA BKN025 BKN080 BECMG 2718/2721 02018G28KT TEMPO 2718/2722 4000 SHRA FEW018CB BKN025 TEMPO 2802/2806 4000 SHRA FEW018CB BKN025": "**LTFJ — İstanbul Sabiha Gökçen Havalimanı Hava Tahmini**\n\n**Genel:** 27–28 Haziran döneminde değişken bulutlu hava, geçici sağanak ve gümrük bulutları beklenmektedir.\n\n- **0706–1010 UTC:** Rüzgar 050°/15 kt, görüş 9999 m, orta bulutlar 3000 ft, kalın bulutlar 8000 ft.\n- **0706–1010 UTC (geçici):** Hafif sağanak, az bulut 1800 ft'de gümrük bulutları, orta bulutlar 2500 ft, kalın bulutlar 8000 ft.\n- **1618–2121 UTC (kademeli geçiş):** Hafif sağanak, orta bulutlar 2500 ft, kalın bulutlar 8000 ft; ardından rüzgar 020°/18 kt, şiddetli rüzgar 28 kt.\n- **1818–2222 UTC (geçici):** Görüş 4000 m, sağanak, az bulut 1800 ft'de gümrük bulutları, orta bulutlar 2500 ft.\n- **0202–0606 UTC (geçici):** Görüş 4000 m, sağanak, az bulut 1800 ft'de gümrük bulutları, orta bulutlar 2500 ft."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3725,18 +3726,18 @@
   }
  },
  "notam_son_senkron": "2026-09-27T05:55:49+00:00",
- "guncelleme": "2026-09-27T06:24:41+00:00",
+ "guncelleme": "2026-09-27T06:54:50+00:00",
  "push_gonderilen": [
-  "id:54416753",
-  "id:54645856",
-  "id:54494528",
-  "id:54868994",
-  "id:54798358",
+  "id:54872500",
   "id:54339168",
+  "id:54645856",
   "id:54867977",
   "id:54947445",
   "id:54722352",
+  "id:54416753",
   "id:54570097",
-  "id:54872500"
+  "id:54494528",
+  "id:54798358",
+  "id:54868994"
  ]
 }
