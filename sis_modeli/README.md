@@ -757,10 +757,44 @@ Mevsim ve saat profili Marmara'nın en soğuk olduğu dönemde üzerinden gelen
 ılık/nemli havanın adveksiyon sisine uyuyor — **bu bir yorum, ölçülmedi**
 (sis tipi sınıflandırılmıyor, deniz suyu sıcaklığı verisi yok).
 
-**Modele etkisi (açık soru):** dondurulmuş Model A güney bileşenli rüzgârı
-sis aleyhine puanlıyor (`ltfj_sis_olasilik.py`, `ruzgar_kuzey` WoE: en
-güneyli kova −2,45). Toplamda doğru, ama nadir ve en ağır tip olan güneyli
-adveksiyon sisini **hafife alıyor olabilir**. Test edilmedi.
+**Modele etkisi — test edildi, hafife almıyor** (`guneyli_sis_deney.py`).
+Soru: dondurulmuş Model A güney bileşenli rüzgârı sis aleyhine puanlıyor
+(`ruzgar_kuzey` WoE, en güneyli kova −2,45); nadir ama en ağır tip olan
+güneyli sisi hafife alıyor mu? Karar kuralı sonuçlara bakmadan önce
+betiğin başına yazıldı: "hafife alıyor" ancak güneyli rüzgârdaki
+kalibrasyon oranının (gerçekleşen / ortalama tahmin) %5 alt sınırı 1'in
+üstündeyse denir. Veri: `egit.py` ile aynı yürüyen pencere, test yılları
+2015–2023; **holdout açılmadı**.
+
+| tahmin anındaki rüzgâr | an | pozitif | ort. tahmin | gerçekleşen | oran | %5–%95 |
+|---|---|---|---|---|---|---|
+| güneyli (140–250°, > 2 kt) | 31.303 | 34 | %0,26 | %0,11 | **0,42** | 0,24 – 0,70 |
+| diğer | 124.331 | 1.204 | %1,01 | %0,97 | 0,96 | 0,85 – 1,08 |
+
+**Sonuç: hipotez reddedildi.** Güneyli rüzgârda model sisi hafife
+almıyor, tersine olasılığı gerçekleşenin ~2 katı veriyor (aralığın
+tamamı 1'in altında). Mutlak düzeyde küçük bir fark (%0,26'ya karşı
+%0,11) ve ihtiyatlı yönde. Diğer rüzgârlarda kalibrasyon iyi (0,96).
+
+Olay düzeyi (betimleyici — güneyli olay yalnızca 6, karar eşiği 10):
+başlangıçtan önceki 3 saatteki en yüksek tahmin güneyli olaylarda medyan
+%27, diğerlerinde %23,5. Sayfanın "yüksek" bandına (taban oranın 5 katı)
+güneyli olayların 5/6'sı, diğerlerinin %91'i ulaşmış. Ayırt edilebilir
+bir fark yok.
+
+**Neden?** Güneyli olayların önünde görüş zaten düşüyor ve spread ~0 —
+modelin en güçlü iki değişkeni sinyali taşıyor, rüzgâr bileşeninin
+cezası bunu bastırmıyor. Ayrıca birkaç olayda rüzgâr sis başlamadan önce
+sakin ya da KD; güneye ancak başlangıçta dönüyor, yani tahmin anında
+"güneyli" görünmüyor.
+
+**Karar:** dondurulmuş model **değişmedi**; değişiklik gerekçesi yok.
+Güneyli rüzgârdaki fazla tahmin küçük ve güvenli yönde. (Değiştirmek
+gerekseydi bile yeni aday + holdout protokolü gerekirdi.)
+
+```
+python -m sis_modeli.guneyli_sis_deney     # ~1 dk
+```
 
 **Sayfada:** İstatistik sekmesinde "Sis ne zaman görülüyor" — ay ve saat
 şeridi, rüzgâr tablosu, güneyli sis özeti (`ltfj_sis_iklim_tablo.py`).
@@ -780,7 +814,7 @@ doğrudan karşılaştırılamaz; karşılaştırma yön ve örüntü düzeyinde
 | rüzgâr hızı | Atatürk: sakin/hafif değişken | medyan 6 kt; sakinde kat 1,52 | uyuşuyor |
 | KD akışı | KD Marmara'da ilkbahar Karadeniz etkili deniz sisi: KD rüzgâr, soğuk su yükselimi, 850 hPa inversiyonu (Baltacı 2022) | sisin %55'i KD'de (yazın %71) | yön uyuşuyor; mekanizma test edilmedi |
 | en sisli ay | Atatürk: **Kasım** (%28,6) | **Şubat**; Kasım yalnız %8,9 | **ayrışıyor** |
-| güneyli rüzgâr | Atatürk: sisin %41'i 180–270° (denizden karaya) | 140–250° yalnız %7 ama en uzun/yoğun olaylar | **ayrışıyor** (tip olarak var, sıklıkça yok) |
+| güneyli rüzgâr | Atatürk: sisin %41'i 180–270° (denizden karaya) | 140–250° yalnız %7 ama en uzun/yoğun olaylar; Model A bunları hafife almıyor (test edildi) | **ayrışıyor** (tip olarak var, sıklıkça yok) |
 | süre/yoğunluk | Atatürk: ort. 4,5 sa, %75'i < 400 m | ort. 1,7 sa, %26'sı < 400 m | ayrışıyor — tanım farkı olabilir |
 | basınç | Atatürk: 1018–1029 hPa | sis sırasında medyan 1018, genel 1015; yalnız %53'ü ≥ 1018 | ilişki var, daha zayıf |
 
@@ -1315,6 +1349,7 @@ python -m sis_modeli.ufuk_deneyi --bootstrap 200      # + eşli gün-blok güven
 python -m sis_modeli.katmanli_deney --bootstrap 200   # tek model mi, mevsim/saat katmanlı mı
 python -m sis_modeli.gorus_gecis                      # görüş geçiş süreleri (iklimbilim)
 python -m sis_modeli.sis_iklim --dondur              # sis iklimbilimi: ay/saat/rüzgâr (sayfaya dondurur)
+python -m sis_modeli.guneyli_sis_deney             # Model A güneyli rüzgârda kalibre mi (holdout açmaz)
 python -m sis_modeli.olusum_holdout_degerlendir       # TEK ATIŞ
 
 # Tavan: görüşsüz süreklilik (A) + oluşum (B) modelleri
