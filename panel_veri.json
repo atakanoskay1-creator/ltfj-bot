@@ -1,14 +1,14 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-27T01:54:37+00:00",
+ "uretildi": "2026-09-27T02:24:38+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-27T01:50:00+00:00",
-  "metin": "METAR LTFJ 270150Z 04011KT 9999 FEW018 BKN022 BKN080 18/16 Q1017 NOSIG RMK RWY24R 04009KT RWY06R 05011KT RWY24L 04009KT",
+  "zaman": "2026-09-27T02:20:00+00:00",
+  "metin": "METAR LTFJ 270220Z 05010KT 9999 FEW018 BKN022 BKN080 18/16 Q1017 NOSIG RMK RWY24R 04008KT RWY06R 05012KT RWY24L 05008KT",
   "ruzgar": {
-   "yon": 40,
-   "hiz": 11,
+   "yon": 50,
+   "hiz": 10,
    "hamle": null,
    "degisken": null
   },
@@ -30,8 +30,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 10.0,
-    "yan": 4.5,
+    "bas": 9.7,
+    "yan": 2.4,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -43,8 +43,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 10.7,
-    "yan": 2.7,
+    "bas": 11.6,
+    "yan": 2.9,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -56,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -8.2,
-    "yan": 3.7,
+    "bas": -7.8,
+    "yan": 2.0,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -69,8 +69,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -8.2,
-    "yan": 3.7,
+    "bas": -7.3,
+    "yan": 3.3,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -88,21 +88,13 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 040° 11kt · görüş 10+ km · tavan 2200 ft · 18°C · QNH 1017"
+  "ozet": "Rüzgâr 050° 10kt · görüş 10+ km · tavan 2200 ft · 18°C · QNH 1017"
  },
  "taf": {
   "zaman": "2026-09-26T22:40:00+00:00",
   "metin": "TAF LTFJ 262240Z 2700/2724 05012KT 9999 SCT030 BKN080 TEMPO 2700/2704 -SHRA SCT015 BKN022 BKN080 PROB30 TEMPO 2705/2709 -SHRA FEW018TCU BKN025 BKN080 BECMG 2716/2719 -SHRA BKN025 BKN080 BECMG 2719/2721 02018G28KT PROB30 TEMPO 2721/2724 4000 SHRA FEW018CB BKN025"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-21T06:20:00+00:00",
-   "ruzgar_hiz": 2,
-   "tavan": null,
-   "qnh": 1017,
-   "sicaklik": 21,
-   "cig_noktasi": 18
-  },
   {
    "zaman": "2026-09-21T06:50:00+00:00",
    "ruzgar_hiz": 3,
@@ -2653,6 +2645,15 @@
    "zaman": "2026-09-27T01:50:00+00:00",
    "gorus": 9999,
    "ruzgar_hiz": 11,
+   "tavan": 2200,
+   "qnh": 1017,
+   "sicaklik": 18,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-27T02:20:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 10,
    "tavan": 2200,
    "qnh": 1017,
    "sicaklik": 18,
