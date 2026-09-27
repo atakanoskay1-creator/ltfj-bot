@@ -29,7 +29,16 @@
     --bg:#f9fafc; --panel:#f1f4f9; --kart:#ffffff; --etkilesim:#eef2f7;
     --cizgi:#e4e9f0; --kod-bg:#f4f7fa;
     /* metin */
-    --metin:#0f172a; --soluk:#64748b; --sessiz:#94a3b8; --vurgu:#0f172a;
+    /* MUREKKEP KATMANLARI - UCU DE METIN ICIN AA (4.5:1) GECER, her yuzeyde.
+       Olculdu (bg/panel/kart/etkilesim/kod-bg'nin EN KOTUSUNE karsi):
+         --metin  #0f172a  ~17:1
+         --soluk  #505e74  5.85:1   (eskiden #64748b: 4.23 - tonlu
+                                      yuzeylerde AA'nin altindaydi)
+         --sessiz #606c81  4.72:1   (eskiden #94a3b8: 2.28 - kunye,
+                                      birim, kaynak satiri okunmuyordu)
+       Sessiz ile soluk arasindaki fark kucuk ama gercek; uc katmanli
+       hiyerarsi korunuyor, hicbiri esigin altina inmiyor. */
+    --metin:#0f172a; --soluk:#505e74; --sessiz:#606c81; --vurgu:#0f172a;
     /* anlamsal - durum anlatir */
     /* Metin tonlari OLCULEREK secildi - WCAG AA (4.5:1), kendi "-zemin"
        tonlarinin uzerinde. Onceki degerler (#16a34a / #dc2626) acik temada
@@ -112,7 +121,7 @@
     :root:not([data-theme="light"]) {
       --bg:#0f1419; --panel:#141b23; --kart:#171f29; --etkilesim:#1f2833;
       --cizgi:#2a3540; --kod-bg:#10161d;
-      --metin:#e6edf3; --soluk:#8b98a5; --sessiz:#6b7684; --vurgu:#e6edf3;
+      --metin:#e6edf3; --soluk:#9aa6b1; --sessiz:#87919e; --vurgu:#e6edf3;
       --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
       --bilgi:#60a5fa;
       --marka:#0d9488;
@@ -126,7 +135,7 @@
   :root[data-theme="dark"] {
     --bg:#0f1419; --panel:#141b23; --kart:#171f29; --etkilesim:#1f2833;
     --cizgi:#2a3540; --kod-bg:#10161d;
-    --metin:#e6edf3; --soluk:#8b98a5; --sessiz:#6b7684; --vurgu:#e6edf3;
+    --metin:#e6edf3; --soluk:#9aa6b1; --sessiz:#87919e; --vurgu:#e6edf3;
     --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
     --bilgi:#60a5fa;
     --marka:#0d9488;
@@ -532,8 +541,13 @@
     color:var(--metin);
   }
   .pd-halka { fill:none; stroke:var(--cizgi); stroke-width:1; }
+  /* Pist seridi DUZ --sessiz, opaklik YOK. Eskiden --soluk + opacity:.75
+     idi; ustundeki pist ucu numaralari (fill --kart) o yari saydam zemin
+     uzerinde AA'nin altina dusuyordu (olculdu: acik 3.67, koyu 4.37).
+     --sessiz duz hali gorsel olarak neredeyse ayni acikligi veriyor ama
+     numara artik esigin ustunde. */
   .pd-pist {
-    stroke:var(--soluk); stroke-width:13; stroke-linecap:butt; opacity:.75;
+    stroke:var(--sessiz); stroke-width:13; stroke-linecap:butt;
   }
   .pd-uc-ad {
     /* Serit uzerinde duruyorlar - serit rengiyle degil ZEMINLE
@@ -543,9 +557,10 @@
   }
   .pd-uc-tercih { fill:var(--kart); }
   .pd-kuzey {
-    /* Pusula kuzeyi: boyutla degil OPAKLIKLA geri cekiliyor ki
-       olcegin disina cikmasin. */
-    font-size:var(--f1); font-weight:700; fill:var(--sessiz); opacity:.8;
+    /* Pusula kuzeyi: geri cekilmesi --sessiz TONUNDAN geliyor. Eskiden
+       ustune opacity:.8 de ekleniyordu - AA'yi tutan token'i esigin
+       altina itiyordu. Bir metin OKUNMASI gereken bir harf. */
+    font-size:var(--f1); font-weight:700; fill:var(--sessiz);
     text-anchor:middle; dominant-baseline:middle;
   }
   .pd-ok { stroke:currentColor; stroke-width:2.4; stroke-linecap:round; }
@@ -898,9 +913,11 @@
        saat kolonlari sağa sıkışıyordu. */
     width:1%; padding-right:14px;
   }
+  /* Birim geri cekilmesi TONDAN (--sessiz), opakliktan degil - opacity
+     token'in AA garantisini bozuyordu (olculdu: acik 3.67). */
   .tahmin-birim {
     display:inline-block; margin-left:5px; font-weight:400;
-    font-size:var(--f1); opacity:.75;
+    font-size:var(--f1); color:var(--sessiz);
   }
   .tahmin-saat { font-size:var(--f2); font-weight:650; font-family:var(--mono); }
   /* Spread en guclu onculer gostergeydi (bkz. sis_modeli/README.md) -
@@ -982,10 +999,10 @@
   .notam-cip[aria-pressed="true"] {
     background:var(--baglanti); border-color:var(--baglanti); color:var(--bg);
   }
-  /* Sayac: secili cipte de okunur kalmali - kendi zemini yok, yalnizca
-     opaklik dusuyor, yani her iki durumda da metin renginden turuyor. */
-  .notam-cip b { font-family:var(--mono); font-weight:650; opacity:.75; }
-  .notam-cip[aria-pressed="true"] b { opacity:.85; }
+  /* Sayac: OPAKLIK YOK. Eskiden opacity:.75 ile geri cekiliyordu -
+     kontrasti token'dan BAGIMSIZ dusuruyordu (olculdu: 2.84:1). Ayrim
+     artik yazitipinden (mono) geliyor; renk cipin metin rengi. */
+  .notam-cip b { font-family:var(--mono); font-weight:650; }
   .notam-ham > summary {
     cursor:pointer; list-style:none; font-size:var(--f1); font-weight:700;
     letter-spacing:.08em; text-transform:uppercase; color:var(--soluk);
