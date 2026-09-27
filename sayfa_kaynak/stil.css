@@ -1,0 +1,1235 @@
+
+@@yazitipi_css@@
+  /* ===================== TASARIM SISTEMI =====================
+     TEK KAYNAK. Once her anlamsal renk sayfaya DAGILMIS sabit hex olarak
+     duruyordu: ornegin "dikkat" tonu (#b45309 acik / #fbbf24 koyu) UC AYRI
+     kuralda, her biri ayrica iki koyu tema blogunda tekrarlanmisti - dokuz
+     yer. Birini guncelleyip otekileri unutmak an meselesiydi.
+
+     KATMANLAR: zemin -> panel -> kart -> etkilesim. Her katman bir ustune
+     gore hafifce ayrisir; koyu temada saf siyah ve asiri kontrast YOK.
+
+     ANLAMSAL RENKLER durum anlatir, dekorasyon degildir. "-zemin" varyanti
+     rozet/kutu arka plani, duz olani metin/kenarlik icindir.
+
+     NOT: havacilik durum kodu olcegi SAYFADAN TAMAMEN KALKTI; yalnizca
+     Telegram tarafinda yasiyor (bkz. ltfj_pist). Sayfanin durum
+     gostergesi ICAO Annex 2 esiklerinden gelen VFR/IFR. */
+  :root {
+    /* Mono yigini eskiden 6 ayri yerde KOPYALANMISTI - biri guncellenip
+       otekiler unutulabilirdi. Tek kaynak. */
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+
+    /* yuzey katmanlari */
+    /* #f8fafc -> #eef2f7: kartlar (beyaz) zeminden daha net
+       ayrissin. Kontrast metin/zemin oranlarini DUSURMEZ -
+       metin kart uzerinde duruyor, zemin degismedi. */
+    /* DUZ TUVAL. Derinlik yuzey basamagindan degil TEK PIKSELLIK
+       CIZGIDEN geliyor; hiyerarsiyi kutu degil TIPOGRAFI tasiyor. */
+    --bg:#f9fafc; --panel:#f1f4f9; --kart:#ffffff; --etkilesim:#eef2f7;
+    --cizgi:#e4e9f0; --kod-bg:#f4f7fa;
+    /* metin */
+    --metin:#0f172a; --soluk:#64748b; --sessiz:#94a3b8; --vurgu:#0f172a;
+    /* anlamsal - durum anlatir */
+    /* Metin tonlari OLCULEREK secildi - WCAG AA (4.5:1), kendi "-zemin"
+       tonlarinin uzerinde. Onceki degerler (#16a34a / #dc2626) acik temada
+       2.89:1 ve 3.97:1 veriyordu, yani AA'nin altindaydi. */
+    /* FAB yuzeyi: acik temada koyu disk, koyu temada YUKSELTILMIS
+       YUZEY. Tek kural (--vurgu/--bg) kullanilinca koyu temada FAB
+       neredeyse beyaz oluyordu (olculen bagil parlaklik 0.853, hero
+       0.023 - 37 kat). Gece karartilmis bir kulede ekranin en parlak
+       nesnesi "not ekle" dugmesi olmamali. */
+    /* MARKA TONU - ANLAM TASIMAZ. Grafik cizgisi, secili sekme
+       gostergesi ve odak halkasi icin; durum ASLA bu tonla
+       anlatilmaz. Mor secildi cunku durum hue'lari (kirmizi 15,
+       turuncu 30, sari 50, yesil 140, mavi 250 derece) arasindaki
+       EN GENIS bosluk orada. Olculdu (OKLab ΔE, rehberin
+       normal-gorus tabani 15): en yakin durum rengine 15.8;
+       kontrast acik yuzeyde 8.98, koyuda 7.24 (cizgi icin
+       gereken 3:1'in cok ustunde). */
+    /* AKSAN TONU - ANLAM TASIMAZ. Grafik cizgisi, secili sekme
+       gostergesi ve odak halkasi icin; durum ASLA bu tonla anlatilmaz.
+       MOR -> TURKUAZ: olculdu (OKLab DeltaE, rehberin normal-gorus
+       tabani 15). Mordun (#b39ddb) koyu temada bilgi mavisine
+       (#60a5fa) uzakligi 10.6 - yani TABANIN ALTINDA; daha once "en
+       yakin durum rengine 15.8" demistim, o olcum bilgi mavisini
+       kapsamiyormus. Turkuazin en yakin durum rengine normal-gorus
+       uzakligi 18.4, yani tabanin ustunde. Protanopide kirmiziya 3.3
+       ile yaklasiyor (mor 4.8 veriyordu) ama esik asimi sayfada HER
+       ZAMAN kelimeyle de yaziliyor ("esik alti"), yani o kanalda renk
+       tek tasiyici degil. Kontrast: acik yuzeyde 3.74:1, koyuda
+       4.94:1 - grafik cizgisi icin gereken 3:1'in ustunde. */
+    --marka:#0d9488;
+    /* Baglanti/vurgu METNI ayri token: metin AA'si 4.5:1 ister,
+       --marka acik temada 3.74 veriyor (cizgi icin yeterli, metin icin
+       degil). Olculdu: #0f766e acik yuzeyde 5.47:1. */
+    --baglanti:#0f766e;
+    --fab-zemin:#0f172a; --fab-metin:#f8fafc; --fab-cizgi:transparent;
+    /* Kart golgesi: acik temada kagit degil KONSOL hissi icin.
+       Koyu temada golge yok - siyah uzerine golge gorunmez ve
+       parlaklik eklemek gece kullanimini bozardi; orada derinlik
+       yuzey basamaklarindan (--bg < --panel < --kart) geliyor. */
+    /* Kart golgesi TEK KATMANA indi. Onceden iki katmanliydi (2px +
+       8px bulanma) ve kartlara kagit hissi veriyordu. Yuzey adimi da
+       kuculunce (bkz. --bg) o golge kartin ASIL ayirici ogesi olurdu;
+       oysa ayrimi --cizgi tasimali. Kalan 1px yalnizca kenarligi
+       oturtuyor.
+       --golge-yukari SILINDI: tek tuketicisi ".su-an .hero" idi, hero
+       artik kart degil. Kullanilmayan token tasarim sisteminde
+       "kullanilabilir" gibi durup yanlis yere cagrilir. */
+    --golge:0 1px 2px rgba(15,23,42,.04);
+    --iyi:#166534;    --iyi-zemin:#22c55e26;    --iyi-dolu:#22c55e;
+    --dikkat:#b45309; --dikkat-zemin:#f59e0b26; --dikkat-dolu:#f59e0b;
+    --uyari:#ef4444;  --uyari-zemin:#ef444426;  --uyari-metin:#b91c1c;
+    --bilgi:#2563eb;  --bilgi-zemin:#3b82f626;
+    /* TIPOGRAFI OLCEGI - 6 ADIM.
+       Olculdu: tek telefon ekraninda 17 FARKLI punto vardi ve 11'i
+       9.9-14.1px arasina sikismisti; o araliktaki farki goz zaten
+       ayirt etmiyor, yani 11 ayri karar sifir hiyerarsi kazanci
+       veriyordu. Asil sorun ustteki bosluktu: 16.8px ile 24px arasinda
+       HICBIR SEY yoktu, yani sayfada sadece uc gercek katman vardi -
+       "hero", "baslik" ve "geri kalan her sey". Ikincil ama onemli bir
+       seyi (hamle, QNH, pist ruzgari) vurgulamak icin elde arac yoktu.
+       f4/f5 tam o boslugu dolduruyor. */
+    --f1:.6875rem;   /* 11px - birim, etiket, dipnot           */
+    --f2:.8125rem;   /* 13px - ikincil govde, tablo, rozet     */
+    --f3:.9375rem;   /* 15px - govde                           */
+    --f4:1.125rem;   /* 18px - bolum basligi, h1               */
+    --f5:1.375rem;   /* 22px - vurgu (dar ekranda hero)        */
+    --f6:1.75rem;    /* 28px - hero                            */
+    /* 7. ADIM SADECE DURUM KODU ICIN. Sayfada tek bir birincil
+       metrik var (VFR/IFR) ve olcegin tepesinde hero sayilariyla AYNI
+       puntoda duruyordu - yani "en onemli" ile "onemli" ayni
+       agirlikta. Bir adim ustu o farki geri veriyor. */
+    --f7:2.375rem;   /* 38px - durum kodu (tek birincil metrik) */
+    /* olcek */
+    --r1:6px; --r2:10px; --r3:14px;
+  }
+  /* Koyu tema iki yerde tanimli olmak ZORUNDA: biri sistem tercihi, oteki
+     elle secim (data-theme). Ikisi ayni listeyi tasir - listeyi TOKEN'a
+     indirgemenin asil kazanci da bu: artik tek satir kopyalaniyor. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#0f1419; --panel:#141b23; --kart:#171f29; --etkilesim:#1f2833;
+      --cizgi:#2a3540; --kod-bg:#10161d;
+      --metin:#e6edf3; --soluk:#8b98a5; --sessiz:#6b7684; --vurgu:#e6edf3;
+      --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
+      --bilgi:#60a5fa;
+      --marka:#0d9488;
+      /* Koyu zeminde baglanti metni daha parlak bir adim: #2dd4bf 9.94:1. */
+      --baglanti:#2dd4bf;
+      --fab-zemin:#1f2833; --fab-metin:#e6edf3; --fab-cizgi:#3a4654;
+      /* Koyu temada golge GORUNMEZ; ayrimi yuzey adimi tasiyor. */
+      --golge:none;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#0f1419; --panel:#141b23; --kart:#171f29; --etkilesim:#1f2833;
+    --cizgi:#2a3540; --kod-bg:#10161d;
+    --metin:#e6edf3; --soluk:#8b98a5; --sessiz:#6b7684; --vurgu:#e6edf3;
+    --iyi:#4ade80; --dikkat:#fbbf24; --uyari-metin:#f87171;
+    --bilgi:#60a5fa;
+    --marka:#0d9488;
+    /* Koyu zeminde baglanti metni daha parlak bir adim: #2dd4bf 9.94:1. */
+    --baglanti:#2dd4bf;
+    --fab-zemin:#1f2833; --fab-metin:#e6edf3; --fab-cizgi:#3a4654;
+    /* Koyu temada golge GORUNMEZ; ayrimi yuzey adimi tasiyor. */
+    --golge:none;
+  }
+  /* Hareket azaltma tercihi: isletim sisteminde acan kullanici icin tum
+     gecis ve animasyonlar durur. Sayfa islevini KAYBETMEZ - donen ok yine
+     doner, sadece aninda. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration:.01ms !important; animation-iteration-count:1 !important;
+      transition-duration:.01ms !important; scroll-behavior:auto !important;
+    }
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--bg); color:var(--metin);
+    /* 1.55 -> 1.62: sayfadaki uzun Turkce uyari paragraflari icin
+       gozu dinlendiren asil degisiklik satir araligi. */
+    /* Govde punto'su da OLCEKTEN. 16px birakilinca acikca boyut
+       verilmeyen ogeler olcek disina dusuyordu (olculdu: 2 oge). rem
+       koke gore hesaplandigi icin bunu degistirmek --fN degerlerini
+       ETKILEMEZ, yalnizca mirasla gelen metni hizalar. */
+    font:var(--f3)/1.62 "IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,
+         "Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    /* Rakamlar SABIT GENISLIKTE. Eskiden bu ozellik dokuz ayri
+       kuralda tek tek veriliyordu; aradaki her oge (pist satirlari,
+       tahmin tablosu, NOTAM tarihleri) oransal rakam kullaniyor ve
+       degerler degisince sutun yatayda oynuyordu. Kokten verince
+       sayfadaki her sayi hizali. */
+    font-variant-numeric:tabular-nums;
+    padding:20px 16px 40px;
+  }
+  .sar { max-width:680px; margin:0 auto; }
+  header {
+    margin-bottom:2px; display:flex; align-items:center;
+    justify-content:space-between; gap:12px;
+  }
+  .header-metin { min-width:0; }
+  /* Ö4: 1.5rem (24px) iken hero sayilariyla (24px w650) AYNI boydaydi.
+     Istasyon kodu SABIT bilgi - ilk saniyeden sonra sifir bilgi tasir;
+     dort olcumle ayni gorsel agirlikta olmasi icin sebep yok. 18px
+     teyit icin fazlasiyla yeterli ve olcegin (Ö5) bir adimi. */
+  h1 { font-size:var(--f4); margin:0 0 4px; letter-spacing:-.01em; }
+  .alt { color:var(--soluk); font-size:var(--f3); }
+  button.yenile {
+    flex-shrink:0; background:var(--kod-bg); border:1px solid var(--cizgi);
+    color:var(--soluk); border-radius:8px; padding:8px 12px; font:inherit;
+    font-size:var(--f2); font-weight:650; cursor:pointer; white-space:nowrap;
+  }
+  button.yenile:hover { color:var(--metin); border-color:var(--vurgu); }
+  button.yenile:disabled { opacity:.6; cursor:default; }
+  .header-butonlar { display:flex; gap:8px; flex-shrink:0; }
+  @media (max-width:480px) {
+    /* METIN GIZLENIR, IKON KALIR. Eskiden dugmeler ikinci satira
+       iniyordu ve bu iki sey demekti: (1) birincil metrigin ustunde
+       tam bir satiri iki EYLEM yiyordu, (2) o satir tam olarak VFR
+       sekmesinin dikey bandina (y=96-144) denk geldigi icin sag ucuna
+       basan parmak Yenile'yi degil VFR panelini aciyordu - eski cozum
+       34px dolgu koymakti. Ikona inince ikisi de kendiliginden bitti:
+       dugmeler basligin YANINDA (y=20-56), sekme bandinin ustunde.
+       Erisilebilirlik kaybi yok - metin GORSEL olarak gizleniyor,
+       agactan silinmiyor (bkz. .btn-metin). */
+    /* Metin GORSEL olarak gizleniyor, agactan SILINMIYOR: dugmenin
+       erisilebilir adi hala "Yenile" / "Bildirimler" (ekran okuyucu,
+       ses komutu, otomasyon). display:none olsaydi ad kaybolurdu. */
+    .btn-metin {
+      position:absolute; width:1px; height:1px; overflow:hidden;
+      clip:rect(0 0 0 0); white-space:nowrap;
+    }
+    /* IKON DUGMESI DOKUNMA HEDEFI. Yalnizca dolgu verilince olculen
+       kutu 33x41 cikiyordu - WCAG 2.2 AA tabanini (24x24) geciyor ama
+       tek elle, yururken, eldivenle kullanilan bir ekranda dar. 44x44
+       acikca zorlaniyor; ikon ortada kaliyor. */
+    button.yenile {
+      padding:9px; font-size:var(--f2);
+      min-width:44px; min-height:44px;
+      display:inline-flex; align-items:center; justify-content:center;
+    }
+    button.yenile .ikon { margin-right:0; }
+  }
+  /* YAPISKAN UST = ozet serit + sekme cubugu, TEK sticky blok.
+     Ikisini ayri ayri yapiskan yapmak, sekme cubuguna "serit ne kadar
+     yuksek?" diye bir top: degeri uydurmayi gerektirirdi; serit dar
+     ekranda satir kaydirdigi icin o sayi sabit DEGIL. Tek sarmal bu
+     sorunu tamamen ortadan kaldiriyor.
+     z-index kasitli olarak 40: sayfa icerigiNIN ustunde, ama sabit
+     kapli katmanlarin (VFR sekmesi 58, ATC modali 65) ALTINDA. */
+  /* SU AN blogu - hero'nun yeni evi. Kart icinde degil, sayfanin
+     tepesinde; kenarlik kartlarla ayni dilde ama baslik satiri yok
+     (sekme cubugu ve baslik zaten baglami veriyor). */
+  .su-an { margin:0; }
+  /* Serit, hero gorunurken GIZLI. .js sinifi <head>'de ekleniyor, yani
+     JS varsa serit hic cizilmeden basliyor - acilista yanip sonme yok.
+     JS yoksa kural hic uygulanmaz ve ikisi de gorunur kalir. */
+  .js .ozet-serit { display:none; }
+  .js .yapiskan-ust.serit-acik .ozet-serit { display:flex; }
+  .yapiskan-ust {
+    position:sticky; top:0; z-index:40;
+    background:var(--bg); margin:0 0 16px; padding-top:2px;
+  }
+  .ozet-serit {
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    margin:0; padding:9px 12px;
+    background:var(--kart); border:1px solid var(--cizgi); border-radius:12px;
+    font-size:var(--f2); font-variant-numeric:tabular-nums;
+  }
+  .ozet-oge { color:var(--metin); white-space:nowrap; }
+  /* Ayirici nokta: ogeler arasinda, ilkinden once DEGIL. */
+  .ozet-oge + .ozet-oge::before { content:"·"; color:var(--soluk); margin-right:8px; }
+  @media (max-width:480px) {
+    .ozet-serit { font-size:var(--f2); gap:6px; padding:8px 10px; }
+    .ozet-oge + .ozet-oge::before { margin-right:6px; }
+  }
+
+  /* ---- SEKME CUBUGU ----------------------------------------------------
+     Bolumler (Durum/Beklenti/Istatistik/LVO/NOTAM) eskiden alt alta
+     katlanir basliklardi; sayfa cok uzuyordu. YATAY sekme secildi, dikey
+     ray DEGIL: icerik sutunu telefonda ~360px ve soldaki bir ray yatay
+     genisligi KALICI olarak yerdi (~%25). Yatay cubuk dikey yerden bir
+     kez odun verir, yataydan hic.
+
+     ROZET SART: sekme icerigi GIZLIYOR. NOTAM sayfadayken kaydirirken
+     goz ucuyla goruluyordu; sekmenin arkasina girince yeni NOTAM'i fark
+     etmenin tek yolu cubuktaki rozet kalir. */
+  .sekme-cubugu {
+    display:none;                      /* JS yoksa hic cizilmez - asagi bak */
+    gap:2px; margin-top:8px; padding:3px;
+    background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:12px;
+    overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+  }
+  .sekme-cubugu::-webkit-scrollbar { display:none; }
+  .js .sekme-cubugu { display:flex; }
+  .sekme {
+    flex:1 0 auto; min-height:40px; padding:7px 12px;
+    background:none; border:0; border-radius:9px; cursor:pointer;
+    color:var(--soluk); font:inherit; font-size:var(--f2); font-weight:600;
+    white-space:nowrap; display:flex; align-items:center; gap:6px;
+    justify-content:center;
+  }
+  .sekme[aria-selected="true"] {
+    background:var(--kart); color:var(--metin);
+    box-shadow:0 1px 3px rgba(0,0,0,.12);
+  }
+  .sekme:focus-visible { outline:2px solid var(--metin); outline-offset:-2px; }
+  /* Sekme rozeti: kart rozetiyle AYNI gorsel dil, daha kucuk. */
+  .sekme-rozet {
+    font-size:var(--f1); font-weight:700; padding:1px 6px; border-radius:999px;
+    background:var(--cizgi); color:var(--metin); font-variant-numeric:tabular-nums;
+  }
+  .sekme-rozet:empty { display:none; }
+  /* Telefon cubugunda ikon YOK: olculdu, cubuk 360px'te tam kapasitede
+     (326/326px) ve ikon eklemek NOTAM'i keserdi. DOM'da duruyor ama
+     display:none oldugu icin yer kaplamiyor; rayda aciliyor. */
+  .sekme-ikon { display:none; }
+  /* Rozet noktasi: rozetin kendi arka plani zaten renk kodu, nokta
+     beyaz kalir - iki farkli renk ust uste binmez. */
+  .ikon-fab { width:22px; height:22px; }
+  .rozet-nokta { width:.55em; height:.55em; stroke-width:0; fill:currentColor;
+                  margin-right:5px; opacity:.85; }
+  @media (max-width:480px) {
+    /* 360px'te bes sekme + rozetler cubugu tasiriyordu ve NOTAM kismen
+       kesiliyordu. Yatay dolgu ve rozet en cok yeri yiyen ikisi. */
+    .sekme { font-size:var(--f2); padding:7px 4px; gap:3px; }
+    .sekme-rozet { font-size:var(--f1); padding:1px 4px; }
+    .sekme-cubugu { gap:1px; padding:2px; }
+  }
+
+  /* JS YOKSA SAYFA BOZULMAZ: paneller varsayilan olarak GORUNUR ve cubuk
+     cizilmez, yani sayfa eski "hepsi alt alta" haline duser. Gizleme
+     yalnizca .js sinifi varken devreye girer; o sinifi <head>'deki satir
+     ici betik body cizilmeden once ekledigi icin acilista titreme olmaz. */
+  /* ---- GENIS EKRANDA SOL RAY -------------------------------------------
+     Icerik sutunu 680px'te ortalanir; 1024px ustunde SOLDA 172-380px
+     ZATEN BOS alan kalir (olculdu). Ray oraya konunca icerik sutunu
+     HIC DARALMAZ - telefonda ray yatay genisligi yerdi, burada yemiyor.
+     Bu yuzden ayni <nav> HTML'i, yalnizca CSS ile dikeye donuyor.
+
+     left hesabi: sutunun sol kenari 50% - 340px. Ray onun 16px soluna,
+     genisligi 140px -> 50% - 340 - 16 - 140 = 50% - 496px. 1024px'te
+     ekranin solunda 16px bosluk kalir, daha genisinde acilir. */
+  @media (min-width:1024px) {
+    .js .sekme-cubugu {
+      position:fixed; top:104px; left:calc(50% - 496px);
+      width:140px; z-index:40; margin-top:0;   /* top: ne diyorsa o olsun */
+      flex-direction:column; gap:2px; padding:4px;
+      overflow:visible;          /* dikeyde bes oge hep sigar */
+    }
+    .sekme {
+      flex:0 0 auto; justify-content:flex-start; text-align:left;
+      padding:9px 10px; gap:9px;
+    }
+    /* Rayda 140px var - ikon burada hem siger hem tarama hizini artirir. */
+    .sekme-ikon { display:block; width:15px; height:15px; opacity:.85; }
+    .sekme[aria-selected="true"] .sekme-ikon { opacity:1; }
+    /* Rozet satirin SONUNA yaslansin - etiketler farkli uzunlukta ve
+       rozetler hizasiz dururdu. */
+    .sekme-rozet { margin-left:auto; }
+    /* Ray akistan ciktigi icin yapiskan blokta yalnizca ozet serit kalir;
+       altindaki bosluk artik gereksiz. */
+    .yapiskan-ust { padding-bottom:0; }
+  }
+
+  /* ---- IKONLAR ---- currentColor: ikon metnin rengini alir, yani her
+     tema ve her durum renginde kendiliginden dogru cizilir. */
+  .ikon {
+    width:1em; height:1em; flex:0 0 auto; vertical-align:-.125em;
+    stroke:currentColor; fill:none; stroke-width:1.9;
+    stroke-linecap:round; stroke-linejoin:round;
+  }
+  button .ikon { margin-right:5px; }
+  /* Uyari kutularinda ikon metne YAPISIK ciziliyordu ("!Bilgi amaclidir").
+     button disinda hicbir kural bosluk vermiyordu. Renk de burada: uyari
+     kutusunun ikonu govde metniyle ayni griye boyaniyordu. */
+  .ikon-uyari { margin-right:7px; color:var(--dikkat); vertical-align:-.16em; }
+
+  /* ---- UYGULAMA BASLIGI ---- */
+  h1 { display:flex; align-items:baseline; gap:9px; flex-wrap:wrap; }
+  .ust-kod { font-weight:700; letter-spacing:.03em; }
+  .ust-ad { font-size:.72em; font-weight:500; color:var(--soluk); }
+  /* ---- DURUM BANDI ----
+     Ust-sol bolge: goz once buraya gider, bu yuzden sayfanin TEK
+     birincil metrigi burada. Ustte ve altta tek piksel cizgi var,
+     kutu YOK - agirligi punto tasiyor. */
+  .durum-bandi {
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px; flex-wrap:wrap;
+    padding:14px 0 13px; margin:0 0 2px;
+    border-top:1px solid var(--cizgi); border-bottom:1px solid var(--cizgi);
+  }
+  .durum-blok { display:flex; align-items:center; gap:11px; min-width:0; }
+  /* Uçuş kuralı noktası: kart içindeki VFR sekmesiyle AYNI sınıf
+     (.vfr-nokta), yani iki gösterge sessizce farklı renge kayamaz. */
+  .durum-blok .vfr-nokta { width:13px; height:13px; }
+  .durum-kod {
+    font-size:var(--f7); font-weight:700; line-height:1;
+    letter-spacing:-.01em; color:var(--metin);
+  }
+  .durum-ad { display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .durum-ad-metin {
+    font-size:var(--f3); font-weight:600; color:var(--metin); line-height:1.2;
+  }
+  /* Resmi CAT kategorisi SANILMASIN diye kaynak etiketi kodun DIBINDE,
+     dip notta degil (bkz. ltfj_pist.RENK_ETIKETI). */
+  .durum-kaynak {
+    font-size:var(--f1); color:var(--soluk); letter-spacing:.02em;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .durum-sag {
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    margin-left:auto;
+  }
+  @media (max-width:480px) {
+    .durum-sag { flex-basis:100%; margin-left:0; }
+  }
+  .ust-durum {
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:var(--f1); font-weight:700; letter-spacing:.09em; color:var(--soluk);
+  }
+  .ust-durum .ikon { width:.72em; height:.72em; stroke-width:0; fill:currentColor; }
+  .ust-durum.taze { color:var(--iyi); }
+  .ust-durum.gecikmeli { color:var(--dikkat); }
+  .ust-durum.kesinti { color:var(--uyari-metin); }
+  /* Yanip sonme YALNIZCA taze durumda ve YAVAS: surekli hareket
+     operasyonel bir ekranda dikkat dagitir. Hareket azaltma tercihinde
+     (yukarida) kendiliginden durur. */
+  .ust-durum.taze .ikon { animation:ltfj-nabiz 2.6s ease-in-out infinite; }
+  @keyframes ltfj-nabiz { 0%,100% { opacity:1; } 50% { opacity:.35; } }
+  .ust-saat {
+    font-family:var(--mono); font-size:var(--f2); color:var(--metin);
+    font-variant-numeric:tabular-nums;
+  }
+  .ust-saat:empty { display:none; }
+
+  /* ---- VERI TAZELIGI SERIDI ---- */
+  /* Kutu KALKTI: bu satir hero'nun dipnotu, kendi basina bir blok
+     degil. Panel zemini + kenarlik onu hero ile ayni agirliga
+     cikariyordu. */
+  .veri-serit {
+    display:flex; flex-wrap:wrap; gap:6px 16px; margin:0 0 14px;
+    padding:0; font-family:var(--mono); font-size:var(--f1);
+    color:var(--sessiz);
+  }
+  .veri-oge { display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+  .veri-oge b { font-weight:400; color:var(--soluk); letter-spacing:.05em; }
+  .veri-oge time { color:var(--metin); }
+  .veri-oge.bayat time, .veri-oge.bayat span { color:var(--dikkat); }
+  .veri-kaynak { margin-left:auto; }
+  @media (max-width:480px) {
+    .veri-serit { font-size:var(--f1); gap:4px 12px; }
+    .veri-kaynak { margin-left:0; flex-basis:100%; }
+  }
+
+  /* ---- MEVCUT KOSULLAR (hero) ----
+     Telefonda 2x2, >=560px'te tek sirada dort. 1px bosluklar arka plan
+     renginden geliyor - ayrik kenarlik yerine tek izgara cizgisi. */
+  /* Kutulu izgara yerine HAIRLINE SERIT. Onceki bicimde dort olcunun
+     her biri kendi kartindaydi: 1 dis kenarlik + 3 ic ayirici + kose
+     yaricapi + golge. Gorsel yuk kutulardan geliyordu, sayidan degil.
+     Simdi kutu yok - ayirici tek dikey cizgi, olcu dogrudan tuvalde. */
+  .hero {
+    display:grid; grid-template-columns:repeat(2,1fr);
+    margin:0 0 14px; border-bottom:1px solid var(--cizgi);
+  }
+  @media (min-width:560px) { .hero { grid-template-columns:repeat(4,1fr); } }
+  .hero-oge {
+    background:transparent; padding:13px 14px 12px; color:var(--soluk);
+    border-right:1px solid var(--cizgi);
+  }
+  /* Sag kenarin disarida cizgi birakmamasi icin: telefonda 2 sutun
+     (2. ve 4. hucre), genis ekranda 4 sutun (4. hucre). */
+  .hero-oge:nth-child(2n) { border-right:0; }
+  @media (min-width:560px) {
+    .hero-oge:nth-child(2n) { border-right:1px solid var(--cizgi); }
+    .hero-oge:nth-child(4n) { border-right:0; }
+  }
+  /* Telefonda iki satir olusuyor - ust satirin altina ayirici. */
+  @media (max-width:559px) {
+    .hero-oge:nth-child(-n+2) { border-bottom:1px solid var(--cizgi); }
+  }
+  /* Ö6: 9.9px + --sessiz = ACIK temada 2.56:1, koyuda 3.64:1 - ikisi de
+     AA'nin (4.5) altinda. Bunlar sayfadaki EN BUYUK dort sayinin ne
+     oldugunu soyleyen etiketler; gunes altinda rakam gorunup etiketi
+     gorunmuyordu. --soluk ile acikta 4.76:1, koyuda 6.56:1. */
+  .hero-etiket {
+    font-size:var(--f1); font-weight:700; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--soluk);
+  }
+  .hero-deger {
+    font-size:var(--f6); font-weight:650; line-height:1.15; margin-top:2px;
+    font-variant-numeric:tabular-nums; color:var(--metin);
+  }
+  /* Esik asiminda SAYININ KENDISI degisiyor (bkz. _olcu_bandi).
+     Renk TEK BASINA tasiyici degil: yanindaki "sınırlı"/"eşik altı"
+     etiketi ayni bilgiyi metinle de veriyor. */
+  .hero-deger.hero-dikkat { color:var(--dikkat); }
+  .hero-deger.hero-uyari  { color:var(--uyari-metin); font-weight:750; }
+  .hero-band-etiket {
+    margin-left:6px; font-size:var(--f1); font-weight:700;
+    letter-spacing:.02em; text-transform:none; color:var(--dikkat);
+  }
+  /* Band sinifi HUCREDE de duruyor; :has() gerekmiyor. */
+  .hero-oge-uyari .hero-band-etiket { color:var(--uyari-metin); }
+  /* "bildirilmedi" bir SAYI degil - hero puntosunda sayfanin en buyuk
+     yazisi oluyor ve yoklugu olculmus bir degerden baskin gosteriyordu. */
+  .hero-deger-metin { font-size:var(--f3); font-weight:600; color:var(--soluk); }
+  /* Grafik cizgileri MARKA tonunda - durum rengi DEGIL (bkz.
+     GRAFIKLER aciklamasi). currentColor ile miras aliniyor. */
+  .grafik { color:var(--marka); }
+  .grafik-esik {
+    stroke:var(--soluk); stroke-width:1; stroke-dasharray:4,4; opacity:.7;
+  }
+  /* OLCUM OLMAYAN ZAMAN ARALIGI. Cizgi burada DEVAM ETMIYOR - alan bos
+     ve sinir cizgisiyle ayrilmis. rect esneyen SVG icinde durdugu icin
+     sorun degil: dikdortgen ve dikey cizgi esnemeden de dogru okunur,
+     yalnizca YAZI eziliyordu. */
+  .grafik-bosluk { fill:var(--soluk); opacity:.08; }
+  .grafik-sinir {
+    stroke:var(--soluk); stroke-width:1; stroke-dasharray:3,3; opacity:.55;
+    vector-effect:non-scaling-stroke;
+  }
+  /* HTML - SVG <text> DEGIL: grafik SVG'si preserveAspectRatio="none"
+     ile esniyor, icindeki yazi hem kuculuyor hem yatayda eziliyordu.
+     Konum, cizgiyle AYNI olcekten (bkz. _esik_orani) yuzde olarak
+     geliyor; zemin cipi altindaki dolguyu kesip yaziyi okunur birakiyor. */
+  .grafik-esik-ad {
+    position:absolute; left:0; transform:translateY(-100%);
+    font-size:var(--f1); font-family:var(--mono); color:var(--soluk);
+    background:var(--kart); padding:0 .3em; border-radius:3px;
+    pointer-events:none; white-space:nowrap;
+  }
+  /* Kivilcim (hero) de ayni tonda - ama oradaki SVG 100x20, esik cizgisi
+     o boyutta okunmaz, o yuzden yalnizca cizgi + dolgu. */
+  .hero-kivilcim { color:var(--marka); }
+  /* Gun/gece baglami - sis penceresi gece-sabah oldugu icin BILGI. */
+  .ust-faz {
+    font-size:var(--f1); color:var(--soluk); letter-spacing:.02em;
+    white-space:nowrap;
+  }
+  /* PIST DIYAGRAMI - pist ekseni + ruzgar oku + bilesen okumasi.
+     Renkler NOTR: bu bir durum gostergesi degil, bir GEOMETRI. Tek
+     istisna kuyruk limiti asimi, o da metinle birlikte. */
+  /* IC ICE KUTU KALDIRILDI. Diyagram zaten bir kartin icinde
+     duruyordu; kendi zemini + kenarligi + yaricapi ikinci bir cerceve
+     uretiyordu (kart -> kutu -> SVG). Ayirmak icin tek ust/alt cizgi
+     yeter; kazanilan yatay 24px dar ekranda dogrudan diyagrama gidiyor. */
+  .pist-diyagram {
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    margin:14px 0; padding:12px 0;
+    border-top:1px solid var(--cizgi); border-bottom:1px solid var(--cizgi);
+  }
+  /* 1:1 CIZILIYOR. Onceden viewBox 180 birim 132px'e sigdiriliyordu
+     (olcek .73) ve 11 birimlik uc adlari ekranda 8.1px'e dusuyordu -
+     sayfadaki en kucuk yazinin da altinda. Tipografi testi bunu
+     yakaladi. Simdi birim = piksel, yazilar olcekten geliyor. */
+  .pd-svg {
+    width:120px; height:120px; max-width:100%; flex:0 0 auto;
+    color:var(--metin);
+  }
+  .pd-halka { fill:none; stroke:var(--cizgi); stroke-width:1; }
+  .pd-pist {
+    stroke:var(--soluk); stroke-width:13; stroke-linecap:butt; opacity:.75;
+  }
+  .pd-uc-ad {
+    /* Serit uzerinde duruyorlar - serit rengiyle degil ZEMINLE
+       kontrast yapmalilar. */
+    font-family:var(--mono); font-size:var(--f1); font-weight:700;
+    fill:var(--kart); text-anchor:middle; dominant-baseline:middle;
+  }
+  .pd-uc-tercih { fill:var(--kart); }
+  .pd-kuzey {
+    /* Pusula kuzeyi: boyutla degil OPAKLIKLA geri cekiliyor ki
+       olcegin disina cikmasin. */
+    font-size:var(--f1); font-weight:700; fill:var(--sessiz); opacity:.8;
+    text-anchor:middle; dominant-baseline:middle;
+  }
+  .pd-ok { stroke:currentColor; stroke-width:2.4; stroke-linecap:round; }
+  .pd-okuma { flex:1 1 120px; min-width:0; }
+  .pd-pist-ad {
+    font-family:var(--mono); font-weight:700; font-size:var(--f4);
+    line-height:1.2;
+  }
+  .pd-satir {
+    font-size:var(--f2); color:var(--metin); display:flex;
+    align-items:baseline; gap:6px; margin-top:2px;
+  }
+  .pd-satir b { font-family:var(--mono); font-size:var(--f3); }
+  .pd-etiket {
+    font-size:var(--f1); color:var(--soluk); text-transform:uppercase;
+    letter-spacing:.06em; min-width:42px;
+  }
+  /* Limit asimi: renk TEK TASIYICI degil, altinda metin de var. */
+  .pd-satir.pd-asan b, .pd-satir.pd-asan { color:var(--uyari-metin); }
+  .pd-not { font-size:var(--f1); color:var(--soluk); margin-top:4px; }
+
+  .hero-birim {
+    font-size:var(--f1); font-weight:500; color:var(--soluk); margin-left:3px;
+  }
+  /* currentColor: kivilcim .hero-oge'nin soluk rengini alir, yani her
+     temada kendiliginden dogru tonda cizilir. */
+  .hero-kivilcim { display:block; margin-top:4px; height:20px; width:100%; }
+  .hero-yok {
+    margin-top:4px; height:20px; font-size:var(--f1); color:var(--sessiz);
+    display:flex; align-items:center;
+  }
+  .ozet-ikincil { font-size:var(--f2); color:var(--soluk); margin:0 0 10px; }
+  /* Durum rengi kartin sol kenarinda - liste taranirken once goze carpar. */
+  @media (max-width:480px) {
+    .hero-deger { font-size:var(--f5); }
+    .hero-oge { padding:9px 10px 7px; }
+  }
+
+  .js .sekme-panel { display:none; }
+  .js[data-sekme="durum"]      #panel-durum,
+  .js[data-sekme="beklenti"]   #panel-beklenti,
+  .js[data-sekme="istatistik"] #panel-istatistik,
+  .js[data-sekme="lvo"]        #panel-lvo,
+  .js[data-sekme="notam"]      #panel-notam { display:block; }
+  .kart {
+    background:var(--kart); border:1px solid var(--cizgi);
+    border-radius:var(--r2); padding:18px; margin-bottom:14px;
+    box-shadow:var(--golge);
+  }
+  .basrow { display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+             margin-bottom:12px; }
+  .tip { font-weight:650; font-size:var(--f4); }
+  .zaman { color:var(--soluk); font-size:var(--f2); }
+  .rozet {
+    margin-left:auto; padding:3px 10px; border-radius:999px;
+    font-size:var(--f2); font-weight:650; color:#fff; white-space:nowrap;
+  }
+  .dikkat {
+    background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.35);
+    border-radius:10px; padding:10px 12px; margin:12px 0; font-size:var(--f3);
+  }
+  .ozet { color:var(--soluk); font-size:var(--f3); margin:10px 0; }
+  .yorum {
+    background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:10px;
+    padding:10px 12px; margin:12px 0; font-size:var(--f3); line-height:1.6;
+  }
+  .yorum-etiket { color:var(--soluk); font-size:var(--f1); margin-bottom:4px; }
+  .pist-kaynak { color:var(--soluk); font-size:var(--f2); margin-top:6px; }
+  table { width:100%; border-collapse:collapse; font-size:var(--f3); margin-top:10px; }
+  td { padding:7px 0; border-bottom:1px solid var(--cizgi); }
+  td:first-child { color:var(--soluk); width:42%; }
+  tr:last-child td { border-bottom:none; }
+  /* ---- ÇÖZÜMLEME (token -> anlam) ----
+     Ham METAR bir <pre> bloğuydu: okuyabilen için yeterli, okuyamayan
+     için duvar. Artık her grup solda monospace bir jeton, sağda ne
+     dediği. Jeton sütunu SABİT GENİŞLİKTE - değişken olsaydı her satır
+     farklı yerden başlar, göz her satırda yeniden hizalanmak zorunda
+     kalırdı. */
+  .cozum { margin-top:12px; }
+  .coz-bas {
+    font-size:var(--f1); font-weight:700; letter-spacing:.09em;
+    text-transform:uppercase; color:var(--soluk); margin-bottom:6px;
+  }
+  .coz-satir {
+    display:flex; align-items:flex-start; gap:10px;
+    padding:6px 0; border-bottom:1px solid var(--cizgi);
+  }
+  .coz-satir:last-child { border-bottom:none; }
+  .jeton {
+    flex:0 0 auto; min-width:92px; text-align:center;
+    font-family:var(--mono); font-size:var(--f1); line-height:1.7;
+    background:var(--kod-bg); border:1px solid var(--cizgi);
+    border-radius:4px; padding:0 6px; color:var(--metin);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    max-width:100%;
+  }
+  /* RMK: etiket üstte, ham kuyruk altta ve TAM GENİŞLİKTE. */
+  .coz-dik { flex-direction:column; align-items:stretch; gap:6px; }
+  .jeton-genis {
+    min-width:0; width:100%; text-align:left; white-space:pre-wrap;
+    word-break:break-word; line-height:1.55; padding:6px 8px;
+    color:var(--soluk);
+  }
+  .coz-metin { display:flex; flex-direction:column; min-width:0; }
+  .coz-metin b { font-size:var(--f2); font-weight:650; }
+  .coz-metin span { font-size:var(--f2); color:var(--soluk); }
+  .coz-bilinmiyor .jeton { border-style:dashed; color:var(--soluk); }
+  .coz-bilinmiyor .coz-metin span { font-style:italic; }
+  /* TAF değişim grubu başlığı - notac'taki gibi ince kenarlıklı bir
+     etiket; aksan tonu DURUM anlatmaz, yalnızca yapıyı gösterir. */
+  .coz-grup {
+    display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
+    margin:14px 0 6px;
+  }
+  .coz-etiket {
+    font-size:var(--f1); font-weight:650; letter-spacing:.03em;
+    color:var(--baglanti); border:1px solid var(--baglanti);
+    border-radius:999px; padding:2px 9px;
+  }
+  .coz-pencere { font-size:var(--f1); color:var(--soluk);
+                  font-family:var(--mono); }
+  .coz-grup:first-of-type { margin-top:4px; }
+  /* Katlanır çözümleme başlığı - ham metin katlayıcısıyla AYNI dil. */
+  .cozum-kat > summary {
+    cursor:pointer; list-style:none; font-size:var(--f1); font-weight:700;
+    letter-spacing:.09em; text-transform:uppercase; color:var(--soluk);
+    padding:2px 0;
+  }
+  .cozum-kat > summary::-webkit-details-marker { display:none; }
+  .cozum-kat > summary::after { content:" +"; font-weight:400; }
+  .cozum-kat[open] > summary::after { content:" −"; }
+  .cozum-kat > summary:hover { color:var(--metin); }
+  /* Ham metin artık KATLI: kaynak her zaman erişilebilir ama
+     varsayılan görünüm değil. */
+  .ham-kat { margin-top:14px; }
+  .ham-kat > summary {
+    cursor:pointer; list-style:none; font-size:var(--f1); font-weight:700;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--soluk);
+    padding:2px 0;
+  }
+  .ham-kat > summary::-webkit-details-marker { display:none; }
+  .ham-kat > summary::after { content:" +"; font-weight:400; }
+  .ham-kat[open] > summary::after { content:" −"; }
+  .ham-kat > summary:hover { color:var(--metin); }
+
+  pre {
+    background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:10px;
+    padding:12px; overflow-x:auto; font-size:var(--f2); line-height:1.5;
+    font-family:var(--mono); margin:12px 0 0;
+    white-space:pre-wrap; word-break:break-word;
+  }
+  /* SOLA YASLI, ortalanmis DEGIL: buradaki yasal uyari telefonda 15+
+     satir suruyor ve ortalanmis uzun metinde her satirin sol kenari
+     farkli yerden basliyor - goz her satirbasi icin yeniden hizalanmak
+     zorunda kaliyor. Kisa bir imza satiri ortalanabilirdi; bu paragraf
+     degil. (Sayfadaki tek diger text-align:center, tahmin seridindeki
+     tek kelimelik hucreler - orada dogru tercih.) */
+  footer {
+    color:var(--soluk); font-size:var(--f2); margin-top:28px;
+    text-align:left; text-wrap:pretty;
+    border-top:1px solid var(--cizgi); padding-top:14px;
+  }
+  .kapsam > summary {
+    cursor:pointer; list-style:none; font-size:var(--f1); font-weight:700;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--soluk);
+    padding:4px 0;
+  }
+  .kapsam > summary::-webkit-details-marker { display:none; }
+  .kapsam > summary::after { content:" +"; font-weight:400; }
+  .kapsam[open] > summary::after { content:" −"; }
+  .kapsam > summary:hover { color:var(--metin); }
+  .kapsam-govde { margin-top:8px; }
+  a { color:inherit; }
+  .panel-link {
+    display:inline-block; margin-top:12px; padding:7px 14px; border-radius:8px;
+    background:var(--vurgu); color:var(--bg); text-decoration:none;
+    font-size:var(--f2); font-weight:650;
+  }
+  .grafik-ust { font-weight:650; margin-bottom:12px; font-size:var(--f3); }
+  .grafik-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px 20px; }
+  @media (max-width:480px) { .grafik-grid { grid-template-columns:1fr; } }
+  .grafik-baslik { display:flex; justify-content:space-between; align-items:baseline;
+                     font-size:var(--f2); color:var(--soluk); margin-bottom:4px; }
+  .grafik-son { color:var(--metin); font-weight:650; }
+  .grafik-son-yok { color:var(--soluk); font-weight:600; font-style:italic; }
+  .grafik { width:100%; height:64px; display:block; }
+  .grafik-eksen { display:flex; justify-content:space-between;
+                    font-size:var(--f1); color:var(--soluk); margin-top:2px; }
+  .grafik-durum-notu { font-size:var(--f1); color:var(--soluk); margin-top:4px;
+                          font-style:italic; }
+  /* Imlec/parmak altindaki noktanin saat+degerini gosteren balon. Dokunmatik
+     cihazda dikey sayfa kaydirma bozulmasin diye touch-action:pan-y - yatay
+     surukleme grafigi tarar, dikey kaydirma normal calisir. */
+  .grafik-sarmal { position:relative; touch-action:pan-y; }
+  .grafik-imlec {
+    position:absolute; top:0; bottom:0; width:1px; background:var(--soluk);
+    opacity:.55; pointer-events:none;
+  }
+  .grafik-nokta {
+    position:absolute; width:9px; height:9px; border-radius:999px;
+    background:var(--metin); border:2px solid var(--kart);
+    transform:translate(-50%,-50%); pointer-events:none;
+  }
+  .grafik-balon {
+    position:absolute; top:0;
+    background:var(--kart); border:1px solid var(--cizgi); border-radius:7px;
+    padding:3px 8px; font-size:var(--f2); font-weight:600; white-space:nowrap;
+    color:var(--metin); pointer-events:none; z-index:3;
+    box-shadow:0 2px 10px rgba(0,0,0,.35);
+  }
+  .grafik-imlec[hidden], .grafik-nokta[hidden], .grafik-balon[hidden] { display:none; }
+
+  .sis-olasilik-ust { display:flex; align-items:baseline; gap:10px; margin:6px 0 2px; }
+  .sis-olasilik-deger {
+    font-size:var(--f6); font-weight:700; line-height:1.1;
+  }
+  .sis-olasilik-bant {
+    font-size:var(--f2); font-weight:650; padding:2px 9px; border-radius:999px;
+    text-transform:uppercase; letter-spacing:.03em;
+  }
+  .sis-olasilik-bant.dusuk { background:var(--iyi-zemin); color:var(--iyi); }
+  .sis-olasilik-bant.orta { background:#f9731626; color:#ea580c; }
+  .sis-olasilik-bant.yuksek { background:var(--uyari-zemin); color:var(--uyari-metin); }
+  .gecis-tablo { width:100%; border-collapse:collapse; font-size:var(--f2);
+                  margin-top:8px; font-variant-numeric:tabular-nums; }
+  .gecis-tablo th, .gecis-tablo td { padding:6px 4px; text-align:right;
+                                      border-bottom:1px solid var(--cizgi); }
+  .gecis-tablo thead th { color:var(--soluk); font-weight:650; font-size:var(--f2); }
+  /* Satir basligi SOLA yasli - sayilar saga, etiket sola; karisik
+     hizalama tabloyu okunmaz yapardi. */
+  .gecis-tablo tbody th { text-align:left; font-weight:600; }
+  /* Son satirin alt cizgisi: th iki satirli (etiket + esik) oldugu icin
+     td'lerden uzun ciziliyor ve tablonun altinda SADECE ilk sutun
+     genisliginde kopuk bir cizgi kaliyordu. Alt kenarlik son satirda
+     tamamen kalkiyor - tablonun sonunu zaten bosluk belirtiyor. */
+  .gecis-tablo tbody tr:last-child th,
+  .gecis-tablo tbody tr:last-child td { border-bottom:0; }
+  .gecis-n { color:var(--soluk); }
+  .gecis-caption { caption-side:top; text-align:left; color:var(--soluk);
+                    font-size:var(--f1); padding-bottom:2px; }
+  .gecis-esik { display:block; font-weight:400; font-size:var(--f1);
+                 color:var(--soluk); }
+  .sis-olasilik-alt { font-size:var(--f2); color:var(--soluk); }
+  .sis-olasilik-kiyas { font-size:var(--f2); color:var(--soluk); margin-top:6px; }
+  .sis-olasilik-ek {
+    font-size:var(--f2); color:var(--soluk); margin-top:10px; padding-top:8px;
+    border-top:1px dashed var(--cizgi);
+  }
+  .sis-olasilik-ek .sis-olasilik-bant { margin-left:4px; }
+  .sis-olasilik-ek-not { font-size:var(--f1); color:var(--soluk); margin-top:4px; }
+  .sis-olasilik-not {
+    font-size:var(--f2); color:var(--soluk); margin-top:10px; line-height:1.5;
+    border-top:1px solid var(--cizgi); padding-top:8px;
+  }
+  .sis-olasilik-diyagram-btn {
+    margin-top:10px; background:none; border:1px solid var(--cizgi);
+    color:var(--vurgu); font-size:var(--f2); font-weight:650; padding:6px 12px;
+    border-radius:8px; cursor:pointer;
+  }
+  .sis-olasilik-diyagram-btn:hover { background:var(--kod-bg); }
+
+  /* Katlanabilir bolum - LVO/Aktif NOTAM'daki ok'lu baslikla AYNI gorunumu
+     verir ama JS gerektirmez (<details> yerlisi). Sayfa 5.9 ekran
+     kaydirmaya ulasmisti; METAR/TAF yorumlari, trend grafikleri ve NOTAM
+     arama formu varsayilan olarak katlandi - hicbiri SILINMEDI, bir
+     dokunusla aciliyor. */
+  .kat { margin-top:10px; }
+  /* Flex DEGIL: baslik metni uzun rozetle yan yana gelince flex ogesi
+     daralip baslik uc satira kiriliyordu. Normal akis +
+     mutlak konumlu ok, metnin dogal sarmasina izin verir. */
+  .kat > summary {
+    cursor:pointer; user-select:none; list-style:none;
+    position:relative; padding-right:20px;
+    font-size:var(--f2); color:var(--soluk);
+  }
+  .kat > summary::-webkit-details-marker { display:none; }
+  .kat > summary::after {
+    content:"▶"; font-size:var(--f1); position:absolute; right:0; top:.2em;
+    transition:transform .15s ease; display:inline-block;
+  }
+  .kat[open] > summary::after { transform:rotate(90deg); }
+  .kat > summary:hover { color:var(--metin); }
+  .kat-rozet {
+    font-family:var(--mono); font-size:var(--f2);
+    color:var(--metin); font-weight:600; margin-left:8px;
+  }
+  /* Kart basligi olarak kullanilan katlanabilir summary - .basrow ile ayni
+     tipografi (Trend / NOTAM Geçmişi gibi bolum basliklari icin). */
+  .kat-kart > summary { font-size:var(--f4); color:var(--metin); font-weight:650; }
+  /* Bir katlanir kartin icindeki alt bolumler - araya ince cizgi girsin ki
+     saatlik tahmin ile olasilik karti ayri ayri okunabilsin (eskiden ayri
+     kartlardi). Bolum adlari burada YAZILMIYOR: testler bu adlarin sayfada
+     bulunup bulunmadigina bakiyor, CSS yorumu yanlis pozitif uretirdi. */
+  .alt-bolum { padding-top:12px; }
+  .alt-bolum + .alt-bolum { margin-top:12px; border-top:1px solid var(--cizgi); }
+  .kat-kart > summary::after { font-size:var(--f1); color:var(--soluk); }
+
+  /* Önümüzdeki saatler şeridi - dar ekranda yatay kaydirilir, dikey
+     kaydirmayi bolmesin diye sabit yukseklikli hucreler. */
+  .tahmin-uyari {
+    background:rgba(234,179,8,.12); border:1px solid rgba(234,179,8,.4);
+    border-radius:10px; padding:8px 10px; margin:8px 0 12px; font-size:var(--f2);
+  }
+  /* Tahminin yasi - sadece TAHMIN_YAS_UYARI_DK'yi gecince cizilir.
+     Uyari rengi DEGIL: bayat tahmin bir hata degil, sadece bir baglam. */
+  .tahmin-yas {
+    margin-left:auto; font-size:var(--f1); color:var(--soluk);
+    border:1px solid var(--cizgi); border-radius:999px; padding:2px 8px;
+    white-space:nowrap;
+  }
+  /* Tahmin TABLOSU. Eskiden her saat bagimsiz bir <div> kolonuydu ve
+     kosullu satirlar (sis isareti, sinir tabakasi) satirlari yatayda
+     KAYDIRIYORDU - olcum ve gerekce icin bkz. _saatlik_tahmin_html.
+     Tablo hizayi yapisal olarak garanti eder. */
+  .tahmin-kaydir { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .tahmin-tablo {
+    border-collapse:collapse; font-variant-numeric:tabular-nums;
+    min-width:100%;
+  }
+  /* Yatay dolgu OLCULDU: 9px'te tablo 659px cikiyor ve icerik sutunu
+     642px oldugu icin son saat 17px kirpiliyordu (masaustunde bile
+     kaydirma cubugu). 7px'te dogal genislik 642'nin altina iniyor,
+     min-width:100% de kalani sutunlara dagitiyor. Telefonda (320px)
+     hala kayar - 10 saatlik serit icin dogru davranis; satir basligi
+     yapiskan oldugu icin okunur kaliyor. */
+  .tahmin-tablo th, .tahmin-tablo td {
+    padding:5px 7px; text-align:right; white-space:nowrap;
+    border-bottom:1px solid var(--cizgi);
+  }
+  .tahmin-tablo tbody tr:last-child th,
+  .tahmin-tablo tbody tr:last-child td { border-bottom:0; }
+  .tahmin-tablo thead th { text-align:center; vertical-align:bottom; }
+  /* BASLIK SATIRININ SOL KOSESI de yapiskan olmali. Yoksa tablo yatay
+     kayarken satir basliklari (asagida) kayan saatleri maskeliyor ama
+     BASLIK SATIRI maskelemiyor: 390px'te 297px kaydirildiginda sol ust
+     kosede "02:00"in kuyrugu ("00") gorunuyordu. z-index satir
+     basliklarindan (1) BUYUK, cunku bu hucre hem yatay hem dikey
+     komsulari ortmeli. */
+  .tahmin-tablo thead th:first-child {
+    position:sticky; left:0; z-index:2; background:var(--kart);
+  }
+  /* Satir basligi YAPISKAN: telefonda tablo yatay kayarken "bu sayi
+     neydi" bilgisi ekrandan cikmasin. Kolon 12 saat uzunlugunda. */
+  .tahmin-tablo th[scope="row"] {
+    position:sticky; left:0; z-index:1; background:var(--kart);
+    text-align:left; font-weight:600; font-size:var(--f2); color:var(--soluk);
+    border-right:1px solid var(--cizgi);
+    /* width:1% -> tarayici bu sutunu ICERIGE gore daraltir. Olmadan
+       min-width:100%'ten artan bosluğun tamamini ilk sutun yutuyor ve
+       saat kolonlari sağa sıkışıyordu. */
+    width:1%; padding-right:14px;
+  }
+  .tahmin-birim {
+    display:inline-block; margin-left:5px; font-weight:400;
+    font-size:var(--f1); opacity:.75;
+  }
+  .tahmin-saat { font-size:var(--f2); font-weight:650; font-family:var(--mono); }
+  /* Spread en guclu onculer gostergeydi (bkz. sis_modeli/README.md) -
+     tabloda da one cikiyor. */
+  .tahmin-vurgu td { font-size:var(--f3); font-weight:700; color:var(--metin); }
+  .tahmin-tablo td { font-size:var(--f2); color:var(--metin); }
+  /* Modelin sis kodu verdigi saat: TUM kolon hafifce boyanir, basligina
+     simge+metin gelir. Renk TEK BASINA tasiyici degil - renk korlugunde
+     ve tek renkli baskida da "sis" yazisi okunur. */
+  .tahmin-sisli { background:rgba(234,179,8,.12); }
+  .tahmin-sis {
+    font-size:var(--f1); font-weight:700; color:var(--dikkat);
+    margin-top:2px; display:flex; align-items:center; gap:3px;
+    justify-content:center;
+  }
+  .tahmin-aciklama { font-size:var(--f1); color:var(--soluk); margin-top:8px; }
+
+  .bolum-baslik { font-weight:650; font-size:var(--f4); margin:28px 0 12px; }
+  /* Bayat senkron uyarisi - kirmizi DEGIL: liste hala dogru olabilir,
+     sadece dogrulanmamis. Kirmizi "yanlis" ima ederdi. */
+  .notam-senkron-bayat { color:var(--dikkat); font-weight:650; }
+  .notam-uyari {
+    background:rgba(234,179,8,.12); border:1px solid rgba(234,179,8,.4);
+    border-radius:10px; padding:10px 12px; margin-bottom:14px; font-size:var(--f2);
+  }
+  /* Tip (NOTAMR/NOTAMC) ve Q kodu rozetleri: ikisi de VERI, yorum
+     degil. Durum renkleri KULLANILMIYOR - bunlar bir seviye/uyari
+     bildirmiyor, yalnizca NOTAM'in kimligini anlatiyor. */
+  .notam-tip {
+    font-family:var(--mono); font-size:var(--f1); font-weight:650;
+    padding:1px .4em; border-radius:4px;
+    background:var(--etkilesim); color:var(--metin);
+  }
+  .notam-q {
+    font-family:var(--mono); font-size:var(--f1);
+    padding:1px .4em; border-radius:4px;
+    background:var(--etkilesim); color:var(--soluk);
+  }
+  .notam-ilgili { font-size:var(--f2); color:var(--soluk); margin:2px 0 4px; }
+  .notam-kart {
+    border-bottom:1px solid var(--cizgi); padding:14px 0 15px;
+  }
+  .notam-kart:last-child { border-bottom:none; }
+  .notam-ust { display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+                margin-bottom:6px; }
+  .notam-no { font-weight:650; font-family:var(--mono); }
+  .notam-etiket {
+    padding:2px 8px; border-radius:999px; font-size:var(--f1); font-weight:600;
+    background:var(--kod-bg); border:1px solid var(--cizgi); color:var(--soluk);
+  }
+  /* Kategori (Runway/Taxiway/Apron...) NOTAM'in NE HAKKINDA oldugunu
+     soyluyor - oteki etiketlerden bir adim one cikiyor ama DURUM
+     RENGI ALMIYOR: "Runway" bir uyari degil, bir konu basligi. */
+  .notam-kategori {
+    padding:2px 8px; border-radius:999px; font-size:var(--f1); font-weight:650;
+    border:1px solid var(--baglanti); color:var(--baglanti);
+  }
+  /* KARTIN ASIL OGESI: duz dil cumlesi. Govde puntosunda ve ana metin
+     renginde - eskiden kucuk gri yazidaydi ve ustundeki cip duvari
+     onu bastiriyordu. */
+  .notam-cumle {
+    font-size:var(--f3); line-height:1.45; color:var(--metin);
+    margin:2px 0 6px; text-wrap:pretty;
+  }
+  .notam-kunye {
+    font-family:var(--mono); font-size:var(--f1); color:var(--sessiz);
+  }
+  .notam-etiketler { display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
+  /* Kategori cipleri - dokunma hedefi icin 32px yukseklik. */
+  .notam-cipler { display:flex; flex-wrap:wrap; gap:6px; margin:-6px 0 14px; }
+  .notam-cip {
+    display:inline-flex; align-items:center; gap:6px; min-height:32px;
+    padding:4px 11px; border-radius:999px; cursor:pointer;
+    font:inherit; font-size:var(--f2); font-weight:600;
+    background:var(--kod-bg); border:1px solid var(--cizgi);
+    color:var(--soluk);
+  }
+  .notam-cip:hover { color:var(--metin); border-color:var(--sessiz); }
+  .notam-cip[aria-pressed="true"] {
+    background:var(--baglanti); border-color:var(--baglanti); color:var(--bg);
+  }
+  /* Sayac: secili cipte de okunur kalmali - kendi zemini yok, yalnizca
+     opaklik dusuyor, yani her iki durumda da metin renginden turuyor. */
+  .notam-cip b { font-family:var(--mono); font-weight:650; opacity:.75; }
+  .notam-cip[aria-pressed="true"] b { opacity:.85; }
+  .notam-ham > summary {
+    cursor:pointer; list-style:none; font-size:var(--f1); font-weight:700;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--soluk);
+    margin-top:8px; padding:2px 0;
+  }
+  .notam-ham > summary::-webkit-details-marker { display:none; }
+  .notam-ham > summary::after { content:" +"; font-weight:400; }
+  .notam-ham[open] > summary::after { content:" −"; }
+  .notam-ham > summary:hover { color:var(--metin); }
+  /* Otomatik ozet notu: KARTTA DEGIL BOLUM BASINDA, bir kez.
+     ADI ".notam-uyari" OLAMAZ - o ad sayfada dort yerde kullanilan
+     SARI BILGI KUTUSUNUN kurali; ayni adi verince bu sessiz dipnot
+     da sari cerceveli bir uyari olarak ciziliyordu. */
+  .notam-not {
+    font-size:var(--f1); color:var(--soluk); margin:0 0 12px;
+    padding-left:10px; border-left:2px solid var(--cizgi);
+    line-height:1.5;
+  }
+  .notam-durum { font-size:var(--f2); color:var(--soluk); margin-left:auto; }
+  /* Suresi dolmus / henuz baslamamis NOTAM'in durum etiketi - soluk griden
+     ayrilsin ki arama sonuclarinda yururlukte olanla karistirilmasin. */
+  .notam-durum-gecmis { color:var(--dikkat); font-weight:600; }
+  .notam-aktif-nokta {
+    display:inline-block; width:8px; height:8px; border-radius:999px;
+    background:var(--iyi-dolu); box-shadow:0 0 0 2px var(--iyi-zemin); flex-shrink:0;
+  }
+  .notam-aktif-baslik { cursor:pointer; user-select:none; }
+  .notam-aktif-sayi {
+    color:var(--soluk); font-size:var(--f2); margin-left:auto; margin-right:4px;
+  }
+  .notam-ok {
+    font-size:var(--f1); color:var(--soluk); transition:transform .15s ease;
+    display:inline-block;
+  }
+  .notam-ok.acik { transform:rotate(90deg); }
+  .notam-metin {
+    background:var(--kod-bg); border:1px solid var(--cizgi); border-radius:8px;
+    padding:10px; font-size:var(--f2); line-height:1.5; margin-top:6px;
+    font-family:var(--mono); white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .notam-bos { color:var(--soluk); font-size:var(--f3); padding:8px 0; }
+  .notam-arama { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .notam-arama input, .notam-arama select {
+    /* min-width:0 olmadan flex ogesi kendi icerik genisliginin altina
+       inemez - dar telefonlarda select'in etiketi kirpiliyordu. */
+    flex:1 1 140px; min-width:0; padding:8px 10px; border-radius:8px;
+    border:1px solid var(--cizgi);
+    background:var(--bg); color:var(--metin); font-size:var(--f2);
+  }
+  /* SESSIZ dugme. Eskiden dolu koyu zeminliydi ve NOTAM panelindeki tek
+     dolu dugme oydu - yani gozun ilk gittigi yer "filtreyi temizle"
+     oluyordu, listenin kendisi degil. Eylem tersine cevrilebilir ve
+     ikincil; cerceveli bicim hiyerarsiyi duzeltiyor. Dokunma hedefi
+     ayni kaliyor (dikey dolgu degismedi). */
+  .notam-arama button {
+    padding:8px 14px; border-radius:8px; border:1px solid var(--cizgi);
+    background:transparent; color:var(--soluk); font-weight:600;
+    font-size:var(--f2); cursor:pointer;
+  }
+  .notam-arama button:hover { background:var(--etkilesim); color:var(--metin); }
+  .notam-arama-not { color:var(--soluk); font-size:var(--f2); margin:-8px 0 12px; }
+
+  /* LVO REFERENCE - METAR/NOTAM/ATC Notes'tan gorsel olarak ayri, saf
+     bilgi/referans paneli. Hicbir karar uretmez (bkz. ltfj_lvo_referans.py). */
+  .lvo-alt-baslik {
+    font-weight:650; font-size:var(--f3); margin:18px 0 8px; display:flex;
+    align-items:center; gap:8px;
+  }
+  .lvo-alt-baslik:first-child { margin-top:0; }
+  .lvo-provenance {
+    display:inline-block; padding:2px 8px; border-radius:999px; font-size:var(--f1);
+    font-weight:700; letter-spacing:.02em; background:var(--kod-bg);
+    border:1px solid var(--cizgi); color:var(--soluk);
+  }
+  .lvo-tablo { width:100%; border-collapse:collapse; font-size:var(--f2); margin:6px 0 10px; }
+  .lvo-tablo th, .lvo-tablo td {
+    padding:6px 8px; border-bottom:1px solid var(--cizgi); text-align:left;
+    width:auto;
+  }
+  .lvo-tablo th { color:var(--soluk); font-weight:600; font-size:var(--f1); }
+  .lvo-esik-liste { font-size:var(--f2); margin:4px 0 12px; }
+  .lvo-esik-satir {
+    display:flex; justify-content:space-between; gap:10px; padding:6px 0;
+    border-bottom:1px solid var(--cizgi);
+  }
+  .lvo-esik-satir:last-child { border-bottom:none; }
+  .lvo-esik-deger { font-weight:650; font-family:var(--mono); }
+  .lvo-not-listesi { font-size:var(--f2); color:var(--soluk); margin:8px 0 0; padding-left:18px; }
+  .lvo-not-listesi li { margin-bottom:4px; }
+  .lvo-awos-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; }
+  .lvo-awos-kart {
+    border:1px solid var(--cizgi); border-radius:10px; padding:10px 12px; background:var(--kod-bg);
+  }
+  .lvo-awos-pist { font-weight:650; margin-bottom:6px; }
+  .lvo-awos-deger { display:flex; justify-content:space-between; font-size:var(--f2); padding:3px 0; }
+  .lvo-awos-alt { font-size:var(--f1); color:var(--soluk); margin-top:6px; }
+  .lvo-stale {
+    color:var(--uyari); font-weight:700; margin-left:6px;
+  }
+  .lvo-form { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; align-items:flex-end; }
+  .lvo-form label { display:block; font-size:var(--f1); color:var(--soluk); margin-bottom:3px; }
+  .lvo-form input, .lvo-form select {
+    padding:8px 10px; border-radius:8px; border:1px solid var(--cizgi);
+    background:var(--bg); color:var(--metin); font-size:var(--f2); width:100%; box-sizing:border-box;
+  }
+  .lvo-form-alan { flex:1 1 100px; }
+  .lvo-form button {
+    padding:8px 14px; border-radius:8px; border:none; background:var(--vurgu);
+    color:var(--bg); font-weight:650; font-size:var(--f2); cursor:pointer; flex-shrink:0;
+  }
+  /* Temizleme YIKICI ve PAYLASILAN veriyi siler - kaydet butonuyla ayni
+     agirlikta durmasin diye ikincil (cerceveli) gorunum. */
+  .lvo-form button.lvo-awos-temizle {
+    background:transparent; color:var(--soluk); border:1px solid var(--cizgi);
+  }
+  .lvo-form button.lvo-awos-temizle:hover { color:var(--uyari); border-color:var(--uyari); }
+  .lvo-hata { color:var(--uyari); font-size:var(--f2); margin-top:6px; min-height:1.1em; }
+  .lvo-esik-kaynak { font-size:var(--f1); color:var(--soluk); display:block; margin-top:2px; }
+
+  .atc-not-ekle-btn {
+    margin-left:auto; padding:6px 12px; border-radius:8px; border:none;
+    background:var(--vurgu); color:var(--bg); font-weight:650; font-size:var(--f2);
+    cursor:pointer;
+  }
+  .atc-not-kalan { color:var(--soluk); font-size:var(--f1); margin-top:6px; }
+
+  /* ATC Notes artik sayfa akisinda degil - sag altta sabit duran bir
+     dugmeyle (FAB) acilan yuzen bir panel. Telefonda alttan yukari kayan
+     "bottom sheet", genis ekranda dugmenin ustunde sabit bir kart. */
+  .atc-fab {
+    position:fixed; right:16px;
+    bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+    width:56px; height:56px; border-radius:999px;
+    /* Dokunma hedefi 56px KALIYOR - degisen yalnizca yuzey. Koyu temada
+       kenarlik veriliyor cunku zemin artik sayfayla yakin degerde ve
+       dugmenin sinirinin gorunmesi gerekiyor. */
+    border:1px solid var(--fab-cizgi);
+    background:var(--fab-zemin); color:var(--fab-metin); font-size:var(--f5);
+    box-shadow:0 4px 16px rgba(0,0,0,.3); cursor:pointer; z-index:60;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .atc-fab-rozet {
+    position:absolute; top:-2px; right:-2px; min-width:20px; height:20px;
+    padding:0 5px; border-radius:999px; background:var(--uyari); color:#fff;
+    font-size:var(--f1); font-weight:700; display:flex; align-items:center;
+    justify-content:center; border:2px solid var(--bg);
+  }
+  .atc-fab-rozet[hidden] { display:none; }
+  .atc-panel-ortu {
+    position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:55;
+    display:flex; align-items:flex-end; justify-content:center;
+  }
+  .atc-panel-ortu[hidden] { display:none; }
+  .atc-panel {
+    background:var(--kart); border:1px solid var(--cizgi);
+    border-radius:16px 16px 0 0; width:100%; max-width:480px;
+    max-height:min(78vh, 640px); display:flex; flex-direction:column;
+    padding-bottom:env(safe-area-inset-bottom, 0px);
+  }
+  .atc-panel-ust {
+    display:flex; align-items:center; gap:10px; padding:16px 16px 10px;
+    border-bottom:1px solid var(--cizgi); flex-shrink:0;
+  }
+  .atc-panel-ust .tip { font-weight:650; font-size:var(--f4); }
+  .atc-panel-kapat {
+    width:32px; height:32px; border-radius:999px; border:none; flex-shrink:0;
+    background:var(--kod-bg); color:var(--metin); font-size:var(--f4); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .atc-panel-govde { overflow-y:auto; padding:14px 16px 20px; -webkit-overflow-scrolling:touch; }
+  .atc-panel .notam-uyari { margin-top:0; }
+  @media (min-width:640px) {
+    .atc-panel-ortu { align-items:flex-end; justify-content:flex-end; padding:0 16px; }
+    .atc-panel {
+      margin-bottom:calc(84px + env(safe-area-inset-bottom, 0px));
+      border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,.35);
+      max-height:min(70vh, 600px);
+    }
+  }
+  .modal-ortu {
+    position:fixed; inset:0; background:rgba(0,0,0,.55); display:flex;
+    align-items:center; justify-content:center; padding:16px; z-index:65;
+  }
+  .modal-ortu[hidden] { display:none; }
+  .modal-kutu {
+    background:var(--kart); border:1px solid var(--cizgi); border-radius:14px;
+    padding:20px; max-width:420px; width:100%;
+  }
+  .modal-kutu-genis { max-width:820px; max-height:90vh; overflow:auto; }
+  .modal-kutu-genis img { width:100%; height:auto; border-radius:8px; display:block; }
+  .modal-kutu h3 { margin:0 0 4px; font-size:var(--f4); }
+  .modal-kutu label { display:block; font-size:var(--f2); color:var(--soluk); margin:12px 0 4px; }
+  .modal-kutu input, .modal-kutu textarea {
+    width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--cizgi);
+    background:var(--bg); color:var(--metin); font-size:var(--f3); font-family:inherit;
+    box-sizing:border-box; resize:vertical;
+  }
+  .modal-hata { color:var(--uyari); font-size:var(--f2); margin-top:8px; min-height:1.1em; }
+  .modal-butonlar { display:flex; gap:8px; justify-content:flex-end; margin-top:14px; }
+  .modal-butonlar button {
+    padding:8px 16px; border-radius:8px; border:none; font-weight:650; font-size:var(--f2);
+    cursor:pointer;
+  }
+  #atc-not-kaydet { background:var(--vurgu); color:var(--bg); }
+  #atc-not-iptal { background:var(--kod-bg); color:var(--metin); border:1px solid var(--cizgi); }
+  #atc-not-kaydet:disabled { opacity:.6; cursor:default; }
+
+  /* Sayfa kenarinda kucuk VFR gosterge sekmesi - EN SON METAR/SPECI'nin
+     gorus/tavaninin VFR esikleriyle karsilastirilmis sonucunu yesil/kirmizi
+     gosterir, tiklaninca sebepleri acan kucuk bir panel acilir. */
+  .vfr-sekme {
+    position:fixed; top:96px; right:0; z-index:58; border:none;
+    padding:10px 7px; border-radius:10px 0 0 10px; color:#fff;
+    font-weight:700; font-size:var(--f2); letter-spacing:.05em; cursor:pointer;
+    writing-mode:vertical-rl; text-orientation:mixed;
+    box-shadow:0 2px 10px rgba(0,0,0,.3);
+  }
+  /* Zeminler KOYULASTIRILDI. Olculen: beyaz yazi uzerinde
+     #22c55e = 2.28:1 (sayfadaki EN DUSUK kontrast, hem de emniyetle
+     en ilgili gostergede), #ef4444 = 3.76:1. Ikisi de AA'nin (4.5)
+     altindaydi. Ton korundu, yalnizca deger dusuruldu:
+       #15803d = 5.02:1   #b91c1c = 6.47:1   #475569 = 7.58:1
+     .vfr-nokta renkleri DEGISMEDI: onlar kart zemininde duran kucuk
+     daireler, uzerlerinde yazi yok - metin kontrasti kurali onlara
+     uygulanmaz. */
+  .vfr-sekme.vfr-yesil { background:#15803d; }
+  .vfr-sekme.vfr-kirmizi { background:#b91c1c; }
+  .vfr-sekme.vfr-bilinmiyor { background:#475569; }
+  .vfr-panel-ortu {
+    position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:62;
+    display:flex; align-items:flex-start; justify-content:flex-end; padding:16px;
+  }
+  .vfr-panel-ortu[hidden] { display:none; }
+  .vfr-panel {
+    background:var(--kart); border:1px solid var(--cizgi); border-radius:14px;
+    max-width:340px; width:100%; padding:16px; margin-top:80px;
+    box-shadow:0 8px 32px rgba(0,0,0,.35);
+  }
+  .vfr-panel-ust { display:flex; align-items:center; gap:10px; }
+  .vfr-panel-ust h3 { margin:0; font-size:var(--f4); display:flex; align-items:center; gap:8px; flex:1; }
+  .vfr-nokta { width:10px; height:10px; border-radius:999px; display:inline-block; flex-shrink:0; }
+  .vfr-nokta.yesil { background:#22c55e; }
+  .vfr-nokta.kirmizi { background:#ef4444; }
+  .vfr-nokta.bilinmiyor { background:#64748b; }
+  .vfr-panel ul { margin:10px 0 0; padding-left:18px; font-size:var(--f2); }
+  .vfr-panel .vfr-esik { color:var(--soluk); font-size:var(--f1); margin-top:10px; }

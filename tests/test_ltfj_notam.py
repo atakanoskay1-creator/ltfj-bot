@@ -352,14 +352,42 @@ def test_detay_ucundan_raw_eklenip_referans_cikiyor(monkeypatch):
     assert m["raw"] == GERCEK_RAW
 
 
-def test_detay_YALNIZCA_R_ve_C_icin_isteniyor(monkeypatch):
-    """Frugal olmak zorunda: detay ucu NOTAM BASINA bir istek. "N"
-    tipinde yerine gecilen bir NOTAM zaten yok."""
+def test_detay_TUM_TIPLER_icin_isteniyor(monkeypatch):
+    """SOZLESME DEGISTI. Eskiden yalnizca R/C cekiliyordu (amac referans
+    numarasiydi); yeni (N) NOTAM'larin Q satiri, A/B/C alanlari ve
+    irtifa sinirlari sayfada hic gorunmuyordu. Artik ham metin her tip
+    icin - maliyeti onbellek ve istek siniri tutuyor."""
     istenen = []
     monkeypatch.setattr(nm.client, "detay_getir",
                         lambda nid: istenen.append(nid) or {"raw": GERCEK_RAW})
-    nm.ham_metinleri_ekle([_ham("i1", "N"), _ham("i2", "R"), _ham("i3", "C")])
-    assert istenen == ["i2", "i3"]
+    kayitlar = [_ham("i1", "N"), _ham("i2", "R"), _ham("i3", "C")]
+    nm.ham_metinleri_ekle(kayitlar)
+    assert istenen == ["i1", "i2", "i3"]
+    assert all(k.get("raw") == GERCEK_RAW for k in kayitlar)
+
+
+def test_istek_SINIRI_dolunca_ONBELLEK_geri_yuklemesi_SURUYOR(monkeypatch):
+    """ESKI KUSUR: sinir dolunca dongu `break` ediyordu - sinirdan SONRA
+    gelen ve istek GEREKTIRMEYEN (onbellekte duran) kayitlar da ham
+    metinlerini kaybediyordu. Tum tiplere genisleyince bu olasilik arttI."""
+    istenen = []
+    monkeypatch.setattr(nm.client, "detay_getir",
+                        lambda nid: istenen.append(nid) or {"raw": GERCEK_RAW})
+    yeni1, yeni2, onbellekli = _ham("y1", "N"), _ham("y2", "N"), _ham("o1", "N")
+    eski = {"o1": {"raw": "ONCEKI HAM METIN",
+                   "record_updated_at": onbellekli["record_updated_at"]}}
+    nm.ham_metinleri_ekle([yeni1, yeni2, onbellekli], eski_gecmis=eski, maks_istek=1)
+    assert istenen == ["y1"], "sinir asildi"
+    assert yeni1.get("raw") == GERCEK_RAW
+    assert "raw" not in yeni2, "sinir sonrasi yeni kayit icin istek atilmis"
+    assert onbellekli.get("raw") == "ONCEKI HAM METIN", \
+        "sinirdan sonraki ONBELLEKLI kayit ham metnini kaybetti"
+
+
+def test_istek_siniri_uyarisi_BIR_KEZ(monkeypatch, capsys):
+    monkeypatch.setattr(nm.client, "detay_getir", lambda nid: {"raw": GERCEK_RAW})
+    nm.ham_metinleri_ekle([_ham(f"i{i}", "N") for i in range(6)], maks_istek=2)
+    assert capsys.readouterr().err.count("sınırı") == 1
 
 
 def test_degismemis_kayit_icin_ONBELLEKTEN_okunuyor(monkeypatch):

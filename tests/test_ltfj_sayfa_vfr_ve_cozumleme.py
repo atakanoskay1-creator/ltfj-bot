@@ -388,3 +388,64 @@ def test_cip_grubunda_OLU_change_dinleyicisi_yok(sayfa):
     """Kategori artık <select> değil; eski 'change' dinleyicisi kalsaydı
     hiç tetiklenmeyen ölü kod olurdu."""
     assert 'aktifKategoriEl.addEventListener("change"' not in sayfa
+
+
+# ===================================================== tam ham metin
+
+def _ham_fn(sayfa):
+    return sayfa.split("function hamMetinBolumu(n)")[1].split("\n  }\n")[0]
+
+
+def test_ham_bolum_TAM_METNI_tercih_ediyor(sayfa):
+    fn = _ham_fn(sayfa)
+    assert "tam ? n.raw : (n.text" in fn
+    assert "hamMetinBolumu(n)" in sayfa.split("function notamKarti(n)")[1].split("function kisaZaman")[0]
+
+
+def test_tam_metin_YOKSA_baslik_bunu_SOYLUYOR(sayfa):
+    """'Ham metin' deyip yalnızca E) alanını göstermek, eksik bir şeyi
+    tam diye sunmak olurdu."""
+    assert '"Ham NOTAM metni — yalnızca E) alanı"' in _ham_fn(sayfa)
+
+
+def test_CR_satir_sonlari_normallestiriliyor(sayfa):
+    """NOTAC ham metni \\r ile gönderiyor."""
+    assert r'.replace(/\r\n?/g, "\n")' in _ham_fn(sayfa)
+
+
+def test_arama_TAM_METNI_de_tariyor(sayfa):
+    """Yerine geçilen NOTAM numarası ve Q satırı yalnızca raw'da geçer."""
+    assert sayfa.count("[n.number, n.text, n.raw, n.reading_short, n.reading_long]") == 2
+
+
+def _js_calistir(sayfa, n):
+    """hamMetinBolumu'nu GERCEKTEN calistirir (kaynak metnini aramak
+    yerine): mutasyon testi, metin iddialarinin 'var tam = false;'
+    gibi bir bozulmayi kacirdigini gosterdi."""
+    import json as _json, shutil, subprocess
+    if not shutil.which("node"):
+        pytest.skip("node yok")
+    esc = sayfa.split("  function esc(s) {")[1].split("\n  }\n")[0]
+    fn = _ham_fn(sayfa)
+    # _ham_fn govdeyi acilis parantezi DAHIL, kapanisi HARIC dondurur.
+    kod = ("function esc(s) {" + esc + "\n}\nfunction hamMetinBolumu(n)" + fn +
+           "\n}\nprocess.stdout.write(hamMetinBolumu(" + _json.dumps(n) + "));")
+    # text=True KULLANILMIYOR: evrensel satir sonu donusumu \r'yi kendisi
+    # \n'e ceviriyordu ve CR normallestirmesini sinayan test, fonksiyon
+    # bozulsa bile geciyordu (mutasyon testi yakaladi).
+    return subprocess.run(["node", "-e", kod], capture_output=True,
+                          check=True).stdout.decode("utf-8")
+
+
+def test_ham_bolum_CALISTIRILINCA_tam_metni_gosteriyor(sayfa):
+    cikti = _js_calistir(sayfa, {"raw": "B1/26 NOTAMR B0/26\r Q) LTBB/QMRLC\r E) RWY CLSD",
+                                 "text": "RWY CLSD"})
+    assert "<summary>Ham NOTAM metni</summary>" in cikti
+    assert "B1/26 NOTAMR B0/26\n Q) LTBB/QMRLC\n E) RWY CLSD" in cikti
+    assert "\r" not in cikti
+
+
+def test_ham_bolum_CALISTIRILINCA_eksigi_soyluyor(sayfa):
+    cikti = _js_calistir(sayfa, {"text": "RWY <CLSD>"})
+    assert "yalnızca E) alanı" in cikti
+    assert "RWY &lt;CLSD&gt;" in cikti, "kacis yapilmamis"

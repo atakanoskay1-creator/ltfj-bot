@@ -39,7 +39,9 @@ def test_vapid_key_varsa_scripte_gomuluyor(tmp_path):
 def test_push_abonelikler_path_kullaniliyor():
     """Client script push_abonelikler path'ine (firebase-rules.json ile
     aynı isim) yazmalı - isim uyuşmazlığı sessizce hiçbir şey kaydetmezdi."""
-    assert "push_abonelikler" in (KOK / "ltfj_sayfa.py").read_text(encoding="utf-8")
+    # Istemci betigi artik ltfj_sayfa.py'nin icinde degil, kendi dosyasinda
+    # (bkz. ltfj_sayfa.BETIK_DOSYALARI).
+    assert "push_abonelikler" in (KOK / "sayfa_kaynak" / "06_push.js").read_text(encoding="utf-8")
 
 
 def test_sw_js_dosyasi_var_ve_push_notificationclick_dinliyor():

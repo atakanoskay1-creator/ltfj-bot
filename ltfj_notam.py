@@ -265,26 +265,35 @@ YEREL_ISARETLER = ("push_yaklasan", "push_yururluk")
 
 def ham_metinleri_ekle(ham_kayitlar: list[dict], eski_gecmis: dict | None = None,
                        maks_istek: int = MAKS_DETAY_ISTEK) -> list[dict]:
-    """R/C tipindeki kayitlara DETAY ucundan "raw" (tam orijinal NOTAM
-    metni) ekler - "hangi NOTAM'in yerine gecti" bilgisi orada.
+    """Kayitlara DETAY ucundan "raw" (tam orijinal NOTAM metni) ekler.
 
-    FRUGAL, BILEREK: detay ucu NOTAM BASINA bir istek demek. Her kayit
-    icin cekseydik senkron basina ~21 istek olurdu (gunde 8 senkron =
-    ~170). Bunun yerine:
-      - yalnizca notam_type R ya da C olanlar (otekilerde referans yok),
-      - record_updated_at degismediyse ONBELLEKTEN (yerel gecmisten),
-      - ve toplamda maks_istek ile sinirli.
-    Olcum: 15 aktif kaydin 6'si R/C - yani ilk senkronda ~6 istek,
-    sonrakilerde yalnizca yeni/degismis olanlar icin.
+    TUM TIPLER icin (N/R/C). Eskiden yalnizca R/C cekiliyordu, cunku
+    amac "hangi NOTAM'in yerine gecti" referansiydi. Ama sayfadaki "Ham
+    NOTAM metni" bolumu yalnizca E) govdesini gosteriyordu - Q satiri,
+    A/B/C alanlari, zaman ve irtifa sinirlari yeni (N) NOTAM'larda hic
+    gorunmuyordu. Kontrolorun dogrulamak isteyecegi sey tam metin.
 
-    Detay istegi BASARISIZ OLURSA o kayit "raw"siz devam eder: referans
-    ikincil bir bilgi, NOTAM'in kendisini kaybetmeye degmez."""
+    MALIYET, OLCULDU: detay ucu NOTAM BASINA bir istek. Ama:
+      - record_updated_at degismediyse ONBELLEKTEN (yerel gecmisten) -
+        yani yalnizca YENI ya da DEGISMIS NOTAM icin istek atiliyor,
+      - toplamda maks_istek ile sinirli.
+    Ilk senkronda ~19 istek (15 aktif + 4 yaklasan), sonrakilerde
+    genellikle 0-2.
+
+    SINIR DOLDUGUNDA DONGU DURMUYOR. Eskiden `break` ediyordu: sinirdan
+    sonra gelen kayitlar, istek gerektirmeyen ONBELLEK geri yuklemesini
+    de kaciriyor ve bir onceki senkronda alinmis ham metinlerini
+    kaybediyordu. Artik yalnizca YENI istek atilmiyor; onbellekten
+    doldurma butun liste icin surer.
+
+    Detay istegi BASARISIZ OLURSA o kayit "raw"siz devam eder: ham metin
+    ikincil bir bilgi, NOTAM'in kendisini kaybetmeye degmez; sayfa o
+    zaman E) govdesine duser."""
     eski = eski_gecmis or {}
     istek = 0
+    sinir_bildirildi = False
     for kayit in ham_kayitlar:
         if not isinstance(kayit, dict):
-            continue
-        if (kayit.get("notam_type") or "").upper() not in ("R", "C"):
             continue
         nid = kayit.get("id")
         if not nid:
@@ -295,9 +304,12 @@ def ham_metinleri_ekle(ham_kayitlar: list[dict], eski_gecmis: dict | None = None
             kayit["raw"] = onceki["raw"]
             continue
         if istek >= maks_istek:
-            print(f"[uyarı] detay isteği sınırı ({maks_istek}) doldu; "
-                  "kalan NOTAM'lar ham metinsiz devam ediyor.", file=sys.stderr)
-            break
+            if not sinir_bildirildi:
+                print(f"[uyarı] detay isteği sınırı ({maks_istek}) doldu; "
+                      "kalan yeni/değişmiş NOTAM'lar bu turda ham metinsiz, "
+                      "bir sonraki senkronda tamamlanır.", file=sys.stderr)
+                sinir_bildirildi = True
+            continue
         istek += 1
         try:
             detay = client.detay_getir(nid)
