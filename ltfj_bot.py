@@ -816,10 +816,36 @@ def _havacilik_blogu(n: dict, uzun: bool) -> list[str]:
     return s
 
 
+GOZLEM_TIPLERI = ("METAR", "SPECI")
+
+
+def en_yeni_rapor(raporlar: list, tipler) -> dict | None:
+    """Verilen tiplerdeki EN YENI rapor - listenin sirasina GUVENMEDEN.
+
+    Eskiden burasi `next(r for r in raporlar if ...)` idi, yani "listenin
+    ilki en yenidir" varsayimi. O varsayim bugun DOGRU (raporlari_cek
+    sonucu zamana gore siraliyor) ama ortukti: sirayi bozan bir degisiklik
+    - kaynak degisimi, bir birlestirme adimi, testte elle kurulmus bir
+    liste - hicbir hata vermeden bot'a ESKI bir SPECI'yi "su an" diye
+    yazdirirdi. Operasyonel bir ekranda sessizce eski veri gostermek,
+    hic veri gostermemekten kotudur.
+
+    Zamani olmayan rapor, zamani olanlardan ESKI sayilir (kaynak da ayni
+    kurali kullaniyor). Esit zamanda listedeki ilk kazanir - ayni dakikanin
+    duzeltilmis (COR) hali kaynakta once gelir, bu da onu korur."""
+    adaylar = [r for r in raporlar if r.get("tip") in tipler]
+    if not adaylar:
+        return None
+    en_eski = datetime.min.replace(tzinfo=timezone.utc)
+    # max() esit anahtarlarda ILKINI dondurur - sira bilgisi yalnizca
+    # berabere kalmada kullaniliyor, ustunlukte degil.
+    return max(adaylar, key=lambda r: r.get("zaman") or en_eski)
+
+
 def durum_mesaji_kur(raporlar: list, state: dict) -> str:
     """Sabitlenmis 'su an' mesaji - her raporda yerinde guncellenir."""
-    metar = next((r for r in raporlar if r["tip"] in ("METAR", "SPECI")), None)
-    taf = next((r for r in raporlar if r["tip"] == "TAF"), None)
+    metar = en_yeni_rapor(raporlar, GOZLEM_TIPLERI)
+    taf = en_yeni_rapor(raporlar, ("TAF",))
     simdi = datetime.now(timezone.utc).astimezone(YEREL_TZ)
 
     s = [f"📍 <b>{ICAO} · şu an</b>"]
@@ -1113,8 +1139,9 @@ def main():
     if state["ilk_calisma"]:
         gorulen.update(anahtar(r) for r in raporlar)
 
-    guncel = next((r["metin"] for r in raporlar
-                   if r["tip"] in ("METAR", "SPECI")), "")
+    # Listenin sirasina degil ZAMANA bakiyor (bkz. en_yeni_rapor).
+    guncel_rapor = en_yeni_rapor(raporlar, GOZLEM_TIPLERI)
+    guncel = guncel_rapor["metin"] if guncel_rapor else ""
     state["son_metar"] = guncel or onceki_metar
     state["gonderilen"] = [k for k in state["gonderilen"] if k in gorulen]
     state["gonderilen"] += [k for k in gorulen if k not in state["gonderilen"]]
