@@ -67,10 +67,22 @@
       window.ltfjNotamIlgiliSatiri(n) +
       '<div class="notam-kunye">' + kunye.join(" · ") + "</div>" +
       (etiketler ? '<div class="notam-etiketler">' + etiketler + "</div>" : "") +
-      "<details class=\"notam-ham\"><summary>Ham NOTAM metni</summary>" +
-      '<div class="notam-metin">' + esc(n.text || "") + "</div></details>" +
+      hamMetinBolumu(n) +
       "</div>"
     );
+  }
+
+  // HAM METIN: NOTAC detay ucundan gelen TAM orijinal metin (Q satiri,
+  // A/B/C alanlari, irtifa sinirlari dahil). Yoksa E) govdesine
+  // dusuluyor - ama baslik bunu SAKLAMIYOR: "ham metin" deyip yalnizca
+  // E) alanini gostermek, okuyana eksik bir seyi tam diye sunmak olurdu.
+  // \r satir sonlari (NOTAC boyle gonderiyor) \n'e cevriliyor.
+  function hamMetinBolumu(n) {
+    var tam = !!n.raw;
+    var metin = String(tam ? n.raw : (n.text || "")).replace(/\r\n?/g, "\n");
+    var baslik = tam ? "Ham NOTAM metni" : "Ham NOTAM metni — yalnızca E) alanı";
+    return '<details class="notam-ham"><summary>' + baslik + "</summary>" +
+      '<div class="notam-metin">' + esc(metin) + "</div></details>";
   }
 
   // Kunyedeki tarihler ISO damga olarak basiliyordu
@@ -108,7 +120,7 @@
         if (refler.indexOf(eleman) === -1) return false;
       }
       if (q) {
-        var alanlar = [n.number, n.text, n.reading_short, n.reading_long]
+        var alanlar = [n.number, n.text, n.raw, n.reading_short, n.reading_long]
           .concat(n.tags || [])
           .concat((n.affected_elements || []).map(function (e) { return e.ref; }))
           .filter(Boolean).join(" ").toLowerCase();
@@ -318,7 +330,7 @@
       // gorunen etiketle birebir ayni olsun.
       if (durum && gecerlilik(n).durum !== durum) return false;
       if (q) {
-        var alanlar = [n.number, n.text, n.reading_short, n.reading_long]
+        var alanlar = [n.number, n.text, n.raw, n.reading_short, n.reading_long]
           .concat(n.tags || [])
           .concat((n.affected_elements || []).map(function (e) { return e.ref; }))
           .filter(Boolean).join(" ").toLowerCase();
