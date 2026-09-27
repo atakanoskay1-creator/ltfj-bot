@@ -803,6 +803,26 @@
                     font-size:var(--f1); padding-bottom:2px; }
   .gecis-esik { display:block; font-weight:400; font-size:var(--f1);
                  color:var(--soluk); }
+  /* Sis iklimbilimi seridi: tek seri, lejant yok (baslik seriyi adlandiriyor).
+     Cubuk --marka: durum rengi DEGIL - "ne kadar sisli" bir durum degil,
+     bir miktar. Yalnizca tepe cubuk degeriyle etiketli; digerleri title'da. Opaklik
+     YOK: soluk cubuk beyaz zeminde 3:1 grafik kontrastinin altina duser.
+     Cubuklar arasi 2px yuzey boslugu, veri ucu 4px yuvarlak, taban duz. */
+  .iklim-baslik { font-size:var(--f2); font-weight:650; margin-top:12px; }
+  .iklim-baslik span { font-weight:400; color:var(--soluk); margin-left:4px; }
+  .iklim-serit { display:grid; grid-template-columns:repeat(var(--n), minmax(0, 1fr));
+                 gap:2px; margin-top:20px; }
+  .iklim-hucre { display:flex; flex-direction:column; min-width:0; }
+  .iklim-kolon { position:relative; height:64px; display:flex; align-items:flex-end;
+                 border-bottom:1px solid var(--cizgi); }
+  .iklim-cubuk { width:100%; background:var(--marka); border-radius:4px 4px 0 0; }
+  .iklim-tepe { position:absolute; top:-2px; left:50%; transform:translate(-50%, -100%);
+                font-size:var(--f1); font-weight:650; color:var(--metin);
+                white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .iklim-etiket { font-size:var(--f1); color:var(--soluk); text-align:center;
+                  margin-top:3px; min-height:1.2em; white-space:nowrap; }
+  .iklim-ozet { font-size:var(--f2); color:var(--soluk); margin-top:6px; }
+  .iklim-ruzgar { margin-top:14px; }
   .sis-olasilik-alt { font-size:var(--f2); color:var(--soluk); }
   .sis-olasilik-kiyas { font-size:var(--f2); color:var(--soluk); margin-top:6px; }
   .sis-olasilik-ek {

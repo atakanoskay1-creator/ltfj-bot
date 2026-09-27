@@ -690,6 +690,134 @@ python -m sis_modeli.gorus_gecis --veri gozlem_arsivi.csv
 Bu **geriye dönük bir düzeltme değildir** — dondurulmuş tablodaki sayılar
 IEM arşivinden gelmeye devam ediyor. Ayrıntı: ana `README.md` §11.
 
+### Sis iklimbilimi — `sis_iklim.py`
+
+**Bu da bir model değil, sayım.** Soru: LTFJ'de sis hangi ay, hangi saat,
+hangi rüzgârda görülüyor? Sis tanımı modelinkiyle aynı (`ozellik.py`: görüş
+< 1000 m ve meydanı kaplayan FG; MI/BC/PR/VC sayılmaz). Kapsam 2011–2026,
+273.423 gözlem, **1.183 sisli**, 642 LVO (< 550 m) gözlemi. Saatler
+**yerel** (UTC+3).
+
+```
+python -m sis_modeli.sis_iklim            # tabloları yazdır
+python -m sis_modeli.sis_iklim --dondur   # ltfj_sis_iklim_tablo.py
+```
+
+**Aylar** (sisli gün = en az bir sisli gözlem olan gün, tüm yıllar toplamı):
+
+| ay | sisli gün | gözlemlerin sisli oranı | LVO gözlemi |
+|---|---|---|---|
+| **Şubat** | **45** | **%1,25** | 98 |
+| Ocak | 40 | %0,87 | **133** |
+| Mart | 21 | %0,58 | 96 |
+| Kasım | 18 | %0,49 | 66 |
+| Mayıs | 20 | %0,37 | 52 |
+| Nisan / Ekim | 16 / 20 | %0,33 / %0,35 | 36 / 48 |
+| Haziran–Ağustos | 18–23 | %0,17–0,22 | 14–29 |
+| **Eylül** | **8** | **%0,08** | 8 |
+
+Sisli gözlemlerin %52'si Ocak–Mart'ta. Yazın sisli gün sayısı düşük değil
+(ayda ~20) ama olaylar kısa: yaz olay süresinin %90'ı ≤ 2,5 sa, kışta
+≤ 5,5 sa.
+
+**Saat:** zirve 05–06 yerel (%1,41 — 20:00'deki %0,05'in ~28 katı). Sisli
+gözlemlerin %48'i 04:00–07:59 arasında. Yazın pencere çok dar (%83'ü 03–07);
+kışın 00–10'a yayılıyor ve 08:00'e kadar sürüyor.
+
+**Rüzgâr** (kat = sis sırasındaki pay / genel pay; ham pay yanıltıcı çünkü
+LTFJ'de en sık rüzgâr zaten KD):
+
+| sektör | sis sırasında | genelde | kat |
+|---|---|---|---|
+| sakin (≤ 2 kt) | %16,1 | %10,7 | **1,52** |
+| kuzey | %14,5 | %15,2 | 0,96 |
+| kuzeydoğu | %55,2 | %44,5 | 1,24 |
+| doğu | %4,4 | %3,4 | 1,28 |
+| güney | %3,0 | %5,3 | 0,56 |
+| **güneybatı** | %2,8 | %10,6 | **0,26** |
+| batı | %2,3 | %6,3 | 0,36 |
+
+Sis sırasında rüzgâr medyanı 6 kt, %47'si ≤ 5 kt. Sisli gözlemlerin %96'sında
+spread ≤ 1 °C. Yazın ayrım daha keskin: sisin %71'i KD'de, G/GB/KB'de hiç
+yok.
+
+**Güneyli sis (140–250°, > 2 kt) — nadir ama en ağır tip:**
+
+| | güneyli | diğer |
+|---|---|---|
+| sisli gün | 22 | — |
+| aylar | yalnızca Ekim–Nisan, zirve Şubat–Mart | tüm yıl |
+| saat | günün her saati | sabaha yığılmış |
+| olay süresi medyanı | **4 sa** | 1 sa |
+| sisli gözlemlerin LVO oranı | **%77** | %53 |
+
+"Lodosta sis olmaz" genellemesi bu yüzden eksik: güneyli rüzgâr sisi
+nadiren getiriyor, ama getirdiğinde en uzun ve en yoğun olaylar bunlar.
+Mevsim ve saat profili Marmara'nın en soğuk olduğu dönemde üzerinden gelen
+ılık/nemli havanın adveksiyon sisine uyuyor — **bu bir yorum, ölçülmedi**
+(sis tipi sınıflandırılmıyor, deniz suyu sıcaklığı verisi yok).
+
+**Modele etkisi (açık soru):** dondurulmuş Model A güney bileşenli rüzgârı
+sis aleyhine puanlıyor (`ltfj_sis_olasilik.py`, `ruzgar_kuzey` WoE: en
+güneyli kova −2,45). Toplamda doğru, ama nadir ve en ağır tip olan güneyli
+adveksiyon sisini **hafife alıyor olabilir**. Test edilmedi.
+
+**Sayfada:** İstatistik sekmesinde "Sis ne zaman görülüyor" — ay ve saat
+şeridi, rüzgâr tablosu, güneyli sis özeti (`ltfj_sis_iklim_tablo.py`).
+
+### Literatürle karşılaştırma
+
+Aşağıdaki makale bilgileri **özetlerden** alındı; tam metinler bu
+geliştirme ortamından erişilemedi (ResearchGate/DergiPark/Springer ağ
+politikasıyla kapalı). Tanımlar ve dönemler farklı olduğu için sayılar
+doğrudan karşılaştırılamaz; karşılaştırma yön ve örüntü düzeyindedir.
+
+| konu | literatür | LTFJ arşivi | |
+|---|---|---|---|
+| mevsim sırası | Türkiye, 105 istasyon: kış > ilkbahar > sonbahar > yaz (Baltacı 2022) | sisli gözlemde aynı sıra: kış %46, ilkbahar %25, sonbahar %17, yaz %12 | uyuşuyor |
+| saat | Atatürk: gün doğumu ya da 1–2 sa öncesi (Özdemir 2016) | zirve 05–06 yerel | uyuşuyor |
+| sıcaklık | Atatürk: çoğunlukla 5–12 °C | medyan 7 °C, %25–75: 3–12 °C | uyuşuyor |
+| rüzgâr hızı | Atatürk: sakin/hafif değişken | medyan 6 kt; sakinde kat 1,52 | uyuşuyor |
+| KD akışı | KD Marmara'da ilkbahar Karadeniz etkili deniz sisi: KD rüzgâr, soğuk su yükselimi, 850 hPa inversiyonu (Baltacı 2022) | sisin %55'i KD'de (yazın %71) | yön uyuşuyor; mekanizma test edilmedi |
+| en sisli ay | Atatürk: **Kasım** (%28,6) | **Şubat**; Kasım yalnız %8,9 | **ayrışıyor** |
+| güneyli rüzgâr | Atatürk: sisin %41'i 180–270° (denizden karaya) | 140–250° yalnız %7 ama en uzun/yoğun olaylar | **ayrışıyor** (tip olarak var, sıklıkça yok) |
+| süre/yoğunluk | Atatürk: ort. 4,5 sa, %75'i < 400 m | ort. 1,7 sa, %26'sı < 400 m | ayrışıyor — tanım farkı olabilir |
+| basınç | Atatürk: 1018–1029 hPa | sis sırasında medyan 1018, genel 1015; yalnız %53'ü ≥ 1018 | ilişki var, daha zayıf |
+
+**Makalelerdeki olay günleri arşivde:**
+
+- **19 Şubat 2014** (WRF ile yoğun adveksiyon sisi duyarlılık çalışması):
+  arşiv iki ayrı sis gösteriyor. Sabah 03:20–10:20 yerel, N–NE 2–10 kt,
+  300–900 m; öğleden sonra 17:50'den ertesi gün 04:50'ye, **S–SSW 4–8 kt,
+  200–300 m**. Makale de sabah ve öğleden sonra sisini ayrı değerlendiriyor
+  (model sabah sisinin başlangıç/bitişini erken, öğleden sonrakini doğru
+  zamanlamış). İki sis tipinin aynı günde görüldüğü bir örnek.
+- **5 Kasım 2015** (sinoptik vaka çalışması): makalede en düşük görüş
+  **100 m**; IEM arşivinde en düşük **1100 m BCFG** (03:50–04:50 yerel) —
+  bizim tanımla sis bile değil. Makale METAR + SPECI kullanıyor; arşivde
+  SPECI yok. Bu, arşivin kısa ve keskin sisleri **eksik saydığının** somut
+  bir örneği olabilir (bkz. "Görüş geçiş süreleri", SPECI sınırı).
+
+**Karşılaştırılamayan:** FOGSI çalışması (LTFJ) endeksin 32 günde < 31
+(yüksek sis olasılığı) olduğunu buluyor — bu gözlenen sis değil, radyosonde
+tabanlı bir kararlılık endeksi. Modelimizde üst hava/inversiyon değişkeni
+yok; bu bir boşluk.
+
+**Kaynaklar**
+
+- Baltacı, H. (2022). *A climatological study of fog in Turkey.*
+  International Journal of Climatology. https://doi.org/10.1002/joc.7823
+- Özdemir, T. et al. (2016). *Fog analysis at Istanbul Ataturk International
+  Airport.* Weather. https://doi.org/10.1002/wea.2747
+- *WRF sensitivity simulations of a dense advection fog event in Istanbul.*
+  Theoretical and Applied Climatology (2022).
+  https://doi.org/10.1007/s00704-022-03966-0
+- *İstanbul Sabiha Gökçen Uluslararası Havalimanı'na ait sis oluşumu ile
+  ilgili sinoptik durum araştırması.*
+  https://www.researchgate.net/publication/327303954
+- *İstanbul Sabiha Gökçen Uluslararası Havalimanı'na ait FOGSI indeksi
+  kullanılarak sis analizi.* https://www.researchgate.net/publication/327303038
+
 ### Katmanlı model: TEK mi, mevsim/saate göre AYRI mı? — `katmanli_deney.py`
 
 Yabra ve ark. (2026) veriyi sis olasılığı yüksek/düşük aylara ve saatlere
@@ -1186,6 +1314,7 @@ python -m sis_modeli.ufuk_deneyi                      # 30dk/1h/2h/3h lead-time
 python -m sis_modeli.ufuk_deneyi --bootstrap 200      # + eşli gün-blok güven aralıkları
 python -m sis_modeli.katmanli_deney --bootstrap 200   # tek model mi, mevsim/saat katmanlı mı
 python -m sis_modeli.gorus_gecis                      # görüş geçiş süreleri (iklimbilim)
+python -m sis_modeli.sis_iklim --dondur              # sis iklimbilimi: ay/saat/rüzgâr (sayfaya dondurur)
 python -m sis_modeli.olusum_holdout_degerlendir       # TEK ATIŞ
 
 # Tavan: görüşsüz süreklilik (A) + oluşum (B) modelleri

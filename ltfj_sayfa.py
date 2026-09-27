@@ -17,6 +17,7 @@ import ltfj_lvo_farkindalik as farkindalik
 import ltfj_notam
 import ltfj_lvo_referans as lvo
 import ltfj_gorus_gecis_tablo as gecis_tablo
+import ltfj_sis_iklim_tablo as sis_iklim
 import ltfj_sis_olasilik as sis_olasilik
 import ltfj_sis_olasilik_b as sis_olasilik_b
 import ltfj_vfr as vfr
@@ -2097,6 +2098,122 @@ def _gecis_tablosu_html() -> str:
         "</div>")
 
 
+AY_KISA = ("Oca", "Şub", "Mar", "Nis", "May", "Haz",
+           "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara")
+AY_UZUN = ("Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+           "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık")
+SEKTOR_ADI = {"sakin": "Sakin (≤2 kt)", "K": "Kuzey", "KD": "Kuzeydoğu",
+              "D": "Doğu", "GD": "Güneydoğu", "G": "Güney",
+              "GB": "Güneybatı", "B": "Batı", "KB": "Kuzeybatı"}
+
+
+def _yuzde(x: float) -> str:
+    """Türkçe ondalık: %1,25."""
+    return "%" + f"{x:g}".replace(".", ",")
+
+
+def _yuzde1(x: float) -> str:
+    """Tablo sütununda hizalı: her zaman tek ondalık (%3 değil %3,0)."""
+    return "%" + f"{x:.1f}".replace(".", ",")
+
+
+def _iklim_seridi(etiketler, degerler, basliklar, ozet: str,
+                  etiket_adimi: int = 1) -> str:
+    """Tek serili çubuk şeridi (ay ya da saat). Lejant yok - tek seri,
+    başlığı bölüm adı taşıyor. Yalnızca EN YÜKSEK çubuk değeriyle
+    etiketleniyor; her çubuğa sayı yazmak şeridi okunmaz yapardı. Her
+    çubuğun değeri title'da, şeridin özeti aria-label'da."""
+    tepe = max(degerler) or 1
+    i_tepe = degerler.index(max(degerler))
+    hucreler = []
+    for i, (etiket, deger, baslik) in enumerate(zip(etiketler, degerler, basliklar)):
+        yukseklik = max(2, round(100 * deger / tepe))
+        tepe_etiketi = (f'<span class="iklim-tepe">{_yuzde(deger)}</span>'
+                        if i == i_tepe else "")
+        alt = html.escape(etiket) if i % etiket_adimi == 0 else ""
+        hucreler.append(
+            f'<div class="iklim-hucre" title="{html.escape(baslik)}">'
+            f'<div class="iklim-kolon">{tepe_etiketi}'
+            f'<div class="iklim-cubuk"'
+            f' style="height:{yukseklik}%"></div></div>'
+            f'<span class="iklim-etiket">{alt}</span></div>')
+    return (f'<div class="iklim-serit" role="img" aria-label="{html.escape(ozet)}"'
+            f' style="--n:{len(degerler)}">{"".join(hucreler)}</div>')
+
+
+def _sis_iklim_html() -> str:
+    """Arşivden SAYILMIŞ sis iklimbilimi: ay, saat, rüzgâr (DONDURULMUŞ).
+
+    Tahmin değil, geçmişin sayımı - _gecis_tablosu_html ile aynı cins.
+    Rüzgârda ham pay yerine KAT gösteriliyor: LTFJ'de en sık rüzgâr zaten
+    kuzeydoğu, "sisin çoğu KD'de" bu yüzden kendiliğinden doğru olur ve
+    bir şey söylemez. Kat, o rüzgârda sisin normale göre ne kadar sık
+    görüldüğünü söyler."""
+    t = sis_iklim
+    if not t.SIS_GOZLEM:
+        return ""
+    aylar = sorted(t.AYLAR, key=lambda a: a["ay"])
+    ilk3 = sorted(aylar, key=lambda a: -a["oran_yuzde"])[:3]
+    ay_ozet = ", ".join(f'{AY_UZUN[a["ay"] - 1]} {_yuzde(a["oran_yuzde"])}' for a in ilk3)
+    ay_seridi = _iklim_seridi(
+        AY_KISA, [a["oran_yuzde"] for a in aylar],
+        [f'{AY_UZUN[a["ay"] - 1]}: gözlemlerin {_yuzde(a["oran_yuzde"])}\'i sisli · '
+         f'{a["sisli_gun"]} sisli gün' for a in aylar],
+        f"Aylara göre sisli gözlem oranı. En yüksek: {ay_ozet}.")
+
+    saatler = sorted(t.SAATLER, key=lambda s: s["saat"])
+    tepe_saat = max(saatler, key=lambda s: s["oran_yuzde"])
+    sabah = sum(s["pay_yuzde"] for s in saatler if 4 <= s["saat"] <= 7)
+    saat_seridi = _iklim_seridi(
+        [f'{s["saat"]:02d}' for s in saatler], [s["oran_yuzde"] for s in saatler],
+        [f'{s["saat"]:02d}:00: gözlemlerin {_yuzde(s["oran_yuzde"])}\'i sisli'
+         for s in saatler],
+        f'Yerel saate göre sisli gözlem oranı. Zirve {tepe_saat["saat"]:02d}:00.',
+        etiket_adimi=3)
+
+    satirlar = "".join(
+        f'<tr><th scope="row">{SEKTOR_ADI[r["sektor"]]}</th>'
+        f'<td>{_yuzde1(r["sis_pay_yuzde"])}</td>'
+        f'<td class="gecis-n">{_yuzde1(r["genel_pay_yuzde"])}</td>'
+        f'<td><b>{str(r["kat"]).replace(".", ",")}×</b></td></tr>'
+        for r in t.RUZGAR)
+    g, d = t.GUNEY, t.DIGER
+    g_aylar = [a for a in g["aylar"]]
+    kis = (f'{AY_UZUN[min(a for a in g_aylar if a >= 9) - 1]}–'
+           f'{AY_UZUN[max(a for a in g_aylar if a <= 6) - 1]}'
+           if any(a >= 9 for a in g_aylar) and any(a <= 6 for a in g_aylar) else "")
+    return (
+        '<div class="alt-bolum">'
+        '<div class="basrow"><span class="tip">Sis ne zaman görülüyor</span>'
+        f'<span class="zaman">{t.KAPSAM_ILK_YIL}–{t.KAPSAM_SON_YIL} arşivi · '
+        f'{t.SIS_GOZLEM} sisli gözlem</span></div>'
+        '<div class="iklim-baslik">Aylar <span>gözlemlerin sisli oranı</span></div>'
+        f"{ay_seridi}"
+        f'<div class="iklim-ozet">En sisli aylar: {html.escape(ay_ozet)}.</div>'
+        '<div class="iklim-baslik">Saat <span>yerel · gözlemlerin sisli oranı</span></div>'
+        f"{saat_seridi}"
+        f'<div class="iklim-ozet">Sisli gözlemlerin {_yuzde(round(sabah))}\'i '
+        '04:00–07:59 arasında; öğleden sonra ve akşam sis nadir.</div>'
+        '<table class="gecis-tablo iklim-ruzgar">'
+        '<caption class="gecis-caption">Rüzgâr · <b>kat</b> = sis sırasındaki pay / '
+        'genel pay (1\'in üstü: o rüzgârda sis normalden sık)</caption>'
+        '<thead><tr><th></th><th>sis sırasında</th><th>genelde</th><th>kat</th></tr>'
+        f'</thead><tbody>{satirlar}</tbody></table>'
+        f'<div class="iklim-ozet">Sis sırasında rüzgâr medyanı {t.HIZ_MEDYAN_KT} kt.</div>'
+        '<div class="iklim-baslik">Güneyli sis (140–250°)</div>'
+        f'<div class="iklim-ozet">Nadir ama en ağır tip: {g["sisli_gun"]} sisli gün, '
+        f'sisli gözlemlerin {_yuzde(g["pay_yuzde"])}\'i'
+        + (f', yalnızca {kis} döneminde' if kis else "")
+        + f'. Olay süresi medyanı <b>{g["sure_medyan_sa"]:g} sa</b> (diğer sislerde '
+        f'{d["sure_medyan_sa"]:g} sa); sisli gözlemlerinin <b>{_yuzde(g["lvo_yuzde"])}\'i '
+        f'550 m altında</b> (diğerlerinde {_yuzde(d["lvo_yuzde"])}).</div>'
+        '<div class="sis-olasilik-not">Geçmişin SAYIMIDIR, tahmin değildir. '
+        'Sis: görüş &lt; 1000 m ve meydanı kaplayan FG (MI/BC/PR/VC hariç). '
+        'Arşivde SPECI yok (30 dk ızgara) — kısa ve keskin sisler eksik '
+        'sayılmış olabilir.</div>'
+        "</div>")
+
+
 def _tavan_istatistik_notlari(guncel_cozum: dict | None, gecmis: list,
                               simdi: datetime) -> list:
     """LVO farkındalık panelinden TAŞINAN iki istatistik notu.
@@ -2123,9 +2240,10 @@ def _istatistik_html(sis_html: str, notlar: list) -> str:
     LVO panelinde KALAN notlar eşik karşılaştırmasıdır (METAR/TAF değeri
     şu eşiğin altında mı) - onlar ölçüm, bunlar istatistik."""
     gecis_html = _gecis_tablosu_html()
+    iklim_html = _sis_iklim_html()
     not_html = ("".join(f"<li>{html.escape(n)}</li>" for n in notlar)
                 if notlar else "")
-    if not (sis_html or gecis_html or not_html):
+    if not (sis_html or gecis_html or iklim_html or not_html):
         return ""
     tavan_bolumu = (
         '<div class="alt-bolum"><div class="basrow">'
@@ -2139,7 +2257,7 @@ def _istatistik_html(sis_html: str, notlar: list) -> str:
     # UCU DE kendi kapsamini yaziyor ("2011–2026 arşivi", "LTFJ'nin
     # 2011–2023 METAR arşivinden...").
     return ('<div class="kart">'
-            f"{sis_html}{tavan_bolumu}{gecis_html}"
+            f"{sis_html}{tavan_bolumu}{gecis_html}{iklim_html}"
             "</div>")
 
 
