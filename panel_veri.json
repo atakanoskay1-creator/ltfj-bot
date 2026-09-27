@@ -1,25 +1,22 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-27T10:54:41+00:00",
+ "uretildi": "2026-09-27T11:24:43+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-27T10:50:00+00:00",
-  "metin": "METAR LTFJ 271050Z 03012KT 360V060 9999 SCT033 BKN100 22/15 Q1017 NOSIG RMK RWY24R 01012KT 340V050 RWY06R 02012KT RWY24L 01013KT",
+  "zaman": "2026-09-27T11:20:00+00:00",
+  "metin": "METAR LTFJ 271120Z 03014KT 9999 SCT029 BKN100 23/15 Q1017 NOSIG RMK RWY24R 36014KT RWY06R 36013KT RWY24L 01013KT",
   "ruzgar": {
    "yon": 30,
-   "hiz": 12,
+   "hiz": 14,
    "hamle": null,
-   "degisken": [
-    360,
-    60
-   ]
+   "degisken": null
   },
   "gorus": 9999,
   "cavok": false,
   "tavan": 10000,
   "hava": [],
-  "sicaklik": 22,
+  "sicaklik": 23,
   "cig_noktasi": 15,
   "qnh": 1017,
   "nosig": true,
@@ -33,12 +30,12 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 9.9,
-    "yan": 6.7,
+    "bas": 11.6,
+    "yan": 7.8,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "alan rüzgârından",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -46,8 +43,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 8.6,
-    "yan": 8.4,
+    "bas": 5.7,
+    "yan": 11.7,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -72,12 +69,12 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -7.0,
-    "yan": 9.7,
+    "bas": -6.1,
+    "yan": 12.6,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": false
@@ -91,21 +88,13 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 030° 12kt (değişken 360°–060°) · görüş 10+ km · tavan 10000 ft · 22°C · QNH 1017"
+  "ozet": "Rüzgâr 030° 14kt · görüş 10+ km · tavan 10000 ft · 23°C · QNH 1017"
  },
  "taf": {
-  "zaman": "2026-09-27T04:40:00+00:00",
-  "metin": "TAF LTFJ 270440Z 2706/2806 05015KT 9999 SCT030 BKN080 TEMPO 2706/2710 -SHRA FEW018TCU BKN025 BKN080 BECMG 2716/2718 -SHRA BKN025 BKN080 BECMG 2718/2721 02018G28KT TEMPO 2718/2722 4000 SHRA FEW018CB BKN025 TEMPO 2802/2806 4000 SHRA FEW018CB BKN025"
+  "zaman": "2026-09-27T10:40:00+00:00",
+  "metin": "TAF LTFJ 271040Z 2712/2812 02016KT 9999 SCT030 BKN090 BECMG 2715/2718 -SHRA BKN025 BKN080 TEMPO 2718/2722 35020G35KT 4000 TSRA SCT018CB BKN020 TEMPO 2805/2809 34020G35KT 4000 SHRA FEW018CB BKN020 TEMPO 2809/2812 34020G35KT"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-21T14:20:00+00:00",
-   "ruzgar_hiz": 4,
-   "tavan": null,
-   "qnh": 1013,
-   "sicaklik": 27,
-   "cig_noktasi": 15
-  },
   {
    "zaman": "2026-09-21T14:50:00+00:00",
    "ruzgar_hiz": 3,
@@ -2675,6 +2664,15 @@
    "tavan": 10000,
    "qnh": 1017,
    "sicaklik": 22,
+   "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-27T11:20:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 14,
+   "tavan": 10000,
+   "qnh": 1017,
+   "sicaklik": 23,
    "cig_noktasi": 15
   }
  ]
