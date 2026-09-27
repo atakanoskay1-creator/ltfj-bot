@@ -340,6 +340,10 @@ Arşivden öğrenilmiş her şey **tek katlanır başlık** altında toplandı:
 - **İstatistiksel sis olasılığı** (önceden "Beklenti" altındaydı)
 - **Tavan istatistiği** — göreli oranlar (önceden LVO Farkındalık Notları'ndaydı)
 - **Görüş geçiş süreleri** — yeni; bkz. `sis_modeli/README.md`
+- **Sis ne zaman görülüyor** — aylara ve yerel saate göre sisli gözlem oranı,
+  rüzgâr sektörüne göre "kat" ve güneyli sis özeti; arşivden sayılmış,
+  `ltfj_sis_iklim_tablo.py`'ye dondurulmuş. Bkz. `sis_modeli/README.md`
+  "Sis iklimbilimi"
 
 **Ayrımın gerekçesi:** sayfa "bu ölçüm mü, tahmin mi, istatistik mi" ayrımını
 her yerde koruyor ama istatistikler üç ayrı yere dağılmıştı. LVO panelinde

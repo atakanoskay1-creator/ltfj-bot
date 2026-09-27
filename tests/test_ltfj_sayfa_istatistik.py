@@ -179,3 +179,69 @@ def test_veri_yokken_bolum_hic_cikmiyor(tmp_path):
     # Geçiş tablosu sabit olduğu için bölüm yine çıkabilir; ama sis
     # olasılığı kartı çıkmamalı.
     assert "İstatistiksel sis olasılığı" not in html
+
+
+# ------------------------------------------------ sis iklimbilimi (ay/saat/rüzgâr)
+import re as _re
+
+import ltfj_sis_iklim_tablo as _iklim
+
+
+def test_sis_iklimbilimi_ISTATISTIK_panelinde(tmp_path):
+    panel = _panel(_sayfa(tmp_path), "istatistik")
+    assert "Sis ne zaman görülüyor" in panel
+    assert f"{_iklim.KAPSAM_ILK_YIL}–{_iklim.KAPSAM_SON_YIL} arşivi" in panel
+    assert "tahmin değildir" in panel
+
+
+def test_serit_sayisi_ve_hucreler(tmp_path):
+    panel = _panel(_sayfa(tmp_path), "istatistik")
+    seritler = panel.split('class="iklim-serit"')[1:]
+    assert len(seritler) == 2
+    assert seritler[0].count('class="iklim-hucre"') >= 12
+    assert 'style="--n:12"' in panel and 'style="--n:24"' in panel
+
+
+def test_YALNIZCA_tepe_cubuk_etiketli_ve_dogru_deger(tmp_path):
+    panel = _panel(_sayfa(tmp_path), "istatistik")
+    tepeler = _re.findall(r'class="iklim-tepe">([^<]+)<', panel)
+    assert len(tepeler) == 2
+    ay_tepe = max(a["oran_yuzde"] for a in _iklim.AYLAR)
+    saat_tepe = max(s["oran_yuzde"] for s in _iklim.SAATLER)
+    assert tepeler == [s._yuzde(ay_tepe), s._yuzde(saat_tepe)]
+
+
+def test_cubuk_yuksekligi_orantili(tmp_path):
+    """Tepe %100, digerleri oranla - uydurma olcek yok."""
+    html = s._sis_iklim_html()
+    ay_serit = html.split('class="iklim-serit"')[1].split('class="iklim-serit"')[0]
+    boylar = [int(x) for x in _re.findall(r'height:(\d+)%', ay_serit)]
+    tepe = max(a["oran_yuzde"] for a in _iklim.AYLAR)
+    beklenen = [max(2, round(100 * a["oran_yuzde"] / tepe)) for a in _iklim.AYLAR]
+    assert boylar == beklenen
+
+
+def test_ruzgar_tablosu_KAT_ve_tum_sektorler(tmp_path):
+    html = s._sis_iklim_html()
+    for r in _iklim.RUZGAR:
+        assert s.SEKTOR_ADI[r["sektor"]] in html
+        assert str(r["kat"]).replace(".", ",") + "×" in html
+
+
+def test_guneyli_sis_ozeti_DONMUS_degerlerden(tmp_path):
+    html = s._sis_iklim_html()
+    g, d = _iklim.GUNEY, _iklim.DIGER
+    assert f'{g["sisli_gun"]} sisli gün' in html
+    assert f'{g["sure_medyan_sa"]:g} sa</b>' in html
+    assert f'{d["sure_medyan_sa"]:g} sa)' in html
+    assert s._yuzde(g["lvo_yuzde"]) in html
+
+
+def test_iklim_bolumunde_EMOJI_yok():
+    html = s._sis_iklim_html()
+    assert not _re.search("[\U0001F300-\U0001FAFF☀-➿]", html)
+
+
+def test_tablo_bos_ise_bolum_yok(monkeypatch):
+    monkeypatch.setattr(_iklim, "SIS_GOZLEM", 0)
+    assert s._sis_iklim_html() == ""
