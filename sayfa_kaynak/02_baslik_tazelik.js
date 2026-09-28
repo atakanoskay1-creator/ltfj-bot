@@ -302,16 +302,48 @@ window.ltfjNotamIlgiliSatiri = function (n) {
   // sabitliyordu. Artik ltfj_notam.ilgili_notam_referansi() ham kaydin
   // TUM metin alanlarinda ariyor, sonucu "ilgili_notam" olarak geliyor.
   "use strict";
+  var satirlar = "";
   var i = n.ilgili_notam;
-  if (!i || !i.numara) return "";
-  var fiil = String(i.tip).toUpperCase() === "C" ? "iptal ettiği" : "yerine geçtiği";
-  return '<div class="notam-ilgili">' + window.ltfjNotamKacis(fiil) +
-         " NOTAM: <b>" + window.ltfjNotamKacis(i.numara) + "</b></div>";
+  if (i && i.numara) {
+    var fiil = String(i.tip).toUpperCase() === "C" ? "iptal ettiği" : "yerine geçtiği";
+    satirlar += '<div class="notam-ilgili">' + window.ltfjNotamKacis(fiil) +
+                " NOTAM: <b>" + window.ltfjNotamKacis(i.numara) + "</b></div>";
+  }
+  // Bu NOTAM'i IPTAL EDEN NOTAMC ve iptal tarihi (bkz. ltfj_notam.
+  // iptalleri_isle). Tarih NOTAMC'nin B) alanidir.
+  var p = n.iptal;
+  if (p) {
+    var z = window.ltfjNotamIptalZamani(p.zaman);
+    satirlar += '<div class="notam-ilgili notam-iptal">İptal edildi' +
+                (p.eden ? ": <b>" + window.ltfjNotamKacis(p.eden) + "</b>" : "") +
+                (z ? " · " + window.ltfjNotamKacis(z) : "") + "</div>";
+  }
+  return satirlar;
+};
+
+// NOTAMC iptal zamani, NOTAM kunyesindeki bicimle ("24.09 18:18Z").
+window.ltfjNotamIptalZamani = function (iso) {
+  "use strict";
+  var d = new Date(iso || "");
+  if (!iso || isNaN(d)) return "";
+  var ik = function (x) { return (x < 10 ? "0" : "") + x; };
+  return ik(d.getUTCDate()) + "." + ik(d.getUTCMonth() + 1) + "." + d.getUTCFullYear() +
+         " " + ik(d.getUTCHours()) + ":" + ik(d.getUTCMinutes()) + "Z";
 };
 
 window.ltfjNotamGecerlilik = function (n) {
   "use strict";
   var simdi = Date.now();
+  // IPTAL EDILDI (NOTAMC). Botun kendi isareti (bkz. ltfj_notam.
+  // iptalleri_isle): tarih penceresinden ve NOTAC'in donuk status'undan
+  // ONCE bakiliyor - iptal edilen NOTAM tarihi gecmemis olsa da artik
+  // yururlukte degildir. Aktif/yaklasan listeleri bu durumu dislar.
+  if (n.iptal) {
+    var z = window.ltfjNotamIptalZamani(n.iptal.zaman);
+    return {durum: "iptal",
+            etiket: "iptal edildi" + (z ? " · " + z : ""),
+            vurgula: true};
+  }
   // "upcoming" DA CANLI BIR DURUM. Bu satir yalnizca "active" varken
   // yazilmisti; NOTAC'in status sozlugu OLCULUNCE (active / upcoming /
   // expired) yururluge girmemis kayitlarin "upcoming" tasidigi ortaya

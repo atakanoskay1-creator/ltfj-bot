@@ -203,9 +203,15 @@ def notam_senkronize(state: dict):
     eski_gecmis = state.get("notam_gecmisi") or {}
     eski_idler = set(eski_gecmis)
     yeni_gecmis = ltfj_notam.gecmisi_guncelle(eski_gecmis, aktif, simdi)
+    # NOTAMC: iptal ettigi NOTAM gecmiste varsa "iptal" isaretlenir (iptal
+    # zamani = NOTAMC'nin B alani). Aktif/yaklasan listelerden duser,
+    # gecmiste "iptal edildi" olarak kalir (bkz. ltfj_notam.iptalleri_isle).
+    iptal_edilenler = ltfj_notam.iptalleri_isle(yeni_gecmis)
     state["notam_gecmisi"] = yeni_gecmis
     state["notam_son_senkron"] = simdi
     print(f"  NOTAM senkronize edildi: {len(aktif)} aktif NOTAM ({location}).")
+    if iptal_edilenler:
+        print(f"  NOTAMC ile iptal edildi: {', '.join(iptal_edilenler)}")
 
     # Ilk senkronizasyonda (eski_gecmis bos) TUM aktif NOTAM'lar "yeni"
     # sayilir - bu durumda push'a bogulmamak icin HICBIRI bildirilmez
@@ -227,6 +233,9 @@ def notam_senkronize(state: dict):
         for nid in eski_idler & set(yeni_gecmis):
             kayit = yeni_gecmis[nid]
             if not kayit.get("push_yaklasan") or kayit.get("push_yururluk"):
+                continue
+            # Iptal edilmis bir NOTAM icin "yururluge girdi" bildirimi atilmaz.
+            if kayit.get("iptal"):
                 continue
             if ltfj_notam.yururlukte_mi(kayit):
                 notam_yururluge_girdi_push(kayit)

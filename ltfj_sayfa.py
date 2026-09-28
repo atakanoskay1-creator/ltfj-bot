@@ -480,6 +480,7 @@ SABLON = """<!DOCTYPE html>
         <option value="yururlukte">Yürürlükte</option>
         <option value="doldu">Süresi dolmuş</option>
         <option value="baslamadi">Henüz başlamamış</option>
+        <option value="iptal">İptal edilmiş</option>
       </select>
       <button type="button" id="notam-arama-temizle">Temizle</button>
     </div>
