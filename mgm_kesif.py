@@ -120,6 +120,24 @@ def liste_ozeti(kayitlar: list) -> dict:
         degerler = Counter(str(e.get(alan)) for e in kayitlar)
         if len(degerler) <= KATEGORIK_ESIK:
             kategorik[alan] = dict(degerler)
+    # observationStatus NORMAL (1) disindaki kayitlar tam ayrintiyla - ikinci
+    # kesif 24 saatte 3 METAR'in status=4 / "CCA" oldugunu gosterdi; metinde
+    # COR yoktu. Duzeltmenin nasil temsil edildigini gormek icin: zaman, id,
+    # komsu METAR id'leri (ekleme sirasi ipucu) ve ham metin.
+    sirali = sorted(((rasat._zaman(e.get(ZAMAN_ALANI)), e) for e in kayitlar
+                     if rasat._zaman(e.get(ZAMAN_ALANI)) is not None), key=lambda x: x[0])
+    normal_disi = []
+    for i, (z, e) in enumerate(sirali):
+        if str(e.get("observationStatus")) not in ("1", "None"):
+            onceki = next((x[1].get("id") for x in reversed(sirali[:i])
+                           if _tip(x[1].get(METIN_ALANI)) == _tip(e.get(METIN_ALANI))), None)
+            sonraki = next((x[1].get("id") for x in sirali[i + 1:]
+                            if _tip(x[1].get(METIN_ALANI)) == _tip(e.get(METIN_ALANI))), None)
+            normal_disi.append({
+                "zaman": z.isoformat(), "id": e.get("id"), "onceki_ayni_tip_id": onceki,
+                "sonraki_ayni_tip_id": sonraki, "status": e.get("observationStatus"),
+                "aciklama": (e.get("observationStatusExplanation") or "").strip(),
+                "metin": " ".join((e.get(METIN_ALANI) or "").split())})
     tip_durum = Counter((_tip(" ".join((e.get(METIN_ALANI) or "").split())),
                          str(e.get("observationStatus")), str(e.get("observationType")))
                         for e in kayitlar)
@@ -133,6 +151,7 @@ def liste_ozeti(kayitlar: list) -> dict:
         "gozlem_zamani_en_yeni": max(g[0] for g in zamanli).isoformat() if zamanli else None,
         "zamansiz_gozlem": len(gozlem) - len(zamanli),
         "saniye_alti_kesirli_zaman": kesirli,
+        "normal_disi_kayitlar": normal_disi,
         "kategorik_alanlar": kategorik,
         "tip_x_status_x_type": {f"{a} / status={b} / type={c}": v
                                 for (a, b, c), v in sorted(tip_durum.items())},
@@ -206,6 +225,10 @@ def markdown(ozetler: list, meta: dict) -> str:
                          "(ızgara karşılaştırması dakikaya indirilerek yapıldı)")
                 s.append(f"    - kategorik alanlar (değer: adet): `{lo['kategorik_alanlar']}`")
                 s.append(f"    - tip × observationStatus × observationType: `{lo['tip_x_status_x_type']}`")
+                for nd in lo["normal_disi_kayitlar"]:
+                    s.append(f"    - NORMAL DIŞI: {nd['zaman']} · id {nd['id']} (aynı tipte önceki "
+                             f"id {nd['onceki_ayni_tip_id']}, sonraki {nd['sonraki_ayni_tip_id']}) · "
+                             f"status {nd['status']} `{nd['aciklama']}` · `{nd['metin']}`")
                 s.append(f"    - METAR ızgara (:20/:50) {lo['metar_izgara']} · ızgara dışı METAR "
                          f"{lo['metar_izgara_disi']} · aralıkta eksik ızgara slotu "
                          f"{len(lo['izgara_eksik_slot'])} {lo['izgara_eksik_slot'][:20]}")

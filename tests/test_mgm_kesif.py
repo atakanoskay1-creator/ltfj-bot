@@ -198,3 +198,14 @@ def test_blok_alan_turleri_bos_listeyi_de_gosterir():
     o = k.ozetle(_data({"dataLast": [], "data": KAYITLAR, "gamet": None}), 24)
     tur = o["bloklar"][0]["alan_turleri"]
     assert tur["dataLast"] == "list(0)" and tur["data"] == "list(6)" and tur["gamet"] == "NoneType"
+
+
+def test_normal_disi_durumlu_kayitlar_ayrintiyla_listelenir():
+    kay = [_kayit("2026-09-28T00:20:00Z", "METAR LTFJ 280020Z 9999", 10, observationStatus=1),
+           _kayit("2026-09-28T00:50:00Z", "METAR LTFJ 280050Z 0800 FG", 30,
+                  observationStatus=4, observationStatusExplanation="CCA   "),
+           _kayit("2026-09-28T01:20:00Z", "METAR LTFJ 280120Z 9999", 20, observationStatus=1)]
+    nd = k.liste_ozeti(kay)["normal_disi_kayitlar"]
+    assert len(nd) == 1
+    assert nd[0]["id"] == 30 and nd[0]["onceki_ayni_tip_id"] == 10 and nd[0]["sonraki_ayni_tip_id"] == 20
+    assert nd[0]["aciklama"] == "CCA" and nd[0]["metin"] == "METAR LTFJ 280050Z 0800 FG"
