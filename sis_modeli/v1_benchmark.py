@@ -44,7 +44,7 @@ from pathlib import Path
 
 import ltfj_sis_olasilik as sis_olasilik
 
-from sis_modeli import bolme, degerlendir, egit, hedef, model, v2_evren
+from sis_modeli import bolme, degerlendir, egit, hedef, model, v2_cozucu, v2_evren
 from sis_modeli.deney0_veri_denetimi import olay_ata, sn_var, ufuk_slotlari
 from sis_modeli.istatistik import VARSAYILAN_VERI, veri_oku
 from sis_modeli.olay_degerlendirme import bagimsiz_olaylar
@@ -57,6 +57,12 @@ ESITLIK_TOLERANSI = 1e-4                    # §6: nat
 EPS = 1e-9                                  # degerlendir.log_loss ile ayni
 BANT_ESIGI = 5 * sis_olasilik.EGITIM_POZITIF / sis_olasilik.EGITIM_AN_SAYISI   # §9.1
 ONCESI_SAAT = 3                             # §9.1
+
+# Cozucu: V2 gelistirme hatti v2_cozucu.egit (sonumlu Newton, §15 cozucu
+# duzeltmesi) kullanir. model.egit (eski IRLS) yalnizca duzeltme ONCESI
+# tanilama calismasini yeniden uretmek ve karsilastirmak icin tutulur.
+COZUCULER = {"sonumlu": v2_cozucu.egit, "irls_eski": model.egit}
+VARSAYILAN_COZUCU = "sonumlu"
 
 
 class SpesifikasyonBasarisiz(Exception):
@@ -86,13 +92,14 @@ def _ll_toplam(tahmin: list, gercek: list) -> float:
     return t
 
 
-def _egit(egitim: list, l2: float):
+def _egit(egitim: list, l2: float, cozucu):
     tablolar = model.woe_tablolari(egitim, ALANLAR)
     d, t, p = model.desenlere_topla(egitim, tablolar)
-    return model.egit(d, t, p, l2=l2), tablolar
+    return cozucu(d, t, p, l2=l2), tablolar
 
 
-def ic_dogrulama(E: list, test_bas: int, adaylar=model.L2_ADAYLARI) -> dict:
+def ic_dogrulama(E: list, test_bas: int, adaylar=model.L2_ADAYLARI,
+                 cozucu=COZUCULER[VARSAYILAN_COZUCU]) -> dict:
     """§6 ic dogrulama. E: dis fold'un ambargolu egitim satirlari."""
     bloklar = []
     ll_top = {l2: 0.0 for l2 in adaylar}
@@ -112,7 +119,7 @@ def ic_dogrulama(E: list, test_bas: int, adaylar=model.L2_ADAYLARI) -> dict:
             if l2 in elenen:
                 continue
             try:
-                beta = model.egit(d, t, p, l2=l2)
+                beta = cozucu(d, t, p, l2=l2)
             except (model.TekilSistem, model.Yakinsamadi) as e:
                 elenen[l2] = f"{y}: {type(e).__name__}"
                 continue
@@ -154,7 +161,8 @@ def olay_yakalama(olaylar: list, tahmin_zamani: dict, esik: float = BANT_ESIGI) 
     return sonuc
 
 
-def fold_calistir(kayitlar: list, onset: list, test_yillari: tuple) -> dict:
+def fold_calistir(kayitlar: list, onset: list, test_yillari: tuple,
+                  cozucu=COZUCULER[VARSAYILAN_COZUCU]) -> dict:
     test_bas = test_yillari[0]
     ham_egitim = [r for r in onset if bolme.ILK_YIL <= r["dt"].year < test_bas]
     E = bolme.ayir_embargolu(onset, tuple(range(bolme.ILK_YIL, test_bas)), test_bas)
@@ -171,10 +179,10 @@ def fold_calistir(kayitlar: list, onset: list, test_yillari: tuple) -> dict:
              "test": len(T), "test_poz": sum(1 for r in T if r["hedef"]),
              "test_olaylar": bagimsiz_olaylar(test_tam, etiket="sis", bosluk_saat=3.0),
              "test_satirlar": T}
-    ic = ic_dogrulama(E, test_bas)
+    ic = ic_dogrulama(E, test_bas, cozucu=cozucu)
     sonuc["ic"] = ic
     try:
-        beta, tablolar = _egit(E, ic["secilen"])
+        beta, tablolar = _egit(E, ic["secilen"], cozucu)
     except (model.TekilSistem, model.Yakinsamadi) as e:
         raise SpesifikasyonBasarisiz(f"{test_yillari}: nihai egitim: {e}") from e
     sonuc["katsayilar"] = beta
@@ -241,6 +249,9 @@ def yakalama_ozeti(kayitlar_olay: list, yakalama: list) -> list:
 def main(argv=None) -> int:
     a = argparse.ArgumentParser(description=__doc__)
     a.add_argument("--veri", type=Path, default=VARSAYILAN_VERI)
+    a.add_argument("--cozucu", choices=sorted(COZUCULER), default=VARSAYILAN_COZUCU)
+    a.add_argument("--karsilastirma", choices=sorted(COZUCULER) + ["yok"], default="irls_eski",
+                   help="cozucu etkisi tablosu icin ikinci calisma (varsayilan: eski IRLS)")
     s = a.parse_args(argv)
     if not s.veri.exists():
         print(f"HATA: {s.veri} yok.", file=sys.stderr)
@@ -253,7 +264,8 @@ def main(argv=None) -> int:
     pencere_sn = {r["dt"] for r in onset
                   if any(sn_var(kayitlar[j]) for j in ufuk_slotlari(yer, r["dt"]))}
 
-    print("# V1 referans benchmark'ı (çıktı)\n")
+    cozucu = COZUCULER[s.cozucu]
+    print(f"# V1 referans benchmark'ı (çıktı) — çözücü: `{s.cozucu}`\n")
     print(f"Evren: `v2_evren.gelistirme_kayitlari` — {len(kayitlar)} ızgara satırı, "
           f"{len(onset)} onset satırı, {sum(1 for r in onset if r['hedef'])} Y=1. "
           f"Değişkenler: {', '.join(ALANLAR)}. L2 ızgarası: "
@@ -263,7 +275,7 @@ def main(argv=None) -> int:
     sonuclar, tanilama = [], []
     for grup, liste in ((BIRINCIL_FOLDLAR, sonuclar), (TANILAMA_FOLDLARI, tanilama)):
         for f in grup:
-            liste.append(fold_calistir(kayitlar, onset, f))
+            liste.append(fold_calistir(kayitlar, onset, f, cozucu))
     hepsi = sonuclar + tanilama
 
     print("## 1. Fold sayımları (ambargo sonrası gerçek eğitim)\n")
@@ -287,15 +299,22 @@ def main(argv=None) -> int:
             f"{b['yil']} (iç eğitim {b['ic_egitim']} / Y=1 {b['ic_egitim_poz']}, "
             f"doğrulama {b['dogrulama']} / Y=1 {b['dogrulama_poz']})" for b in ic["bloklar"]) + "\n")
         en_iyi = min(v for v in ic["havuz_ll"].values() if v is not None)
+        en_iyi_l2 = min((v, l2) for l2, v in ic["havuz_ll"].items() if v is not None)[1]
+        esit = [l2 for l2, v in ic["havuz_ll"].items()
+                if v is not None and v - en_iyi <= ESITLIK_TOLERANSI]
         rows = []
         for l2 in model.L2_ADAYLARI:
             v = ic["havuz_ll"][l2]
             rows.append([_l2(l2), _o(v, 6) if v is not None else "elendi",
                          "—" if v is None else f"{v - en_iyi:.2e}",
+                         "—" if v is None else ("evet" if l2 in esit else "hayır"),
                          ic["elenen"].get(l2, ""),
                          "**seçildi**" if l2 == ic["secilen"] else ""])
-        print(_t(["λ", "havuzlanmış iç LL (nat)", "en iyiden fark", "eleme nedeni", ""], rows))
-        print()
+        print(_t(["λ", "havuzlanmış iç LL (nat)", "en iyiden fark", "≤ 1e-4 (eşit)",
+                  "eleme nedeni", ""], rows))
+        print(f"\nEn küçük havuzlanmış LL: λ={_l2(en_iyi_l2)}. 1e-4 nat içinde eşit sayılanlar: "
+              f"{{{', '.join(_l2(x) for x in sorted(esit))}}} → en büyüğü seçildi: "
+              f"λ={_l2(ic['secilen'])}.\n")
 
     print("## 3. Test sonuçları — birincil tam onset evreni\n")
     rows = [olcut_satiri(_fold_ad(x["fold"]) + f" (λ={_l2(x['ic']['secilen'])})",
@@ -390,6 +409,35 @@ def main(argv=None) -> int:
              [[etiket[k], ince[(k, "n")], f"{100 * ince[(k, 's')] / ince[(k, 'n')]:.3f}",
                f"{100 * ince[(k, 'p')] / ince[(k, 'n')]:.3f}", ince[(k, "p")]]
               for k in range(6) if ince[(k, "n")]]))
+
+    if s.karsilastirma != "yok" and s.karsilastirma != s.cozucu:
+        diger = [fold_calistir(kayitlar, onset, f, COZUCULER[s.karsilastirma])
+                 for f in BIRINCIL_FOLDLAR + TANILAMA_FOLDLARI]
+        print(f"\n## 8. Çözücü etkisi — `{s.karsilastirma}` (eski) ile `{s.cozucu}` (yeni)\n")
+        print("ΔLL_çözücü = LL(eski) − LL(yeni); pozitif = yeni çözücüyle V1 referansı daha iyi. "
+              "Yalnızca çözücü düzeltmesinin V1 benchmark'ına etkisidir; V2 karşılaştırmasındaki "
+              "birincil ΔLL ile karıştırılmamalıdır.\n")
+        rows = []
+        for e, y in zip(diger, hepsi):
+            me = olcutler(e["tahmin"], e["gercek"], e["iklim"])
+            my = olcutler(y["tahmin"], y["gercek"], y["iklim"])
+            rows.append([_fold_ad(y["fold"]) + ("" if y in sonuclar else " (tanılama)"),
+                         _l2(e["ic"]["secilen"]), _l2(y["ic"]["secilen"]),
+                         _o(me["ll"], 5), _o(my["ll"], 5), f"{me['ll'] - my['ll']:+.5f}",
+                         _o(me["ap"], 3), _o(my["ap"], 3), _o(me["lss"]), _o(my["lss"])])
+        n = len(BIRINCIL_FOLDLAR)
+        me, my = kesit(diger[:n], lambda r: True), kesit(sonuclar, lambda r: True)
+        rows.append(["**havuzlanmış (5 fold)**", "", "", _o(me["ll"], 5), _o(my["ll"], 5),
+                     f"{me['ll'] - my['ll']:+.5f}", _o(me["ap"], 3), _o(my["ap"], 3),
+                     _o(me["lss"]), _o(my["lss"])])
+        print(_t(["fold", "eski λ", "yeni λ", "eski LL", "yeni LL", "ΔLL_çözücü", "eski AP",
+                  "yeni AP", "eski LSS", "yeni LSS"], rows))
+        print("\nEski çalışmada elenen λ'lar: " + "; ".join(
+            f"{_fold_ad(e['fold'])}: " + (", ".join(f"{_l2(l)} ({r})" for l, r in e["ic"]["elenen"].items())
+                                         or "yok") for e in diger))
+        print("\nYeni çalışmada elenen λ'lar: " + "; ".join(
+            f"{_fold_ad(y['fold'])}: " + (", ".join(f"{_l2(l)} ({r})" for l, r in y["ic"]["elenen"].items())
+                                         or "yok") for y in hepsi))
     return 0
 
 

@@ -102,16 +102,23 @@ def test_ic_dogrulama_bloklari_ambargolu_genisleyen_pencere():
     assert set(ic["havuz_ll"]) == {1.0, 100.0}
 
 
-def test_ic_dogrulama_yakinsamayan_L2_elenir(monkeypatch):
+def test_ic_dogrulama_yakinsamayan_L2_elenir():
+    from sis_modeli import v2_cozucu
     E = _sentetik(range(2011, 2016))
-    gercek_egit = model.egit
+    gercek_egit = v2_cozucu.egit
 
     def sahte(d, t, p, l2=1.0):
         if l2 == 0.1:
             raise model.Yakinsamadi("test")
         return gercek_egit(d, t, p, l2=l2)
 
-    monkeypatch.setattr(model, "egit", sahte)
-    ic = b.ic_dogrulama(E, 2016, adaylar=(0.1, 10.0))
+    ic = b.ic_dogrulama(E, 2016, adaylar=(0.1, 10.0), cozucu=sahte)
     assert ic["havuz_ll"][0.1] is None and "Yakinsamadi" in ic["elenen"][0.1]
     assert ic["secilen"] == 10.0
+
+
+def test_varsayilan_cozucu_sonumlu_newton():
+    from sis_modeli import v2_cozucu
+    assert b.VARSAYILAN_COZUCU == "sonumlu"
+    assert b.COZUCULER["sonumlu"] is v2_cozucu.egit
+    assert b.COZUCULER["irls_eski"] is model.egit
