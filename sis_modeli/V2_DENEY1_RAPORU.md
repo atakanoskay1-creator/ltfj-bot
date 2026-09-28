@@ -12,10 +12,23 @@ kuralı, λ kuralı, bootstrap veya seçim ölçütü değiştirilmedi.
 
 ## 1. Sonuç
 
-**Hiçbir varyant §8 birincil kuralını geçmedi. Deney 1 kapanır.** Protokol
-1.0'ın bu spesifikasyonları ve bu değerlendirme prosedürüyle, 60/120 dakikalık
-görüş ve 60 dakikalık spread gidişatının V1'in mevcut girdilerinin ötesinde
-ölçülebilir bilgi taşıdığı gösterilemedi. Üç varyantta da nokta ΔLL negatif
+**Hiçbir varyant §8 birincil kuralını geçmedi. Deney 1 kapanır.**
+**Önceden dondurulmuş V2a/b/c spesifikasyonlarının hiçbiri V1 referansını
+iyileştirmedi.** Bu deney, gidişat bilgisinin V1'e *koşullu olarak* sıfır ek
+bilgi taşıdığını göstermez: gv60, V1'in `gorus` WoE'sine eklenmedi, onun yerine
+geçti. Gözlenen ΔLL, gidişattan gelen olası kazanç ile anlık görüş
+çözünürlüğündeki kaybın toplamıdır ve bu deney ikisini ayırmaz (merge öncesi
+audit, §6). Kayda geçen: Protokol 1.0'daki V2a/b/c formülasyonları başarısız
+oldu; gidişat fikri "işe yaramaz" diye kapatılmadı.
+
+**Bilimsel yorum (28.09.2026):** Protokol 1.0 kapsamındaki V2a/V2b/V2c hattı
+kapanmıştır. "Gidişat hipotezi reddedildi" sonucu çıkarılmaz. Audit, ileride
+ayrı ve yeni bir araştırma protokolü kurulursa V1'in ayrıntılı `gorus`
+temsilini koruyup gidişatı ek değişken olarak sınamanın bilimsel olarak makul
+bir soru olduğunu gösteriyor. Bu, Deney 1'in devamı ya da bir V2d değildir ve
+şu anda çalıştırılmayacaktır.
+
+Üç varyantta da nokta ΔLL negatif
 (V2 hibrit sistemi V1 referansından biraz kötü) ve tek taraflı %98,33 alt sınır
 sıfırın altında. §8 gereği Deney 1b, hazard modeli ve sonraki adımlara
 geçilmez; canlıda V1 (Model A) kalır.
@@ -60,19 +73,27 @@ U4'ün alternatif okuması (medyanlar farkı) da her varyantta aynı kararı ver
 
 ## 4. Uygulama kontrolleri (sonucu değiştirmez)
 
+Yapılan audit kontrollerinde sonucu açıklayan bir uygulama hatası saptanmadı.
+Bu, aşağıda sayılan kontrollerle sınırlıdır; test edilmemiş hata sınıflarının
+dışlandığı anlamına gelmez.
+
 - Coverage yüksek (%99,87–99,93); geri dönüş sonucu belirlemiyor.
 - Her fold'da ve her varyantta bütün λ'lar yakınsadı; seçim 1e-4 kuralıyla
   hep λ=100 (en küçük iç LL çoğunlukla λ=10'da, 1e-4 içinde eşit).
-- gv60 hücrelerinin tamamı kendi WoE'sini aldı (yalnız hiç satırı olmayan
-  "≥9999 × düşüş" hücreleri bant düzeyine düştü). Hücre WoE'leri beklenen
-  yönde: aynı anlık bantta görüş düşüşü arttıkça WoE artıyor.
+- gv60 hücre kaynakları (§7.5 hiyerarşisi): 2023–24 ve 2025–26'da hiç satırı
+  olmayan "≥9999 × düşüş" hücreleri dışında bütün hücreler kendi WoE'sini
+  aldı. Daha küçük eğitim kümelerinde bazı hücreler 500 satır eşiğinin altında
+  kaldı ve bant düzeyine düştü: 2017–18'de 1000–3000 × (1 bant, 2+ bant) ve
+  3000–5000 × 2+ bant; 2019–20'de aynı üç hücre; 2021–22'de 1000–3000 ×
+  (1 bant, 2+ bant). Hiçbir hücre V1 `gorus` düzeyine düşmedi. (İlk sürümde
+  burada "hücrelerin tamamı kendi WoE'sini aldı" yazıyordu; merge öncesi
+  audit'te düzeltildi.) Hücre WoE'leri beklenen yönde: aynı anlık bantta görüş
+  düşüşü arttıkça WoE artıyor.
 - Katsayılar fold'lar arasında tutarlı. `dspread_1sa` katsayısı birincil
   fold'larda negatif (−0,10 … −0,16); `spread_egilim_3`'ün son iki fold'daki
   negatif işareti V2'de de sürüyor. Bunlar kayıt olarak yazıldı; yorumlanmadı.
-- Bir olası açıklama (hipotez, sınanmadı): gv60 anlık görüşü 4 banda
-  indiriyor; V1'in `gorus` değişkeni ise veriden 10–11 kovaya bölünüyor. Anlık
-  görüş çözünürlüğündeki bu kayıp, eğilimin getirdiği bilgiden büyük olabilir.
-  Bu hipotez sonuç görüldükten sonra ortaya çıktığı için yeni bir aday
+- Anlık görüş çözünürlüğü kaybı: merge öncesi audit'te (§6) betimsel olarak
+  incelendi. Sonuç görüldükten sonra ortaya çıkan bu inceleme yeni bir aday
   üretmenin gerekçesi değildir (§7.3).
 
 ## 5. Sonuçlara bakılmadan sabitlenen uygulama ayrıntıları (commit `4483836`)
@@ -86,9 +107,109 @@ U4'ün alternatif okuması (medyanlar farkı) da her varyantta aynı kararı ver
 - **U4:** İlk alarm koruma şartı olay başına (V2 − V1) farkının medyanı
   üzerinden. Alternatif okuma tanılama olarak raporlandı ve aynı kararı verdi.
 
+## 6. Merge öncesi audit (audit-only; karar değiştirmez)
+
+**Kapsam:** Kullanıcı talebiyle, Deney 1'in başarısızlık kararını, protokol
+kriterlerini ve spesifikasyonları değiştirmeden yapılan betimsel inceleme. Yeni
+aday (V2d) üretilmedi, yeni λ ya da kural denenmedi. Betik:
+`sis_modeli/deney1_audit.py` (commit `c834e14`, sonuç görülmeden önce). Deney 1
+artefaktları diske yazılmadığı için fold modelleri dondurulmuş prosedürle
+deterministik olarak yeniden üretildi. Dört modelin havuzlanmış LL'si
+(0,027349 / 0,027690 / 0,027664 / 0,027677) ve bütün λ'lar Deney 1 raporuyla
+birebir eşleşti. Tam çıktı Ek B'de.
+
+### 6.1 V1 `gorus` kovaları ile gv60 bantları
+
+V1, anlık görüşü her fold'da 10–11 kovaya ayırıyor; gv60 ise 4 banda. 2025–26
+fold'unda:
+
+| gv60 bandı | bu bantla kesişen V1 kovaları | V1 WoE aralığı | V1 WoE ayrımı | gv60 bant WoE (eğilimsiz) |
+|---|---|---|---|---|
+| 1000–3000 | 4 (≤1600, 1600–2200, 2200–2800, 2800–3400*) | +2,54 … +4,61 | 2,08 | +3,75 |
+| 3000–5000 | 4 (2800–3400*, 3400–4000, 4000–4600, 4600–6000*) | +1,43 … +2,54 | 1,11 | +1,97 |
+| 5000–9999 | 2 (4600–6000*, 6000–9999) | +0,80 … +1,43 | 0,63 | +0,84 |
+| ≥9999 | 2 (9999, ≥10000) | −1,16 … −1,09 | 0,07 | −1,12 |
+
+\* bant sınırını kesen kova. Bütün birincil fold'larda desen aynı: 1000–3000
+bandında V1'in WoE ayrımı 1,88–2,16, 3000–5000'de 0,98–1,11, 5000–9999'da
+0,63–1,51, ≥9999'da 0,02–0,38.
+
+### 6.2 Bant içinde 60 dk eğilim (betimsel)
+
+Havuzlanmış OOS test satırları (2017–2026), hedef oranı ve iyileşen/sabit
+sınıfına oranı (parantezde satır sayısı):
+
+| anlık bant | iyileşen/sabit | 1 bant düşüş | ≥ 2 bant düşüş |
+|---|---|---|---|
+| 1000–3000 | %19,0 (758) | %21,2 (373) · 1,11× | %30,3 (373) · 1,59× |
+| 3000–5000 | %4,05 (2.642) | %5,46 (916) · 1,35× | %7,78 (668) · 1,92× |
+| 5000–9999 | %1,14 (8.304) | %1,38 (2.545) · 1,20× | %3,13 (2.142) · 2,73× |
+| ≥9999 | %0,232 (149.594) | — (0) | — (0) |
+
+Her fold'un eğitim tablolarında da aynı sıralama var; hücre WoE'leri düşüş
+arttıkça yükseliyor. **Sınırlılık:** bu betimleme eğilimin etkisini bant içi
+konumdan ayırmaz. Örneğin 1000–3000 bandında "≥2 bant düşüş" sınıfına bandın
+alt ucundaki (1000–1500) satırlar daha kolay düşer. Yani bu oranlar kısmen
+bant içi görüş çözünürlüğünü de yansıtıyor olabilir.
+
+**Yorum:** Bant içindeki kötüleşme sınıflarında hedef oranının düzenli artması
+bir gidişat sinyali bulunduğunu düşündürür; ancak bunun anlık görüş
+seviyesinden bağımsız artımsal bilgi olduğunu bu deney kanıtlamaz.
+
+### 6.3 V1 − V2 log-loss farkının görüş aralıklarına dağılımı (OOS, tanılama)
+
+Katkı = Σ[LL(V1) − LL(V2 hibrit)] / N; katkılar toplamı birincil ΔLL'dir.
+Parantezde V2a toplamındaki pay.
+
+| anlık görüş | satır | Y=1 | gerçekleşen | ort. V1 | ort. V2a | V2a katkı | V2b katkı | V2c katkı |
+|---|---|---|---|---|---|---|---|---|
+| 1000–1500 | 358 | 161 | %45,0 | %35,8 | %25,2 | −0,000166 (%49) | −0,000164 | −0,000188 |
+| 1500–3000 | 1.148 | 177 | %15,4 | %18,8 | %22,7 | −0,000151 (%44) | −0,000155 | −0,000103 |
+| 3000–5000 | 4.234 | 209 | %4,94 | %6,52 | %6,53 | −0,000026 (%8) | −0,000027 | −0,000006 |
+| 5000–8000 | 8.740 | 154 | %1,76 | %2,86 | %2,79 | +0,000075 (−%22) | +0,000076 | +0,000022 |
+| 8000–9999 | 4.271 | 43 | %1,01 | %1,52 | %2,13 | −0,000080 (%24) | −0,000074 | −0,000092 |
+| ≥9999 | 149.678 | 347 | %0,232 | %0,260 | %0,266 | +0,000007 (−%2) | +0,000029 | +0,000039 |
+| **toplam** | | | | | | **−0,000340** | −0,000315 | −0,000328 |
+
+- Kaybın ~%93'ü (V2a) 1000–3000 m aralığında. V1, 1000–1500 m (gerçekleşen
+  %45) ile 1500–3000 m'yi (%15) ayırıyor. V2 bu ikisini aynı gv60 bandına
+  topladığı için 1000–1500'de tahmini düşürüyor (%35,8 → %25,2), 1500–3000'de
+  yükseltiyor (%18,8 → %22,7).
+- 8000–9999 m (5000–8000 ile aynı gv60 bandında) ikinci kayıp kaynağı.
+- 5000–8000 m ve ≥9999'da V2 küçük kazanç sağlıyor.
+- Bu dağılım, gözlenen negatif ΔLL'nin önemli kısmının anlık görüş
+  çözünürlüğü kaybıyla eşzamanlı olduğunu gösteriyor. Gidişatın kendi katkısını
+  ayrı ölçmez. Yalnızca tanılamadır ve seçimde kullanılmaz.
+
+### 6.4 ≥9999 bandında düşüş hücreleri
+
+Tüm geliştirme evreninde (t−60 mevcut, anlık ≥9999) eğilim sınıfları:
+iyileşen/sabit 239.284, 1 bant 0, 2+ bant 0. Bu, eğilim tanımının matematiksel
+sonucudur: Δ = ince_indeks(t) − ince_indeks(t−60) ve ≥9999 en üst indekstir
+(6), dolayısıyla Δ ≥ 0. Veri ya da kodlama hatası değildir. Sonuç olarak ≥9999
+bandında gv60 tek hücrelidir ve eğilimsiz bant WoE'sine eşdeğerdir. Diğer üç
+bantta düşüş hücreleri doludur (1 bant / 2+ bant: 1000–3000 636/663;
+3000–5000 1.571/1.020; 5000–9999 3.955/3.877).
+
+### 6.5 `dspread_1sa`: WoE ve katsayı işareti
+
+Kova WoE'leri (bütün fold'larda benzer; 2025–26): ≤−2: −0,65 · −1: +0,16 ·
+0: +0,40 · +1: −0,48 · ≥+2: −1,62. Doğrusal değil. Lojistik katsayı
+−0,10 … −0,16.
+
+- 2025–26 eğitiminde `dspread_1sa` WoE'si, `spread_egilim_3` WoE'siyle +0,54 ve
+  `spread` WoE'siyle +0,38 korelasyonlu.
+- Spread düzeyi sabit tutulduğunda `dspread_1sa` kovaları arasında hedef oranı
+  farkı küçük (spread ≤1 °C: %3,6 / %3,8 / %3,7 / %4,4; 2–3 °C: %0,56 / %0,49 /
+  %0,56 / %0,63 / %1,53).
+- Marjinal WoE büyük ölçüde spread düzeyi ve 3 saatlik spread eğilimiyle
+  örtüşen bilgiyi taşıyor. Bu örtüşmede katsayının küçük ve işaretinin
+  marjinal WoE'ye ters olması, WoE-lojistik modellerde eş-doğrusallıkla
+  beklenebilir bir kodlama sonucudur. Meteorolojik nedensellik yorumu yapılmadı.
+
 ---
 
-# Ek — betik çıktısı (tam tablolar, eğitim artefaktları dahil)
+# Ek A — Deney 1 betik çıktısı (tam tablolar, eğitim artefaktları dahil)
 
 
 Evren: 273417 ızgara satırı, 272235 onset satırı. Çözücü: sönümlü Newton. Bootstrap: 2000 tekrar, tohum 0. Birincil karar: 5 dış fold havuzlanmış, geri dönüş dahil.
@@ -766,4 +887,210 @@ Katsayılar (sabit, ruzgar_kuzey, saat, spread, spread_egilim_3, gv60, dspread_1
 `egilim120`: iyilesen_sabit: n=63987, Y=1=215, olay=63, WoE=-0.695; 1_bant: n=1835, Y=1=74, olay=36, WoE=1.832; 2+_bant: n=2670, Y=1=171, olay=61, WoE=2.315
 
 Katsayılar (sabit, ruzgar_kuzey, saat, spread, spread_egilim_3, gv60, dspread_1sa, egilim120): -4.900, 0.315, 0.370, 0.536, 0.098, 0.565, 0.032, 0.202
+
+
+# Ek B — merge öncesi audit çıktısı (tam; `python -m sis_modeli.deney1_audit`)
+
+Not: §1 tablosundaki "bant içinde / sınırı aşan" sayımında alt sınırı açık
+kova (`— – 1600`) "sınırı aşan" sayılıyor; onset evreninde görüş ≥ 1000 m
+olduğundan bu kova fiilen 1000–3000 bandının içindedir.
+
+## 0. Yeniden üretim kontrolü
+
+| model | yeniden üretilen havuzlanmış LL | Deney 1 raporundaki |
+|---|---:|---:|
+| V1 | 0.027349 | 0.027349 |
+| V2a | 0.027690 | 0.027690 |
+| V2b | 0.027664 | 0.027664 |
+| V2c | 0.027677 | 0.027677 |
+
+λ (V1 / V2a / V2b / V2c): 2017–18: 100 / 100 / 100 / 100; 2019–20: 100 / 100 / 100 / 100; 2021–22: 100 / 100 / 100 / 100; 2023–24: 100 / 100 / 100 / 100; 2025–26: 100 / 100 / 100 / 100
+
+## 1. V1 `gorus` WoE kovaları ile gv60'ın dört anlık bandı
+
+### 2017–18
+
+| V1 kova | satır | Y=1 | oran % | WoE |
+|---|---:|---:|---:|---:|
+| — – 1600 | 263 | 107 | 40.684 | +4.445 |
+| 1600 – 2200 | 397 | 100 | 25.189 | +3.735 |
+| 2200 – 2800 | 327 | 58 | 17.737 | +3.293 |
+| 2800 – 3400 | 637 | 60 | 9.419 | +2.564 |
+| 3400 – 4000 | 416 | 20 | 4.808 | +1.858 |
+| 4000 – 4600 | 1419 | 53 | 3.735 | +1.580 |
+| 4600 – 6000 | 738 | 28 | 3.794 | +1.604 |
+| 6000 – 8000 | 7142 | 147 | 2.058 | +0.961 |
+| 8000 – 9999 | 2381 | 22 | 0.924 | +0.168 |
+| 9999 – 10000 | 55035 | 124 | 0.225 | -1.269 |
+| 10000 – — | 35045 | 106 | 0.302 | -0.973 |
+
+| anlık bant | V1 kovası (bant içinde) | V1 kovası (sınırı aşan) | V1 WoE aralığı | V1 WoE ayrımı (maks−min) | gv60 bant WoE (eğilimsiz) | bant satırı | bant Y=1 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 1000–3000 | 2 | 2 | +2.564 … +4.445 | 1.880 | +3.736 | 1124 | 283 |
+| 3000–5000 | 2 | 2 | +1.580 … +2.564 | 0.984 | +1.792 | 2816 | 129 |
+| 5000–9999 | 2 | 1 | +0.168 … +1.604 | 1.437 | +0.867 | 9780 | 183 |
+| ≥9999 | 2 | 0 | -1.269 … -0.973 | 0.296 | -1.141 | 90080 | 230 |
+
+### 2019–20
+
+| V1 kova | satır | Y=1 | oran % | WoE |
+|---|---:|---:|---:|---:|
+| — – 1600 | 382 | 167 | 43.717 | +4.572 |
+| 1600 – 2200 | 529 | 127 | 24.008 | +3.674 |
+| 2200 – 2800 | 507 | 83 | 16.371 | +3.198 |
+| 2800 – 3400 | 935 | 77 | 8.235 | +2.419 |
+| 3400 – 4000 | 646 | 27 | 4.180 | +1.709 |
+| 4000 – 4600 | 2039 | 71 | 3.482 | +1.509 |
+| 4600 – 6000 | 1096 | 34 | 3.102 | +1.397 |
+| 6000 – 8000 | 9707 | 177 | 1.823 | +0.841 |
+| 8000 – 9999 | 3495 | 27 | 0.773 | -0.013 |
+| 9999 – 10000 | 73249 | 165 | 0.225 | -1.266 |
+| 10000 – — | 45975 | 144 | 0.313 | -0.935 |
+
+| anlık bant | V1 kovası (bant içinde) | V1 kovası (sınırı aşan) | V1 WoE aralığı | V1 WoE ayrımı (maks−min) | gv60 bant WoE (eğilimsiz) | bant satırı | bant Y=1 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 1000–3000 | 2 | 2 | +2.419 … +4.572 | 2.153 | +3.709 | 1621 | 399 |
+| 3000–5000 | 2 | 2 | +1.397 … +2.419 | 1.023 | +1.686 | 4163 | 172 |
+| 5000–9999 | 2 | 1 | -0.013 … +1.397 | 1.410 | +0.720 | 13552 | 219 |
+| ≥9999 | 2 | 0 | -1.266 … -0.935 | 0.331 | -1.124 | 119224 | 309 |
+
+### 2021–22
+
+| V1 kova | satır | Y=1 | oran % | WoE |
+|---|---:|---:|---:|---:|
+| — – 1600 | 446 | 195 | 43.722 | +4.652 |
+| 1600 – 2200 | 617 | 145 | 23.501 | +3.726 |
+| 2200 – 2800 | 620 | 96 | 15.484 | +3.211 |
+| 2800 – 3400 | 1106 | 91 | 8.228 | +2.497 |
+| 3400 – 4000 | 798 | 39 | 4.887 | +1.948 |
+| 4000 – 4600 | 2467 | 95 | 3.851 | +1.691 |
+| 4600 – 6000 | 1442 | 41 | 2.843 | +1.384 |
+| 6000 – 8000 | 11405 | 186 | 1.631 | +0.807 |
+| 8000 – 9999 | 4528 | 29 | 0.640 | -0.123 |
+| 9999 – 10000 | 90491 | 179 | 0.198 | -1.317 |
+| 10000 – — | 58650 | 169 | 0.288 | -0.940 |
+
+| anlık bant | V1 kovası (bant içinde) | V1 kovası (sınırı aşan) | V1 WoE aralığı | V1 WoE ayrımı (maks−min) | gv60 bant WoE (eğilimsiz) | bant satırı | bant Y=1 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 1000–3000 | 2 | 2 | +2.497 … +4.652 | 2.155 | +3.749 | 1917 | 458 |
+| 3000–5000 | 2 | 2 | +1.384 … +2.497 | 1.113 | +1.832 | 5127 | 226 |
+| 5000–9999 | 2 | 1 | -0.123 … +1.384 | 1.508 | +0.670 | 16385 | 233 |
+| ≥9999 | 2 | 0 | -1.317 … -0.940 | 0.377 | -1.150 | 149141 | 348 |
+
+### 2023–24
+
+| V1 kova | satır | Y=1 | oran % | WoE |
+|---|---:|---:|---:|---:|
+| — – 1600 | 549 | 239 | 43.534 | +4.576 |
+| 1600 – 2200 | 715 | 173 | 24.196 | +3.695 |
+| 2200 – 2800 | 713 | 118 | 16.550 | +3.221 |
+| 2800 – 3400 | 1209 | 101 | 8.354 | +2.445 |
+| 3400 – 4000 | 903 | 56 | 6.202 | +2.127 |
+| 4000 – 4600 | 2823 | 128 | 4.534 | +1.792 |
+| 4600 – 6000 | 1649 | 51 | 3.093 | +1.400 |
+| 6000 – 8000 | 13149 | 250 | 1.901 | +0.894 |
+| 8000 – 9999 | 5388 | 48 | 0.891 | +0.134 |
+| 9999 – 10000 | 108991 | 279 | 0.256 | -1.128 |
+| 10000 – — | 71267 | 186 | 0.261 | -1.108 |
+
+| anlık bant | V1 kovası (bant içinde) | V1 kovası (sınırı aşan) | V1 WoE aralığı | V1 WoE ayrımı (maks−min) | gv60 bant WoE (eğilimsiz) | bant satırı | bant Y=1 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 1000–3000 | 2 | 2 | +2.445 … +4.576 | 2.131 | +3.724 | 2237 | 553 |
+| 3000–5000 | 2 | 2 | +1.400 … +2.445 | 1.045 | +1.895 | 5817 | 291 |
+| 5000–9999 | 2 | 1 | +0.134 … +1.400 | 1.266 | +0.770 | 19044 | 320 |
+| ≥9999 | 2 | 0 | -1.128 … -1.108 | 0.020 | -1.119 | 180258 | 465 |
+
+### 2025–26
+
+| V1 kova | satır | Y=1 | oran % | WoE |
+|---|---:|---:|---:|---:|
+| — – 1600 | 586 | 249 | 42.491 | +4.613 |
+| 1600 – 2200 | 772 | 181 | 23.446 | +3.733 |
+| 2200 – 2800 | 777 | 123 | 15.830 | +3.247 |
+| 2800 – 3400 | 1314 | 111 | 8.447 | +2.536 |
+| 3400 – 4000 | 997 | 64 | 6.419 | +2.243 |
+| 4000 – 4600 | 3127 | 138 | 4.413 | +1.843 |
+| 4600 – 6000 | 1940 | 57 | 2.938 | +1.426 |
+| 6000 – 9999 | 20567 | 329 | 1.600 | +0.797 |
+| 9999 – 10000 | 126981 | 313 | 0.246 | -1.087 |
+| 10000 – — | 85259 | 195 | 0.229 | -1.161 |
+
+| anlık bant | V1 kovası (bant içinde) | V1 kovası (sınırı aşan) | V1 WoE aralığı | V1 WoE ayrımı (maks−min) | gv60 bant WoE (eğilimsiz) | bant satırı | bant Y=1 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 1000–3000 | 2 | 2 | +2.536 … +4.613 | 2.077 | +3.753 | 2421 | 576 |
+| 3000–5000 | 2 | 2 | +1.426 … +2.536 | 1.110 | +1.970 | 6484 | 323 |
+| 5000–9999 | 1 | 1 | +0.797 … +1.426 | 0.629 | +0.841 | 21175 | 353 |
+| ≥9999 | 2 | 0 | -1.161 … -1.087 | 0.074 | -1.115 | 212240 | 508 |
+
+## 2. Aynı anlık bant içinde 60 dk eğilim — eğitim satırları
+
+| fold | anlık bant | iyileşen/sabit oran % (satır) | 1 bant oran % (satır) · kaynak | 2+ bant oran % (satır) · kaynak |
+|---|---|---|---|---|
+| 2017–18 | 1000–3000 | 22.08 (548) | 25.48 (263) · bant | 31.38 (290) · bant |
+| 2017–18 | 3000–5000 | 3.10 (1773) | 6.41 (655) · hücre | 8.52 (352) · bant |
+| 2017–18 | 5000–9999 | 1.41 (6548) | 1.99 (1410) · hücre | 3.46 (1735) · hücre |
+| 2019–20 | 1000–3000 | 22.66 (821) | 24.10 (390) · bant | 29.35 (385) · bant |
+| 2019–20 | 3000–5000 | 2.86 (2723) | 5.61 (909) · hücre | 8.37 (490) · bant |
+| 2019–20 | 5000–9999 | 1.15 (9134) | 1.82 (2032) · hücre | 3.23 (2291) · hücre |
+| 2021–22 | 1000–3000 | 20.69 (981) | 24.57 (460) · bant | 30.16 (451) · bant |
+| 2021–22 | 3000–5000 | 3.52 (3355) | 5.31 (1130) · hücre | 7.68 (599) · hücre |
+| 2021–22 | 5000–9999 | 1.00 (10954) | 1.48 (2638) · hücre | 3.05 (2692) · hücre |
+| 2023–24 | 1000–3000 | 21.41 (1135) | 25.28 (530) · hücre | 31.08 (547) · hücre |
+| 2023–24 | 3000–5000 | 3.77 (3736) | 6.07 (1286) · hücre | 9.31 (752) · hücre |
+| 2023–24 | 5000–9999 | 1.28 (12630) | 1.53 (3145) · hücre | 3.41 (3166) · hücre |
+| 2025–26 | 1000–3000 | 20.59 (1219) | 24.01 (579) · hücre | 30.10 (598) · hücre |
+| 2025–26 | 3000–5000 | 3.88 (4119) | 6.03 (1427) · hücre | 8.39 (894) · hücre |
+| 2025–26 | 5000–9999 | 1.25 (13896) | 1.56 (3583) · hücre | 3.34 (3590) · hücre |
+
+≥9999 bandında her fold'da yalnız iyileşen/sabit sınıfı dolu (bkz. §4).
+Havuzlanmış OOS test satırları için tablo raporun §6.2'sinde.
+
+## 3. V1 − V2 log-loss farkının dağılımı
+
+Anlık görüş (ince bant) tablosu raporun §6.3'ünde. Ek olarak, V2a — 2025–26
+test satırları, o fold'un V1 `gorus` kovasına göre:
+
+| V1 kova | V1 WoE | satır | Y=1 | ΔLL katkısı (fold içi) |
+|---|---:|---:|---:|---:|
+| — – 1600 | +4.613 | 56 | 27 | -0.000198 |
+| 1600 – 2200 | +3.733 | 51 | 6 | +0.000000 |
+| 2200 – 2800 | +3.247 | 77 | 9 | -0.000021 |
+| 2800 – 3400 | +2.536 | 101 | 5 | +0.000044 |
+| 3400 – 4000 | +2.243 | 104 | 2 | +0.000029 |
+| 4000 – 4600 | +1.843 | 253 | 8 | +0.000030 |
+| 4600 – 6000 | +1.426 | 239 | 3 | -0.000001 |
+| 6000 – 9999 | +0.797 | 1507 | 27 | +0.000020 |
+| 9999 – 10000 | -1.087 | 14880 | 52 | -0.000021 |
+| 10000 – — | -1.161 | 12641 | 17 | +0.000011 |
+
+## 4. ≥9999 bandında düşüş hücreleri
+
+| anlık bant | iyileşen/sabit | 1 bant | 2+ bant |
+|---|---:|---:|---:|
+| 1000–3000 | 1306 | 636 | 663 |
+| 3000–5000 | 4415 | 1571 | 1020 |
+| 5000–9999 | 14855 | 3955 | 3877 |
+| ≥9999 | 239284 | 0 | 0 |
+
+## 5. `dspread_1sa`
+
+| fold | WoE <=-2 | WoE -1 | WoE 0 | WoE +1 | WoE >=+2 | katsayı |
+|---|---:|---:|---:|---:|---:|---:|
+| 2017–18 | -0.614 | +0.251 | +0.361 | -0.428 | -1.836 | -0.100 |
+| 2019–20 | -0.665 | +0.252 | +0.354 | -0.385 | -2.099 | -0.131 |
+| 2021–22 | -0.680 | +0.248 | +0.366 | -0.410 | -2.235 | -0.114 |
+| 2023–24 | -0.611 | +0.170 | +0.394 | -0.480 | -1.615 | -0.155 |
+| 2025–26 | -0.654 | +0.160 | +0.402 | -0.483 | -1.617 | -0.159 |
+
+2025–26 eğitiminde (uygun satır 241.679) `dspread_1sa` WoE'sinin diğer WoE
+sütunlarıyla korelasyonu: ruzgar_kuzey +0.095, saat +0.205, spread +0.378,
+spread_egilim_3 +0.539, gv60 +0.104.
+
+Spread düzeyi içinde `dspread_1sa` kovasına göre hedef oranı (%), 2025–26 eğitimi:
+
+| spread(t) °C | <=-2 | -1 | 0 | +1 | >=+2 |
+|---|---:|---:|---:|---:|---:|
+| ≤ 1 | 3.59 (n=1753) | 3.76 (n=9705) | 3.72 (n=21191) | 4.41 (n=2469) | — |
+| 2–3 | 0.56 (n=4494) | 0.49 (n=13061) | 0.56 (n=28418) | 0.63 (n=12629) | 1.53 (n=1760) |
+| ≥ 4 | 0.06 (n=20500) | 0.02 (n=28330) | 0.05 (n=39723) | 0.05 (n=30130) | 0.05 (n=27516) |
 
