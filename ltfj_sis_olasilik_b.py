@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-"""DONDURULMUS gorussuz sis olusum modeli (Model B) - calisma ani tarafi.
+"""DONDURULMUS gorussuz dusuk gorus/FG olusum modeli (Model B) - calisma ani tarafi.
+
+GELISTIRILMIYOR: sayfadaki "Dusuk gorus egilimi" satirinin kaynagi olarak
+dondurulmus haliyle kaliyor. V2 bunun devami DEGIL; Model A ile ayni hedef
+uzerinde ayri bir challenger olarak gelistirilecek.
 
 Bu modul sis_modeli/ alt projesinde egitilmis IKINCI lojistik regresyonun
 SONUCUNU tasir - "Model A" (ltfj_sis_olasilik) ile AYNI hedefi (onumuzdeki
-3 saatte gorus < 1000 m) tahmin eder ama GORUS'U (ve turevlerini) HIC
+3 saatte gorus < 1000 m VEYA alani kaplayan FG) tahmin eder ama GORUS'U (ve turevlerini) HIC
 GORMEDEN, sadece atmosferik degiskenlerle (spread, sicaklik, ruzgar, saat).
 
 NEDEN AYRI BIR MODUL, NEDEN A'YA KARISTIRILMADI: sis_modeli/ab_karsilastirma.py

@@ -1,9 +1,73 @@
-# sis_modeli — LTFJ tarihsel METAR'dan sis/düşük görüş olasılığı
+# sis_modeli — LTFJ tarihsel METAR'dan düşük görüş/FG olasılığı
 
 Bu klasör, ana bottan **bağımsız bir alt projedir**. Amacı: LTFJ'nin uzun
 dönemli METAR arşivini kullanarak "mevcut koşullarda önümüzdeki N saat
 içinde görüşün X metrenin altına düşme olasılığı" sorusuna **yerel, istatistiksel**
 bir cevap üretmek.
+
+## Hedef tanımı ve terminoloji
+
+> **LTFJ düşük görüş/FG olayı.** Bir METAR gözlemi, görüş 1000 m'nin
+> altındaysa **veya** meydanı kaplayan sis (FG; MI/BC/PR niteleyicisiz,
+> VC hariç) bildiriyorsa **olay gözlemidir**. Görüşün hangi hava olayı
+> yüzünden düştüğüne bakılmaz: parçalı sis (BCFG/MIFG/PRFG) ve kar (SN)
+> kaynaklı düşük görüş de bu etikete girer. Model A (ve dondurulmuş Model
+> B), şu an olay gözlemi yokken, önümüzdeki 3 saat içindeki gözlemlerden
+> en az birinin olay gözlemi olma olasılığını tahmin eder.
+
+```
+Y_t = 1  ⟺  ∃ τ ∈ (t, t+3sa] :  [ Görüş_τ < 1000 m  ∨  FG_τ(meydanı kaplayan) = 1 ]
+onset adayı:  Y^şimdi_t = 0
+```
+
+Kodda tek kaynak `sis_modeli/ozellik.py::ozellik_cikar`
+(`"sis": int(gorus < SIS_GORUS_M or sis_kodu)`); iki kol
+`tests/test_sis_modeli_hedef_tanimi.py` ile kilitli.
+
+**Veri notu (hedefin parçası değil):** tarihsel eğitim arşivinde (IEM)
+SPECI yok; pratikte :20/:50 ızgarasından oluşuyor. Arşivde görüşü
+≥ 1000 m olup FG bildiren gözlem de yok — bu bir veri özelliği, tanım
+değil; tanımdaki FG kolu geçerli.
+
+**Olay gözlemlerinin hava kodu bileşimi** (2011–2026, 1.183 gözlem;
+örtüşen kodlar birleşik kategori — tek bir "gerçek sis" sınıfı seçilmez):
+
+| kod | gözlem |
+|---|---|
+| FG | 664 |
+| BCFG/MIFG/PRFG | 265 |
+| SN | 237 |
+| BCFG/MIFG/PRFG + SN | 14 |
+| FG + SN | 2 |
+| diğer (< 1000 m) | 1 |
+
+Model A'nın 1.702 pozitif eğitim satırının 514'ünün (%30) **3 saatlik hedef
+penceresinde en az bir SN gözlemi bulunuyor.** (Bu veride "penceredeki ilk
+olay gözlemi SN içeriyor" ve "penceredeki olay gözlemlerinden en az biri SN
+içeriyor" ölçüleri de aynı 514'ü veriyor.) Bu, söz konusu satırların "kar
+olayı" olduğu ya da görüşü karın düşürdüğü anlamına gelmez; yalnızca
+pencerede SN kodlu bir gözlem bulunduğunu söyler.
+
+**Adlandırma (sabit):**
+
+| bağlam | ad |
+|---|---|
+| kod içindeki tarihsel ad | `sis` (sütun, modül, değişken adları) |
+| model hedefinin teknik adı | **LTFJ düşük görüş/FG olayı** |
+| sayfadaki kart | **Düşük görüş (< 1000 m) olasılığı** |
+| gerçek meteorolojik sis analizleri | **sis olayı** (ör. "Görüş geçiş süreleri", Tardif & Rasmussen tanımı — kar hariç) |
+
+Bu belgede aksi belirtilmedikçe **"sis" kelimesi yukarıdaki hedef olayı
+ifade eder** (tarihsel adlandırma); sonuçlar ve sayılar bu tanımla üretildi.
+
+**Düzeltme kaydı (Eylül 2026):** bu belge, sayfa dipnotu ve derleme PDF'i
+hedefi uzun süre "görüş < 1000 m **ve** meydanı kaplayan FG" diye
+tarif ediyordu; kod ise her zaman **veya** uyguladı. Uçtan uca doğrulandı:
+`sis` sütunu 274.907 satırın hepsinde `(görüş < 1000) OR sis_kodu` ile
+aynı; `veri_oku → hedef.hazirla → onset_adaylari → gelistirme` zinciri
+dondurulmuş modüldeki **224.825 an / 1.702 pozitifi** birebir üretiyor;
+"ve" tanımıyla aynı zincir 905 pozitif verirdi. Model, katsayılar ve
+raporlanan sonuçlar değişmedi — yalnızca tarif düzeltildi.
 
 ## Neden ayrı bir alt proje?
 
@@ -124,7 +188,9 @@ sınanması gerekiyor — bu adım henüz yapılmadı.
 
 ## Yöntem (planlanan)
 
-- **Etiket:** gözlem anında görüş < 1000 m (sis) ve < 550 m (LVO seviyesi).
+- **Etiket:** olay gözlemi = görüş < 1000 m **veya** meydanı kaplayan FG
+  (bkz. "Hedef tanımı"); LVO seviyesi ayrıca görüş < 550 m. Hedef:
+  `Y_t = 1 ⟺ ∃τ ∈ (t, t+3sa]: olay gözlemi`, onset adayı `Y^şimdi_t = 0`.
 - **Özellikler:** sıcaklık−çiy noktası farkı (spread), rüzgâr hızı, mevcut
   görüş/tavan (süreklilik), ay, UTC saat, QNH.
 - **Model:** lojistik regresyon / koşullu olasılık tablosu. Nadir olay olduğu
@@ -690,13 +756,14 @@ python -m sis_modeli.gorus_gecis --veri gozlem_arsivi.csv
 Bu **geriye dönük bir düzeltme değildir** — dondurulmuş tablodaki sayılar
 IEM arşivinden gelmeye devam ediyor. Ayrıntı: ana `README.md` §11.
 
-### Sis iklimbilimi — `sis_iklim.py`
+### Düşük görüş/FG olayı iklimbilimi — `sis_iklim.py`
 
-**Bu da bir model değil, sayım.** Soru: LTFJ'de sis hangi ay, hangi saat,
-hangi rüzgârda görülüyor? Sis tanımı modelinkiyle aynı (`ozellik.py`: görüş
-< 1000 m ve meydanı kaplayan FG; MI/BC/PR/VC sayılmaz). Kapsam 2011–2026,
-273.423 gözlem, **1.183 sisli**, 642 LVO (< 550 m) gözlemi. Saatler
-**yerel** (UTC+3).
+**Bu da bir model değil, sayım.** Soru: LTFJ'de Model A'nın hedef olayı
+hangi ay, hangi saat, hangi rüzgârda görülüyor? Sayılan olay gözlemi,
+modelin hedefiyle aynı (görüş < 1000 m **veya** meydanı kaplayan FG — kar
+dahil; bkz. "Hedef tanımı"). Bu bölümdeki "sis/sisli" ifadeleri bu olayı
+kasteder. Kapsam 2011–2026, 273.423 gözlem, **1.183 olay gözlemi**, 642 LVO
+(< 550 m) gözlemi. Saatler **yerel** (UTC+3).
 
 ```
 python -m sis_modeli.sis_iklim            # tabloları yazdır
@@ -796,8 +863,9 @@ gerekseydi bile yeni aday + holdout protokolü gerekirdi.)
 python -m sis_modeli.guneyli_sis_deney     # ~1 dk
 ```
 
-**Sayfada:** İstatistik sekmesinde "Sis ne zaman görülüyor" — ay ve saat
-şeridi, rüzgâr tablosu, güneyli sis özeti (`ltfj_sis_iklim_tablo.py`).
+**Sayfada:** İstatistik sekmesinde "Düşük görüş/FG ne zaman görülüyor" — ay
+ve saat şeridi, rüzgâr tablosu, güneyli rüzgâr özeti, hava kodu bileşimi
+(`ltfj_sis_iklim_tablo.py`).
 
 ### Literatürle karşılaştırma
 
@@ -805,6 +873,12 @@ Aşağıdaki makale bilgileri **özetlerden** alındı; tam metinler bu
 geliştirme ortamından erişilemedi (ResearchGate/DergiPark/Springer ağ
 politikasıyla kapalı). Tanımlar ve dönemler farklı olduğu için sayılar
 doğrudan karşılaştırılamaz; karşılaştırma yön ve örüntü düzeyindedir.
+
+**Tanım farkı:** LTFJ sütunu **düşük görüş/FG olayını** sayar (kar dahil;
+1.183 olay gözleminin 253'ü SN içeriyor), literatürdeki sayılar sis
+olaylarıdır. Bu fark aşağıdaki karşılaştırmayı etkileyebilir; kar hariç
+tanılama ayrı bir çalışma olarak yapılacak ve sonuçları buraya ayrıca
+yazılacak.
 
 | konu | literatür | LTFJ arşivi | |
 |---|---|---|---|

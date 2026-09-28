@@ -17,7 +17,10 @@ from ltfj_analiz import RE_HAVA, metar_coz
 # Etiket esikleri. LVO degeri projenin kendi LVO referansiyla (TL.007 madde
 # 6.1.ee, "550 M RVR altinda LVO inis operasyonlari safhasi") ayni sayidir -
 # burada RVR degil GORUS olcusuyle, cunku tarihsel arsivde surekli RVR yok.
-SIS_GORUS_M = 1000        # ICAO: sis = gorus < 1000 m
+# Olay gozlemi etiketi (Model A'nin hedefi, teknik adi "LTFJ dusuk gorus/FG
+# olayi"): gorus < SIS_GORUS_M VEYA alani kaplayan FG - bkz. ozellik_cikar.
+# ICAO'nun sis tanimi FG kodu ister; bu etiket ondan GENIS (kar dahil).
+SIS_GORUS_M = 1000
 LVO_GORUS_M = 550
 
 # CSV sutun sirasi - veri_cek.py ve istatistik.py bu listeyi kullanir.

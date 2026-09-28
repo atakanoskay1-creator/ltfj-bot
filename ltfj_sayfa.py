@@ -1025,7 +1025,10 @@ def _sis_olasilik_rozeti(guncel_cozum: dict | None, gecmis: list,
 
 def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
                         simdi: datetime) -> str:
-    """Istatistiksel sis olasiligi karti.
+    """Dusuk gorus (< 1000 m) olasiligi karti (tarihsel adi: sis olasiligi).
+
+    Hedef ozellik.py'deki etiket: gorus < 1000 m VEYA alani kaplayan FG -
+    kar kaynakli dusuk gorus da dahil. Teknik adi "LTFJ dusuk gorus/FG olayi".
 
     ltfj_pist.sis_riski()'nin YERINE GECMEZ - ayri, bagimsiz bir gostergedir.
     Katsayilar dondurulmus modelden gelir (bkz. ltfj_sis_olasilik)."""
@@ -1079,24 +1082,29 @@ def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
     if b_tertil is not None:
         b_sinif = {"düşük": "dusuk", "orta": "orta", "yüksek": "yuksek"}[b_tertil]
         ek_gosterge_html = (
-            '<div class="sis-olasilik-ek">Sis eğilimi: '
+            '<div class="sis-olasilik-ek">Düşük görüş eğilimi: '
             f'<span class="sis-olasilik-bant {b_sinif}">{b_tertil}</span>'
             '<div class="sis-olasilik-ek-not">Görüş henüz düşmemiş olsa da, '
-            'mevcut nem, rüzgâr ve sıcaklık koşullarının sis oluşumuna ne '
+            'mevcut nem, rüzgâr ve sıcaklık koşullarının görüş düşüşüne ne '
             'kadar uygun olduğunu gösterir. Resmî bir tahmin değildir, '
             'sadece ek bir ipucudur.</div></div>'
         )
 
     return (
         '<div class="alt-bolum sis-olasilik">'
-        '<div class="basrow"><span class="tip">İstatistiksel sis olasılığı</span>'
+        '<div class="basrow"><span class="tip">Düşük görüş (&lt; 1000 m) olasılığı</span>'
         '<span class="lvo-provenance">İSTATİSTİKSEL</span></div>'
         '<div class="sis-olasilik-ust">'
         f'<span class="sis-olasilik-deger">%{yuzde}</span>'
         f'<span class="sis-olasilik-bant {bant_sinif}">{bant_metin}</span>'
         '</div>'
+        # Hedef "gorus < 1000 m VEYA alani kaplayan FG" (ozellik.py) - gorusu
+        # dusuren olayin cinsine bakilmaz, kar da dahil. Karttaki adla
+        # birlikte bu cumle modelin GERCEK hedefini anlatir.
         f'<div class="sis-olasilik-alt">Önümüzdeki {sis_olasilik.HEDEF_UFUK_SAAT} saat '
-        f'içinde görüşün {sis_olasilik.HEDEF_GORUS_M} m altına düşme olasılığı</div>'
+        f'içinde görüşün {sis_olasilik.HEDEF_GORUS_M} m altına düşmesi veya '
+        'meydanı kaplayan sis (FG) bildirilmesi olasılığı. Kaynağı sis, '
+        'parçalı sis ya da kar olabilir.</div>'
         f'<div class="sis-olasilik-kiyas">Normalde bu oran ortalama %{taban_yuzde} '
         f'civarındadır — {kiyas_ifade}.</div>'
         f'{ek_gosterge_html}'
@@ -1108,9 +1116,9 @@ def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
         '</div>'
         '<div id="sis-model-modal" class="modal-ortu" hidden>'
         '<div class="modal-kutu modal-kutu-genis">'
-        '<h3>Model A ve Model B nasıl bağlantılı?</h3>'
+        '<h3>Karttaki olasılık ve ek gösterge nasıl bağlantılı?</h3>'
         '<img src="sis_model_baglantisi.png" loading="lazy" '
-        'alt="Model A ve Model B\'nin girdi, çıktı ve birbirine bağlandığı yeri '
+        'alt="Canlı Model A ile dondurulmuş ek gösterge Model B\'nin girdi, çıktı ve birbirine bağlandığı yeri '
         'gösteren diyagram">'
         '<div class="modal-butonlar">'
         '<button type="button" id="sis-model-modal-kapat">Kapat</button>'
@@ -2141,8 +2149,15 @@ def _iklim_seridi(etiketler, degerler, basliklar, ozet: str,
             f' style="--n:{len(degerler)}">{"".join(hucreler)}</div>')
 
 
+def _kod_bilesimi_metni(bilesim) -> str:
+    """[("FG", 664), ("SN", 237), ...] -> "FG 664 · SN 237 · ..."."""
+    return " · ".join(f"{ad.replace('diger', 'diğer')} {n}" for ad, n in bilesim)
+
+
 def _sis_iklim_html() -> str:
-    """Arşivden SAYILMIŞ sis iklimbilimi: ay, saat, rüzgâr (DONDURULMUŞ).
+    """Arşivden SAYILMIŞ düşük görüş/FG olayı iklimbilimi: ay, saat, rüzgâr
+    (DONDURULMUŞ). Sayılan, Model A'nın hedefiyle aynı olay gözlemi (görüş
+    < 1000 m VEYA alanı kaplayan FG; kar dahil) - "sis" adları tarihsel.
 
     Tahmin değil, geçmişin sayımı - _gecis_tablosu_html ile aynı cins.
     Rüzgârda ham pay yerine KAT gösteriliyor: LTFJ'de en sık rüzgâr zaten
@@ -2184,32 +2199,34 @@ def _sis_iklim_html() -> str:
            if any(a >= 9 for a in g_aylar) and any(a <= 6 for a in g_aylar) else "")
     return (
         '<div class="alt-bolum">'
-        '<div class="basrow"><span class="tip">Sis ne zaman görülüyor</span>'
+        '<div class="basrow"><span class="tip">Düşük görüş/FG ne zaman görülüyor</span>'
         f'<span class="zaman">{t.KAPSAM_ILK_YIL}–{t.KAPSAM_SON_YIL} arşivi · '
-        f'{t.SIS_GOZLEM} sisli gözlem</span></div>'
-        '<div class="iklim-baslik">Aylar <span>gözlemlerin sisli oranı</span></div>'
+        f'{t.SIS_GOZLEM} olay gözlemi</span></div>'
+        '<div class="iklim-baslik">Aylar <span>gözlemlerin olay oranı</span></div>'
         f"{ay_seridi}"
-        f'<div class="iklim-ozet">En sisli aylar: {html.escape(ay_ozet)}.</div>'
-        '<div class="iklim-baslik">Saat <span>yerel · gözlemlerin sisli oranı</span></div>'
+        f'<div class="iklim-ozet">En yoğun aylar: {html.escape(ay_ozet)}.</div>'
+        '<div class="iklim-baslik">Saat <span>yerel · gözlemlerin olay oranı</span></div>'
         f"{saat_seridi}"
-        f'<div class="iklim-ozet">Sisli gözlemlerin {_yuzde(round(sabah))}\'i '
-        '04:00–07:59 arasında; öğleden sonra ve akşam sis nadir.</div>'
+        f'<div class="iklim-ozet">Olay gözlemlerinin {_yuzde(round(sabah))}\'i '
+        '04:00–07:59 arasında; öğleden sonra ve akşam nadir.</div>'
         '<table class="gecis-tablo iklim-ruzgar">'
-        '<caption class="gecis-caption">Rüzgâr · <b>kat</b> = sis sırasındaki pay / '
-        'genel pay (1\'in üstü: o rüzgârda sis normalden sık)</caption>'
-        '<thead><tr><th></th><th>sis sırasında</th><th>genelde</th><th>kat</th></tr>'
+        '<caption class="gecis-caption">Rüzgâr · <b>kat</b> = olay sırasındaki pay / '
+        'genel pay (1\'in üstü: o rüzgârda olay normalden sık)</caption>'
+        '<thead><tr><th></th><th>olay sırasında</th><th>genelde</th><th>kat</th></tr>'
         f'</thead><tbody>{satirlar}</tbody></table>'
-        f'<div class="iklim-ozet">Sis sırasında rüzgâr medyanı {t.HIZ_MEDYAN_KT} kt.</div>'
-        '<div class="iklim-baslik">Güneyli sis (140–250°)</div>'
-        f'<div class="iklim-ozet">Nadir ama en ağır tip: {g["sisli_gun"]} sisli gün, '
-        f'sisli gözlemlerin {_yuzde(g["pay_yuzde"])}\'i'
+        f'<div class="iklim-ozet">Olay sırasında rüzgâr medyanı {t.HIZ_MEDYAN_KT} kt.</div>'
+        '<div class="iklim-baslik">Güneyli rüzgârda (140–250°)</div>'
+        f'<div class="iklim-ozet">Nadir ama en ağır tip: {g["sisli_gun"]} olaylı gün, '
+        f'olay gözlemlerinin {_yuzde(g["pay_yuzde"])}\'i'
         + (f', yalnızca {kis} döneminde' if kis else "")
-        + f'. Olay süresi medyanı <b>{g["sure_medyan_sa"]:g} sa</b> (diğer sislerde '
-        f'{d["sure_medyan_sa"]:g} sa); sisli gözlemlerinin <b>{_yuzde(g["lvo_yuzde"])}\'i '
+        + f'. Olay süresi medyanı <b>{g["sure_medyan_sa"]:g} sa</b> (diğer olaylarda '
+        f'{d["sure_medyan_sa"]:g} sa); olay gözlemlerinin <b>{_yuzde(g["lvo_yuzde"])}\'i '
         f'550 m altında</b> (diğerlerinde {_yuzde(d["lvo_yuzde"])}).</div>'
         '<div class="sis-olasilik-not">Geçmişin SAYIMIDIR, tahmin değildir. '
-        'Sis: görüş &lt; 1000 m ve meydanı kaplayan FG (MI/BC/PR/VC hariç). '
-        'Arşivde SPECI yok (30 dk ızgara) — kısa ve keskin sisler eksik '
+        'Olay gözlemi: görüş &lt; 1000 m <b>veya</b> meydanı kaplayan FG — '
+        'karttaki olasılığın hedefiyle aynı. Görüşü düşüren olayın cinsine '
+        f'bakılmaz; hava kodları: {html.escape(_kod_bilesimi_metni(t.KOD_BILESIMI))}. '
+        'Arşivde SPECI yok (30 dk ızgara) — kısa ve keskin olaylar eksik '
         'sayılmış olabilir.</div>'
         "</div>")
 

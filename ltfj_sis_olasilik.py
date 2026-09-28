@@ -10,8 +10,13 @@ Alt proje bir egitim laboratuvaridir; buraya yalnizca DONDURULMUS CIKTI
 tasinir. Katsayilari guncellemek icin sis_modeli yeniden egitilip bu
 dosyadaki sayilar yenilenir.
 
-NE YAPAR: "su an sis yokken, onumuzdeki 3 saat icinde gorusun 1000 m'nin
-altina dusme olasiligi" tahmini uretir.
+NE YAPAR: "su an olay gozlemi yokken, onumuzdeki 3 saat icindeki
+gozlemlerden en az birinin olay gozlemi olma olasiligi" tahmini uretir.
+Olay gozlemi (sis_modeli/ozellik.py): gorus < 1000 m VEYA alani kaplayan
+FG. Gorusu dusuren olayin cinsine bakilmaz - sis, parcali sis (BCFG/MIFG/
+PRFG) ve kar (SN) ayni etikete girer. Teknik adi "LTFJ dusuk gorus/FG
+olayi"; modul ve degisken adlarindaki "sis" tarihseldir. Sayfada
+"Dusuk gorus (< 1000 m) olasiligi" olarak gosterilir.
 
 NE YAPMAZ: operasyonel karar vermez, resmi tahmin degildir, TAF'in yerine
 gecmez ve ltfj_pist.sis_riski()'nin YERINE GECMEZ - ayri bir gostergedir.
@@ -105,7 +110,8 @@ EGITIM_POZITIF = 1702
 # hesaplanir, aynen ltfj_tavan_tablosu'ndaki "kat" mantigi gibi).
 TABAN_ORAN = EGITIM_POZITIF / EGITIM_AN_SAYISI
 
-# Model bu esigin altina dusme olasiligini tahmin eder (ICAO sis tanimi).
+# Hedefin gorus kolu (VEYA alani kaplayan FG - bkz. ozellik.py). ICAO sis
+# tanimi DEGIL: o FG kodu ister, bu etiket kar kaynakli dusuk gorusu de sayar.
 HEDEF_GORUS_M = 1000
 HEDEF_UFUK_SAAT = 3
 

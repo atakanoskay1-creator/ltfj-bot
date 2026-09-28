@@ -48,7 +48,7 @@ def _bolum(html: str, baslik: str) -> str:      # geriye uyumluluk
 def test_istatistik_basligi_var(tmp_path):
     html = _sayfa(tmp_path)
     panel = _panel(html, "istatistik")
-    assert "İstatistiksel sis olasılığı" in panel
+    assert "Düşük görüş (&lt; 1000 m) olasılığı" in panel
     # "İstatistik · arşivden" dis basligi KALDIRILDI (sekme adinin
     # tekrariydi). SAGLAMA kaybolmadi: her alt bolum kendi kapsamini
     # yaziyor - testin korudugu sey buydu, basligin kendisi degil.
@@ -86,7 +86,7 @@ def test_rozet_TAM_SAYI_sahte_hassasiyet_yok(tmp_path):
 # ------------------------------------------------- taşınanlar geldi mi
 def test_sis_olasiligi_ISTATISTIK_altinda(tmp_path):
     html = _sayfa(tmp_path)
-    assert "İstatistiksel sis olasılığı" in _panel(html, "istatistik")
+    assert "Düşük görüş (&lt; 1000 m) olasılığı" in _panel(html, "istatistik")
 
 
 def test_tavan_istatistik_notu_ISTATISTIK_altinda(tmp_path):
@@ -178,7 +178,7 @@ def test_veri_yokken_bolum_hic_cikmiyor(tmp_path):
     html = hedef.read_text(encoding="utf-8")
     # Geçiş tablosu sabit olduğu için bölüm yine çıkabilir; ama sis
     # olasılığı kartı çıkmamalı.
-    assert "İstatistiksel sis olasılığı" not in html
+    assert "Düşük görüş (&lt; 1000 m) olasılığı" not in html
 
 
 # ------------------------------------------------ sis iklimbilimi (ay/saat/rüzgâr)
@@ -189,7 +189,7 @@ import ltfj_sis_iklim_tablo as _iklim
 
 def test_sis_iklimbilimi_ISTATISTIK_panelinde(tmp_path):
     panel = _panel(_sayfa(tmp_path), "istatistik")
-    assert "Sis ne zaman görülüyor" in panel
+    assert "Düşük görüş/FG ne zaman görülüyor" in panel
     assert f"{_iklim.KAPSAM_ILK_YIL}–{_iklim.KAPSAM_SON_YIL} arşivi" in panel
     assert "tahmin değildir" in panel
 
@@ -231,7 +231,7 @@ def test_ruzgar_tablosu_KAT_ve_tum_sektorler(tmp_path):
 def test_guneyli_sis_ozeti_DONMUS_degerlerden(tmp_path):
     html = s._sis_iklim_html()
     g, d = _iklim.GUNEY, _iklim.DIGER
-    assert f'{g["sisli_gun"]} sisli gün' in html
+    assert f'{g["sisli_gun"]} olaylı gün' in html
     assert f'{g["sure_medyan_sa"]:g} sa</b>' in html
     assert f'{d["sure_medyan_sa"]:g} sa)' in html
     assert s._yuzde(g["lvo_yuzde"]) in html
@@ -245,3 +245,9 @@ def test_iklim_bolumunde_EMOJI_yok():
 def test_tablo_bos_ise_bolum_yok(monkeypatch):
     monkeypatch.setattr(_iklim, "SIS_GOZLEM", 0)
     assert s._sis_iklim_html() == ""
+
+
+def test_iklim_dipnotu_GERCEK_hedef_tanimi_ve_bilesim():
+    html = s._sis_iklim_html()
+    assert "görüş &lt; 1000 m <b>veya</b> meydanı kaplayan FG" in html
+    assert s._kod_bilesimi_metni(_iklim.KOD_BILESIMI) in html

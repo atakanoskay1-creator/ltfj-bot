@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""DONDURULMUS sis iklimbilimi - sis_modeli/sis_iklim.py uretti.
+"""DONDURULMUS dusuk gorus/FG olayi iklimbilimi - sis_modeli/sis_iklim.py uretti.
 
 ELLE DUZENLEME. Yeniden uretmek icin:
     python -m sis_modeli.sis_iklim --dondur
@@ -8,7 +8,9 @@ Sayfa bu sayilari gosteriyor ama bot arsivi her kosuda okuyamaz -
 ltfj_gorus_gecis_tablo ile ayni disiplin: SABIT tasir, hesap yapmaz.
 
 Tanim ve sinirlar: sis_modeli/sis_iklim.py modul aciklamasi ve
-sis_modeli/README.md "Sis iklimbilimi". Saatler YEREL (UTC+3).
+sis_modeli/README.md "Hedef tanimi". Saatler YEREL (UTC+3).
+Koddaki "sis" adlari tarihseldir: sayilan, Model A'nin hedefi olan olay
+gozlemidir (gorus < 1000 m VEYA alani kaplayan FG; kar dahil).
 """
 
 KAPSAM_ILK_YIL = 2011
@@ -80,3 +82,11 @@ GUNEY = {'sis_gozlem': 82,
  'sure_medyan_sa': 4.0,
  'lvo_yuzde': 77}
 DIGER = {'olay': 342, 'sure_medyan_sa': 1.0, 'lvo_yuzde': 53}
+
+# Olay gozlemlerinin hava kodu bilesimi (ortusen bayraklar birlesik kategori)
+KOD_BILESIMI = [('FG', 664),
+ ('BCFG/MIFG/PRFG', 265),
+ ('SN', 237),
+ ('BCFG/MIFG/PRFG+SN', 14),
+ ('FG+SN', 2),
+ ('diger', 1)]
