@@ -33,6 +33,14 @@ SAATLER = (0, 3, 24)
 IZGARA_DK = (20, 50)
 ZAMAN_ALANI = "observationTimeNormal"      # ltfj_rasat'in bugun okudugu alan
 METIN_ALANI = "observationText"
+KATEGORIK_ESIK = 20                        # bundan az farkli degerli alanlar dagilimiyla basilir
+
+
+def dakikaya_indir(z):
+    """Gozlem zamanini dakikaya indirir. MGM observationTimeNormal degerleri
+    saniye-alti kesir tasiyor (ilk kesif: ornegin 07:20:00.032); izgara
+    karsilastirmasi dakika duzeyinde yapilmali."""
+    return z.replace(second=0, microsecond=0) if z is not None else None
 
 
 def cek(saat: int, icao: str = rasat.ICAO, timeout: int = 30) -> tuple:
@@ -95,7 +103,8 @@ def liste_ozeti(kayitlar: list) -> dict:
         if tip in ("METAR", "SPECI"):
             gozlem.append((rasat._zaman(e.get(ZAMAN_ALANI)), tip, d, e.get("id"), metin))
     zamanli = [g for g in gozlem if g[0] is not None]
-    metar = sorted(g[0] for g in zamanli if g[1] == "METAR")
+    kesirli = sum(1 for g in zamanli if g[0].second or g[0].microsecond)
+    metar = sorted(dakikaya_indir(g[0]) for g in zamanli if g[1] == "METAR")
     izgara = [z for z in metar if z.minute in IZGARA_DK]
     eksik = []
     if izgara:
@@ -105,7 +114,15 @@ def liste_ozeti(kayitlar: list) -> dict:
             if t not in mevcut:
                 eksik.append(t)
             t += timedelta(minutes=30)
-    ayni_zaman = Counter((g[0], g[1]) for g in zamanli)
+    ayni_zaman = Counter((dakikaya_indir(g[0]), g[1]) for g in zamanli)
+    kategorik = {}
+    for alan in sorted({k for e in kayitlar for k in e} - {METIN_ALANI, ZAMAN_ALANI, "id"}):
+        degerler = Counter(str(e.get(alan)) for e in kayitlar)
+        if len(degerler) <= KATEGORIK_ESIK:
+            kategorik[alan] = dict(degerler)
+    tip_durum = Counter((_tip(" ".join((e.get(METIN_ALANI) or "").split())),
+                         str(e.get("observationStatus")), str(e.get("observationType")))
+                        for e in kayitlar)
     idler = [e.get("id") for e in kayitlar if e.get("id") is not None]   # butun kayitlar
     return {
         "kayit": len(kayitlar),
@@ -115,6 +132,10 @@ def liste_ozeti(kayitlar: list) -> dict:
         "gozlem_zamani_en_eski": min(g[0] for g in zamanli).isoformat() if zamanli else None,
         "gozlem_zamani_en_yeni": max(g[0] for g in zamanli).isoformat() if zamanli else None,
         "zamansiz_gozlem": len(gozlem) - len(zamanli),
+        "saniye_alti_kesirli_zaman": kesirli,
+        "kategorik_alanlar": kategorik,
+        "tip_x_status_x_type": {f"{a} / status={b} / type={c}": v
+                                for (a, b, c), v in sorted(tip_durum.items())},
         "metar_izgara": len(izgara),
         "metar_izgara_disi": len(metar) - len(izgara),
         "izgara_eksik_slot": [z.isoformat() for z in eksik],
@@ -142,7 +163,9 @@ def ozetle(data, saat: int, icao: str = rasat.ICAO) -> dict:
         if not isinstance(blok, dict):
             continue
         b = {"blok_anahtarlari": sorted(blok.keys()),
-             "icao": (blok.get("istInfo") or {}).get("icao"), "listeler": {}}
+             "icao": (blok.get("istInfo") or {}).get("icao"), "listeler": {},
+             "alan_turleri": {k: (f"list({len(v)})" if isinstance(v, list) else type(v).__name__)
+                              for k, v in sorted(blok.items())}}
         if (b["icao"] or "").upper() == icao.upper():
             for k, v in _kayit_listeleri(blok).items():
                 b["listeler"][k] = liste_ozeti(v)
@@ -173,11 +196,16 @@ def markdown(ozetler: list, meta: dict) -> str:
         s.append(f"- response: {o['response_turu']} (uzunluk {o['response_uzunluk']})")
         for i, b in enumerate(o["bloklar"]):
             s.append(f"- blok {i}: icao `{b['icao']}`, anahtarlar `{b['blok_anahtarlari']}`")
+            s.append(f"  - alan türleri: `{b['alan_turleri']}`")
             for ad, lo in b["listeler"].items():
                 s.append(f"  - **veri alanı `{ad}`**: {lo['kayit']} kayıt · tipler {lo['tipler']} · "
                          f"düzeltme {lo['duzeltme'] or '{}'}")
                 s.append(f"    - gözlem zamanı ({ZAMAN_ALANI}): en eski {lo['gozlem_zamani_en_eski']} · "
                          f"en yeni {lo['gozlem_zamani_en_yeni']} · zamansız {lo['zamansiz_gozlem']}")
+                s.append(f"    - saniye-altı kesirli gözlem zamanı: {lo['saniye_alti_kesirli_zaman']} "
+                         "(ızgara karşılaştırması dakikaya indirilerek yapıldı)")
+                s.append(f"    - kategorik alanlar (değer: adet): `{lo['kategorik_alanlar']}`")
+                s.append(f"    - tip × observationStatus × observationType: `{lo['tip_x_status_x_type']}`")
                 s.append(f"    - METAR ızgara (:20/:50) {lo['metar_izgara']} · ızgara dışı METAR "
                          f"{lo['metar_izgara_disi']} · aralıkta eksik ızgara slotu "
                          f"{len(lo['izgara_eksik_slot'])} {lo['izgara_eksik_slot'][:20]}")

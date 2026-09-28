@@ -168,3 +168,33 @@ def test_is_akisi_zamanlanmis_degil_ve_tetikleyiciler_dar():
 def test_is_akisi_kesif_betigini_gecici_dizinle_calistirir():
     assert 'python mgm_kesif.py --ham-dizin "$RUNNER_TEMP/mgm_kesif"' in WF
     assert "actions/upload-artifact@v4" in WF
+
+
+def test_saniye_alti_kesirli_zaman_izgarada_eksik_sayilmaz():
+    """Ilk gercek kesif: MGM zamanlari saniye-alti kesir tasiyor
+    (07:20:00.032). Izgara karsilastirmasi dakikaya indirilerek yapilmali;
+    aksi halde butun slotlar sahte 'eksik' gorunur."""
+    o = k.liste_ozeti([
+        _kayit("2026-09-28T06:50:00.845Z", "METAR LTFJ 280650Z 9999"),
+        _kayit("2026-09-28T07:20:00.032Z", "METAR LTFJ 280720Z 9999"),
+        _kayit("2026-09-28T07:50:00.404Z", "METAR LTFJ 280750Z 9999"),
+    ])
+    assert o["izgara_eksik_slot"] == []
+    assert o["metar_izgara"] == 3 and o["saniye_alti_kesirli_zaman"] == 3
+
+
+def test_kategorik_alan_dagilimi_ve_tip_capraz_tablosu():
+    kay = [_kayit("2026-09-28T00:20:00Z", "METAR LTFJ 280020Z 9999", 1,
+                  observationStatus=1, observationType=1),
+           _kayit("2026-09-28T00:50:00Z", "METAR COR LTFJ 280050Z 9999", 2,
+                  observationStatus=2, observationType=1)]
+    o = k.liste_ozeti(kay)
+    assert o["kategorik_alanlar"]["observationStatus"] == {"1": 1, "2": 1}
+    assert o["tip_x_status_x_type"] == {"METAR / status=1 / type=1": 1,
+                                        "METAR / status=2 / type=1": 1}
+
+
+def test_blok_alan_turleri_bos_listeyi_de_gosterir():
+    o = k.ozetle(_data({"dataLast": [], "data": KAYITLAR, "gamet": None}), 24)
+    tur = o["bloklar"][0]["alan_turleri"]
+    assert tur["dataLast"] == "list(0)" and tur["data"] == "list(6)" and tur["gamet"] == "NoneType"
