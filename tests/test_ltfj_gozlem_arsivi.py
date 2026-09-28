@@ -174,7 +174,7 @@ def test_modul_agir_bagimlilik_ICE_AKTARMIYOR():
             adlar |= {a.name.split(".")[0] for a in d.names}
         elif isinstance(d, ast.ImportFrom) and d.module:
             adlar.add(d.module.split(".")[0])
-    assert adlar <= {"csv", "sys", "datetime", "pathlib", "argparse"}, adlar
+    assert adlar <= {"csv", "json", "sys", "datetime", "pathlib", "argparse"}, adlar
 
 
 def test_gorus_gercek_metar_cozucusuyle_de_geliyor(dosya):
@@ -218,7 +218,8 @@ def _bot_agaci():
 
 
 def _arsiv_cagrisini_saran_try():
-    """ltfj_gozlem_arsivi.ekle cagrisini SARAN try dugumunu bulur."""
+    """ltfj_gozlem_arsivi.kosu_isle cagrisini SARAN try dugumunu bulur
+    (PR-2: canli + geri doldurma arsivlemesi tek fail-open blokta)."""
     import ast
     for dugum in ast.walk(_bot_agaci()):
         if not isinstance(dugum, ast.Try):
@@ -226,7 +227,7 @@ def _arsiv_cagrisini_saran_try():
         for ic in ast.walk(dugum):
             if (isinstance(ic, ast.Call)
                     and isinstance(ic.func, ast.Attribute)
-                    and ic.func.attr == "ekle"
+                    and ic.func.attr == "kosu_isle"
                     and isinstance(ic.func.value, ast.Name)
                     and ic.func.value.id == "ltfj_gozlem_arsivi"):
                 return dugum
@@ -236,7 +237,7 @@ def _arsiv_cagrisini_saran_try():
 def test_bot_arsiv_cagrisini_try_ICINDE_yapiyor():
     """FAIL-OPEN: arsiv yazilamazsa METAR/TAF/push akisi durmamali."""
     assert _arsiv_cagrisini_saran_try() is not None, \
-        "ltfj_gozlem_arsivi.ekle korumasiz cagriliyor"
+        "ltfj_gozlem_arsivi.kosu_isle korumasiz cagriliyor"
 
 
 def test_bot_arsiv_hatasini_YUTMUYOR_yaziyor():

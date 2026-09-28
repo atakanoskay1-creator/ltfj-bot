@@ -58,13 +58,17 @@ class AyiklamaHatasi(RasatHatasi):
     """KALICI: sayfa yapisi degismis. Insan mudahalesi gerekir."""
 
 
-def _sayfayi_getir(params, timeout):
+def _sayfayi_getir(params, timeout, deneme=DENEME):
     """MGM sayfasini getirir, GECICI hatalarda (timeout/baglanti/5xx) birkac
     kez tekrar dener. KALICI istemci hatalarinda (4xx) DENEMIYOR - ayni
     istek tekrar ayni sonucu verir, DENEME dongusunun bekleme surelerini
-    (5, 10 sn) bosuna tuketmenin anlami yok."""
+    (5, 10 sn) bosuna tuketmenin anlami yok.
+
+    deneme: toplam deneme sayisi. Canli akis varsayilani (DENEME) kullanir;
+    gozlem arsivi geri doldurmasi tek deneme ister (is akisi 5 dk ile
+    sinirli, sonraki kosu 24 saatlik pencerede zaten yeniden dener)."""
     son_hata = None
-    for i in range(1, DENEME + 1):
+    for i in range(1, deneme + 1):
         try:
             r = requests.get(BASE, params=params, headers=HEADERS,
                              timeout=(10, timeout))   # (baglanti, okuma)
@@ -77,22 +81,29 @@ def _sayfayi_getir(params, timeout):
             return r
         except requests.RequestException as e:
             son_hata = e
-            if i < DENEME:
+            if i < deneme:
                 bekle = BEKLE * i
-                print(f"[uyari] MGM yanit vermedi ({i}/{DENEME}): {e.__class__.__name__}"
+                print(f"[uyari] MGM yanit vermedi ({i}/{deneme}): {e.__class__.__name__}"
                       f" - {bekle} sn sonra tekrar deneniyor", file=sys.stderr)
                 time.sleep(bekle)
-    raise AgHatasi(f"{DENEME} denemede ulasilamadi: {son_hata}") from son_hata
+    raise AgHatasi(f"{deneme} denemede ulasilamadi: {son_hata}") from son_hata
 
 
-def raporlari_cek(icao: str = ICAO, timeout: int = 30) -> list[dict]:
+def raporlari_cek(icao: str = ICAO, timeout: int = 30, saat: int = 0,
+                  deneme: int = DENEME) -> list[dict]:
     """
-    Istasyonun son raporlarini dondurur. Her eleman:
-      {'tip': 'METAR', 'zaman': datetime(UTC), 'metin': 'METAR LTFJ ...'}
+    Istasyonun raporlarini dondurur. Her eleman:
+      {'tip': 'METAR', 'zaman': datetime(UTC), 'metin': 'METAR LTFJ ...', ...}
     En yeni ilk sirada.
+
+    saat=0 (varsayilan, canli akis): yalnizca son raporlar (`dataLast`).
+    saat>0: son `saat` saatin raporlari (`data`) - yalnizca gozlem arsivi
+    geri doldurmasi kullanir; bildirim/sayfa akisina GIRMEZ. Alan secimi
+    salt okunur MGM kesfiyle (PR #99) olculdu: hours=0 -> dataLast,
+    hours=3/24 -> data (dataLast None).
     """
-    params = [("stations", icao)] + EK_PARAMS
-    r = _sayfayi_getir(params, timeout)
+    params = [("stations", icao)] + EK_PARAMS[:-1] + [("hours", str(saat))]
+    r = _sayfayi_getir(params, timeout, deneme)
 
     m = NEXT_DATA.search(r.text)
     if not m:
@@ -116,16 +127,37 @@ def raporlari_cek(icao: str = ICAO, timeout: int = 30) -> list[dict]:
         print("[debug] response    :", len(pp.get("response") or []), "kayit")
         print("[debug] next_data.json yazildi\n")
 
+    return raporlari_ayikla(data, icao, saat)
+
+
+def raporlari_ayikla(data: dict, icao: str = ICAO, saat: int = 0) -> list[dict]:
+    """__NEXT_DATA__ sozlugunden rapor listesini cikarir (ag YOK).
+
+    Ayri fonksiyon, cunku kayitli bir MGM yanitini (ör. kesif artifact'i)
+    ayni kodla yeniden oynatabilmek gerekiyor.
+
+    Mevcut anahtarlar (id/tip/duzeltme/zaman/metin) canli akisin
+    sozlesmesidir ve DEGISMEZ. Ek olarak MGM'nin ham alanlari tasinir
+    (zaman_ham, metin_ham, mgm_status, mgm_status_aciklama, mgm_type,
+    mgm_type_aciklama) - yalnizca gozlem arsivinin surum katmani okur."""
     try:
         response = data["props"]["pageProps"].get("response") or []
-    except (KeyError, TypeError) as e:
+    except (KeyError, TypeError, AttributeError) as e:
         raise AyiklamaHatasi(f"Beklenen JSON alanlari yok: {e}") from e
 
+    alan = "dataLast" if saat == 0 else "data"
     out = []
     for blok in response:
         if (blok.get("istInfo") or {}).get("icao", "").upper() != icao.upper():
             continue
-        for kayit in (blok.get("dataLast") or []):
+        kayitlar = blok.get(alan)
+        if saat != 0 and not isinstance(kayitlar, list):
+            # Geri doldurma yanitinin yapisi kesifte olculenden farkli:
+            # baska alana/hours degerine OTOMATIK gecis yok.
+            raise AyiklamaHatasi(
+                f"hours={saat} yanitinda '{alan}' listesi yok "
+                f"({type(kayitlar).__name__})")
+        for kayit in (kayitlar or []):
             metin = " ".join((kayit.get("observationText") or "").split())
             if not metin:
                 continue
@@ -138,6 +170,13 @@ def raporlari_cek(icao: str = ICAO, timeout: int = 30) -> list[dict]:
                 "duzeltme": duzeltme,                      # AMD / COR / None
                 "zaman": _zaman(kayit.get("observationTimeNormal")),
                 "metin": metin,
+                # MGM'nin ham alanlari - OLDUGU GIBI (yorum yok).
+                "zaman_ham": kayit.get("observationTimeNormal"),
+                "metin_ham": kayit.get("observationText"),
+                "mgm_status": kayit.get("observationStatus"),
+                "mgm_status_aciklama": kayit.get("observationStatusExplanation"),
+                "mgm_type": kayit.get("observationType"),
+                "mgm_type_aciklama": kayit.get("observationTypeExplanation"),
             })
     out.sort(key=lambda d: d["zaman"] or datetime.min.replace(tzinfo=timezone.utc),
              reverse=True)

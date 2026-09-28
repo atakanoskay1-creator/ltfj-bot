@@ -957,6 +957,7 @@ def main():
 
     try:
         raporlar = raporlari_cek(ICAO)
+        canli_alinma = datetime.now(timezone.utc)
     except AgHatasi as e:
         print(f"[uyarı] MGM'ye ulaşılamadı, bu tur atlanıyor: {e}", file=sys.stderr)
         # ONEMLI (kaynak sagligi): MGM'ye ULASILAMAMASI "yeni veri yok" ile
@@ -968,6 +969,13 @@ def main():
         # o da zaten state'teki en son BILINEN veri zamanina gore yaslandirma
         # yapiyor (bkz. sessizlik_kontrol icindeki "zamanlar bossa" dali).
         sessizlik_kontrol(state, [], token, chat_id)
+        # Gozlem arsivi sagligi: canli cekim hatasi kaydedilir (fail-open;
+        # geri doldurma bu kosuda denenmez).
+        try:
+            import ltfj_gozlem_arsivi
+            ltfj_gozlem_arsivi.canli_hata_kaydet(e, KLASOR)
+        except Exception as e2:
+            print(f"[uyarı] Gözlem arşivi durumu yazılamadı: {e2}", file=sys.stderr)
         state_yaz(state)
         return
     except AyiklamaHatasi as e:
@@ -979,10 +987,23 @@ def main():
     # surelerinin gercek hizi ancak SPECI'lerle olculebilir (bkz.
     # ltfj_gozlem_arsivi modul aciklamasi).
     #
+    # GERI DOLDURMA: canli hours=0 yalnizca son raporlari verir; iki kosu
+    # arasinda yayinlanip yerini yenisine birakan METAR/SPECI kaciyor
+    # (27.09 16:20, 28.09 06:50). kosu_isle once bu raporlari, sonra AYRI
+    # bir hours=24 cekimini YALNIZCA arsive isler - o raporlar asagidaki
+    # bildirim/state/sayfa akisina hic girmez (`raporlar` degismez).
+    #
     # FAIL-OPEN: arsiv yazilamazsa METAR/TAF/bildirim akisi ETKILENMEZ.
     try:
         import ltfj_gozlem_arsivi
-        n = ltfj_gozlem_arsivi.ekle(raporlar, metar_coz, KLASOR / "gozlem_arsivi.csv")
+        durum = ltfj_gozlem_arsivi.kosu_isle(
+            raporlar, canli_alinma, metar_coz,
+            lambda: raporlari_cek(ICAO, timeout=ltfj_gozlem_arsivi.BACKFILL_ZAMAN_ASIMI,
+                                  saat=ltfj_gozlem_arsivi.BACKFILL_SAAT,
+                                  deneme=ltfj_gozlem_arsivi.BACKFILL_DENEME),
+            KLASOR)
+        n = sum(durum["cekim"]["canli_h0"].get("son_isleme", {})
+                .get("kanonik_eklenen", {}).values())
         if n:
             print(f"  gözlem arşivine {n} yeni kayıt eklendi.")
     except Exception as e:
