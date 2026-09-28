@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:54238652",
   "id:54246752",
   "id:54250857",
   "id:54258905",
@@ -199,23 +198,16 @@
   "id:55328137",
   "id:55335103",
   "id:55340395",
-  "id:55351505"
+  "id:55351505",
+  "id:55357615"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 281220Z 33014G24KT 290V020 9999 SCT018 BKN025 BKN080 18/14 Q1015 NOSIG RMK RWY24R 33018KT RWY06R 32014G27KT RWY24L 33016KT",
+ "son_metar": "METAR LTFJ 281250Z 33010KT 290V030 9999 SCT018 BKN025 BKN080 18/14 Q1015 NOSIG RMK RWY24R 34015KT 310V010 RWY06R 33013KT 300V360 RWY24L 34016KT 310V010",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-28T12:20:00+00:00",
+ "son_veri_zamani": "2026-09-28T12:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-22T18:20:00+00:00",
-   "ruzgar_hiz": 6,
-   "tavan": 3000,
-   "qnh": 1013,
-   "sicaklik": 19,
-   "cig_noktasi": 16
-  },
   {
    "zaman": "2026-09-22T18:50:00+00:00",
    "ruzgar_hiz": 9,
@@ -2846,13 +2838,22 @@
    "qnh": 1015,
    "sicaklik": 18,
    "cig_noktasi": 14
+  },
+  {
+   "zaman": "2026-09-28T12:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 10,
+   "tavan": 2500,
+   "qnh": 1015,
+   "sicaklik": 18,
+   "cig_noktasi": 14
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 272350Z 02007KT 9999 -SHRA FEW010 BKN025 BKN080 17/15 Q1014 NOSIG RMK RWY24R 35008KT RWY06R 36008KT RWY24L 36005KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 7 knot hızında hafif rüzgâr esiyor, yan bileşen 5 knot seviyesinde.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, görüş açısından rahat koşullar var.\n\n**Gökyüzü:** Başlangıçta az bulutlu, 1000 metre yükseklikte; daha sonra 2500 metre ve 8000 metre yüksekliklerde çok bulutlu katmanlar var; hafif sağanak yağmuru eşlik ediyor.\n\n**Uçuşa etkisi:** Hafif sağanak ve yüksek nem oranı dikkat gerektiriyor, ancak görüş ve rüzgâr şiddeti operasyonel sınırlar içinde kalmaktadır.",
   "TAF LTFJ 280440Z 2806/2906 35019KT 9999 -SHRA SCT010 BKN028 BKN070 TEMPO 2806/2810 34022G34KT 3200 +SHRA FEW018CB BKN020 BKN070 TEMPO 2810/2814 35020G32KT TEMPO 2820/2824 4000 SHRA BECMG 2822/2902 01009KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde rüzgâr 350 dereceden 19 knot, görüş 9999 metre, hafif sağanak ve dağınık bulutluluk beklenmektedir.\n\n- **2806/2810 UTC:** Rüzgâr 340 dereceden 22 knot, gust 34 knot; görüş 3200 metre; şiddetli sağanak; az bulut içinde kümülonimbus; 2000 metre bulut tabanı.\n- **2810/2814 UTC:** Rüzgâr 350 dereceden 20 knot, gust 32 knot.\n- **2820/2824 UTC:** Görüş 4000 metre; sağanak.\n- **2822/2902 UTC:** Rüzgâr kademeli geçişle 010 dereceden 9 knota düşüyor.",
   "METAR LTFJ 280620Z 02009KT 350V050 6000 -SHRA NSC 18/16 Q1014 RESHRA NOSIG RMK RWY24R 01010KT RWY06R 36009KT RWY24L 03009KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 9 knot hızla esen rüzgâr, yönü 350 ile 50 derece arasında değişiyor ve bazı pistlerde 6 knot yan bileşen oluşturuyor.\n\n**Görüş:** 6000 metre görüş mesafesi var, hafif sağanak yağmur düşüyor.\n\n**Gökyüzü:** Bulut bilgisi raporda yer almıyor, ancak sağanak yağmur ve yüksek nem koşulları bulunuyor.\n\n**Uçuşa etkisi:** Düşük görüş (6000 m) ve hafif sağanak yağmur dikkat gerektiriyor; rüzgâr şiddeti ve yan bileşen operasyonel sınırlar içinde görünüyor.",
-  "TAF LTFJ 281040Z 2812/2912 35016KT 9999 SCT018 BKN028 BKN080 TEMPO 2812/2816 35020G30KT -SHRA PROB40 TEMPO 2816/2820 4000 SHRA BECMG 2820/2822 -SHRA TEMPO 2822/2902 4000 SHRA BECMG 2822/2902 01006KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde rüzgâr ve sağanak yağış beklenmektedir.\n\n- **2812/2816 UTC:** Rüzgâr 35016 knot, geçici olarak 35020 knot esen rüzgâr ve hafif sağanak yağış.\n- **2816/2820 UTC:** İhtimal %40 ile geçici olarak 4000 metre görüş ve sağanak yağış.\n- **2820/2902 UTC:** Kademeli olarak sağanak yağış azalacak, rüzgâr 01006 knota kademeli geçiş."
+  "TAF LTFJ 281040Z 2812/2912 35016KT 9999 SCT018 BKN028 BKN080 TEMPO 2812/2816 35020G30KT -SHRA PROB40 TEMPO 2816/2820 4000 SHRA BECMG 2820/2822 -SHRA TEMPO 2822/2902 4000 SHRA BECMG 2822/2902 01006KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde rüzgâr ve sağanak yağış beklenmektedir.\n\n- **2812/2816 UTC:** Rüzgâr 35016 knot, geçici olarak 35020 knot esen rüzgâr ve hafif sağanak yağış.\n- **2816/2820 UTC:** İhtimal %40 ile geçici olarak 4000 metre görüş ve sağanak yağış.\n- **2820/2902 UTC:** Kademeli olarak sağanak yağış azalacak, rüzgâr 01006 knota kademeli geçiş.",
+  "METAR LTFJ 281250Z 33010KT 290V030 9999 SCT018 BKN025 BKN080 18/14 Q1015 NOSIG RMK RWY24R 34015KT 310V010 RWY06R 33013KT 300V360 RWY24L 34016KT 310V010": "**Rüzgâr:** Kuzey-kuzeybatıdan 10 knot hızla esen rüzgâr, yönü 290 ile 30 derece arasında değişiyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede görüş sağlanıyor, uçuş için rahat bir durum.\n\n**Gökyüzü:** 1800 metre civarında parçalı bulutlar, 2500 metre civarında çok bulutlu katman var; yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava durumu önümüzdeki 2 saatte önemli ölçüde değişmeyecek."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3831,35 +3832,35 @@
   }
  },
  "notam_son_senkron": "2026-09-28T11:54:52+00:00",
- "guncelleme": "2026-09-28T12:24:49+00:00",
+ "guncelleme": "2026-09-28T12:54:43+00:00",
  "push_gonderilen": [
-  "id:55115203",
-  "id:55023946",
-  "id:55100609",
-  "id:54570097",
-  "id:55250167",
-  "id:54947445",
-  "id:54722352",
-  "id:54645856",
-  "id:54494528",
-  "id:54798358",
-  "id:55215002",
-  "id:54867977",
-  "id:55289417",
-  "id:55290850",
-  "id:55157958",
-  "id:55252159",
-  "id:55233775",
-  "id:55270489",
-  "id:54872500",
-  "id:54416753",
   "id:55161265",
+  "id:54494528",
+  "id:55215002",
+  "id:55157958",
+  "id:54722352",
+  "id:54947445",
+  "id:55252159",
+  "id:55289417",
+  "id:55100609",
+  "id:55115203",
+  "id:54798358",
+  "id:54645856",
+  "id:54570097",
+  "id:55211608",
+  "id:55023946",
+  "id:55270489",
+  "id:55175951",
   "id:54339168",
   "id:55239008",
-  "id:54868994",
-  "id:55175951",
+  "id:54416753",
+  "id:55233775",
   "id:55310962",
-  "id:55211608",
-  "id:55328137"
+  "id:54867977",
+  "id:54868994",
+  "id:55328137",
+  "id:55250167",
+  "id:55290850",
+  "id:54872500"
  ]
 }
