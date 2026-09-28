@@ -344,6 +344,12 @@ window.ltfjNotamGecerlilik = function (n) {
             etiket: "iptal edildi" + (z ? " · " + z : ""),
             vurgula: true};
   }
+  // NOTAMC'NIN KENDISI bir kisitlama degil, iptal bildirimi: "kalan sure"
+  // yazmak onu yururlukteki bir kisitlama gibi gosterirdi. Aktif listeye
+  // zaten girmiyor (bkz. ltfj_notam._listeden_haric); gecmiste boyle gorunur.
+  if (String(n.notam_type || "").toUpperCase() === "C") {
+    return {durum: "iptal_bildirimi", etiket: "iptal bildirimi", vurgula: true};
+  }
   // "upcoming" DA CANLI BIR DURUM. Bu satir yalnizca "active" varken
   // yazilmisti; NOTAC'in status sozlugu OLCULUNCE (active / upcoming /
   // expired) yururluge girmemis kayitlarin "upcoming" tasidigi ortaya

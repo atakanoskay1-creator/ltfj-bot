@@ -1116,6 +1116,18 @@ def main():
     except Exception as e:
         print(f"[uyarı] NOTAM senkronizasyonu başarısız: {e}", file=sys.stderr)
 
+    # NOTAMC IPTALLERI HER KOSUDA. Senkron 3 saatte bir; iptal kontrolu ise
+    # NOTAC'a istek atmiyor, yalnizca eldeki gecmise bakiyor. Yalnizca
+    # senkronda calissaydi, gecmise onceden girmis bir NOTAMC (ör. kod
+    # guncellemesinden once gelen B3853/26 NOTAMC B3790/26) bir sonraki
+    # senkrona kadar - 3 saate kadar - islenmezdi. Idempotent.
+    try:
+        iptal_edilenler = ltfj_notam.iptalleri_isle(state.get("notam_gecmisi") or {})
+        if iptal_edilenler:
+            print(f"  NOTAMC ile iptal edildi: {', '.join(iptal_edilenler)}")
+    except Exception as e:
+        print(f"[uyarı] NOTAM iptal kontrolü başarısız: {e}", file=sys.stderr)
+
     if ayar("notam", "aktif", varsayilan=True):
         try:
             ltfj_notam.notam_veri_yaz(state, KLASOR / "notam_veri.json",

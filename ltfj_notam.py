@@ -559,6 +559,12 @@ def yururlukte_mi(kayit: dict, an: datetime | None = None) -> bool:
     return bit is None or bit > an
 
 
+def _listeden_haric(kayit: dict) -> bool:
+    """Aktif/yaklasan listelere girmeyen kayit: NOTAMC ile iptal edilmis
+    bir NOTAM ya da NOTAMC'nin kendisi. Ikisi de gecmiste kalir."""
+    return bool(kayit.get("iptal")) or (kayit.get("notam_type") or "").upper() == "C"
+
+
 def notam_veri_yaz(state: dict, hedef: Path, location: str = LOCATION):
     """MOD 5 (web arayuzu) icin index.html'in fetch() ile okudugu ayri bir
     JSON dosyasi uretir - panel_veri.json'un ltfj_panel.py::panel_verisi_yaz
@@ -583,10 +589,14 @@ def notam_veri_yaz(state: dict, hedef: Path, location: str = LOCATION):
     # IPTAL EDILENLER (NOTAMC, bkz. iptalleri_isle) aktif ve yaklasan
     # listelere GIRMEZ - NOTAC onu hala "active" dondurse bile. Gecmiste
     # "iptal" isaretiyle kalir; sayfa iptal tarihini orada gosterir.
+    # NOTAMC'NIN KENDISI de bu listelere girmez: bir kisitlama degil, bir
+    # iptal bildirimi (ör. "TWY K1 OPEN TO TFC"). NOTAC onu "active"
+    # donduruyor ama aktif listede durmasi kapanmis bir seyi acik bir
+    # kisitlama gibi gosteriyordu. Yalnizca gecmiste gorunur.
     aktif = [
         k for k in tum_kayitlar
         if son_senkron and k.get("last_seen") == son_senkron
-        and k.get("status") == "active" and not k.get("iptal")
+        and k.get("status") == "active" and not _listeden_haric(k)
     ]
     # YAKLASAN: son senkronda gorulmus ama yururluk BASLANGICI henuz
     # gelmemis kayitlar. Bunlari "aktif" listesine koymak, olmayan bir
@@ -611,7 +621,7 @@ def notam_veri_yaz(state: dict, hedef: Path, location: str = LOCATION):
     simdi_iso = datetime.now(timezone.utc)
     yaklasan = []
     for k in tum_kayitlar:
-        if not son_senkron or k.get("last_seen") != son_senkron or k.get("iptal"):
+        if not son_senkron or k.get("last_seen") != son_senkron or _listeden_haric(k):
             continue
         bas = _tarih_ayristir(k.get("effective_start"))
         if bas and bas > simdi_iso:

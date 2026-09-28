@@ -481,6 +481,7 @@ SABLON = """<!DOCTYPE html>
         <option value="doldu">Süresi dolmuş</option>
         <option value="baslamadi">Henüz başlamamış</option>
         <option value="iptal">İptal edilmiş</option>
+        <option value="iptal_bildirimi">İptal bildirimi (NOTAMC)</option>
       </select>
       <button type="button" id="notam-arama-temizle">Temizle</button>
     </div>
