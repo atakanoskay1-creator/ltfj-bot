@@ -126,7 +126,7 @@ def test_calisma_aninda_agir_bagimlilik_yok():
 # ------------------------------------------------------------------- sayfa
 def test_kart_sayfada_yuzde_olarak_gorunuyor():
     html = _sayfa("LTFJ 172120Z 01003KT 6000 SCT020 08/07 Q1020")
-    assert "İstatistiksel sis olasılığı" in html
+    assert "Düşük görüş (&lt; 1000 m) olasılığı" in html
     assert re.search(r'sis-olasilik-deger">%[\d.]+<', html)
 
 
@@ -139,7 +139,7 @@ def test_sezgisel_sis_riski_satiri_SAYFADAN_kaldirildi():
     devam ediyor (bkz. ltfj_pist.havacilik_notlari)."""
     html = _sayfa("LTFJ 172120Z 01003KT 6000 SCT020 08/07 Q1020")
     assert "Sis riski" not in html
-    assert "İstatistiksel sis olasılığı" in html
+    assert "Düşük görüş (&lt; 1000 m) olasılığı" in html
 
 
 def test_sis_riski_fonksiyonu_hala_calisiyor():
@@ -166,14 +166,14 @@ def test_kart_kaynagini_ve_sinirlarini_belirtiyor():
 
 def test_sicaklik_yoksa_kart_hic_cikmiyor():
     html = _sayfa("LTFJ 172120Z 01003KT 6000 SCT020 Q1020")
-    assert "İstatistiksel sis olasılığı" not in html
+    assert "Düşük görüş (&lt; 1000 m) olasılığı" not in html
 
 
 def test_cig_noktasiz_eski_gecmisle_kart_yine_calisiyor():
     """Eski state kayitlarinda cig_noktasi yok - kart yine de uretilmeli."""
     html = _sayfa("LTFJ 172120Z 01003KT 6000 SCT020 08/07 Q1020",
                   gecmis=_gecmis(cig_var=False))
-    assert "İstatistiksel sis olasılığı" in html
+    assert "Düşük görüş (&lt; 1000 m) olasılığı" in html
 
 
 def test_spread_egilimi_gecmisten_hesaplaniyor():

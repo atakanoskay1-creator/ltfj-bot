@@ -172,7 +172,7 @@ def test_beklenti_YALNIZCA_tahmin_iceriyor(tmp_path):
     # Testin ASIL iddiasi degismedi: bu panelde TAHMIN var, ISTATISTIK yok.
     assert "Önümüzdeki saatler" in beklenti
     assert 'class="tahmin-tablo"' in beklenti
-    assert "İstatistiksel sis olasılığı" not in beklenti
+    assert "Düşük görüş (&lt; 1000 m) olasılığı" not in beklenti
 
 
 def test_notam_tek_baslik_altinda_ve_uyari_en_altta(tmp_path):

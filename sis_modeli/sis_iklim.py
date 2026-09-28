@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
-"""LTFJ sis IKLIMBILIMI: hangi ay, hangi saat, hangi ruzgarda.
+"""LTFJ dusuk gorus/FG olayi IKLIMBILIMI: hangi ay, hangi saat, hangi ruzgarda.
 
 Bu bir MODEL DEGIL, TARIHSEL SAYIM - gorus_gecis.py ile ayni cins.
 Tahmin uretmiyor, sizinti kavrami gecerli degil, holdout'a dokunmuyor.
 
-SIS TANIMI modelinkiyle AYNI (ozellik.py): gorus < 1000 m VE alani
-kaplayan FG (MI/BC/PR/VC sayilmaz). Arsivdeki `sis` sutunu bu tanimla
-uretildi; burada yeniden hesaplanmiyor.
+SAYILAN SEY Model A'nin hedefiyle AYNI olay gozlemi (ozellik.py):
+gorus < 1000 m VEYA alani kaplayan FG (FG kodu tek basina ancak MI/BC/PR/
+VC niteleyicisizse yeter). Gorusu dusuren olayin cinsine BAKILMAZ - sis,
+parcali sis (BCFG/MIFG/PRFG) ve kar (SN) ayni etikete girer. Teknik adi
+"LTFJ dusuk gorus/FG olayi"; koddaki `sis` adi tarihseldir. Arsivdeki
+`sis` sutunu bu tanimla uretildi; burada yeniden hesaplanmiyor. Olay
+gozlemlerinin hava kodu bilesimi KOD_BILESIMI olarak ayrica donduruluyor.
 
 SAATLER YEREL (UTC+3). Turkiye 2016'dan beri yaz saati uygulamiyor;
 2011-2016 yazlarinda da yerel saat UTC+3'tu, yani sabit ofset tum
@@ -19,7 +23,7 @@ tek basina yaniltir: LTFJ'de en sik ruzgar zaten KD, "sisin cogu KD'de"
 bu yuzden kendiliginden dogru olur.
 
 GUNEYLI SIS: 140-250 derece, >2 kt. Nadir ama en uzun ve en yogun
-olaylar bunlar (bkz. README "Sis iklimbilimi"). Olay gruplamasi: ardisik
+olaylar bunlar (bkz. README "Dusuk gorus/FG olayi iklimbilimi"). Olay gruplamasi: ardisik
 sisli gozlemler arasi <= 61 dk; olay, gozlemlerinin cogunlugu guneyli
 ise "guneyli" sayilir.
 
@@ -37,6 +41,7 @@ import collections
 import csv
 import gzip
 import pprint
+import re
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -64,6 +69,8 @@ def veri_oku(dosya: Path) -> list[dict]:
                 "hiz": int(x["ruzgar_hiz"]) if x["ruzgar_hiz"] else None,
                 "sis": x["sis"] == "1",
                 "lvo": x["lvo"] == "1",
+                "sis_kodu": x.get("sis_kodu") == "1",
+                "hava": x.get("hava") or "",
             })
     return satirlar
 
@@ -90,6 +97,23 @@ def sektor(s: dict) -> str | None:
 def guneyli(s: dict) -> bool:
     return (s["yon"] is not None and s["hiz"] is not None and s["hiz"] > SAKIN_KT
             and GUNEY_ARALIK[0] <= s["yon"] <= GUNEY_ARALIK[1])
+
+
+# Olay gozleminin hava kodu kategorisi - ORTUSEN bayraklar birlestirilir,
+# tek bir "gercek" sinif secilmez (ornegin FG+SN ayri bir kategori).
+KOD_SIRASI = ("FG", "BCFG/MIFG/PRFG", "SN")
+
+
+def kod_kategorisi(s: dict) -> str:
+    hava = s.get("hava") or ""
+    bayrak = []
+    if s.get("sis_kodu"):
+        bayrak.append("FG")
+    if re.search(r"(BC|MI|PR)FG", hava):
+        bayrak.append("BCFG/MIFG/PRFG")
+    if re.search(r"SN|SG|PL", hava):
+        bayrak.append("SN")
+    return "+".join(bayrak) if bayrak else "diger"
 
 
 def olaylar(sisli: list) -> list[list]:
@@ -186,6 +210,7 @@ def hesapla(satirlar: list) -> dict:
         "hiz_5kt_alti_yuzde": round(100 * sum(h <= 5 for h in hizlar) / len(hizlar)) if hizlar else 0,
         "guney": guney,
         "diger": diger,
+        "kod_bilesimi": collections.Counter(kod_kategorisi(s) for s in sisli).most_common(),
     }
 
 
@@ -195,7 +220,7 @@ def _bic(deger) -> str:
 
 def dondur(sonuc: dict, ilk: int, son: int, yol: Path = DONDURULMUS_YOL) -> None:
     yol.write_text(f'''#!/usr/bin/env python3
-"""DONDURULMUS sis iklimbilimi - sis_modeli/sis_iklim.py uretti.
+"""DONDURULMUS dusuk gorus/FG olayi iklimbilimi - sis_modeli/sis_iklim.py uretti.
 
 ELLE DUZENLEME. Yeniden uretmek icin:
     python -m sis_modeli.sis_iklim --dondur
@@ -204,7 +229,9 @@ Sayfa bu sayilari gosteriyor ama bot arsivi her kosuda okuyamaz -
 ltfj_gorus_gecis_tablo ile ayni disiplin: SABIT tasir, hesap yapmaz.
 
 Tanim ve sinirlar: sis_modeli/sis_iklim.py modul aciklamasi ve
-sis_modeli/README.md "Sis iklimbilimi". Saatler YEREL (UTC+3).
+sis_modeli/README.md "Hedef tanimi". Saatler YEREL (UTC+3).
+Koddaki "sis" adlari tarihseldir: sayilan, Model A'nin hedefi olan olay
+gozlemidir (gorus < 1000 m VEYA alani kaplayan FG; kar dahil).
 """
 
 KAPSAM_ILK_YIL = {ilk}
@@ -228,6 +255,9 @@ HIZ_5KT_ALTI_YUZDE = {sonuc["hiz_5kt_alti_yuzde"]}
 # Guneyli (140-250 derece) sis ve digerleri - olay suresi ve LVO orani
 GUNEY = {_bic(sonuc["guney"])}
 DIGER = {_bic(sonuc["diger"])}
+
+# Olay gozlemlerinin hava kodu bilesimi (ortusen bayraklar birlesik kategori)
+KOD_BILESIMI = {_bic(sonuc["kod_bilesimi"])}
 ''', encoding="utf-8")
     print(f"donduruldu: {yol.name}")
 

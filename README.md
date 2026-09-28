@@ -337,13 +337,16 @@ yüzden kaldırıldı.
 
 Arşivden öğrenilmiş her şey **tek katlanır başlık** altında toplandı:
 
-- **İstatistiksel sis olasılığı** (önceden "Beklenti" altındaydı)
+- **Düşük görüş (< 1000 m) olasılığı** (tarihsel adı "İstatistiksel sis
+  olasılığı"; önceden "Beklenti" altındaydı). Hedef: önümüzdeki 3 saatte
+  görüş < 1000 m **veya** meydanı kaplayan FG — kar kaynaklı düşük görüş
+  dahil. Bkz. `sis_modeli/README.md` "Hedef tanımı ve terminoloji"
 - **Tavan istatistiği** — göreli oranlar (önceden LVO Farkındalık Notları'ndaydı)
 - **Görüş geçiş süreleri** — yeni; bkz. `sis_modeli/README.md`
-- **Sis ne zaman görülüyor** — aylara ve yerel saate göre sisli gözlem oranı,
-  rüzgâr sektörüne göre "kat" ve güneyli sis özeti; arşivden sayılmış,
-  `ltfj_sis_iklim_tablo.py`'ye dondurulmuş. Bkz. `sis_modeli/README.md`
-  "Sis iklimbilimi"
+- **Düşük görüş/FG ne zaman görülüyor** — aylara ve yerel saate göre olay
+  gözlemi oranı, rüzgâr sektörüne göre "kat", güneyli rüzgâr özeti ve hava
+  kodu bileşimi; arşivden sayılmış, `ltfj_sis_iklim_tablo.py`'ye
+  dondurulmuş. Bkz. `sis_modeli/README.md` "Düşük görüş/FG olayı iklimbilimi"
 
 **Ayrımın gerekçesi:** sayfa "bu ölçüm mü, tahmin mi, istatistik mi" ayrımını
 her yerde koruyor ama istatistikler üç ayrı yere dağılmıştı. LVO panelinde
