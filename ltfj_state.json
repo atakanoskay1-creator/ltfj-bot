@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:54291691",
   "id:54299944",
   "id:54302582",
   "id:54310569",
@@ -199,7 +198,8 @@
   "id:55388601",
   "id:55392501",
   "id:55400907",
-  "id:55403399"
+  "id:55403399",
+  "id:55405296"
  ],
  "ilk_calisma": false,
  "son_metar": "METAR LTFJ 281650Z 34013KT 300V020 9999 -SHRA SCT010 BKN025 BKN080 17/15 Q1016 NOSIG RMK RWY24R 32013KT RWY06R 32012KT RWY24L 32011KT",
@@ -2858,10 +2858,10 @@
   }
  ],
  "yorum_onbellegi": {
-  "TAF LTFJ 281040Z 2812/2912 35016KT 9999 SCT018 BKN028 BKN080 TEMPO 2812/2816 35020G30KT -SHRA PROB40 TEMPO 2816/2820 4000 SHRA BECMG 2820/2822 -SHRA TEMPO 2822/2902 4000 SHRA BECMG 2822/2902 01006KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde rüzgâr ve sağanak yağış beklenmektedir.\n\n- **2812/2816 UTC:** Rüzgâr 35016 knot, geçici olarak 35020 knot esen rüzgâr ve hafif sağanak yağış.\n- **2816/2820 UTC:** İhtimal %40 ile geçici olarak 4000 metre görüş ve sağanak yağış.\n- **2820/2902 UTC:** Kademeli olarak sağanak yağış azalacak, rüzgâr 01006 knota kademeli geçiş.",
   "METAR LTFJ 281250Z 33010KT 290V030 9999 SCT018 BKN025 BKN080 18/14 Q1015 NOSIG RMK RWY24R 34015KT 310V010 RWY06R 33013KT 300V360 RWY24L 34016KT 310V010": "**Rüzgâr:** Kuzey-kuzeybatıdan 10 knot hızla esen rüzgâr, yönü 290 ile 30 derece arasında değişiyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede görüş sağlanıyor, uçuş için rahat bir durum.\n\n**Gökyüzü:** 1800 metre civarında parçalı bulutlar, 2500 metre civarında çok bulutlu katman var; yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava durumu önümüzdeki 2 saatte önemli ölçüde değişmeyecek.",
   "METAR LTFJ 281350Z 33011KT 300V360 9999 -SHRA SCT015 BKN025 BKN080 17/15 Q1015 NOSIG RMK RWY24R 33012KT 300V360 RWY06R 32013KT RWY24L 34014KT": "**Rüzgâr:** Kuzeydoğudan 11 knot (yaklaşık 20 km/s) hızla esiyor, yönü 300 ile 360 derece arasında değişiyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için görüş yeterli.\n\n**Gökyüzü:** Hafif sağanak yağmur yağıyor, 1500 metre yükseklikte parçalı bulutlar, 2500 metre yükseklikte çok bulutlu hava var.\n\n**Uçuşa etkisi:** Hafif sağanak ve yüksek nem koşulları dikkat gerektiriyor, yan rüzgâr bileşeni 11-14 knot arasında değişiyor.",
-  "METAR LTFJ 281450Z 33011KT 300V360 9999 SCT015 BKN025 BKN080 17/14 Q1016 NOSIG RMK RWY24R 33011KT 290V010 RWY06R 32013KT RWY24L 34011KT": "**Rüzgâr:** Kuzey-kuzeybatıdan 11 düğüm hızında esen rüzgâr, yönü 300 ile 360 derece arasında değişiyor.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için rahat.\n\n**Gökyüzü:** 1500 metre yükseklikte parçalı bulutlar, 2500 metre yükseklikte çok bulutlu, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları uçuş için uygun."
+  "METAR LTFJ 281450Z 33011KT 300V360 9999 SCT015 BKN025 BKN080 17/14 Q1016 NOSIG RMK RWY24R 33011KT 290V010 RWY06R 32013KT RWY24L 34011KT": "**Rüzgâr:** Kuzey-kuzeybatıdan 11 düğüm hızında esen rüzgâr, yönü 300 ile 360 derece arasında değişiyor.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için rahat.\n\n**Gökyüzü:** 1500 metre yükseklikte parçalı bulutlar, 2500 metre yükseklikte çok bulutlu, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları uçuş için uygun.",
+  "TAF LTFJ 281640Z 2818/2918 35012KT 9999 -SHRA SCT013 BKN025 BKN080 TEMPO 2818/2822 35015G25KT 1800 SHRA TEMPO 2822/2902 1800 SHRA TEMPO 2908/2912 01020G30KT 3200 SHRA TEMPO 2912/2916 02020G30KT 4000 SHRA": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde sağanak yağışlı, değişken bulutlu hava beklenmektedir.\n\n- **2818/2822 UTC:** Rüzgar 350° 15 knot, gust 25 knot; görüş 1800 metre; sağanak yağış.\n- **2822/2902 UTC:** Görüş 1800 metre; sağanak yağış.\n- **2908/2916 UTC:** Rüzgar 010°-020° arası, 20 knot, gust 30 knot; görüş 3200-4000 metre; sağanak yağış."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3845,6 +3845,8 @@
   }
  },
  "notam_son_senkron": "2026-09-28T15:04:52+00:00",
- "guncelleme": "2026-09-28T16:54:42+00:00",
- "push_gonderilen": []
+ "guncelleme": "2026-09-28T17:04:44+00:00",
+ "push_gonderilen": [
+  "id:55405296"
+ ]
 }
