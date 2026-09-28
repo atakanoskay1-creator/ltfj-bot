@@ -1,0 +1,74 @@
+# Gozlem arsivi geri doldurmasinin SALT OKUNUR dogrulamasi (PR-2).
+#
+# 1) Kayittan yeniden oynatma: PR #99 kesfinin sakladigi GERCEK MGM
+#    hours=24 yaniti (artifact mgm-kesif-ham, run 36404494120, cekim
+#    28.09 09:35:54 UTC) repodaki arsivin GECICI bir kopyasina islenir.
+#    27.09 16:20 ve 28.09 06:50 (canli arsivin kacirdigi METAR'lar) ile
+#    28.09 06:20 (MGM'de CCA durumlu) ayrintili raporlanir.
+# 2) Canli H24 kuru calistirma: su anki hours=24 yaniti ayni sekilde.
+#
+# Hicbir sey commit etmez / repoya yazmaz (contents: read). Artifact'in
+# saklama suresi dolarsa (1) atlanir; bu yalnizca bu dogrulamayi etkiler,
+# botun normal calismasi bu kayda BAGLI DEGILDIR.
+name: Gözlem arşivi doğrulama (salt okunur)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "ltfj_gozlem_arsivi.py"
+      - "ltfj_rasat.py"
+      - "arsiv_oynat.py"
+      - ".github/workflows/arsiv-dogrulama.yml"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  dogrula:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAYIT_RUN_ID: "36404494120"
+      KAYIT_ALINMA: "2026-09-28T09:35:54+00:00"
+      KONTROLLER: >-
+        --kontrol "2026-09-27T16:20 METAR"
+        --kontrol "2026-09-28T06:50 METAR"
+        --kontrol "2026-09-28T06:20 METAR"
+    steps:
+      - name: Repoyu al
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Bagimliliklar
+        run: pip install --quiet requests
+
+      - name: Kayitli MGM yanitini indir (PR #99 kesif artifact'i)
+        id: indir
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: mgm-kesif-ham
+          run-id: ${{ env.KAYIT_RUN_ID }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/kayit
+
+      - name: Kayittan yeniden oynatma
+        if: steps.indir.outcome == 'success'
+        run: |
+          eval python arsiv_oynat.py --json "$RUNNER_TEMP/kayit/mgm_hours_24.json" \
+            --alinma "$KAYIT_ALINMA" $KONTROLLER
+
+      - name: Kayit yoksa not dus
+        if: steps.indir.outcome != 'success'
+        run: |
+          echo "Kayitli yanit indirilemedi (artifact suresi dolmus olabilir); yeniden oynatma atlandi." \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Canli H24 kuru calistirma
+        run: eval python arsiv_oynat.py --canli $KONTROLLER

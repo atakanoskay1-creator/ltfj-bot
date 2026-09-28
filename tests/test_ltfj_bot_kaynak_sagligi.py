@@ -34,6 +34,8 @@ def test_mgm_erisilemezse_stale_veri_alarmi_yine_de_kontrol_edilir(monkeypatch, 
     monkeypatch.setenv("TELEGRAM_CHAT_ID", "12345")
     monkeypatch.setattr(b, "STATE", tmp_path / "ltfj_state.json")
     monkeypatch.setattr(b, "ENV", tmp_path / ".env")   # gercek .env okunmasin
+    # gozlem arsivi saglik dosyasi repoya degil gecici dizine yazilsin
+    monkeypatch.setattr(b, "KLASOR", tmp_path)
 
     # State'te 10 saat once gorulmus bir veri var (SESSIZLIK_SAAT=6 asilmis) -
     # MGM'ye simdi erisilemezse bu, alarmi tetiklemesi gereken tam senaryo.
@@ -59,3 +61,11 @@ def test_mgm_erisilemezse_stale_veri_alarmi_yine_de_kontrol_edilir(monkeypatch, 
     # state dosyasi yine de yazildi (son_uyari guncellendi, calisma cokmedi).
     yazilan_state = __import__("json").loads(b.STATE.read_text(encoding="utf-8"))
     assert yazilan_state["son_uyari"] is not None
+
+    # PR-2: canli cekim hatasi gozlem arsivi sagligina AYRI kaydedildi
+    # (geri doldurma bu kosuda denenmedi).
+    durum = __import__("json").loads(
+        (tmp_path / "gozlem_arsivi_durum.json").read_text(encoding="utf-8"))
+    assert durum["cekim"]["canli_h0"]["ardisik_hata"] == 1
+    assert durum["cekim"]["canli_h0"]["son_hata"]["sinif"] == "AgHatasi"
+    assert "backfill_h24" not in durum["cekim"]

@@ -97,7 +97,7 @@ jobs:
         run: |
           set -u
           DAL="${GITHUB_REF_NAME}"
-          DOSYALAR="ltfj_state.json index.html panel_veri.json notam_veri.json gozlem_arsivi.csv"
+          DOSYALAR="ltfj_state.json index.html panel_veri.json notam_veri.json gozlem_arsivi.csv gozlem_surumleri.csv gozlem_arsivi_catisma.csv gozlem_arsivi_durum.json"
 
           # `git add` OLMAYAN bir yol icin "fatal: pathspec did not match"
           # verip (Actions run adimlari `bash -e` ile calisir) TUM adimi
@@ -147,7 +147,10 @@ jobs:
             # yeniden uretildigi icin birlestirme gerektirmez - bizimki daha
             # yenidir, oldugu gibi geri yazilir.
             cp ltfj_state.json /tmp/bizim_state.json
-            cp gozlem_arsivi.csv /tmp/bizim_arsiv.csv 2>/dev/null || true
+            mkdir -p /tmp/bizim_arsiv
+            for d in gozlem_arsivi.csv gozlem_surumleri.csv gozlem_arsivi_catisma.csv gozlem_arsivi_durum.json; do
+              cp "$d" /tmp/bizim_arsiv/ 2>/dev/null || true
+            done
             cp index.html /tmp/bizim_index.html 2>/dev/null || true
             cp panel_veri.json /tmp/bizim_panel_veri.json 2>/dev/null || true
             cp notam_veri.json /tmp/bizim_notam_veri.json 2>/dev/null || true
@@ -155,11 +158,14 @@ jobs:
             git reset --hard "origin/${DAL}"
             python state_birlestir.py ltfj_state.json /tmp/bizim_state.json
             # Gozlem arsivi EKLEME-YALNIZCA: reset sonrasi uzaktakiyle
-            # bizimkini BIRLESTIR, yoksa araya giren kosunun ekledigi
-            # SPECI'ler kaybolur.
-            if [ -f /tmp/bizim_arsiv.csv ]; then
-              python -m ltfj_gozlem_arsivi --birlestir gozlem_arsivi.csv \
-                /tmp/bizim_arsiv.csv --dosya gozlem_arsivi.csv || true
+            # bizimkini BIRLESTIR (kanonik + surum + catisma kaydi), yoksa
+            # araya giren kosunun ekledigi gozlemler kaybolur. Kanonik
+            # celiski olursa gizlenmez: gozlem_arsivi_catisma.csv'ye yazilir.
+            # Durum dosyasinin arsiv bolumu birlesik dosyalardan yeniden
+            # uretilir; cekim sagligi bu kosununki kalir.
+            if [ -f /tmp/bizim_arsiv/gozlem_arsivi.csv ]; then
+              python -m ltfj_gozlem_arsivi --birlestir-bizim /tmp/bizim_arsiv \
+                --dosya gozlem_arsivi.csv || true
             fi
             cp /tmp/bizim_index.html index.html 2>/dev/null || true
             cp /tmp/bizim_panel_veri.json panel_veri.json 2>/dev/null || true
