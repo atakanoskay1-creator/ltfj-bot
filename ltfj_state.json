@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:54362476",
   "id:54368584",
   "id:54376895",
   "id:54379372",
@@ -199,7 +198,8 @@
   "id:55455512",
   "id:55463904",
   "id:55467703",
-  "id:55477791"
+  "id:55477791",
+  "id:55479506"
  ],
  "ilk_calisma": false,
  "son_metar": "METAR LTFJ 282250Z 36007KT 330V030 9999 FEW015 BKN035 18/16 Q1016 RESHRA NOSIG RMK RWY24R 34009KT RWY06R 33008KT 300V010 RWY24L 34007KT",
@@ -2869,10 +2869,10 @@
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 281450Z 33011KT 300V360 9999 SCT015 BKN025 BKN080 17/14 Q1016 NOSIG RMK RWY24R 33011KT 290V010 RWY06R 32013KT RWY24L 34011KT": "**Rüzgâr:** Kuzey-kuzeybatıdan 11 düğüm hızında esen rüzgâr, yönü 300 ile 360 derece arasında değişiyor.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için rahat.\n\n**Gökyüzü:** 1500 metre yükseklikte parçalı bulutlar, 2500 metre yükseklikte çok bulutlu, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları uçuş için uygun.",
   "TAF LTFJ 281640Z 2818/2918 35012KT 9999 -SHRA SCT013 BKN025 BKN080 TEMPO 2818/2822 35015G25KT 1800 SHRA TEMPO 2822/2902 1800 SHRA TEMPO 2908/2912 01020G30KT 3200 SHRA TEMPO 2912/2916 02020G30KT 4000 SHRA": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde sağanak yağışlı, değişken bulutlu hava beklenmektedir.\n\n- **2818/2822 UTC:** Rüzgar 350° 15 knot, gust 25 knot; görüş 1800 metre; sağanak yağış.\n- **2822/2902 UTC:** Görüş 1800 metre; sağanak yağış.\n- **2908/2916 UTC:** Rüzgar 010°-020° arası, 20 knot, gust 30 knot; görüş 3200-4000 metre; sağanak yağış.",
   "METAR LTFJ 282150Z 01011KT 340V040 9999 FEW015 BKN035 BKN100 18/16 Q1016 RESHRA NOSIG RMK RWY24R 36011KT RWY06R 35011KT RWY24L 36009KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 11 knot hızla esen rüzgâr, yönü 340 ile 40 derece arasında değişiyor ve pistte 9 knot yan bileşen oluşturuyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede görüş sağlanıyor, uçuş için görüş açısından rahat koşullar var.\n\n**Gökyüzü:** 1500 metre yükseklikte az bulutlu, 3500 metre yükseklikte çok bulutlu tabaka var; yağış gözlenmiyor ve önümüzdeki 2 saatte hava koşullarında önemli değişiklik beklenmiyorsa.\n\n**Uçuşa etkisi:** Yan rüzgâr bileşeni ve yüksek nem oranı gözlenmekle birlikte, görüş iyi ve yağış yoktur; operasyonel kısıtlama verisinde belirtilmemiştir.",
-  "METAR LTFJ 282250Z 36007KT 330V030 9999 FEW015 BKN035 18/16 Q1016 RESHRA NOSIG RMK RWY24R 34009KT RWY06R 33008KT 300V010 RWY24L 34007KT": "**Rüzgâr:** Kuzey-kuzeybatı yönünden 7 knot hızla esiyorsa da yönü 330 ile 30 derece arasında değişiyor ve yan rüzgâr bileşeni 6 knot civarındadır.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede görüş sağlanıyor, uçuş için görüş açısından rahat bir durum vardır.\n\n**Gökyüzü:** Yaklaşık 1500 metre yükseklikte az bulutlu, 3500 metre yükseklikte çok bulutlu tabaka bulunuyor ve yağış gözlenmemiştir.\n\n**Uçuşa etkisi:** Düşük görüş, kuvvetli rüzgâr veya fırtına gibi belirgin kısıtlayıcı unsur raporda yer almamakta, ancak yüksek nem ve bulut tabakaları operasyonel değerlendirmeyi gerektirebilir."
+  "METAR LTFJ 282250Z 36007KT 330V030 9999 FEW015 BKN035 18/16 Q1016 RESHRA NOSIG RMK RWY24R 34009KT RWY06R 33008KT 300V010 RWY24L 34007KT": "**Rüzgâr:** Kuzey-kuzeybatı yönünden 7 knot hızla esiyorsa da yönü 330 ile 30 derece arasında değişiyor ve yan rüzgâr bileşeni 6 knot civarındadır.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede görüş sağlanıyor, uçuş için görüş açısından rahat bir durum vardır.\n\n**Gökyüzü:** Yaklaşık 1500 metre yükseklikte az bulutlu, 3500 metre yükseklikte çok bulutlu tabaka bulunuyor ve yağış gözlenmemiştir.\n\n**Uçuşa etkisi:** Düşük görüş, kuvvetli rüzgâr veya fırtına gibi belirgin kısıtlayıcı unsur raporda yer almamakta, ancak yüksek nem ve bulut tabakaları operasyonel değerlendirmeyi gerektirebilir.",
+  "TAF LTFJ 282240Z 2900/2924 34007KT 9999 SCT012 BKN030 BECMG 2900/2903 -SHRA BECMG 2903/2905 35017KT TEMPO 2905/2909 4000 SHRA BECMG 2909/2911 BKN025 BKN080 TEMPO 2911/2915 SHRA SCT010 FEW017CB BKN025 BECMG 2915/2918 35007KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken bulutluluk ve geçici sağanak yağışlar beklenmektedir.\n\n- **2900/2903 UTC:** Rüzgar 340°/7 knot, görüş 9999 metre, orta bulutlar 1200 ft, kırık bulutlar 3000 ft. Kademeli olarak hafif sağanak başlayacak.\n\n- **2903/2905 UTC:** Rüzgar 350°/17 knot'a kademeli geçiş.\n\n- **2905/2909 UTC:** Geçici olarak görüş 4000 metre, sağanak yağışı.\n\n- **2909/2915 UTC:** Kademeli olarak kırık bulutlar 2500 ft, kırık bulutlar 8000 ft. Geçici sağanak, az bulutlar 1000 ft, az gök gürültülü bulutlar 1700 ft, kırık bulutlar 2500 ft."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3928,8 +3928,9 @@
   }
  },
  "notam_son_senkron": "2026-09-28T21:16:44+00:00",
- "guncelleme": "2026-09-28T22:54:38+00:00",
+ "guncelleme": "2026-09-28T23:04:42+00:00",
  "push_gonderilen": [
-  "id:55405296"
+  "id:55405296",
+  "id:55479506"
  ]
 }

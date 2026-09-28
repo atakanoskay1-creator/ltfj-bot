@@ -2,7 +2,7 @@
  "istasyon": "LTFJ",
  "kaynak": "NOTAC",
  "bilgi_uyarisi": "Bilgi amaçlıdır. Operasyon öncesi güncel resmî NOTAM/PIB kontrol edilmelidir.",
- "uretildi": "2026-09-28T22:54:37+00:00",
+ "uretildi": "2026-09-28T23:04:42+00:00",
  "son_senkron": "2026-09-28T21:16:44+00:00",
  "aktif": [
   {
@@ -404,78 +404,6 @@
   }
  ],
  "yaklasan": [
-  {
-   "id": "fca5900d-bc61-49b5-9638-f246d6dbc606",
-   "number": "B3867/26",
-   "notam_type": "N",
-   "location": "LTFJ",
-   "status": "upcoming",
-   "effective_start": "2026-09-28T23:00:00Z",
-   "effective_end": "2026-09-29T02:00:00Z",
-   "notam_issued": "2026-09-28T20:11:00Z",
-   "notam_updated": "2026-09-28T20:12:00Z",
-   "record_updated_at": "2026-09-28T20:31:26.431630Z",
-   "q_code": "QMRLC",
-   "category_kodu": "RUNWAY",
-   "category_etiketi": "Runway",
-   "tags": [
-    "closure",
-    "maintenance",
-    "movement-area",
-    "runway"
-   ],
-   "affected_elements": [
-    {
-     "ref": "06R/24L",
-     "type": "RWY"
-    }
-   ],
-   "text": "RWY 06R/24L CLOSED TO TFC DUE TO MAINT",
-   "raw": "B3867/26 NOTAMN\r Q) LTBB/QMRLC/IV/NBO/A /000/999/4054N02919E005\r A) LTFJ B) 2609282300 C) 2609290200\r E) RWY 06R/24L CLOSED TO TFC DUE TO MAINT",
-   "ilgili_notam": null,
-   "reading_short": "Runway 06R/24L is closed to traffic.",
-   "reading_long": "Runway 06R/24L is closed to traffic due to maintenance from 28 Sep 2026 23:00 to 29 Sep 2026 02:00 UTC.",
-   "source": "NOTAC",
-   "first_seen": "2026-09-28T21:16:44+00:00",
-   "last_seen": "2026-09-28T21:16:44+00:00",
-   "last_active": null,
-   "push_yaklasan": true
-  },
-  {
-   "id": "54f3a3d5-91d5-4f9a-93bd-f78af90680b7",
-   "number": "B3866/26",
-   "notam_type": "N",
-   "location": "LTFJ",
-   "status": "upcoming",
-   "effective_start": "2026-09-28T23:00:00Z",
-   "effective_end": "2026-09-29T01:59:00Z",
-   "notam_issued": "2026-09-28T20:10:00Z",
-   "notam_updated": "2026-09-28T20:11:00Z",
-   "record_updated_at": "2026-09-28T20:31:26.431630Z",
-   "q_code": "QMRAH",
-   "category_kodu": "RUNWAY",
-   "category_etiketi": "Runway",
-   "tags": [
-    "movement-area",
-    "runway"
-   ],
-   "affected_elements": [
-    {
-     "ref": "06L/24R",
-     "type": "RWY"
-    }
-   ],
-   "text": "RWY 06L/24R OPN TO TFC.\r\nSEE NOTAM: B7835/25",
-   "raw": "B3866/26 NOTAMN\r Q) LTBB/QMRAH/IV/BO /A /000/999/4054N02919E005\r A) LTFJ B) 2609282300 C) 2609290159\r E) RWY 06L/24R OPN TO TFC.\r SEE NOTAM: B7835/25",
-   "ilgili_notam": null,
-   "reading_short": "Runway 06L/24R is open to traffic.",
-   "reading_long": "Runway 06L/24R is open to traffic. See NOTAM B7835/25.",
-   "source": "NOTAC",
-   "first_seen": "2026-09-28T21:16:44+00:00",
-   "last_seen": "2026-09-28T21:16:44+00:00",
-   "last_active": null,
-   "push_yaklasan": true
-  },
   {
    "id": "8995e757-c85f-4029-95a9-d33c7c8d7b03",
    "number": "A3739/26",
