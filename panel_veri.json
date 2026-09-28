@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-28T06:24:45+00:00",
+ "uretildi": "2026-09-28T06:54:39+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
   "zaman": "2026-09-28T06:20:00+00:00",
-  "metin": "METAR LTFJ 280620Z 02009KT 350V050 6000 -SHRA NSC 18/16 Q1014 RESHRA NOSIG RMK RWY24R 01010KT RWY06R 36009KT RWY24L 03009KT",
+  "metin": "METAR LTFJ 280620Z 02009KT 350V050 6000 -SHRA SCT009 BKN025 BKN080 18/16 Q1014 RESHRA NOSIG RMK RWY24R 01010KT RWY06R 36009KT RWY24L 03009KT",
   "ruzgar": {
    "yon": 20,
    "hiz": 9,
@@ -17,7 +17,7 @@
   },
   "gorus": 6000,
   "cavok": false,
-  "tavan": null,
+  "tavan": 2500,
   "hava": [
    "-SHRA"
   ],
@@ -95,7 +95,7 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 020° 9kt (değişken 350°–050°) · görüş 6000 m · hafif sağanak yağmur · 18°C · QNH 1014"
+  "ozet": "Rüzgâr 020° 9kt (değişken 350°–050°) · görüş 6000 m · tavan 2500 ft · hafif sağanak yağmur · 18°C · QNH 1014"
  },
  "taf": {
   "zaman": "2026-09-28T04:40:00+00:00",
