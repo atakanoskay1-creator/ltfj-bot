@@ -1,7 +1,5 @@
 {
  "gonderilen": [
-  "id:54082598",
-  "id:54085516",
   "id:54091494",
   "id:54093936",
   "id:54098411",
@@ -199,31 +197,17 @@
   "id:55198175",
   "id:55204191",
   "id:55211608",
-  "id:55212851"
+  "id:55212851",
+  "id:55215002",
+  "id:55215145"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 280120Z 01007KT 9999 -SHRA SCT010 BKN025 BKN080 17/16 Q1013 RESHRA NOSIG RMK RWY24R 35005KT RWY06R 36005KT 320V060 RWY24L 01004KT 340V140",
+ "son_metar": "METAR LTFJ 280150Z 02006KT 6000 SHRA SCT010 BKN025 BKN080 17/16 Q1013 BECMG TL0220 NSW RMK RWY24R 35007KT RWY06R 36008KT 320V030 RWY24L 35005KT",
  "son_uyari": null,
- "son_renk": "BLU",
+ "son_renk": "WHT",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-28T01:20:00+00:00",
+ "son_veri_zamani": "2026-09-28T01:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-22T06:04:00+00:00",
-   "ruzgar_hiz": 10,
-   "tavan": 2500,
-   "qnh": 1014,
-   "sicaklik": 21,
-   "cig_noktasi": 18
-  },
-  {
-   "zaman": "2026-09-22T06:20:00+00:00",
-   "ruzgar_hiz": 7,
-   "tavan": 8000,
-   "qnh": 1014,
-   "sicaklik": 21,
-   "cig_noktasi": 18
-  },
   {
    "zaman": "2026-09-22T06:39:00+00:00",
    "ruzgar_hiz": 7,
@@ -2818,6 +2802,24 @@
    "qnh": 1013,
    "sicaklik": 17,
    "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-28T01:44:00+00:00",
+   "gorus": 6000,
+   "ruzgar_hiz": 6,
+   "tavan": 2500,
+   "qnh": 1013,
+   "sicaklik": 17,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-28T01:50:00+00:00",
+   "gorus": 6000,
+   "ruzgar_hiz": 6,
+   "tavan": 2500,
+   "qnh": 1013,
+   "sicaklik": 17,
+   "cig_noktasi": 16
   }
  ],
  "yorum_onbellegi": {
@@ -3766,25 +3768,26 @@
   }
  },
  "notam_son_senkron": "2026-09-27T23:00:20+00:00",
- "guncelleme": "2026-09-28T01:45:40+00:00",
+ "guncelleme": "2026-09-28T01:54:42+00:00",
  "push_gonderilen": [
-  "id:55161265",
-  "id:55100609",
-  "id:55115203",
   "id:54872500",
-  "id:54416753",
-  "id:54798358",
-  "id:55211608",
-  "id:54494528",
-  "id:54339168",
-  "id:55157958",
-  "id:54570097",
-  "id:54722352",
-  "id:54868994",
-  "id:54867977",
   "id:54947445",
-  "id:55023946",
   "id:55175951",
-  "id:54645856"
+  "id:54645856",
+  "id:54798358",
+  "id:55100609",
+  "id:55161265",
+  "id:55157958",
+  "id:55211608",
+  "id:55215002",
+  "id:55115203",
+  "id:55023946",
+  "id:54867977",
+  "id:54416753",
+  "id:54494528",
+  "id:54868994",
+  "id:54722352",
+  "id:54339168",
+  "id:54570097"
  ]
 }
