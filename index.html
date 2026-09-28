@@ -1395,7 +1395,7 @@
   <span class="veri-oge"><b>TAF</b><time id="veri-taf"
         data-zaman="2026-09-28T16:40:00.420000+00:00"></time></span>
   <span class="veri-oge"><b>NOTAM</b><span id="veri-notam">—</span></span>
-  <span class="veri-oge veri-kaynak">MGM · sayfa 28.09 18:12Z (21:12 yerel)</span>
+  <span class="veri-oge veri-kaynak">MGM · sayfa 28.09 18:14Z (21:14 yerel)</span>
 </div>
 <div class="yapiskan-ust">
 <div class="ozet-serit" id="ozet-serit"><span class="ozet-oge" title="Görüş">10+ km</span><span class="ozet-oge" title="Bulut tavanı">2200 ft</span><span class="ozet-oge" title="Rüzgâr (yön/hız, G=hamle)">310°/11 kt</span><span class="ozet-oge" title="Spread (sıcaklık − çiy noktası)">Δ1.0°</span></div>
@@ -1553,6 +1553,7 @@
         <option value="doldu">Süresi dolmuş</option>
         <option value="baslamadi">Henüz başlamamış</option>
         <option value="iptal">İptal edilmiş</option>
+        <option value="iptal_bildirimi">İptal bildirimi (NOTAMC)</option>
       </select>
       <button type="button" id="notam-arama-temizle">Temizle</button>
     </div>
@@ -1980,6 +1981,12 @@ window.ltfjNotamGecerlilik = function (n) {
     return {durum: "iptal",
             etiket: "iptal edildi" + (z ? " · " + z : ""),
             vurgula: true};
+  }
+  // NOTAMC'NIN KENDISI bir kisitlama degil, iptal bildirimi: "kalan sure"
+  // yazmak onu yururlukteki bir kisitlama gibi gosterirdi. Aktif listeye
+  // zaten girmiyor (bkz. ltfj_notam._listeden_haric); gecmiste boyle gorunur.
+  if (String(n.notam_type || "").toUpperCase() === "C") {
+    return {durum: "iptal_bildirimi", etiket: "iptal bildirimi", vurgula: true};
   }
   // "upcoming" DA CANLI BIR DURUM. Bu satir yalnizca "active" varken
   // yazilmisti; NOTAC'in status sozlugu OLCULUNCE (active / upcoming /
