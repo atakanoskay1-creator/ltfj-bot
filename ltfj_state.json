@@ -2868,10 +2868,10 @@
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 281250Z 33010KT 290V030 9999 SCT018 BKN025 BKN080 18/14 Q1015 NOSIG RMK RWY24R 34015KT 310V010 RWY06R 33013KT 300V360 RWY24L 34016KT 310V010": "**Rüzgâr:** Kuzey-kuzeybatıdan 10 knot hızla esen rüzgâr, yönü 290 ile 30 derece arasında değişiyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede görüş sağlanıyor, uçuş için rahat bir durum.\n\n**Gökyüzü:** 1800 metre civarında parçalı bulutlar, 2500 metre civarında çok bulutlu katman var; yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava durumu önümüzdeki 2 saatte önemli ölçüde değişmeyecek.",
   "METAR LTFJ 281350Z 33011KT 300V360 9999 -SHRA SCT015 BKN025 BKN080 17/15 Q1015 NOSIG RMK RWY24R 33012KT 300V360 RWY06R 32013KT RWY24L 34014KT": "**Rüzgâr:** Kuzeydoğudan 11 knot (yaklaşık 20 km/s) hızla esiyor, yönü 300 ile 360 derece arasında değişiyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için görüş yeterli.\n\n**Gökyüzü:** Hafif sağanak yağmur yağıyor, 1500 metre yükseklikte parçalı bulutlar, 2500 metre yükseklikte çok bulutlu hava var.\n\n**Uçuşa etkisi:** Hafif sağanak ve yüksek nem koşulları dikkat gerektiriyor, yan rüzgâr bileşeni 11-14 knot arasında değişiyor.",
   "METAR LTFJ 281450Z 33011KT 300V360 9999 SCT015 BKN025 BKN080 17/14 Q1016 NOSIG RMK RWY24R 33011KT 290V010 RWY06R 32013KT RWY24L 34011KT": "**Rüzgâr:** Kuzey-kuzeybatıdan 11 düğüm hızında esen rüzgâr, yönü 300 ile 360 derece arasında değişiyor.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için rahat.\n\n**Gökyüzü:** 1500 metre yükseklikte parçalı bulutlar, 2500 metre yükseklikte çok bulutlu, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları uçuş için uygun.",
-  "TAF LTFJ 281640Z 2818/2918 35012KT 9999 -SHRA SCT013 BKN025 BKN080 TEMPO 2818/2822 35015G25KT 1800 SHRA TEMPO 2822/2902 1800 SHRA TEMPO 2908/2912 01020G30KT 3200 SHRA TEMPO 2912/2916 02020G30KT 4000 SHRA": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde sağanak yağışlı, değişken bulutlu hava beklenmektedir.\n\n- **2818/2822 UTC:** Rüzgar 350° 15 knot, gust 25 knot; görüş 1800 metre; sağanak yağış.\n- **2822/2902 UTC:** Görüş 1800 metre; sağanak yağış.\n- **2908/2916 UTC:** Rüzgar 010°-020° arası, 20 knot, gust 30 knot; görüş 3200-4000 metre; sağanak yağış."
+  "TAF LTFJ 281640Z 2818/2918 35012KT 9999 -SHRA SCT013 BKN025 BKN080 TEMPO 2818/2822 35015G25KT 1800 SHRA TEMPO 2822/2902 1800 SHRA TEMPO 2908/2912 01020G30KT 3200 SHRA TEMPO 2912/2916 02020G30KT 4000 SHRA": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde sağanak yağışlı, değişken bulutlu hava beklenmektedir.\n\n- **2818/2822 UTC:** Rüzgar 350° 15 knot, gust 25 knot; görüş 1800 metre; sağanak yağış.\n- **2822/2902 UTC:** Görüş 1800 metre; sağanak yağış.\n- **2908/2916 UTC:** Rüzgar 010°-020° arası, 20 knot, gust 30 knot; görüş 3200-4000 metre; sağanak yağış.",
+  "METAR LTFJ 282150Z 01011KT 340V040 9999 FEW015 BKN035 BKN100 18/16 Q1016 RESHRA NOSIG RMK RWY24R 36011KT RWY06R 35011KT RWY24L 36009KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 11 knot hızla esen rüzgâr, yönü 340 ile 40 derece arasında değişiyor ve pistte 9 knot yan bileşen oluşturuyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede görüş sağlanıyor, uçuş için görüş açısından rahat koşullar var.\n\n**Gökyüzü:** 1500 metre yükseklikte az bulutlu, 3500 metre yükseklikte çok bulutlu tabaka var; yağış gözlenmiyor ve önümüzdeki 2 saatte hava koşullarında önemli değişiklik beklenmiyorsa.\n\n**Uçuşa etkisi:** Yan rüzgâr bileşeni ve yüksek nem oranı gözlenmekle birlikte, görüş iyi ve yağış yoktur; operasyonel kısıtlama verisinde belirtilmemiştir."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3927,7 +3927,7 @@
   }
  },
  "notam_son_senkron": "2026-09-28T21:16:44+00:00",
- "guncelleme": "2026-09-28T22:08:42+00:00",
+ "guncelleme": "2026-09-28T22:12:39+00:00",
  "push_gonderilen": [
   "id:55405296"
  ]
