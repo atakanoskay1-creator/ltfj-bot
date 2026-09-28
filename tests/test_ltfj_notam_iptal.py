@@ -221,3 +221,75 @@ def test_sayfa_kartta_iptal_eden_ve_tarih_yaziliyor(tmp_path):
 
 def test_sayfa_aramada_iptal_durum_filtresi_var(tmp_path):
     assert '<option value="iptal">İptal edilmiş</option>' in _html(tmp_path)
+
+
+# ============================== NOTAMC kartlari ve her kosuda iptal kontrolu
+def test_NOTAMC_kendisi_aktif_ve_yaklasan_listelere_girmez_gecmiste_kalir(tmp_path):
+    """NOTAMC bir kisitlama degil iptal bildirimi (ör. B3853/26 "TWY K1
+    OPEN TO TFC"); NOTAC onu "active" dondurse de aktif listede durmamali."""
+    ss = _iso()
+    c = {**_notamc("c", "B3853/26", "B3790/26", bas=_iso(-1)), "last_seen": ss,
+         "effective_end": _iso(72)}
+    c_ileri = {**_notamc("c2", "B3860/26", "B0001/26", bas=_iso(5)), "last_seen": ss}
+    normal = {**_notam("d", "B3813/26"), "last_seen": ss}
+    hedef = tmp_path / "notam_veri.json"
+    nm.notam_veri_yaz({"notam_son_senkron": ss,
+                       "notam_gecmisi": {k["id"]: k for k in (c, c_ileri, normal)}}, hedef)
+    veri = json.loads(hedef.read_text(encoding="utf-8"))
+    assert [k["number"] for k in veri["aktif"]] == ["B3813/26"]
+    assert veri["yaklasan"] == []
+    assert {"B3853/26", "B3860/26"} <= {k["number"] for k in veri["gecmis"]}
+
+
+def test_GERCEK_B3853_B3790_senkron_beklemeden_isaretlenir(tmp_path):
+    """28.09: B3853/26 NOTAMC B3790/26 (B) 2609281059) 11:54 senkronunda
+    ESKI kodla islendi; B3790/26 isaretsiz kaldi. Her kosudaki iptal
+    kontrolu (senkron beklemeden) onu isaretler."""
+    ss = "2026-09-28T11:54:52+00:00"
+    b3790 = _notam("405b", "B3790/26", effective_start="2026-09-24T07:00:00Z",
+                   effective_end="2026-10-03T16:00:00Z", text="TWY K1 CLSD TO TFC.",
+                   last_seen="2026-09-28T08:54:45+00:00")
+    b3853 = {**_notamc("947d", "B3853/26", "B3790/26", bas="2026-09-28T10:59:00Z"),
+             "text": "TWY K1 OPEN TO TFC", "last_seen": ss}
+    state = {"notam_son_senkron": ss, "notam_gecmisi": {"405b": b3790, "947d": b3853}}
+    assert nm.iptalleri_isle(state["notam_gecmisi"]) == ["B3790/26"]
+    assert b3790["iptal"] == {"eden": "B3853/26", "eden_id": "947d",
+                              "zaman": "2026-09-28T10:59:00Z"}
+    hedef = tmp_path / "notam_veri.json"
+    nm.notam_veri_yaz(state, hedef)
+    assert json.loads(hedef.read_text(encoding="utf-8"))["aktif"] == []
+
+
+def test_bot_iptal_kontrolunu_HER_KOSUDA_senkrondan_sonra_fail_open_calistirir():
+    import ast
+    from pathlib import Path
+    kok = ast.parse(Path("ltfj_bot.py").read_text(encoding="utf-8"))
+    main = next(d for d in kok.body if isinstance(d, ast.FunctionDef) and d.name == "main")
+
+    def cagri_satiri(ad, attr=None):
+        for d in ast.walk(main):
+            if isinstance(d, ast.Call):
+                f = d.func
+                if (attr and isinstance(f, ast.Attribute) and f.attr == attr) or \
+                        (not attr and isinstance(f, ast.Name) and f.id == ad):
+                    return d.lineno
+        return None
+
+    senkron = cagri_satiri("notam_senkronize")
+    iptal = cagri_satiri(None, "iptalleri_isle")
+    veri = cagri_satiri(None, "notam_veri_yaz")
+    assert senkron and iptal and veri and senkron < iptal < veri
+    # senkron kapisinin (3 sa) ICINDE degil: main'in kendi try'inda
+    saran = [d for d in ast.walk(main) if isinstance(d, ast.Try)
+             and d.lineno <= iptal <= d.end_lineno
+             and not any(isinstance(x, ast.Call) and isinstance(x.func, ast.Name)
+                         and x.func.id == "notam_senkronize" for x in ast.walk(d))]
+    assert saran and "stderr" in ast.dump(ast.Module(body=saran[0].handlers, type_ignores=[]))
+
+
+def test_sayfa_NOTAMC_kalan_sure_yerine_iptal_bildirimi_der(tmp_path):
+    html = _html(tmp_path)
+    blok = html.split("ltfjNotamGecerlilik = function")[1].split("}};")[0]
+    assert 'durum: "iptal_bildirimi"' in blok
+    assert blok.index('"iptal_bildirimi"') < blok.index("effective_end")
+    assert '<option value="iptal_bildirimi">' in html
