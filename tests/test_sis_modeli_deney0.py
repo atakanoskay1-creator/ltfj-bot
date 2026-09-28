@@ -157,3 +157,20 @@ def test_betik_model_egitmez_ve_performans_olcmez():
     yasak = {"model", "egit", "degerlendir", "woe", "kalibrasyon",
              "ltfj_sis_olasilik", "ltfj_sis_olasilik_b"}
     assert not (alinan & yasak), alinan & yasak
+
+
+def test_evren_ozeti_ve_fold_sayimlari_izgara_filtresini_yansitir():
+    from sis_modeli import v2_evren
+    bas = datetime(2022, 10, 31, 20, 20)
+    satirlar = [_kayit(bas + timedelta(minutes=30 * i)) for i in range(22)]
+    satirlar.append(_kayit(datetime(2022, 10, 31, 22, 56), gorus=3200))
+    satirlar.append(_kayit(datetime(2022, 10, 31, 23, 1), gorus=900, sis=1))
+    once = d.evren_ozeti(hedef.hazirla(satirlar))
+    sonra = d.evren_ozeti(v2_evren.gelistirme_kayitlari(satirlar))
+    assert (once["onset"], once["olay"], once["pozitif_satirsiz_olay"]) == (23, 1, 1)
+    assert (sonra["onset"], sonra["olay"], sonra["pozitif_satirsiz_olay"]) == (22, 0, 0)
+    assert once["izgara_disi_kayit"] == 2 and sonra["izgara_disi_kayit"] == 0
+    f = {x["fold"]: x for x in d.fold_sayimlari(hedef.hazirla(satirlar))}
+    assert f["2021–22"]["test_olay"] == 1 and f["2023–24"]["egitim_olay"] == 1
+    f = {x["fold"]: x for x in d.fold_sayimlari(v2_evren.gelistirme_kayitlari(satirlar))}
+    assert f["2021–22"]["test_olay"] == 0 and f["2023–24"]["egitim_olay"] == 0

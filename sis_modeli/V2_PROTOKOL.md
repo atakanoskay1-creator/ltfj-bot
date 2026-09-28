@@ -382,6 +382,9 @@ tahmin_canli(satir, v2_dondurulmus, v1_dondurulmus):
 | tarih | ne yapıldı | not |
 |---|---|---|
 | 28.09.2026 | Protokol 1.0 donduruldu | V2a/V2b/V2c için hiçbir model eğitilmedi, hiçbir V2 skoru hesaplanmadı; Deney 0 çalıştırılmadı. |
+| 28.09.2026 | Deney 0 çalıştırıldı (`deney0_veri_denetimi.py`, rapor `V2_DENEY0_RAPORU.md`) | Yalnızca veri sayımları; hiçbir model eğitilmedi, hiçbir performans ölçütü hesaplanmadı. Kararlar: B1 kayıt (§7.4 yönetir; coverage_V2 zorunlu raporlanır), 2011 dışlanmaz, B12 T0 öncesi operasyonel blocker. |
+| 28.09.2026 | **§3 uygulama düzeltmesi (B10, §15 kodlama düzeltmesi)** | Mevcut pipeline ızgara dışı 6 kaydı (IEM SPECI) `hedef.hazirla`'ya ve olay bölütlemesine sızdırıyordu: 5 onset satırı + 1 SPECI-yalnız geliştirme olayı (2022-10-31 23:01, 900 m BCFG). V2 geliştirme pipeline'ında §3 gereği ızgara filtresi hedef hazırlama ve olay bölütlemesinden önce uygulanır (`v2_evren.py`). V1 benchmark'ı ve V2 aynı düzeltilmiş evreni kullanır. Veri silinmedi; canlı V1 değişmedi. Sayılar: onset 272.240 → 272.235, Y=1 1.916 → 1.916, bağımsız olay 290 → 289 (2021–22 test 52 → 51). Düzeltme herhangi bir model sonucu görülmeden yapıldı. |
+| 28.09.2026 | Ufku tam (6/6) alt küme tanılaması önceden bildirildi | Deney 0 raporu §7.2. Karar vermez; model seçim ölçütü değildir. Deney 1 sonucu görülmeden tanımlandı. |
 
 **Dondurmadan önce aynı veride yapılmış incelemeler** (şeffaflık için; hiçbiri
 V2 değişkenlerinin performansına bakmadı):

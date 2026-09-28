@@ -38,12 +38,12 @@ from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from sis_modeli import bolme, hedef
+from sis_modeli import bolme, hedef, v2_evren
 from sis_modeli.istatistik import VARSAYILAN_VERI, veri_oku
 from sis_modeli.olay_degerlendirme import bagimsiz_olaylar
 from sis_modeli.ozellik import SIS_GORUS_M
 
-IZGARA_DK = (20, 50)
+IZGARA_DK = v2_evren.IZGARA_DK
 TEKRAR = 2000                      # §5: bootstrap tekrar sayisi
 ORAN_BANDI = (0.8, 1.25)           # §4.1 kayda gecme bandi
 GUVEN = 0.95                       # §4.1 duzeyi belirtmiyor; iki yanli %95 kullanildi
@@ -53,8 +53,11 @@ METEO_GUN_KAYMA = timedelta(hours=12)
 
 
 # ------------------------------------------------------------ tanimlar ---
-def izgara_disi(dt: datetime) -> bool:
-    return dt.minute not in IZGARA_DK or dt.second != 0 or dt.microsecond != 0
+izgara_disi = v2_evren.izgara_disi
+
+# §5 dis fold test bloklari; 2015-16 yalnizca erken donem tanilamasi.
+DIS_FOLDLAR = ((2015, 2016), (2017, 2018), (2019, 2020), (2021, 2022),
+               (2023, 2024), (2025, 2026))
 
 
 def meteo_gun(dt: datetime) -> str:
@@ -751,6 +754,119 @@ def bilesim_bolumu(kayitlar, yer, onset, olaylar_tum) -> str:
     return "\n".join(out)
 
 
+def evren_ozeti(kayitlar: list) -> dict:
+    """Once/sonra karsilastirmasi icin tek bir evrenin temel sayimlari."""
+    yer = {r["dt"]: i for i, r in enumerate(kayitlar)}
+    onset = hedef.onset_adaylari(kayitlar)
+    olaylar = bagimsiz_olaylar(kayitlar, etiket="sis", bosluk_saat=3.0)
+    n1 = sum(1 for r in onset if r["hedef"])
+    n0 = len(onset) - n1
+    say = Counter()
+    atanan = set()
+    for r in onset:
+        dt, y = r["dt"], bool(r["hedef"])
+        z60 = (dt - timedelta(minutes=60)) in yer
+        z120 = (dt - timedelta(minutes=120)) in yer
+        say[("e60", y)] += not z60
+        say[("ec", y)] += not (z60 and z120)
+        idx = ufuk_slotlari(yer, dt)
+        if len(idx) < hedef.ADIM_SAYISI:
+            say[("ufuk_eksik", y)] += 1
+        if y:
+            ilk = next(kayitlar[j] for j in idx if kayitlar[j]["sis"])
+            atanan.add(olay_ata(olaylar, ilk["dt"]))
+    olay_sn = [False] * len(olaylar)
+    for r in kayitlar:
+        if r["sis"] and sn_var(r):
+            i = olay_ata(olaylar, r["dt"])
+            if i is not None:
+                olay_sn[i] = True
+    return {
+        "kayit": len(kayitlar),
+        "izgara_disi_kayit": sum(1 for r in kayitlar if izgara_disi(r["dt"])),
+        "onset": len(onset), "y1": n1,
+        "olay": len(olaylar),
+        "pozitif_satirsiz_olay": len(olaylar) - len(atanan - {None}),
+        "olay_sn": sum(olay_sn), "olay_snsiz": len(olaylar) - sum(olay_sn),
+        "e60_y1": say[("e60", True)], "e60_y0": say[("e60", False)],
+        "ec_y1": say[("ec", True)], "ec_y0": say[("ec", False)],
+        "oran60": oran(say[("e60", True)], n1, say[("e60", False)], n0),
+        "oranc": oran(say[("ec", True)], n1, say[("ec", False)], n0),
+        "kapsama_ab": (len(onset) - say[("e60", True)] - say[("e60", False)]) / len(onset),
+        "kapsama_c": (len(onset) - say[("ec", True)] - say[("ec", False)]) / len(onset),
+        "ufuk_eksik_y0": say[("ufuk_eksik", False)],
+        "ufuk_eksik_y1": say[("ufuk_eksik", True)],
+    }
+
+
+def fold_sayimlari(kayitlar: list) -> list:
+    """Her dis fold icin test donemi (onset, Y=1, olay) ve egitim yillari
+    olay sayisi. §5.1: bolutleme ilgili donemin satirlarina uygulanir."""
+    sonuc = []
+    for test in DIS_FOLDLAR:
+        te = [r for r in kayitlar if r["dt"].year in test]
+        eg = [r for r in kayitlar if bolme.ILK_YIL <= r["dt"].year < test[0]]
+        te_on = hedef.onset_adaylari(te)
+        sonuc.append({
+            "fold": f"{test[0]}–{str(test[1])[2:]}",
+            "test_onset": len(te_on),
+            "test_y1": sum(1 for r in te_on if r["hedef"]),
+            "test_olay": len(bagimsiz_olaylar(te, etiket="sis", bosluk_saat=3.0)),
+            "egitim_olay": len(bagimsiz_olaylar(eg, etiket="sis", bosluk_saat=3.0)),
+        })
+    return sonuc
+
+
+def once_sonra_bolumu(ilk: list, duz: list) -> str:
+    out = ["## 0. Deney 0 ilk denetim → §3 uygulama düzeltmesi (B10) sonrası geliştirme evreni\n"]
+    out.append("**Önce:** `hedef.hazirla(yıl ≥ 2011)` — ızgara dışı kayıtlar dahil (Deney 0 ilk "
+               "denetimi). **Sonra:** `v2_evren.gelistirme_kayitlari` — ızgara filtresi "
+               "(`:20/:50`) `hedef.hazirla`'dan ve olay bölütlemesinden **önce**. Veri "
+               "dosyasından satır silinmedi. Aşağıdaki bütün bölümler (1–4) **sonra** "
+               "evrenindedir.\n")
+    a, b = evren_ozeti(ilk), evren_ozeti(duz)
+    satir = [
+        ("kayıt (2011+)", "kayit", "d"), ("ızgara dışı kayıt", "izgara_disi_kayit", "d"),
+        ("onset satırı", "onset", "d"), ("Y=1", "y1", "d"),
+        ("bağımsız olay (§5.1)", "olay", "d"),
+        ("pozitif satırı olmayan olay", "pozitif_satirsiz_olay", "d"),
+        ("olay: ≥ 1 SN", "olay_sn", "d"), ("olay: SN'siz", "olay_snsiz", "d"),
+        ("t−60 yok ∧ Y=1", "e60_y1", "d"), ("t−60 yok ∧ Y=0", "e60_y0", "d"),
+        ("(t−60 ∨ t−120) yok ∧ Y=1", "ec_y1", "d"), ("(t−60 ∨ t−120) yok ∧ Y=0", "ec_y0", "d"),
+        ("oran P(eksik|Y=1)/P(eksik|Y=0), t−60 (nokta)", "oran60", "f"),
+        ("oran, t−60 ∨ t−120 (nokta)", "oranc", "f"),
+        ("V2a/b kapsama %", "kapsama_ab", "p"), ("V2c kapsama %", "kapsama_c", "p"),
+        ("ufuk eksik ∧ Y=0 (etiketi doğrulanamayan)", "ufuk_eksik_y0", "d"),
+        ("ufuk eksik ∧ Y=1", "ufuk_eksik_y1", "d"),
+    ]
+
+    def bic(v, t):
+        if t == "f":
+            return _f(v)
+        if t == "p":
+            return f"{100 * v:.3f}"
+        return v
+
+    s = []
+    for ad, k, t in satir:
+        fark = b[k] - a[k] if t == "d" else None
+        s.append([ad, bic(a[k], t), bic(b[k], t), "" if fark in (None, 0) else f"{fark:+d}"])
+    out.append(_tablo(["sayım", "önce (ilk denetim)", "sonra (düzeltilmiş)", "fark"], s))
+
+    out.append("\n**Dış fold'lara göre** (test dönemi satırları; eğitim olayı = o fold'un "
+               f"eğitim yılları {bolme.ILK_YIL}–(test−1), ambargo öncesi, §5.1 bölütlemesi). "
+               "2015–16 yalnızca erken dönem tanılamasıdır.\n")
+    fa, fb = fold_sayimlari(ilk), fold_sayimlari(duz)
+    s = []
+    for x, y in zip(fa, fb):
+        s.append([x["fold"],
+                  f"{x['test_onset']} → {y['test_onset']}", f"{x['test_y1']} → {y['test_y1']}",
+                  f"{x['test_olay']} → {y['test_olay']}", f"{x['egitim_olay']} → {y['egitim_olay']}"])
+    out.append(_tablo(["dış fold (test)", "test onset", "test Y=1", "test olayı",
+                       "eğitim olayı"], s))
+    return "\n".join(out)
+
+
 def canli_arsiv_bolumu(yol: Path) -> str:
     """gozlem_arsivi.csv'de METAR izgara doluluğu (yalnizca sayim)."""
     import csv
@@ -798,13 +914,15 @@ def main(argv=None) -> int:
 
     ham_tumu = veri_oku(s.veri)
     ham = [r for r in ham_tumu if r["zaman"][:4] >= str(bolme.ILK_YIL)]
-    kayitlar = hedef.hazirla(ham)
+    ilk_denetim = hedef.hazirla(ham)                      # B10 oncesi (karsilastirma)
+    kayitlar = v2_evren.gelistirme_kayitlari(ham_tumu)    # §3: izgara filtresi hazirla'dan once
     yer = {r["dt"]: i for i, r in enumerate(kayitlar)}
     onset = hedef.onset_adaylari(kayitlar)
     olaylar_tum = bagimsiz_olaylar(kayitlar, etiket="sis", bosluk_saat=3.0)
 
     print("# Deney 0 — veri kalitesi denetimi (çıktı)\n")
-    print(f"Kaynak: `{s.veri.name}`; {bolme.ILK_YIL}+ satır: {len(kayitlar)}; "
+    print(once_sonra_bolumu(ilk_denetim, kayitlar), "\n")
+    print(f"Geliştirme evreni (düzeltilmiş): `{s.veri.name}`; {bolme.ILK_YIL}+ ızgara satırı: {len(kayitlar)}; "
           f"onset satırı: {len(onset)}; Y=1: {sum(1 for r in onset if r['hedef'])}; "
           f"bağımsız olay: {len(olaylar_tum)}. Model eğitilmedi; performans ölçütü "
           "hesaplanmadı.\n")

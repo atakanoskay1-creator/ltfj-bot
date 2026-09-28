@@ -9,8 +9,12 @@ Hedefin teknik adı: **LTFJ düşük görüş/FG olayı** (olay gözlemi = gör�
 **Bu deneyde yapılmayanlar:** V1 referansı ya da V2a/b/c eğitilmedi; hiçbir
 tahmin üretilmedi; log-loss, ΔLL, AP, Brier, LSS veya başka bir performans
 ölçütü hesaplanmadı. Betik `model`, `egit`, `degerlendir`, `woe` ve canlı model
-modüllerini içe almaz (bir test bunu kilitler). Protokolde hiçbir değişiklik
-yapılmadı.
+modüllerini içe almaz (bir test bunu kilitler). Protokolün karar ve sayısal
+seçim kurallarında değişiklik yapılmadı.
+
+**Rapor sürümü:** ilk denetim + §3 uygulama düzeltmesi (B10). Bölüm 1–4 ve Ek A
+**düzeltilmiş geliştirme evreni** üzerindendir. İlk denetimin sayıları silinmedi;
+Ek A §0'da önce/sonra olarak yan yana verilir.
 
 ---
 
@@ -18,8 +22,9 @@ yapılmadı.
 
 | kavram | tanım |
 |---|---|
-| satır evreni | `veri_oku(ltfj_ozellik.csv.gz)` → `zaman ≥ 2011` → `hedef.hazirla` (273.423 satır) |
-| onset satırı | `hedef.onset_adaylari`: `sis = 0` (272.240 satır; Y=1: 1.916) |
+| geliştirme evreni | `v2_evren.gelistirme_kayitlari`: `zaman ≥ 2011` → **yalnız :20/:50** → `hedef.hazirla` (273.417 satır) |
+| ilk denetim evreni (karşılaştırma için) | `zaman ≥ 2011` → `hedef.hazirla`; ızgara dışı 6 kayıt dahil (273.423 satır) |
+| onset satırı | `hedef.onset_adaylari`: `sis = 0` (272.235 satır; Y=1: 1.916) |
 | tam zaman gecikmesi | `dt − 60 dk` (ve `dt − 120 dk`) zaman damgalı kayıt; en yakın gözlem kullanılmaz |
 | V2a/V2b kapsama | t−60 kaydı var. Ek olarak "alan dolu" sürümü: görüş(t), görüş(t−60) [V2b: + spread(t), spread(t−60)] dolu |
 | V2c kapsama | t−60 **ve** t−120 kayıtları var (alan sürümü: + görüş(t−120)) |
@@ -28,7 +33,7 @@ yapılmadı.
 | ufuk adımları | t+30, t+60, …, t+180 dk (`hedef.hazirla` ile aynı aritmetik) |
 | etiketi doğrulanamayan satır | 6 ufuk adımından en az biri arşivde yok **ve** Y=0 |
 | yüksek riskli satır | yukarıdakilerden, eksik adımın ±30/±60 dk'sında arşivde bir olay gözlemi olanlar |
-| bağımsız olay | `bagimsiz_olaylar(kayitlar, etiket="sis", bosluk_saat=3.0)` (§5.1), 2011+ tam kayıt |
+| bağımsız olay | `bagimsiz_olaylar(kayitlar, etiket="sis", bosluk_saat=3.0)` (§5.1), geliştirme evreninin tam kaydı |
 | SN | hava alanında `SN\|SG\|PL` (`sis_iklim.kod_kategorisi` ile aynı) |
 | FG-ailesi | `sis_kodu` (meydanı kaplayan FG) ∨ `(BC\|MI\|PR)FG` |
 
@@ -37,26 +42,26 @@ bakmadan önce betiğe yazıldı; ikisi de karar kuralı değil):
 1. §4.1 aralığın güven düzeyini söylemiyor; **iki yanlı %95** kullanıldı.
 2. Y=1 satırlarında hiç eksik olmayan tabakada oran 0 ve aralık [0, 0] olur.
    Kural harfiyen uygulanırsa bunlar da "kayda geçer". Bunlar gizlenmedi,
-   **"dejenere"** diye ayrı işaretlendi (ay: 5; saat: 16 tabaka).
+   **"dejenere"** diye ayrı işaretlendi.
 
 ---
 
-## 1. Özet bulgular
+## 1. Özet bulgular (düzeltilmiş evren)
 
-| # | bulgu | sayı | benim değerlendirmem |
+| # | bulgu | sayı | durum / karar |
 |---|---|---|---|
-| B1 | t−60 eksikliği hedefle ilişkili (§4.1 **kayda geçer**) | oran **2,62** [%95: 1,08 – 4,58]; Y=1'de 12/1.916 (%0,63), Y=0'da 646/270.324 (%0,24) | Protokol §7.4 bu satırlarda V1 referansına düşer; ΔLL katkısı 0 olur. Kapsama yüksek (%99,76). Geçerliliği bozduğunu düşünmüyorum; kayda geçti |
-| B2 | V2c için (t−60 ∨ t−120) eksikliği | oran 2,09 [0,99 – 3,51]; 19/1.916 vs 1.283/270.324 | Kurala göre kayda geçmez (alt sınır 0,99), ama sınırda |
-| B3 | Eksik slotlar düşük görüşün çevresinde yoğunlaşıyor | komşuda olay gözlemi %0,85 · komşu 1000–2999 m %1,04 · 3000–4999 %0,62 · ≥5000 %0,23 | B1'in mekanizması. Ayrıştırıcı kaynaklı değil: 2011+ ayrıştırıcı yalnızca 10 satır attı; eksiklik IEM kaynağında |
-| B4 | Etiketi doğrulanamayan satırlar (ufuk eksik ∧ Y=0) | **2.991** (Y=0'ların %1,11); yüksek riskli **16** | V1 ve V2 aynı etiketlerle değerlendirilir; V2'ye özgü değil. 2011'de 1.221 (%7,1), 2015'te 505 |
-| B5 | Ufku eksik satırlar Y=1'de daha sık | Y=1'lerin %4,65'i vs Y=0'ların %1,11'i | B3 ile aynı mekanizma (Y=1 etiketi yine de doğru) |
-| B6 | 2011: düşük görüş neredeyse yok | <1000 m: 5 gözlem (2012–14: 75/86/133); FG-ailesi 18 (128–251); olay 2 | Aşağıda §3: kanıt karışık; ne "sakin yıl" ne "veri hatası" kanıtlanabiliyor |
-| B7 | 2011: rüzgâr hızı dağılımı farklı | ≤2 kt %5,2 (2012–14: %16,0 / 14,7 / 15,9); her ay 2012–14'ün altında | Beklenmedik. Gerçek iklim de ölçüm/rapor farkı da olabilir; ham METAR'a erişim olmadan ayırt edilemez |
+| B1 | t−60 eksikliği hedefle ilişkili (§4.1 **kayda geçer**) | oran **2,64** [%95: 1,09 – 4,61]; Y=1'de 12/1.916 (%0,63), Y=0'da 641/270.319 (%0,24) | Kayda geçti. Protokol §7.4 bu satırlarda V1 referansına geri döner; kapsama %99,76. Sonuç raporunda V2'nin nominal performansıyla birlikte coverage_V2 ve uygun satır tanılaması gösterilir (§9.2). Protokol değişikliği yok |
+| B2 | V2c için (t−60 ∨ t−120) eksikliği | oran 2,10 [0,99 – 3,53]; 19/1.916 vs 1.278/270.319 | Kurala göre kayda geçmez (alt sınır 0,99, sınırda); kaydedildi |
+| B3 | Eksik slotlar düşük görüşün çevresinde yoğunlaşıyor | komşuda olay gözlemi %0,85 · komşu 1000–2999 m %1,04 · 3000–4999 %0,62 · ≥5000 %0,23 | B1 ile tutarlı. Ayrıştırıcı kaynaklı değil: 2011+ ayrıştırıcı yalnızca 10 satır attı; eksiklik IEM kaynağında |
+| B4 | Etiketi doğrulanamayan satırlar (ufuk eksik ∧ Y=0) | **2.986** (Y=0'ların %1,10); yüksek riskli **16** | V1 ve V2 aynı etiketlerle değerlendirilir; bu, eşleştirilmiş karşılaştırmanın adaletini büyük ölçüde korur. Ancak ortak etiket gürültüsü farklı modelleri farklı etkileyebilir. Ufku tam satırlarda karar vermeyen bir duyarlılık analizi raporlanacak (§7.2). 2011'de 1.221 (%7,1), 2015'te 505 |
+| B5 | Ufku eksik satırlar Y=1'de daha sık | Y=1'lerin %4,65'i vs Y=0'ların %1,10'u | B3 ile tutarlı (Y=1 etiketi yine de doğru) |
+| B6 | 2011: düşük görüş neredeyse yok | <1000 m: 5 gözlem (2012–14: 75/86/133); FG-ailesi 18 (128–251); olay 2 | Kanıt karışık. **Karar: 2011 olduğu gibi kalır**; sıra dışılık Deney 0 bulgusu olarak kayıtlı |
+| B7 | 2011: rüzgâr hızı dağılımı farklı | ≤2 kt %5,2 (2012–14: %16,0 / 14,7 / 15,9); her ay 2012–14'ün altında | Gerçek iklim de ölçüm/rapor farkı da olabilir; ham METAR'a erişim olmadan ayırt edilemez. Kayıtlı |
 | B8 | 514/1.702 yeniden doğrulandı | 2011–2023: 1.702 Y=1, üç SN tanımında da 514; 2011–2026: 582/1.916 | Tutarlı |
-| B9 | Olay düzeyi SN altyapısı çalışıyor | 290 olay: ≥1 SN 78, SN'siz 212; olayına atanamayan pozitif satır 0, gözlem 0 | Tutarlı |
-| B10 | Izgara dışı 6 satır (5 SPECI 2022, 1 2026) | biri olay gözlemi: **2022-10-31 23:01, 900 m BCFG** | Bu gözlem tek başına bir bağımsız olay oluşturuyor, ama **hiçbir satırın hedef penceresine girmiyor** (pozitif satırı atanmamış tek olay). Ayrıca 5 ızgara dışı satır onset satırı olarak evrende |
+| B9 | Olay düzeyi SN altyapısı çalışıyor | 289 olay: ≥1 SN 78, SN'siz 211; olayına atanamayan pozitif satır 0, gözlem 0; pozitif satırı olmayan olay 0 | Tutarlı |
+| B10 | Izgara dışı 6 kayıt (IEM'deki SPECI'ler) geliştirme evrenine sızıyordu | ilk denetimde 5 onset satırı + 1 SPECI-yalnız olay (2022-10-31 23:01, 900 m BCFG) | **§3 uygulama düzeltmesi yapıldı** (§7.1): ızgara filtresi `hazirla` ve olay bölütlemesinden önce. Veri silinmedi |
 | B11 | Zaman damgası bütünlüğü | yinelenen 0, sırasız 0, biçim hatası 0, ay/saat/spread/etiket tutarsızlığı 0 | Temiz |
-| B12 | Canlı arşiv (§4.4) kaçan METAR'ları geri doldurmuyor | 4,5 günde 215 slotun 3'ü eksik (%1,40); tarihsel oran %0,24 | Gölge modda V2 kapsaması tarihselden düşük olacak (bkz. §6) |
+| B12 | Canlı arşiv (§4.4) kaçan METAR'ları geri doldurmuyor | 4,5 günde 215 slotun 3'ü eksik (%1,40); tarihsel oran %0,24 | Deney 1'i durdurmaz. **Prospektif T0 öncesinde çözülmesi gereken operasyonel sorun** olarak işaretlendi |
 
 ---
 
@@ -79,11 +84,22 @@ ve 03:20, 2017-03-24 21:50, 2017-05-04 04:50).
 Yani eksik gözlemler IEM arşivinde hiç yok. Neden eksik oldukları
 (yayımlanmamış, iletilmemiş, arşive girmemiş) buradan belirlenemez.
 
-**Ne anlama geliyor (performans değil, yapı):** Eksiklik rastgele değil; düşük
-görüş anlarında 3–4 kat daha sık. §7.4 gereği bu satırlarda V2 yerine aynı
-fold'un V1 referansı kullanılacak; dolayısıyla bu satırlar V1–V2 farkına
-sıfır katkı verir ve karşılaştırmayı V2 lehine çarpıtamaz. Etkilenen pozitif
-satır oranı: V2a/b %0,63, V2c %0,99.
+**Ne anlama geliyor (performans değil, yapı):** Eksiklik rastgele değil;
+düşük görüş anlarında 3–4 kat daha sık. §7.4 gereği bu satırlarda V2 yerine
+aynı fold'un V1 referansı kullanılacak. Fallback satırlarında eşleştirilmiş
+ΔLL katkısı tanım gereği sıfırdır. Ancak fallback olasılığı Y ile ilişkili
+olduğundan, V2'nin uygulanabildiği vaka dağılımı tüm onset evrenini tam temsil
+etmeyebilir. Bu, ölçülen artımsal faydayı her iki yönde de etkileyebilir; bu
+nedenle kapsama ve uygun satır tanılamaları ayrıca raporlanacaktır. Etkilenen
+pozitif satır oranı: V2a/b %0,63, V2c %0,99.
+
+**2020 boşluğu (2020-04-10 23:50 → 2020-05-01 00:20, 480,5 sa):** doğrulandı,
+müdahale yok. `embargo_penceresi` takvime göre çalışıyor (`[1 Ocak − 3 sa,
+1 Ocak)`); boşluk hiçbir dış/iç sınıra yakın değil. Boşluk öncesi satırların
+ufku 5/6 → 0/6 iner (Y=0); boşluk sonrası 00:20 ve 00:50'de t−60 yok (geri
+dönüş), `spread_egilim_3` 03:20'de değer alır. `hedef.hazirla`'daki bütün
+aramalar tam zaman sözlük araması; konumsal kaydırma, interpolasyon ya da en
+yakın gözlem yok.
 
 ---
 
@@ -110,35 +126,32 @@ Meteorolojik ve biçimsel farklar:
 - **Görüş değer yapısı:** 40 farklı görüş değeri (2012–2023: 56–63). 1000 m
   altında yalnız 300 ve 600 m var; 1000–2999 m arası seyrek.
 
-**Sonuç:** "Sakin/sise elverişsiz bir yıl" açıklaması rüzgâr ve kış nemi
-bulgularıyla uyumlu, ama benzer elverişli koşulda bile düşük görüşün az olması
-ve rüzgâr dağılımının yıl boyu kayması tek başına iklimle açıklanmayı zorlaştırıyor.
-Veri hatası da kanıtlanmış değil. 2011'in 2 olayı/12 pozitif satırı ile
-17.158 onset satırı bütün dış fold'ların eğitimine girer (iç doğrulama
-blokları 2014'te başlar). Etkisi V1 referansı ve V2 için ortaktır.
+**Sonuç:** Yıl gerçekten sıra dışı olabilir ya da raporlama/ölçüm pratiği
+değişmiş olabilir; eldeki veriyle ikisi ayrılamıyor. 2011'in hatalı olduğuna
+dair yeterli kanıt yok. **Karar (28.09.2026): 2011 dışlanmaz**; sonuç görmeden
+"anormal göründüğü" gerekçesiyle yılı çıkarmak dondurulmuş veri evrenine
+müdahale olur. 2011'in 2 olayı/12 pozitif satırı ile 17.158 onset satırı
+bütün dış fold'ların eğitimine girer (iç doğrulama blokları 2014'te başlar).
 
 ---
 
 ## 4. B8–B10: hedef bileşimi ve SN altyapısı
 
-- Olay gözlemleri (2011–2026): 1.183; FG (meydanı kaplayan) 666, FG-ailesi 945,
-  SN içeren 253, FG-ailesi ∧ SN 16, SN'siz 930, ne FG-ailesi ne SN 1.
+- Geliştirme evreninde olay gözlemi: **1.182** (ilk denetimde 1.183; fark
+  2022-10-31 23:01 SPECI'si). FG (meydanı kaplayan) 666, FG-ailesi 944,
+  SN içeren 253, FG-ailesi ∧ SN 16, SN'siz 929, ne FG-ailesi ne SN 1.
+  (Dondurulmuş iklim tablosu `KOD_BILESIMI` ızgara dışı kaydı içeren tüm
+  arşivden sayıldı; V2 geliştirme evreni değildir, değişmedi.)
 - SN'li olay gözlemi yalnız Aralık–Mart'ta. Nisan–Kasım'ın hepsi SN'siz.
 - Yıllar arası SN payı çok değişken: 2014, 2018, 2020, 2024'te 0; 2022'de
-  139'un 72'si, 2025'te 36'nın 17'si.
+  138'in 72'si, 2025'te 36'nın 17'si.
 - **Y=1 satırlarında SN (2011–2023): 514/1.702.** (a) pencerede herhangi bir
   gözlemde SN, (b) penceredeki olay gözleminde SN, (c) ilk olay gözleminde SN
   tanımları üçü de 514 veriyor. 2011–2026: 582/1.916.
 - §9.3 satır tanılaması evreni: penceresinde SN olmayan satırlar Y=0'da
-  265.613, Y=1'de 1.334.
-- Olay düzeyi: 290 olay; ≥1 SN 78, SN'siz 212. Olayına atanamayan pozitif
-  satır 0, olaya atanamayan olay gözlemi 0.
-- **B10:** 2022-10-31 23:01 (SPECI, 900 m BCFG) tek gözlemlik bir olay:
-  sonraki olay gözlemi 03:50'de (4 sa 49 dk sonra). Izgara aritmetiği (+30k dk)
-  bu zamana hiç denk gelmediği için hiçbir satırın Y'sine girmez. 290 olayın
-  **289'unun** en az bir pozitif satırı var; bu olayın yok. Ayrıca ızgara dışı
-  5 satır (sis=0) onset evreninde; gecikme ve ufuk adımları ızgara dışında
-  kaldığı için ufukları 0/6 ve Y=0.
+  265.608, Y=1'de 1.334.
+- Olay düzeyi: 289 olay; ≥1 SN 78, SN'siz 211. Olayına atanamayan pozitif
+  satır 0, olaya atanamayan olay gözlemi 0, pozitif satırı olmayan olay 0.
 
 ---
 
@@ -146,10 +159,11 @@ blokları 2014'te başlar). Etkisi V1 referansı ve V2 için ortaktır.
 
 Yinelenen zaman damgası 0, dosya sırasında geri giden 0, biçim tek (16
 karakter), ay/saat sütunu tutarsızlığı 0, `spread ≠ T − Td` 0, `sis` yeniden
-hesap tutarsızlığı 0. Ardışık aralıklar (2011+): 30 dk 272.851; <30 dk 9
-(ızgara dışı satırlar); 1 eksik adım 427; 2–5 eksik adım 109; 3 sa–24 sa 22;
+hesap tutarsızlığı 0. Ardışık aralıklar (2011+, ham dosya): 30 dk 272.851; <30
+dk 9 (ızgara dışı kayıtlar); 1 eksik adım 427; 2–5 eksik adım 109; 3 sa–24 sa 22;
 >24 sa 4 (en uzunu 2020-04-10 → 2020-05-01, 480,5 sa; 2012-07-14 → 07-16,
-48,5 sa). 2011 öncesi 1.484 satır analiz dışı.
+48,5 sa). 2011 öncesi 1.484 satır analiz dışı. Ham dosyada ızgara dışı 6 kayıt
+var (Ek A §5); dosyadan silinmedi.
 
 ---
 
@@ -166,56 +180,150 @@ raporları yazar. Geri doldurma yok.
 **Git geçmişi:** Arşivi değiştiren 214 commit'in 208'i 1 satır, 6'sı 2 satır
 ekliyor (her seferinde SPECI + METAR; iki METAR birden hiç yok). Eksik
 slotların çevresinde bot çalışıyordu: örneğin 27.09 02:54 UTC'de çalıştırma
-var ama 02:50 METAR'ı arşive girmedi; 03:25'te yalnızca 03:20 geldi. Yani
-kayıp bir çalıştırmanın atlanmasından değil, raporun yayımlanma gecikmesiyle
-çalıştırma zamanının çakışmasından doğuyor ve kalıcı. (MGM'ye bu ortamdan
-erişilemediği için yanıt içeriği doğrudan görülemedi; çıkarım kod ve commit
-geçmişine dayanıyor.)
+var ama 02:50 METAR'ı arşive girmedi; 03:25'te yalnızca 03:20 geldi. Üç kayıp
+da botun çalışma zamanı ve raporun yayımlanma zamanıyla uyumlu. Kaçan METAR
+sonraki çalıştırmada geri doldurulmuyor, bu yüzden kayıp kalıcı. (MGM'ye bu
+ortamdan erişilemediği için yanıt içeriği doğrudan görülemedi; çıkarım kod ve
+commit geçmişine dayanıyor.)
 
-**Sonuç:** Canlıda t−60 eksikliği kabaca %1,4 (tarihsel %0,24). Gölge modda
-V2a/b kapsaması ≈ %98,6, V2c ≈ %97,2 beklenir; eksik satırlarda §7.4 gereği
-dondurulmuş V1 kullanılır. Canlı eksikliğin mekanizması hava durumundan
-bağımsız (yayın gecikmesi), tarihsel eksiklik ise düşük görüşle ilişkili (B3).
-Bu iki eksiklik türü farklıdır.
+**Sonuç:** Canlıda t−60 eksikliği bu kısa örnekte yaklaşık %1,4 (tarihsel
+%0,24). Gölge modda V2a/b kapsaması ≈ %98,6, V2c ≈ %97,2 beklenir; eksik
+satırlarda §7.4 gereği dondurulmuş V1 kullanılır. Mevcut kısa örnekte (3/215)
+canlı kayıplar yayın zamanlamasıyla uyumlu; meteorolojik bağımsızlık
+gösterilemedi. Tarihsel eksiklik düşük görüşle ilişkili (B3). İki mekanizmanın
+farklı olup olmadığı bilinmiyor.
+
+**Durum:** Deney 1'i durdurmaz. **Prospektif T0 öncesi operasyonel blocker.**
 
 ---
 
-## 7. Sınıflandırma için size getirilenler
+## 7. Kararlar (28.09.2026) ve uygulama düzeltmesi
 
-Deney 1'e (ambargolu V1 benchmark'a) otomatik geçilmedi. Kararınızı
-gerektiren noktalar:
+| bulgu | karar | sınıf |
+|---|---|---|
+| B1 | Kayıt olarak kalır; §7.4 fallback bunu yönetir. Sonuç raporunda coverage_V2 ve uygun satır tanılaması zorunlu (§9.2) | protokol değişikliği yok |
+| B6–B7 | 2011 dışlanmaz; sıra dışılık Deney 0 bulgusu olarak kayıtlı | protokol değişikliği yok |
+| B10 | §3 gereği geliştirmede tahmin satırları, hedef ve olay bölütlemesi yalnız :20/:50 | **§3 uygulama düzeltmesi** (§15 kodlama düzeltmesi) |
+| B12 | Deney 1'i durdurmaz; T0 öncesi çözülür | operasyonel blocker |
 
-1. **B1 (§4.1 kayda geçti).** Protokol bunu "rapora yazılır, model davranışı
-   değişmez" diye önceden bağlamış. Önerim: kayıt olarak kalsın; ek işlem yok.
-2. **B6–B7 (2011).** Neden belirlenemedi. Seçenekler: (i) protokol gereği
-   olduğu gibi kullanmak (2011 zaten `bolme.ILK_YIL`); (ii) "veri düzeltmesi"
-   sayıp dışlamak. (ii) protokolün veri tanımını değiştirir; sonuç görülmeden
-   önce ve gerekçesi veri kalitesi olarak yazılmalı.
-3. **B10 (ızgara dışı SPECI satırları).** §3 "değişkenler yalnızca :20/:50
-   ızgarasından" diyor, ama `hazirla` ızgara dışı 6 satırı evrende bırakıyor
-   (5 onset satırı + 1 pozitif satırsız olay). Sayısal etkisi çok küçük.
-   Sınıflandırma: kodlama/protokol uyumsuzluğu mu, yoksa olduğu gibi mi kalsın?
-4. **B12 (canlı arşiv).** Gölge modun kapsamasını düşürür ama geçersiz kılmaz.
-   Botun toplama biçimini değiştirmek (ör. daha uzun geçmiş istemek) V2
-   protokolünün değil botun işi. Şimdilik yalnızca raporlandı.
+### 7.1 B10 — §3 uygulama düzeltmesi
 
-Hiçbirini ben uygulamadım.
+§3 (dondurulmuş metin): *"Değişkenler yalnızca :20/:50 ızgarasından
+hesaplanır — eğitimde de canlıda da. SPECI yalnızca ileriye dönük
+değerlendirmede olay gözlemini (etiketi) belirlemek için kullanılır (§12).
+Ayrıca tanılama olarak etiketin yalnızca ızgara gözlemleriyle hesaplandığı
+hâli de raporlanır."*
+
+§3 iki dönemi ayrı tarif eder ve bu ayrım esas alınır. §5.1'deki "tam kayıt
+kümesi" ifadesi, §3'ün "SPECI yalnızca ileriye dönük değerlendirmede" hükmünü
+genişletmez.
+
+| aşama | tahmin zamanı / değişkenler | sonuç / olay |
+|---|---|---|
+| geliştirme | yalnız :20/:50 | yalnız :20/:50 (hedef ve §5.1 olay bölütlemesi) |
+| ileriye dönük (§12) | yalnız :20/:50 | SPECI dahil; ayrıca yalnız-ızgara sonuç tanılaması |
+
+**Ne bozuktu:** Mevcut pipeline (`hedef.hazirla` → `onset_adaylari` /
+`bagimsiz_olaylar`) IEM arşivindeki ızgara dışı 6 kaydı ayıklamıyordu. Bunların
+5'i onset (tahmin) satırı oluyordu (2022-10-02 08:00 ve 08:04, 2022-10-04
+09:57, 2022-10-31 22:56, 2026-08-28 02:06). 2022-10-31 23:01 (900 m BCFG) tek
+başına bir geliştirme olayı oluşturuyordu ve hiçbir satırın hedefine
+girmediği için pozitif satırı yoktu.
+
+**Düzeltme:** `sis_modeli/v2_evren.py` — ızgara filtresi `hedef.hazirla`'dan
+ve olay bölütlemesinden **önce** uygulanır. **V1 benchmark'ı ve bütün V2
+varyantları aynı düzeltilmiş evreni kullanır.** Veri dosyasından hiçbir satır
+silinmedi; 23:01 gözlemi arşivde durur, yalnızca geliştirme sonuç/olay
+tanımının dışındadır. Canlı V1'in (`ltfj_sis_olasilik.py`) davranışı
+değişmedi. `hedef.hazirla` ve mevcut V1/Model B betikleri değişmedi.
+
+**Sayılara etkisi** (ayrıntı Ek A §0):
+
+| sayım | ilk denetim | düzeltme sonrası |
+|---|---|---|
+| geliştirme satırı (2011+) | 273.423 | 273.417 |
+| onset satırı | 272.240 | 272.235 |
+| Y=1 | 1.916 | 1.916 |
+| bağımsız olay | 290 | 289 |
+| 2021–22 test olayı | 52 | 51 |
+| 2023–24 eğitim olayı | 247 | 246 |
+| 2025–26 eğitim olayı | 266 | 265 |
+| 2021–22 / 2025–26 test onset | 34.790 / 29.910 | 34.786 / 29.909 |
+| B1 oranı (nokta [%95]) | 2,62 [1,08 – 4,58] | 2,64 [1,09 – 4,61] |
+| etiketi doğrulanamayan satır | 2.991 | 2.986 |
+
+Diğer fold sayımları değişmedi.
+
+**T0 ön koşulu (kayıt):** §3'ün "canlıda da" hükmü gereği gölge kayıttaki V2
+değişkenleri son **ızgara** METAR'ından hesaplanmalı; SPECI zamanında V2
+tahmin satırı üretilmez. Gölge kayıt kodu yazılırken uygulanacak.
+
+### 7.2 Önceden bildirilen tanılama: ufku tam (6/6) alt küme
+
+Deney 1'in hiçbir sonucu görülmeden tanımlandı. **Karar vermez; model seçim
+ölçütü değildir; veri-kalite duyarlılık analizidir.** Protokol §9.2'de yer
+almaz; §15'in dondurduğu karar kurallarına dokunmaz.
+
+- **Alt küme:** (t, t+3sa] içindeki 6 ızgara adımının hepsi arşivde bulunan
+  onset satırları. **Seçim Y'ye bakılmadan yapılır.** Geliştirme evreninde
+  dışarıda kalan: 3.075 satır (2.986 Y=0 + 89 Y=1).
+- **Modeller yeniden eğitilmez.** Aynı dış fold out-of-sample tahminleri
+  (fallback dahil birleşik sistem) yalnızca değerlendirmede süzülür.
+- **Raporlanan:** alt kümede eşleştirilmiş ΔLL (V1 referansı − V2x), §8 ile
+  aynı meteorolojik gün bootstrap'i (2000 tekrar) ve tüm evrendeki ΔLL ile
+  yön karşılaştırması.
 
 ---
 
 # Ek A — betik çıktısı (tam tablolar)
 
 
-Kaynak: `ltfj_ozellik.csv.gz`; 2011+ satır: 273423; onset satırı: 272240; Y=1: 1916; bağımsız olay: 290. Model eğitilmedi; performans ölçütü hesaplanmadı.
+## 0. Deney 0 ilk denetim → §3 uygulama düzeltmesi (B10) sonrası geliştirme evreni
+
+**Önce:** `hedef.hazirla(yıl ≥ 2011)` — ızgara dışı kayıtlar dahil (Deney 0 ilk denetimi). **Sonra:** `v2_evren.gelistirme_kayitlari` — ızgara filtresi (`:20/:50`) `hedef.hazirla`'dan ve olay bölütlemesinden **önce**. Veri dosyasından satır silinmedi. Aşağıdaki bütün bölümler (1–4) **sonra** evrenindedir.
+
+| sayım | önce (ilk denetim) | sonra (düzeltilmiş) | fark |
+|---|---:|---:|---:|
+| kayıt (2011+) | 273423 | 273417 | -6 |
+| ızgara dışı kayıt | 6 | 0 | -6 |
+| onset satırı | 272240 | 272235 | -5 |
+| Y=1 | 1916 | 1916 |  |
+| bağımsız olay (§5.1) | 290 | 289 | -1 |
+| pozitif satırı olmayan olay | 1 | 0 | -1 |
+| olay: ≥ 1 SN | 78 | 78 |  |
+| olay: SN'siz | 212 | 211 | -1 |
+| t−60 yok ∧ Y=1 | 12 | 12 |  |
+| t−60 yok ∧ Y=0 | 646 | 641 | -5 |
+| (t−60 ∨ t−120) yok ∧ Y=1 | 19 | 19 |  |
+| (t−60 ∨ t−120) yok ∧ Y=0 | 1283 | 1278 | -5 |
+| oran P(eksik|Y=1)/P(eksik|Y=0), t−60 (nokta) | 2.62 | 2.64 |  |
+| oran, t−60 ∨ t−120 (nokta) | 2.09 | 2.10 |  |
+| V2a/b kapsama % | 99.758 | 99.760 |  |
+| V2c kapsama % | 99.522 | 99.524 |  |
+| ufuk eksik ∧ Y=0 (etiketi doğrulanamayan) | 2991 | 2986 | -5 |
+| ufuk eksik ∧ Y=1 | 89 | 89 |  |
+
+**Dış fold'lara göre** (test dönemi satırları; eğitim olayı = o fold'un eğitim yılları 2011–(test−1), ambargo öncesi, §5.1 bölütlemesi). 2015–16 yalnızca erken dönem tanılamasıdır.
+
+| dış fold (test) | test onset | test Y=1 | test olayı | eğitim olayı |
+|---|---:|---:|---:|---:|
+| 2015–16 | 34615 → 34615 | 361 → 361 | 58 → 58 | 71 → 71 |
+| 2017–18 | 34760 → 34760 | 274 → 274 | 40 → 40 | 129 → 129 |
+| 2019–20 | 34010 → 34010 | 166 → 166 | 26 → 26 | 169 → 169 |
+| 2021–22 | 34790 → 34786 | 364 → 364 | 52 → 51 | 195 → 195 |
+| 2023–24 | 34964 → 34964 | 131 → 131 | 19 → 19 | 247 → 246 |
+| 2025–26 | 29910 → 29909 | 156 → 156 | 24 → 24 | 266 → 265 | 
+
+Geliştirme evreni (düzeltilmiş): `ltfj_ozellik.csv.gz`; 2011+ ızgara satırı: 273417; onset satırı: 272235; Y=1: 1916; bağımsız olay: 289. Model eğitilmedi; performans ölçütü hesaplanmadı.
 
 ## 1. Gecikme eksikliği ve kapsama (onset evreni)
 
-Onset satırı: 272240. Tam zaman kuralı: kayıt `dt − 60 dk` / `dt − 120 dk` anında yoksa gecikme eksik.
+Onset satırı: 272235. Tam zaman kuralı: kayıt `dt − 60 dk` / `dt − 120 dk` anında yoksa gecikme eksik.
 
 | ölçüt | satır | % |
 |---|---:|---:|
-| t−60 zaman damgası yok | 658 | 0.24 |
-| t−120 zaman damgası yok | 785 | 0.29 |
+| t−60 zaman damgası yok | 653 | 0.24 |
+| t−120 zaman damgası yok | 780 | 0.29 |
 | t−60 var ama görüş boş | 0 | 0.000 |
 | t−120 var ama görüş boş | 0 | 0.000 |
 | t−60 var, görüş dolu, spread boş | 0 | 0.000 |
@@ -242,11 +350,11 @@ Onset satırı: 272240. Tam zaman kuralı: kayıt `dt − 60 dk` / `dt − 120 d
 | 2019 | 17450 | 112 | 11 | 0.06 | 12 | 0.07 | 99.94 | 99.88 |
 | 2020 | 16560 | 54 | 19 | 0.11 | 22 | 0.13 | 99.89 | 99.77 |
 | 2021 | 17412 | 124 | 8 | 0.05 | 11 | 0.06 | 99.95 | 99.91 |
-| 2022 | 17378 | 240 | 9 | 0.05 | 12 | 0.07 | 99.95 | 99.92 |
+| 2022 | 17374 | 240 | 5 | 0.03 | 8 | 0.05 | 99.97 | 99.94 |
 | 2023 | 17459 | 73 | 5 | 0.03 | 5 | 0.03 | 99.97 | 99.94 |
 | 2024 | 17505 | 58 | 12 | 0.07 | 16 | 0.09 | 99.93 | 99.86 |
 | 2025 | 17476 | 90 | 7 | 0.04 | 7 | 0.04 | 99.96 | 99.93 |
-| 2026 | 12434 | 66 | 6 | 0.05 | 6 | 0.05 | 99.95 | 99.91 |
+| 2026 | 12433 | 66 | 5 | 0.04 | 5 | 0.04 | 99.96 | 99.92 |
 
 ### 1.2 Aya göre (tüm yıllar)
 
@@ -259,9 +367,9 @@ Onset satırı: 272240. Tam zaman kuralı: kayıt `dt − 60 dk` / `dt − 120 d
 | 5 | 23666 | 124 | 41 | 0.17 | 49 | 0.21 | 99.83 | 99.66 |
 | 6 | 22901 | 129 | 76 | 0.33 | 87 | 0.38 | 99.67 | 99.34 |
 | 7 | 23541 | 113 | 56 | 0.24 | 69 | 0.29 | 99.76 | 99.53 |
-| 8 | 23660 | 143 | 63 | 0.27 | 70 | 0.30 | 99.73 | 99.47 |
+| 8 | 23659 | 143 | 62 | 0.26 | 69 | 0.29 | 99.74 | 99.48 |
 | 9 | 22328 | 46 | 38 | 0.17 | 46 | 0.21 | 99.83 | 99.66 |
-| 10 | 22164 | 127 | 62 | 0.28 | 76 | 0.34 | 99.72 | 99.46 |
+| 10 | 22160 | 127 | 58 | 0.26 | 72 | 0.32 | 99.74 | 99.48 |
 | 11 | 21426 | 122 | 37 | 0.17 | 50 | 0.23 | 99.83 | 99.65 |
 | 12 | 22161 | 124 | 51 | 0.23 | 65 | 0.29 | 99.77 | 99.54 |
 
@@ -271,14 +379,14 @@ Onset satırı: 272240. Tam zaman kuralı: kayıt `dt − 60 dk` / `dt − 120 d
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | 0 | 11239 | 241 | 80 | 0.71 | 47 | 0.42 | 99.29 | 99.14 |
 | 1 | 11236 | 210 | 66 | 0.59 | 91 | 0.81 | 99.41 | 98.72 |
-| 2 | 11233 | 169 | 41 | 0.36 | 81 | 0.72 | 99.64 | 99.07 |
+| 2 | 11232 | 169 | 40 | 0.36 | 80 | 0.71 | 99.64 | 99.07 |
 | 3 | 11241 | 111 | 22 | 0.20 | 42 | 0.37 | 99.80 | 99.47 |
 | 4 | 11286 | 84 | 18 | 0.16 | 25 | 0.22 | 99.84 | 99.65 |
 | 5 | 11320 | 50 | 38 | 0.34 | 34 | 0.30 | 99.66 | 99.51 |
 | 6 | 11353 | 52 | 21 | 0.18 | 44 | 0.39 | 99.82 | 99.48 |
 | 7 | 11330 | 41 | 20 | 0.18 | 25 | 0.22 | 99.82 | 99.64 |
-| 8 | 11382 | 31 | 58 | 0.51 | 23 | 0.20 | 99.49 | 99.31 |
-| 9 | 11378 | 22 | 24 | 0.21 | 60 | 0.53 | 99.79 | 99.29 |
+| 8 | 11380 | 31 | 56 | 0.49 | 21 | 0.18 | 99.51 | 99.33 |
+| 9 | 11377 | 22 | 23 | 0.20 | 59 | 0.52 | 99.80 | 99.30 |
 | 10 | 11384 | 24 | 22 | 0.19 | 26 | 0.23 | 99.81 | 99.60 |
 | 11 | 11387 | 30 | 27 | 0.24 | 27 | 0.24 | 99.76 | 99.57 |
 | 12 | 11394 | 34 | 22 | 0.19 | 28 | 0.25 | 99.81 | 99.57 |
@@ -291,7 +399,7 @@ Onset satırı: 272240. Tam zaman kuralı: kayıt `dt − 60 dk` / `dt − 120 d
 | 19 | 11388 | 63 | 21 | 0.18 | 22 | 0.19 | 99.82 | 99.62 |
 | 20 | 11394 | 83 | 22 | 0.19 | 22 | 0.19 | 99.81 | 99.62 |
 | 21 | 11356 | 113 | 11 | 0.10 | 27 | 0.24 | 99.90 | 99.71 |
-| 22 | 11325 | 169 | 11 | 0.10 | 13 | 0.11 | 99.90 | 99.81 |
+| 22 | 11324 | 169 | 10 | 0.09 | 12 | 0.11 | 99.91 | 99.82 |
 | 23 | 11261 | 219 | 18 | 0.16 | 11 | 0.10 | 99.84 | 99.75 |
 
 ### 1.4 Eksiklik ile hedef ilişkisi — P(eksik | Y=1) / P(eksik | Y=0)
@@ -303,7 +411,7 @@ Meteorolojik gün (12–12 UTC) blok bootstrap, 2000 tekrar, tohum 0, iki yanlı
 
 | tabaka | Y=1 satır | eksik | % | Y=0 satır | eksik | % | oran | %95 aralık | geçerli tekrar | §4.1 |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| tümü | 1916 | 12 | 0.63 | 270324 | 646 | 0.24 | 2.62 | 1.08 – 4.58 | 2000 | KAYDA GEÇER |
+| tümü | 1916 | 12 | 0.63 | 270319 | 641 | 0.24 | 2.64 | 1.09 – 4.61 | 2000 | KAYDA GEÇER |
 | ay 1 | 302 | 1 | 0.33 | 23203 | 65 | 0.28 | 1.18 | 0.00 – 4.35 | 2000 |  |
 | ay 2 | 393 | 4 | 1.02 | 20983 | 31 | 0.15 | 6.89 | 0.00 – 18.00 | 2000 |  |
 | ay 3 | 195 | 1 | 0.51 | 23407 | 53 | 0.23 | 2.26 | 0.00 – 8.18 | 2000 |  |
@@ -311,21 +419,21 @@ Meteorolojik gün (12–12 UTC) blok bootstrap, 2000 tekrar, tohum 0, iki yanlı
 | ay 5 | 124 | 0 | 0.00 | 23542 | 41 | 0.17 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | ay 6 | 129 | 0 | 0.00 | 22772 | 76 | 0.33 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | ay 7 | 113 | 1 | 0.88 | 23428 | 55 | 0.23 | 3.77 | 0.00 – 13.40 | 2000 |  |
-| ay 8 | 143 | 0 | 0.00 | 23517 | 63 | 0.27 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
+| ay 8 | 143 | 0 | 0.00 | 23516 | 62 | 0.26 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | ay 9 | 46 | 0 | 0.00 | 22282 | 38 | 0.17 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
-| ay 10 | 127 | 2 | 1.57 | 22037 | 60 | 0.27 | 5.78 | 0.00 – 21.96 | 2000 |  |
+| ay 10 | 127 | 2 | 1.57 | 22033 | 56 | 0.25 | 6.20 | 0.00 – 24.08 | 2000 |  |
 | ay 11 | 122 | 0 | 0.00 | 21304 | 37 | 0.17 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | ay 12 | 124 | 1 | 0.81 | 22037 | 50 | 0.23 | 3.55 | 0.00 – 10.67 | 2000 |  |
 | saat 0 | 241 | 3 | 1.24 | 10998 | 77 | 0.70 | 1.78 | 0.00 – 5.00 | 2000 |  |
 | saat 1 | 210 | 2 | 0.95 | 11026 | 64 | 0.58 | 1.64 | 0.00 – 4.52 | 2000 |  |
-| saat 2 | 169 | 3 | 1.78 | 11064 | 38 | 0.34 | 5.17 | 0.00 – 15.63 | 2000 |  |
+| saat 2 | 169 | 3 | 1.78 | 11063 | 37 | 0.33 | 5.31 | 0.00 – 15.95 | 2000 |  |
 | saat 3 | 111 | 0 | 0.00 | 11130 | 22 | 0.20 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | saat 4 | 84 | 0 | 0.00 | 11202 | 18 | 0.16 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | saat 5 | 50 | 1 | 2.00 | 11270 | 37 | 0.33 | 6.09 | 0.00 – 21.90 | 2000 |  |
 | saat 6 | 52 | 0 | 0.00 | 11301 | 21 | 0.19 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | saat 7 | 41 | 1 | 2.44 | 11289 | 19 | 0.17 | 14.49 | 0.00 – 59.00 | 2000 |  |
-| saat 8 | 31 | 0 | 0.00 | 11351 | 58 | 0.51 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
-| saat 9 | 22 | 0 | 0.00 | 11356 | 24 | 0.21 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
+| saat 8 | 31 | 0 | 0.00 | 11349 | 56 | 0.49 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
+| saat 9 | 22 | 0 | 0.00 | 11355 | 23 | 0.20 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | saat 10 | 24 | 0 | 0.00 | 11360 | 22 | 0.19 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | saat 11 | 30 | 1 | 3.33 | 11357 | 26 | 0.23 | 14.56 | 0.00 – 56.07 | 2000 |  |
 | saat 12 | 34 | 0 | 0.00 | 11360 | 22 | 0.19 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
@@ -338,14 +446,14 @@ Meteorolojik gün (12–12 UTC) blok bootstrap, 2000 tekrar, tohum 0, iki yanlı
 | saat 19 | 63 | 0 | 0.00 | 11325 | 21 | 0.19 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | saat 20 | 83 | 0 | 0.00 | 11311 | 22 | 0.19 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | saat 21 | 113 | 0 | 0.00 | 11243 | 11 | 0.10 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
-| saat 22 | 169 | 0 | 0.00 | 11156 | 11 | 0.10 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
+| saat 22 | 169 | 0 | 0.00 | 11155 | 10 | 0.09 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | saat 23 | 219 | 0 | 0.00 | 11042 | 18 | 0.16 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 
 **t−60 ∨ t−120 zaman yok (V2c geri dönüşü)**
 
 | tabaka | Y=1 satır | eksik | % | Y=0 satır | eksik | % | oran | %95 aralık | geçerli tekrar | §4.1 |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| tümü | 1916 | 19 | 0.99 | 270324 | 1283 | 0.47 | 2.09 | 0.99 – 3.51 | 2000 |  |
+| tümü | 1916 | 19 | 0.99 | 270319 | 1278 | 0.47 | 2.10 | 0.99 – 3.53 | 2000 |  |
 | ay 1 | 302 | 2 | 0.66 | 23203 | 129 | 0.56 | 1.19 | 0.00 – 3.34 | 2000 |  |
 | ay 2 | 393 | 6 | 1.53 | 20983 | 63 | 0.30 | 5.08 | 0.71 – 12.81 | 2000 |  |
 | ay 3 | 195 | 2 | 1.03 | 23407 | 105 | 0.45 | 2.29 | 0.00 – 8.26 | 2000 |  |
@@ -353,21 +461,21 @@ Meteorolojik gün (12–12 UTC) blok bootstrap, 2000 tekrar, tohum 0, iki yanlı
 | ay 5 | 124 | 0 | 0.00 | 23542 | 81 | 0.34 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | ay 6 | 129 | 0 | 0.00 | 22772 | 152 | 0.67 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | ay 7 | 113 | 1 | 0.88 | 23428 | 110 | 0.47 | 1.88 | 0.00 – 6.72 | 2000 |  |
-| ay 8 | 143 | 0 | 0.00 | 23517 | 125 | 0.53 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
+| ay 8 | 143 | 0 | 0.00 | 23516 | 124 | 0.53 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | ay 9 | 46 | 0 | 0.00 | 22282 | 76 | 0.34 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
-| ay 10 | 127 | 2 | 1.57 | 22037 | 117 | 0.53 | 2.97 | 0.00 – 11.03 | 2000 |  |
+| ay 10 | 127 | 2 | 1.57 | 22033 | 113 | 0.51 | 3.07 | 0.00 – 11.58 | 2000 |  |
 | ay 11 | 122 | 0 | 0.00 | 21304 | 74 | 0.35 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | ay 12 | 124 | 3 | 2.42 | 22037 | 99 | 0.45 | 5.39 | 0.00 – 13.41 | 2000 |  |
 | saat 0 | 241 | 3 | 1.24 | 10998 | 94 | 0.85 | 1.46 | 0.00 – 4.05 | 2000 |  |
 | saat 1 | 210 | 3 | 1.43 | 11026 | 141 | 1.28 | 1.12 | 0.00 – 2.63 | 2000 |  |
-| saat 2 | 169 | 4 | 2.37 | 11064 | 101 | 0.91 | 2.59 | 0.00 – 7.02 | 2000 |  |
+| saat 2 | 169 | 4 | 2.37 | 11063 | 100 | 0.90 | 2.62 | 0.00 – 7.10 | 2000 |  |
 | saat 3 | 111 | 0 | 0.00 | 11130 | 60 | 0.54 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | saat 4 | 84 | 0 | 0.00 | 11202 | 40 | 0.36 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | saat 5 | 50 | 1 | 2.00 | 11270 | 55 | 0.49 | 4.10 | 0.00 – 14.73 | 2000 |  |
 | saat 6 | 52 | 1 | 1.92 | 11301 | 58 | 0.51 | 3.75 | 0.00 – 13.08 | 2000 |  |
 | saat 7 | 41 | 1 | 2.44 | 11289 | 40 | 0.35 | 6.88 | 0.00 – 24.71 | 2000 |  |
-| saat 8 | 31 | 1 | 3.23 | 11351 | 77 | 0.68 | 4.76 | 0.00 – 16.06 | 2000 |  |
-| saat 9 | 22 | 1 | 4.55 | 11356 | 80 | 0.70 | 6.45 | 0.00 – 21.63 | 2000 |  |
+| saat 8 | 31 | 1 | 3.23 | 11349 | 75 | 0.66 | 4.88 | 0.00 – 16.23 | 2000 |  |
+| saat 9 | 22 | 1 | 4.55 | 11355 | 79 | 0.70 | 6.53 | 0.00 – 21.92 | 2000 |  |
 | saat 10 | 24 | 0 | 0.00 | 11360 | 45 | 0.40 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | saat 11 | 30 | 1 | 3.33 | 11357 | 48 | 0.42 | 7.89 | 0.00 – 27.44 | 2000 |  |
 | saat 12 | 34 | 0 | 0.00 | 11360 | 49 | 0.43 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
@@ -380,7 +488,7 @@ Meteorolojik gün (12–12 UTC) blok bootstrap, 2000 tekrar, tohum 0, iki yanlı
 | saat 19 | 63 | 1 | 1.59 | 11325 | 42 | 0.37 | 4.28 | 0.00 – 15.75 | 2000 |  |
 | saat 20 | 83 | 0 | 0.00 | 11311 | 43 | 0.38 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | saat 21 | 113 | 0 | 0.00 | 11243 | 33 | 0.29 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
-| saat 22 | 169 | 0 | 0.00 | 11156 | 21 | 0.19 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
+| saat 22 | 169 | 0 | 0.00 | 11155 | 20 | 0.18 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 | saat 23 | 219 | 0 | 0.00 | 11042 | 28 | 0.25 | 0.00 | 0.00 – 0.00 | 2000 | dejenere (Y=1'de 0 eksik) |
 
 ### 1.5 Gecikme eksikliği × ufuk eksikliği (onset satırları)
@@ -388,7 +496,7 @@ Meteorolojik gün (12–12 UTC) blok bootstrap, 2000 tekrar, tohum 0, iki yanlı
 |  | ufuk tam (6/6) | ufuk eksik (< 6) |
 |---|---:|---:|
 | t−60 var | 268566 | 3016 |
-| t−60 yok | 594 | 64 |
+| t−60 yok | 594 | 59 |
 
 ### 1.6 Eksik ızgara slotu — komşu gözlemin durumuna göre
 
@@ -408,16 +516,16 @@ Tanım: t anındaki onset satırı için beklenen adımlar t+30, t+60, …, t+18
 
 | mevcut adım | satır | % | Y=0 | Y=1 |
 |---|---:|---:|---:|---:|
-| 6/6 | 269160 | 98.869 | 267333 | 1827 |
+| 6/6 | 269160 | 98.870 | 267333 | 1827 |
 | 5/6 | 2304 | 0.846 | 2235 | 69 |
 | 4/6 | 476 | 0.175 | 459 | 17 |
 | 3/6 | 151 | 0.055 | 149 | 2 |
 | 2/6 | 77 | 0.028 | 76 | 1 |
 | 1/6 | 40 | 0.015 | 40 | 0 |
-| 0/6 | 32 | 0.012 | 32 | 0 |
+| 0/6 | 27 | 0.010 | 27 | 0 |
 
-- Ufku eksik satır: 3080 (%1.13); Y=0: 2991 (Y=0'ların %1.11), Y=1: 89 (Y=1'lerin %4.65).
-- **Etiketi doğrulanamayan satır (ufuk eksik ∧ Y=0): 2991.**
+- Ufku eksik satır: 3075 (%1.13); Y=0: 2986 (Y=0'ların %1.10), Y=1: 89 (Y=1'lerin %4.65).
+- **Etiketi doğrulanamayan satır (ufuk eksik ∧ Y=0): 2986.**
 - Bunlardan eksik adımın ±60 dk komşuluğunda arşivde bir olay gözlemi bulunan (yüksek riskli) satır: **16**.
 
 ### 2.1 Yıla göre
@@ -435,11 +543,11 @@ Tanım: t anındaki onset satırı için beklenen adımlar t+30, t+60, …, t+18
 | 2019 | 17450 | 53 | 0.30 | 53 | 0 | 0 | 0 | 0 |
 | 2020 | 16560 | 92 | 0.56 | 92 | 0 | 1 | 0 | 0 |
 | 2021 | 17412 | 30 | 0.17 | 30 | 0 | 0 | 0 | 0 |
-| 2022 | 17378 | 23 | 0.13 | 23 | 0 | 4 | 0 | 0 |
+| 2022 | 17374 | 19 | 0.11 | 19 | 0 | 0 | 0 | 0 |
 | 2023 | 17459 | 18 | 0.10 | 18 | 0 | 0 | 0 | 0 |
 | 2024 | 17505 | 50 | 0.29 | 50 | 0 | 1 | 0 | 0 |
 | 2025 | 17476 | 31 | 0.18 | 31 | 0 | 0 | 0 | 0 |
-| 2026 | 12434 | 37 | 0.30 | 37 | 0 | 2 | 6 | 0 |
+| 2026 | 12433 | 36 | 0.29 | 36 | 0 | 1 | 6 | 0 |
 
 ### 2.2 Aya göre (tüm yıllar)
 
@@ -452,9 +560,9 @@ Tanım: t anındaki onset satırı için beklenen adımlar t+30, t+60, …, t+18
 | 5 | 23666 | 186 | 0.79 | 184 | 2 | 0 |
 | 6 | 22901 | 333 | 1.45 | 328 | 5 | 2 |
 | 7 | 23541 | 281 | 1.19 | 279 | 2 | 0 |
-| 8 | 23660 | 315 | 1.33 | 311 | 4 | 2 |
+| 8 | 23659 | 314 | 1.33 | 310 | 4 | 2 |
 | 9 | 22328 | 213 | 0.95 | 205 | 8 | 3 |
-| 10 | 22164 | 293 | 1.32 | 288 | 5 | 1 |
+| 10 | 22160 | 289 | 1.30 | 284 | 5 | 1 |
 | 11 | 21426 | 145 | 0.68 | 142 | 3 | 0 |
 | 12 | 22161 | 257 | 1.16 | 245 | 12 | 2 |
 
@@ -490,11 +598,11 @@ Yüksek riskli satırların meteorolojik günleri (10 gün):
 | 2019 | 17507 | 0 (0.00) | 57 (0.33) | 174 (0.99) | 530 (3.03) | 1426 (8.15) | 15320 (87.51) |
 | 2020 | 16588 | 0 (0.00) | 28 (0.17) | 122 (0.74) | 434 (2.62) | 1408 (8.49) | 14596 (87.99) |
 | 2021 | 17508 | 0 (0.00) | 96 (0.55) | 185 (1.06) | 405 (2.31) | 1572 (8.98) | 15250 (87.10) |
-| 2022 | 17517 | 0 (0.00) | 139 (0.79) | 135 (0.77) | 291 (1.66) | 1087 (6.21) | 15865 (90.57) |
+| 2022 | 17512 | 0 (0.00) | 138 (0.79) | 135 (0.77) | 290 (1.66) | 1087 (6.21) | 15862 (90.58) |
 | 2023 | 17515 | 0 (0.00) | 56 (0.32) | 104 (0.59) | 436 (2.49) | 1249 (7.13) | 15670 (89.47) |
 | 2024 | 17541 | 0 (0.00) | 36 (0.21) | 80 (0.46) | 226 (1.29) | 887 (5.06) | 16312 (92.99) |
 | 2025 | 17512 | 0 (0.00) | 36 (0.21) | 88 (0.50) | 349 (1.99) | 977 (5.58) | 16062 (91.72) |
-| 2026 | 12460 | 0 (0.00) | 26 (0.21) | 121 (0.97) | 217 (1.74) | 636 (5.10) | 11460 (91.97) |
+| 2026 | 12459 | 0 (0.00) | 26 (0.21) | 121 (0.97) | 217 (1.74) | 636 (5.10) | 11459 (91.97) |
 
 ### 3.2 Hava kodları, olay gözlemi, onset/pozitif/olay
 
@@ -513,11 +621,11 @@ Yüksek riskli satırların meteorolojik günleri (10 gün):
 | 2019 | 17507 | 86.4 | 549 | 47 | 120 | 167 | 157 | 1590 | 19 | 57 | 17450 | 112 | 18 |
 | 2020 | 16588 | 86.0 | 472 | 19 | 126 | 145 | 77 | 1805 | 3 | 28 | 16560 | 54 | 8 |
 | 2021 | 17508 | 84.5 | 250 | 53 | 196 | 249 | 355 | 1947 | 9 | 96 | 17412 | 124 | 18 |
-| 2022 | 17517 | 88.2 | 244 | 60 | 104 | 164 | 438 | 1297 | 0 | 139 | 17378 | 240 | 34 |
+| 2022 | 17512 | 88.2 | 244 | 60 | 102 | 162 | 438 | 1295 | 0 | 138 | 17374 | 240 | 33 |
 | 2023 | 17515 | 87.6 | 423 | 34 | 76 | 111 | 194 | 1629 | 9 | 56 | 17459 | 73 | 10 |
 | 2024 | 17541 | 88.8 | 219 | 21 | 180 | 201 | 72 | 1552 | 4 | 36 | 17505 | 58 | 9 |
 | 2025 | 17512 | 88.9 | 335 | 15 | 122 | 137 | 268 | 1343 | 0 | 36 | 17476 | 90 | 13 |
-| 2026 | 12460 | 86.9 | 259 | 11 | 116 | 129 | 173 | 1271 | 6 | 26 | 12434 | 66 | 11 |
+| 2026 | 12459 | 86.9 | 259 | 11 | 116 | 129 | 173 | 1270 | 6 | 26 | 12433 | 66 | 11 |
 
 ### 3.3 Görüş değer yapısı ve diğer alanlar
 
@@ -595,11 +703,11 @@ Aylık — 2011 ile 2012–2014 ortalaması:
 | 2019 | 17507 | 8753 | 8754 | 0 | 365 | 99.9 |
 | 2020 | 16588 | 8294 | 8294 | 0 | 346 | 94.4 |
 | 2021 | 17508 | 8755 | 8753 | 0 | 365 | 99.9 |
-| 2022 | 17517 | 8755 | 8757 | 5 | 365 | 100.0 |
+| 2022 | 17512 | 8755 | 8757 | 0 | 365 | 100.0 |
 | 2023 | 17515 | 8757 | 8758 | 0 | 365 | 100.0 |
 | 2024 | 17541 | 8770 | 8771 | 0 | 366 | 99.8 |
 | 2025 | 17512 | 8756 | 8756 | 0 | 365 | 100.0 |
-| 2026 | 12460 | 6229 | 6230 | 1 | 260 | 71.1 |
+| 2026 | 12459 | 6229 | 6230 | 0 | 260 | 71.1 |
 
 ### 3.5 2011 ile 2012–2014 ortalaması — aylık
 
@@ -645,12 +753,12 @@ Aylık — 2011 ile 2012–2014 ortalaması:
 | 2019 | 57 | 47 | 56 | 1 | 0 | 56 | 0 |
 | 2020 | 28 | 19 | 28 | 0 | 0 | 28 | 0 |
 | 2021 | 96 | 53 | 69 | 27 | 0 | 69 | 0 |
-| 2022 | 139 | 60 | 67 | 72 | 0 | 67 | 0 |
+| 2022 | 138 | 60 | 66 | 72 | 0 | 66 | 0 |
 | 2023 | 56 | 34 | 37 | 19 | 0 | 37 | 0 |
 | 2024 | 36 | 21 | 36 | 0 | 0 | 36 | 0 |
 | 2025 | 36 | 15 | 19 | 17 | 0 | 19 | 0 |
 | 2026 | 26 | 11 | 25 | 1 | 0 | 25 | 0 |
-| **toplam** | 1183 | 666 | 945 | 253 | 16 | 930 | 1 |
+| **toplam** | 1182 | 666 | 944 | 253 | 16 | 929 | 1 |
 
 ### 4.2 Olay gözlemlerinin bileşimi — aya göre
 
@@ -665,7 +773,7 @@ Aylık — 2011 ile 2012–2014 ortalaması:
 | 7 | 53 | 32 | 52 | 0 | 0 | 53 | 1 |
 | 8 | 41 | 26 | 41 | 0 | 0 | 41 | 0 |
 | 9 | 19 | 13 | 19 | 0 | 0 | 19 | 0 |
-| 10 | 78 | 62 | 78 | 0 | 0 | 78 | 0 |
+| 10 | 77 | 62 | 77 | 0 | 0 | 77 | 0 |
 | 11 | 104 | 82 | 104 | 0 | 0 | 104 | 0 |
 | 12 | 70 | 32 | 60 | 21 | 11 | 49 | 0 |
 
@@ -700,7 +808,7 @@ Tanımlar: (a) (t, t+3sa] içindeki herhangi bir :20/:50 gözleminde SN; (b) pen
 
 |  | penceresinde SN yok | penceresinde SN var |
 |---|---:|---:|
-| Y=0 | 265613 | 4711 |
+| Y=0 | 265608 | 4711 |
 | Y=1 | 1334 | 582 |
 
 ### 4.4 Bağımsız olaylar (§5.1, 2011+ tam kayıt) — tümü / ≥ 1 SN / SN'siz
@@ -718,12 +826,12 @@ Tanımlar: (a) (t, t+3sa] içindeki herhangi bir :20/:50 gözleminde SN; (b) pen
 | 2019 | 18 | 1 | 17 | 17 | 0 |
 | 2020 | 8 | 0 | 8 | 8 | 0 |
 | 2021 | 18 | 6 | 12 | 12 | 0 |
-| 2022 | 34 | 19 | 15 | 16 | 0 |
+| 2022 | 33 | 19 | 14 | 15 | 0 |
 | 2023 | 10 | 3 | 7 | 7 | 0 |
 | 2024 | 9 | 0 | 9 | 9 | 0 |
 | 2025 | 13 | 9 | 4 | 4 | 0 |
 | 2026 | 11 | 1 | 10 | 10 | 0 |
-| **toplam** | 290 | 78 | 212 | 216 | 1 |
+| **toplam** | 289 | 78 | 211 | 215 | 1 |
 
 - Hiçbir olaya atanamayan olay gözlemi: **0**. 
 
