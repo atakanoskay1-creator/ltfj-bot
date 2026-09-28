@@ -1,9 +1,9 @@
 # Sis modeli V2 — deney ve değerlendirme protokolü
 
-**Durum:** TASLAK (sürüm 0.2) — henüz dondurulmadı.
-Bu belge dondurulduktan (merge edildikten) sonra karar kuralları ancak §15'teki
-değişiklik denetimiyle değiştirilebilir. Deney 1'in sonuçları görüldükten sonra
-karar kuralları **hiç** değiştirilemez.
+**Durum:** DONDURULDU — sürüm 1.0 (28 Eylül 2026). Dondurma, bu sürümü içeren
+PR'ın `main`'e merge edildiği commit'tir.
+Dondurmadan sonra §5–§9 ve §11–§12'deki karar ve sayısal seçim kuralları
+**hiçbir deney sonucu (Deney 0 dahil) görüldükten sonra değiştirilmez** (§15).
 
 ---
 
@@ -53,8 +53,8 @@ V2 ancak §12'deki ileriye dönük sınavı geçerse V1'in yerine canlıya alın
 
 ## 4. Deney 0 — veri kalitesi denetimi (model performansına bakılmaz)
 
-1. **Gecikme eksikliği:** t−30, t−60, t−120 dk gözlemleri **tam o zamanda**
-   mevcut mu (en yakın gözlem kullanılmaz). P(eksik | Y=1) ile P(eksik | Y=0),
+1. **Gecikme eksikliği:** varyantların gerektirdiği t−60 ve t−120 dk
+   gözlemleri **tam o zamanda** mevcut mu (en yakın gözlem kullanılmaz). P(eksik | Y=1) ile P(eksik | Y=0),
    meteorolojik gün bootstrap'iyle; ay ve saate göre ayrıca.
    Oran [0,8; 1,25] dışında ve aralık 1'i dışlıyorsa kayda geçer (§7.4 zaten
    V1'e geri dönüş uyguladığı için model davranışı değişmez; rapora yazılır).
@@ -84,10 +84,32 @@ Deney 0 raporu Deney 1'den önce yazılır ve bu protokolün eki olur.
   - satır düzeyi ölçütler (LL, AP, Brier, LSS): **meteorolojik gün**
     (12 UTC – ertesi gün 12 UTC);
   - olay düzeyi ölçütler (yakalama, ilk alarm süresi): **bağımsız olay**
-    (`olay_degerlendirme.bagimsiz_olaylar`, 3 saat boşluk).
+    (§5.1).
   - Bu birimlerin bağımsız olduğu iddia edilmez; bağımlılığı daha iyi gruplayan
     birimlerdir.
   - Tekrar sayısı: 2000.
+
+### 5.1 Bağımsız olay tanımı (sabit)
+
+Bu protokolde "bağımsız olay" yalnızca şu anlama gelir
+(`olay_degerlendirme.bagimsiz_olaylar(kayitlar, etiket="sis", bosluk_saat=3.0)`):
+
+1. Girdi, `hedef.hazirla` çıktısının **tam** kayıt kümesidir (onset filtresi
+   uygulanmamış), yalnızca ilgili dönemin satırları.
+2. Olay gözlemleri (`sis = 1`) zamana göre sıralanır.
+3. Ardışık iki olay gözlemi arasındaki süre **3 saatten uzunsa** yeni olay
+   başlar; 3 saat veya daha kısaysa aynı olaya eklenir.
+4. Olayın başlangıcı ilk olay gözleminin zamanıdır.
+
+- **Seyreklik kararlarında** (§7.5) bölütleme **yalnızca ilgili dış fold'un
+  eğitim yıllarının** satırlarına uygulanır; test dönemine taşan bir olay eğitim
+  sınırında kesilmiş hâliyle sayılır. Test dönemi gözlemleri bölütlemeye girmez.
+- **Değerlendirmede** (§9.1 ve olay bootstrap'i) bölütleme ilgili değerlendirme
+  döneminin satırlarına uygulanır.
+- Bir pozitif satır (Y_t = 1), (t, t+3sa] penceresindeki **ilk** olay
+  gözleminin ait olduğu olaya atanır.
+- `sis_iklim.py`'deki 61 dakikalık gruplama bir iklim sayımı tanımıdır; bu
+  protokolde **kullanılmaz**.
 
 ## 6. L2 seçimi — iç içe zaman bölmeli doğrulama
 
@@ -102,7 +124,8 @@ Deney 0 raporu Deney 1'den önce yazılır ve bu protokolün eki olur.
   ortalama log-loss farkı **≤ 1e-4 nat** olan L2'ler eşit sayılır ve bunlardan
   **en büyüğü** seçilir (daha muhafazakâr). Gerekçe (sonuçlardan değil, ölçekten):
   taban oran %0,757'de iklim referansının log-loss'u ≈ 0,0445 nat; 1e-4 bunun
-  %0,22'si, LSS'de ≈ 0,002. Tolerans Deney 0'dan sonra değiştirilmez.
+  %0,22'si, LSS'de ≈ 0,002. **Tolerans protokol 1.0 ile dondurulur ve hiçbir
+  deney sonucu görüldükten sonra değiştirilmez.**
 - **Yakınsama:** bir L2 herhangi bir iç blokta `TekilSistem` ya da `Yakinsamadi`
   verirse o dış fold için elenir. Seçilen L2 ile dış fold'un tüm eğitim
   verisindeki eğitim yakınsamazsa o spesifikasyon **başarısız** sayılır.
@@ -173,10 +196,22 @@ işareti bu deney ailesine alınmadı. Sonuçlar görüldükten sonra yeni aday
 
 ### 7.4 Eksik gecikme → V1'e geri dönüş
 Bir satırda varyantın gerektirdiği tam gecikmelerden (tabloda son satır) biri
-eksikse o satırda V2'nin tahmini yerine **V1'in tahmini** kullanılır
-(geliştirmede aynı fold'un V1 referansı; canlıda dondurulmuş V1). En yakın
-gözlem kullanılmaz. Birincil değerlendirme bu birleşik sistem üzerinden
-yapılır. Kapsama her varyant için ayrı raporlanır (V2c'nin kapsaması t−120
+eksikse o satırda V2'nin tahmini yerine V1'in tahmini kullanılır. En yakın
+gözlem kullanılmaz. **Hangi V1'in kullanılacağı kilitlidir:**
+
+| aşama | eksik gecikmede kullanılan |
+|---|---|
+| **geliştirme** (dış fold değerlendirmesi) | **o dış fold'un eğitim verisiyle kurulan V1 referansının** tahmini |
+| **ileriye dönük sınav / canlı** | o tarihte **dondurulmuş, canlıdaki V1**'in tahmini |
+
+Geliştirmede canlıdaki dondurulmuş V1 **hiçbir satırda** kullanılmaz: 2011–2023
+ile eğitildiği için test yıllarını görmüş olur ve sızıntı yaratır.
+
+Geri dönüş yalnızca **yeni** gidişat değişkenlerinin gecikmeleri (t−60, t−120)
+için tetiklenir. V1'den devralınan değişkenlerin eksik değer davranışı V1'deki
+gibidir (değer yoksa WoE = 0; ör. `spread_egilim_3` için t−3sa yoksa).
+
+Birincil değerlendirme bu birleşik sistem üzerinden yapılır. Kapsama her varyant için ayrı raporlanır (V2c'nin kapsaması t−120
 gerektirdiği için daha düşük olabilir).
 
 ### 7.5 Seyrek hücre ve kova kuralları
@@ -186,9 +221,10 @@ gerektirdiği için daha düşük olabilir).
 pozitifleri hiçbir birleştirme ya da geri dönüş kararına girmez. Her fold'da
 hangi hücrenin hangi düzeyden değer aldığı rapora yazılır.
 
-**Yeterlilik:** en az 500 satır, en az 10 pozitif satır ve en az 5 bağımsız
-olay (eğitim verisinde `bagimsiz_olaylar` ile bulunan olaylardan, o hücrede en
-az bir pozitif satırı olanlar).
+**Yeterlilik** (bütün hücre ve kovalar için aynı): en az 500 satır, en az 10
+pozitif satır ve en az 5 bağımsız olay. Olay sayısı: §5.1'e göre yalnızca
+eğitim yıllarında bölütlenen olaylardan, o hücreye/kovaya **en az bir pozitif
+satırı atanmış** olanların sayısı.
 
 **`gv60` geri dönüş hiyerarşisi** — komşu görüş bandıyla birleştirme **yok**:
 
@@ -201,10 +237,16 @@ az bir pozitif satırı olanlar).
 doğal logaritma; `woe.kova_tablosu` ile aynı), dolayısıyla değerler aynı
 log-odds ölçeğindedir.
 
-**Tek boyutlu değişkenler (`dspread_1sa`, `egilim120`):** yeterli olmayan kova,
-sabit yönde **değişimsizliğe doğru** komşusuyla birleşir:
-`dspread_1sa`: ≤ −2 → −1 → 0 ← +1 ← ≥ +2;
-`egilim120`: ≥ 2 bant düşüş → 1 bant düşüş → iyileşen/sabit.
+**Tek boyutlu değişkenler (`dspread_1sa`, `egilim120`):** kovalar birleştirilmez.
+Yeterli kova kendi WoE'sini alır; **yeterli olmayan kovanın WoE'si 0'dır.**
+WoE = 0, "bu rejim meteorolojik olarak etkisizdir" iddiası **değildir**: bu
+fold'un eğitim verisi bu ek değişken için güvenilir bir olabilirlik oranı
+üretmeye yetmediği için değişken o satıra **ek kanıt sağlamaz**. Seyrek bir
+rejim komşu rejimden kanıt ödünç almaz.
+
+`gv60` farklıdır: `gorus` V1'den çıkarıldığı için doğrudan 0'a düşmek anlık
+görüş bilgisini kaybettirirdi; bu yüzden onun hiyerarşisi (hücre → aynı bandın
+eğilimden bağımsız değeri → V1 referansının `gorus` WoE'si) aynen kalır.
 
 ### 7.6 Sözde kod (dondurulan algoritma)
 
@@ -223,7 +265,7 @@ egilim(g_t, g_gecmis):
     return "iyilesen_sabit" if d >= 0 else ("1_bant" if d == −1 else "2+_bant")
 
 gv60_tablosu(E, v1_gorus_tablosu):
-    olaylar = bagimsiz_olaylar(E)
+    olaylar = bagimsiz_olaylar(E_tam_kayit)    # §5.1; yalnızca eğitim yılları
     for b in 4 anlık bant:
         bant_h = satırlar(E, anlik_bant == b)
         for e in 3 eğilim sınıfı:
@@ -237,16 +279,21 @@ gv60_woe(satir, tablo, v1_gorus_tablosu):
     kaynak, w = tablo[anlik_bant(satir.gorus_t), egilim(satir.gorus_t, satir.gorus_t−60)]
     return w if kaynak != "v1_gorus" else v1_gorus_tablosu.woe(satir.gorus_t)
 
-tek_boyut_tablosu(E, degisken, kovalar, birlesme_yonu):
-    # kovalar değişimsizliğe doğru birleşir; yeterli olana kadar tekrar
-    while exists kova not YETERLI:
-        kova'yı birlesme_yonu[kova] ile birleştir
-    return {kova: WOE(kova, E)}
+tek_boyut_tablosu(E, degisken, kovalar):            # dspread_1sa, egilim120
+    return {kova: (WOE(kova, E) if YETERLI(kova) else 0.0) for kova in kovalar}
+    # birleştirme YOK; 0 = "bu fold bu değişken için ek kanıt sağlayamıyor"
 
-tahmin(satir, varyant):
+# DEVELOPMENT (dış fold değerlendirmesi):
+tahmin_gelistirme(satir, varyant, v1_referansi_bu_fold):
     if any(gerekli gecikme eksik for varyant):   # tam zaman eşleşmesi, en yakın gözlem YOK
-        return V1_referansi.olasilik(satir)       # canlıda: dondurulmuş V1
+        return v1_referansi_bu_fold.olasilik(satir)   # AYNI dış fold'un eğitimiyle kurulmuş
     return varyant.olasilik(satir)
+
+# PROSPECTIVE / PRODUCTION:
+tahmin_canli(satir, v2_dondurulmus, v1_dondurulmus):
+    if any(gerekli gecikme eksik for v2_dondurulmus):
+        return v1_dondurulmus.olasilik(satir)          # o tarihte canlıdaki dondurulmuş V1
+    return v2_dondurulmus.olasilik(satir)
 ```
 
 ## 8. Birincil karar (geliştirme, Deney 1)
@@ -332,9 +379,21 @@ tahmin(satir, varyant):
 
 ## 13. Bakış kaydı
 
-| tarih | ne yapıldı | kim | not |
-|---|---|---|---|
-| — | — | — | — |
+| tarih | ne yapıldı | not |
+|---|---|---|
+| 28.09.2026 | Protokol 1.0 donduruldu | V2a/V2b/V2c için hiçbir model eğitilmedi, hiçbir V2 skoru hesaplanmadı; Deney 0 çalıştırılmadı. |
+
+**Dondurmadan önce aynı veride yapılmış incelemeler** (şeffaflık için; hiçbiri
+V2 değişkenlerinin performansına bakmadı):
+- Model A'nın 2011–2023 yürüyen pencere değerlendirmesi ve 2024–2026 tarihsel
+  sınavı (README).
+- Güneyli rüzgâr kalibrasyon testi (`guneyli_sis_deney.py`) ve ay/saat/rüzgâr
+  gruplarında V1 kalan sapma taraması (30 gruptan 11'i 1'in dışında).
+- Sis/düşük görüş iklimbilimi, hava kodu bileşimi, SN'siz iklim sayımları.
+- LTFM–LTFJ eşzamanlılık sayımları.
+- Hedef zinciri doğrulaması (224.825 / 1.702) ve yıllara göre onset satırı,
+  pozitif satır ve bağımsız olay sayıları; onset evreninin görüş bandı dağılımı
+  (yalnızca girdi sayımı).
 
 ## 14. Raporlama
 
@@ -343,8 +402,17 @@ tahmin(satir, varyant):
 
 ## 15. Değişiklik denetimi
 
-- Deney 1'in sonuçlarından **önce**: bu belge sürüm numarası artırılarak,
-  gerekçesiyle ve tarihli olarak değiştirilebilir.
-- Deney 1'in sonuçlarından **sonra**: §5–§9 ve §11–§12'deki karar kuralları
-  değiştirilemez. Hata düzeltmesi gerekiyorsa sonuçları etkileyip etkilemediği
-  ayrıca raporlanır.
+- Protokol 1.0 `main`'e merge edildiği anda donar.
+- **Karar ve sayısal seçim kuralları** (§5–§9, §11–§12: fold'lar, ambargo,
+  bootstrap birimleri, L2 ızgarası ve toleransı, bantlar, yeterlilik eşikleri,
+  geri dönüş kuralları, varyantlar, karar eşikleri, koruma şartları, güç
+  analizi kuralı, T0) **hiçbir deney sonucu görüldükten sonra değiştirilmez;
+  Deney 0 da buna dahildir.**
+- Deney 0 bulguları yalnızca raporlanır ve mevcut kurallarla (ör. §7.4 geri
+  dönüş, kapsama raporu) karşılanır. Bir bulgu protokolün uygulanamaz olduğunu
+  gösterirse (ör. bir fold'da hiçbir L2 yakınsamıyorsa) bu, kuralı değiştirme
+  gerekçesi değil, ilgili spesifikasyonun **başarısız** sayılma gerekçesidir.
+- Kodlama hatası düzeltmeleri (protokolün söylediğini yapmayan kod) serbesttir;
+  her düzeltme ve sonuçları etkileyip etkilemediği bakış kaydına yazılır.
+- Açıklama ve yazım düzeltmeleri, anlamı değiştirmediği sürece sürüm numarası
+  artırılarak yapılabilir.
