@@ -1,6 +1,6 @@
 # Sis modeli V2 — deney ve değerlendirme protokolü
 
-**Durum:** TASLAK (sürüm 0.1) — henüz dondurulmadı.
+**Durum:** TASLAK (sürüm 0.2) — henüz dondurulmadı.
 Bu belge dondurulduktan (merge edildikten) sonra karar kuralları ancak §15'teki
 değişiklik denetimiyle değiştirilebilir. Deney 1'in sonuçları görüldükten sonra
 karar kuralları **hiç** değiştirilemez.
@@ -98,8 +98,11 @@ Deney 0 raporu Deney 1'den önce yazılır ve bu protokolün eki olur.
   (2017–18 fold'unda 2014, 2015, 2016; …; 2025–26 fold'unda 2014–2024). Her blok
   için iç eğitim = o yıldan önceki bütün yıllar (genişleyen pencere), ambargolu.
 - **Seçim ölçütü:** her L2 için bütün iç blokların **havuzlanmış log-loss**'u;
-  λ* = en küçük olan. Eşitlikte (4 anlamlı basamak) **daha büyük L2** seçilir
-  (daha muhafazakâr).
+  λ* = en küçük olan. **Eşitlik toleransı:** en iyi değerle arasındaki havuzlanmış
+  ortalama log-loss farkı **≤ 1e-4 nat** olan L2'ler eşit sayılır ve bunlardan
+  **en büyüğü** seçilir (daha muhafazakâr). Gerekçe (sonuçlardan değil, ölçekten):
+  taban oran %0,757'de iklim referansının log-loss'u ≈ 0,0445 nat; 1e-4 bunun
+  %0,22'si, LSS'de ≈ 0,002. Tolerans Deney 0'dan sonra değiştirilmez.
 - **Yakınsama:** bir L2 herhangi bir iç blokta `TekilSistem` ya da `Yakinsamadi`
   verirse o dış fold için elenir. Seçilen L2 ile dış fold'un tüm eğitim
   verisindeki eğitim yakınsamazsa o spesifikasyon **başarısız** sayılır.
@@ -110,42 +113,141 @@ Deney 0 raporu Deney 1'den önce yazılır ve bu protokolün eki olur.
 ### 7.1 V1 referansı (geliştirme karşılaştırması için)
 V1'in değişken seti (`gorus, spread, spread_egilim_3, saat, ruzgar_kuzey`), WoE +
 L2 lojistik regresyon, §6 prosedürüyle her dış fold'da yeniden eğitilir. Böylece
-V1–V2 farkı yalnızca değişkenlerden gelir. Dondurulmuş canlı V1'in aynı satırlardaki
+V1–V2 farkı yalnızca değişkenlerden gelir. V1'in eski yürüyen pencere sonuçları (AP 0,210 /
+BSS 0,118, 2015–2023, ambargosuz, tek yıllık iç doğrulama, AP ile L2 seçimi)
+**tarihsel V1 sonucudur; V2 karşılaştırmasının kıyas ölçütü değildir.** Kıyas
+ölçütü, bu protokolün fold'ları, ambargosu ve L2 prosedürüyle yeniden hesaplanan
+V1 referansıdır. Dondurulmuş canlı V1'in aynı satırlardaki
 skoru yalnızca **tanılama** olarak raporlanır (2011–2023 ile eğitildiği için
 o yılları içeren fold'larda örnek içidir).
 
-### 7.2 Görüş gidişatı değişkenleri (a priori)
-- **İnce görüş bantları:** 1000 / 1500 / 3000 / 5000 / 8000 / 9999 m.
-- **Eğilim sınıfı** (ince bant indeksindeki değişim, pencere §7.3'e göre):
-  `iyileşen/sabit` (Δbant ≥ 0) · `1 bant düşüş` · `≥ 2 bant düşüş`.
-  Gerekçe: metre farkı ölçeğe bağlı (10000→7000 ile 2000→1500 aynı şey değil);
-  bant geçişi operasyonel eşiklerden türüyor.
-- **Birleşik değişken (görüş × eğilim):** anlık görüş bantları
-  1000–3000 / 3000–5000 / 5000–9999 / ≥ 9999 (girdi sayımına göre; sonuca
-  bakılmadan) × 3 eğilim sınıfı = **12 hücre**, tek bir WoE değişkeni olarak.
-- **Seyrek hücre kuralı** (her dış fold'un **eğitim** verisinde ölçülür):
-  en az 500 gözlem, en az 10 pozitif satır, en az 5 bağımsız olay.
-  Sağlamayan hücre **aynı görüş bandının `iyileşen/sabit` hücresiyle** birleşir.
-  `iyileşen/sabit` hücresinin kendisi sağlamıyorsa o görüş bandının tamamı bir
-  üst görüş bandıyla birleşir. Birleştirme yönü veriye bakılarak seçilmez.
-- **Δspread_1sa:** tam 60 dk gecikme; kovalar ≤ −2, −1, 0, +1, ≥ +2 °C
-  (METAR sıcaklığı tam sayı olduğu için doğal kovalar).
+### 7.2 Gidişat değişkenleri (a priori)
 
-### 7.3 Varyantlar (en fazla üç)
-| varyant | değişkenler |
-|---|---|
-| **V2a** | V1, ama `gorus` yerine birleşik görüş × eğilim (60 dk penceresi) |
-| **V2b** | V2a + Δspread_1sa |
-| **V2c** | **[KARAR BEKLİYOR]** V2b, ama eğilim sınıfı 120 dk penceresiyle |
+**İnce görüş bantları** (eğilim hesabı için; indeks 0–6):
+`< 1000 · 1000–1500 · 1500–3000 · 3000–5000 · 5000–8000 · 8000–9999 · ≥ 9999` m.
 
-Not: V1'in `spread_egilim_3` değişkeni zaten tam 3 saatlik gecikmeli Δspread
-(`hedef.hazirla`). Bu yüzden önceki taslaktaki "V2c = V2b + Δspread_3sa" yeni
-bilgi eklemiyordu ve çıkarıldı.
+**Eğilim sınıfı** — ince bant indeksindeki değişim, `Δ = indeks(t) − indeks(t−k)`:
+`iyileşen/sabit` (Δ ≥ 0) · `1 bant düşüş` (Δ = −1) · `≥ 2 bant düşüş` (Δ ≤ −2).
+Gerekçe: metre farkı ölçeğe bağlı (10000→7000 ile 2000→1500 aynı şey değil);
+bant geçişi operasyonel eşiklerden türüyor.
+
+**Anlık görüş bantları** (birleşik değişken için; girdi sayımına göre,
+sonuca bakılmadan): `1000–3000 · 3000–5000 · 5000–9999 · ≥ 9999` m.
+Onset evreninde anlık görüş tanım gereği ≥ 1000 m'dir.
+
+| değişken | tanım | kovalar |
+|---|---|---|
+| `gv60` | anlık görüş bandı × 60 dk eğilim sınıfı (tek WoE değişkeni) | 4 × 3 = 12 hücre, §7.5 geri dönüş hiyerarşisiyle |
+| `dspread_1sa` | spread(t) − spread(t−60 dk) | ≤ −2 · −1 · 0 · +1 · ≥ +2 °C (METAR tam sayı) |
+| `egilim120` | 120 dk eğilim sınıfı (anlık görüşle çaprazlanmaz) | iyileşen/sabit · 1 bant düşüş · ≥ 2 bant düşüş |
+
+`egilim120` bilerek anlık görüşle çaprazlanmaz: anlık görüş bilgisi modele
+`gv60` üzerinden zaten giriyor; ikinci bir görüş × eğilim tablosu aynı bilgiyi
+iki kez sokardı.
+
+### 7.3 Varyantlar (dondurulmuş; üç model, yenisi eklenmez)
+
+| değişken | V1 referansı | V2a | V2b | V2c |
+|---|---|---|---|---|
+| `gorus` (V1'deki gibi, veriye göre kovalanan WoE) | ✓ | — | — | — |
+| `gv60` | — | ✓ | ✓ | ✓ |
+| `spread` | ✓ | ✓ | ✓ | ✓ |
+| `spread_egilim_3` (tam 3 sa gecikmeli Δspread) | ✓ | ✓ | ✓ | ✓ |
+| `saat` (UTC) | ✓ | ✓ | ✓ | ✓ |
+| `ruzgar_kuzey` | ✓ | ✓ | ✓ | ✓ |
+| `dspread_1sa` | — | — | ✓ | ✓ |
+| `egilim120` | — | — | — | ✓ |
+| **gereken tam gecikmeler** | — | t−60 | t−60 | t−60, t−120 |
+
+Sınanan sorular:
+- **V2a:** kısa dönem görüş gidişatı, anlık görüşün ötesinde bilgi taşıyor mu?
+- **V2b:** buna kısa dönem spread gidişatı ek bilgi katıyor mu?
+- **V2c:** 60 dakikanın ötesindeki görüş hareketi ek bilgi taşıyor mu?
+
+`spread`, `spread_egilim_3`, `saat` ve `ruzgar_kuzey` V1'deki gibi, her dış
+fold'un eğitim verisinde `woe.kova_tablosu` ile kovalanır. Not: V1'in
+`spread_egilim_3` değişkeni zaten tam 3 saatlik gecikmeli Δspread
+(`hedef.hazirla`); ayrıca bir Δspread_3sa eklenmez. 30 dakikalık hızlı düşüş
+işareti bu deney ailesine alınmadı. Sonuçlar görüldükten sonra yeni aday
+üretilip aynı geliştirme testine sokulmaz.
 
 ### 7.4 Eksik gecikme → V1'e geri dönüş
-Bir satırda gerekli gecikmelerden biri eksikse V2'nin tahmini yerine **V1'in
-tahmini** kullanılır (geliştirmede aynı fold'un V1 referansı; canlıda dondurulmuş
-V1). Birincil değerlendirme bu birleşik sistem üzerinden yapılır.
+Bir satırda varyantın gerektirdiği tam gecikmelerden (tabloda son satır) biri
+eksikse o satırda V2'nin tahmini yerine **V1'in tahmini** kullanılır
+(geliştirmede aynı fold'un V1 referansı; canlıda dondurulmuş V1). En yakın
+gözlem kullanılmaz. Birincil değerlendirme bu birleşik sistem üzerinden
+yapılır. Kapsama her varyant için ayrı raporlanır (V2c'nin kapsaması t−120
+gerektirdiği için daha düşük olabilir).
+
+### 7.5 Seyrek hücre ve kova kuralları
+
+**Bütün seyreklik ve birleştirme kararları yalnızca ilgili dış fold'un
+(ambargolu) eğitim satırlarıyla verilir.** Dış test satırlarının sayıları veya
+pozitifleri hiçbir birleştirme ya da geri dönüş kararına girmez. Her fold'da
+hangi hücrenin hangi düzeyden değer aldığı rapora yazılır.
+
+**Yeterlilik:** en az 500 satır, en az 10 pozitif satır ve en az 5 bağımsız
+olay (eğitim verisinde `bagimsiz_olaylar` ile bulunan olaylardan, o hücrede en
+az bir pozitif satırı olanlar).
+
+**`gv60` geri dönüş hiyerarşisi** — komşu görüş bandıyla birleştirme **yok**:
+
+1. anlık bant × eğilim hücresinin WoE'si, yeterliyse;
+2. değilse aynı anlık bandın **eğilimden bağımsız** WoE'si, yeterliyse;
+3. değilse satırın kendi görüşüyle **V1 referansının `gorus` WoE'si** (aynı
+   fold'da V1 referansı için kurulan tablo).
+
+Üç düzey de aynı WoE formülünü kullanır (Haldane–Anscombe düzeltmesi 0,5,
+doğal logaritma; `woe.kova_tablosu` ile aynı), dolayısıyla değerler aynı
+log-odds ölçeğindedir.
+
+**Tek boyutlu değişkenler (`dspread_1sa`, `egilim120`):** yeterli olmayan kova,
+sabit yönde **değişimsizliğe doğru** komşusuyla birleşir:
+`dspread_1sa`: ≤ −2 → −1 → 0 ← +1 ← ≥ +2;
+`egilim120`: ≥ 2 bant düşüş → 1 bant düşüş → iyileşen/sabit.
+
+### 7.6 Sözde kod (dondurulan algoritma)
+
+```text
+# Her dış fold için; E = o fold'un ambargolu eğitim satırları, T = test satırları.
+# Aşağıdaki bütün sayımlar YALNIZCA E üzerinden yapılır.
+
+INCE_BANT   = [1000, 1500, 3000, 5000, 8000, 9999]      # indeks = kaç eşiği geçtiği
+ANLIK_BANT  = [3000, 5000, 9999]                        # 1000–3000 / 3000–5000 / 5000–9999 / ≥9999
+YETERLI(h)  = h.satir >= 500 and h.pozitif >= 10 and h.olay >= 5
+WOE(h, H)   = ln( ((h.poz + 0.5) / (H.poz + 0.5·k)) / ((h.neg + 0.5) / (H.neg + 0.5·k)) )
+              # H: E'nin tamamı, k: o tablodaki kategori sayısı (woe.kova_tablosu ile aynı)
+
+egilim(g_t, g_gecmis):
+    d = ince_indeks(g_t) − ince_indeks(g_gecmis)
+    return "iyilesen_sabit" if d >= 0 else ("1_bant" if d == −1 else "2+_bant")
+
+gv60_tablosu(E, v1_gorus_tablosu):
+    olaylar = bagimsiz_olaylar(E)
+    for b in 4 anlık bant:
+        bant_h = satırlar(E, anlik_bant == b)
+        for e in 3 eğilim sınıfı:
+            hucre_h = satırlar(E, anlik_bant == b and egilim60 == e)
+            if YETERLI(hucre_h):  tablo[b, e] = ("hucre", WOE(hucre_h, E; k=12))
+            elif YETERLI(bant_h): tablo[b, e] = ("bant",  WOE(bant_h,  E; k=4))
+            else:                 tablo[b, e] = ("v1_gorus", None)
+    return tablo
+
+gv60_woe(satir, tablo, v1_gorus_tablosu):
+    kaynak, w = tablo[anlik_bant(satir.gorus_t), egilim(satir.gorus_t, satir.gorus_t−60)]
+    return w if kaynak != "v1_gorus" else v1_gorus_tablosu.woe(satir.gorus_t)
+
+tek_boyut_tablosu(E, degisken, kovalar, birlesme_yonu):
+    # kovalar değişimsizliğe doğru birleşir; yeterli olana kadar tekrar
+    while exists kova not YETERLI:
+        kova'yı birlesme_yonu[kova] ile birleştir
+    return {kova: WOE(kova, E)}
+
+tahmin(satir, varyant):
+    if any(gerekli gecikme eksik for varyant):   # tam zaman eşleşmesi, en yakın gözlem YOK
+        return V1_referansi.olasilik(satir)       # canlıda: dondurulmuş V1
+    return varyant.olasilik(satir)
+```
 
 ## 8. Birincil karar (geliştirme, Deney 1)
 
