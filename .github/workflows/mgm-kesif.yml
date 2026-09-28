@@ -1,0 +1,54 @@
+# MGM rasat yanıt sözleşmesini ÖLÇEN keşif iş akışı - SALT OKUNUR.
+#
+# Neden var: bot MGM'den `hours=0` ile yalnızca son raporları çekiyor;
+# kaçan METAR'ları geri doldurmak için `hours=N`'nin ne döndürdüğünü
+# (hangi alan, kaç kayıt, hangi zaman aralığı, COR temsili) GitHub
+# Actions'ın gerçek ağ ortamından görmemiz gerekiyor.
+#
+# Hiçbir şey commit etmez / repoya yazmaz (permissions: contents: read).
+# Ham yanıtlar yalnızca geçici dizine yazılır ve artifact olarak yüklenir.
+#
+# Tetikleyiciler:
+#   - workflow_dispatch: elle çalıştırma. GitHub bunu yalnızca varsayılan
+#     dalda bulunan iş akışları için izin verir.
+#   - pull_request (yalnız bu iki dosya değişince): merge ÖNCESİ gerçek
+#     Actions çıktısını görebilmek için. Salt okunurdur.
+name: MGM keşif (salt okunur)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "mgm_kesif.py"
+      - ".github/workflows/mgm-kesif.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  kesif:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Repoyu al
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Bagimliliklar
+        run: pip install --quiet requests
+
+      - name: Kesif
+        run: python mgm_kesif.py --ham-dizin "$RUNNER_TEMP/mgm_kesif"
+
+      - name: Ham yanitlari artifact olarak yukle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mgm-kesif-ham
+          path: ${{ runner.temp }}/mgm_kesif
+          retention-days: 30
+          if-no-files-found: warn
