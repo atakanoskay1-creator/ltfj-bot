@@ -245,3 +245,9 @@ def test_iklim_bolumunde_EMOJI_yok():
 def test_tablo_bos_ise_bolum_yok(monkeypatch):
     monkeypatch.setattr(_iklim, "SIS_GOZLEM", 0)
     assert s._sis_iklim_html() == ""
+
+
+def test_iklim_dipnotu_GERCEK_hedef_tanimi_ve_bilesim():
+    html = s._sis_iklim_html()
+    assert "görüş &lt; 1000 m <b>veya</b> meydanı kaplayan FG" in html
+    assert s._kod_bilesimi_metni(_iklim.KOD_BILESIMI) in html

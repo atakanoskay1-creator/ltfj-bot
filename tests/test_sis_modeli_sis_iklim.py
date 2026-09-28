@@ -136,3 +136,19 @@ def test_donmus_paylar_YUZE_YAKIN(liste, alan):
 
 def test_donmus_lvo_toplami_tutarli():
     assert sum(a["lvo_gozlem"] for a in T.AYLAR) == T.LVO_GOZLEM
+
+
+@pytest.mark.parametrize("sis_kodu,hava,beklenen", [
+    (True, "FG", "FG"),
+    (False, "BCFG", "BCFG/MIFG/PRFG"),
+    (False, "-SN", "SN"),
+    (False, "PRFG -SN", "BCFG/MIFG/PRFG+SN"),
+    (True, "FG SN", "FG+SN"),
+    (False, "", "diger"),
+])
+def test_kod_kategorisi_ORTUSEN_bayraklar(sis_kodu, hava, beklenen):
+    assert si.kod_kategorisi({"sis_kodu": sis_kodu, "hava": hava}) == beklenen
+
+
+def test_donmus_kod_bilesimi_TOPLAMI_olay_gozlemi():
+    assert sum(n for _, n in T.KOD_BILESIMI) == T.SIS_GOZLEM
