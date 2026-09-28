@@ -1,15 +1,15 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-28T09:24:46+00:00",
+ "uretildi": "2026-09-28T09:54:46+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-28T09:20:00+00:00",
-  "metin": "METAR LTFJ 280920Z 35016G27KT 320V040 9999 SCT015 BKN025 BKN080 19/16 Q1014 RESHRA NOSIG RMK RWY24R 35021G31KT 320V020 RWY06R 34019G30KT 320V020 RWY24L 36016KT",
+  "zaman": "2026-09-28T09:50:00+00:00",
+  "metin": "METAR LTFJ 280950Z 35015G26KT 320V040 9999 SCT015 BKN025 BKN080 19/15 Q1014 NOSIG RMK RWY24R 35021KT 310V010 RWY06R 34018KT 310V010 RWY24L 35018KT",
   "ruzgar": {
    "yon": 350,
-   "hiz": 16,
-   "hamle": 27,
+   "hiz": 15,
+   "hamle": 26,
    "degisken": [
     320,
     40
@@ -20,7 +20,7 @@
   "tavan": 2500,
   "hava": [],
   "sicaklik": 19,
-  "cig_noktasi": 16,
+  "cig_noktasi": 15,
   "qnh": 1014,
   "nosig": true,
   "renk": [
@@ -29,17 +29,17 @@
   ],
   "renk_etiketi": "LTFJ Bot durum seviyesi",
   "dikkat": [
-   "Yan rüzgâr ~26 kt (06/24)"
+   "Yan rüzgâr ~25 kt (06/24)"
   ],
   "pistler": [
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 4.4,
-    "yan": 15.4,
+    "bas": 4.1,
+    "yan": 14.4,
     "yan_taraf": "soldan",
-    "bas_hamle": 7.4,
-    "yan_hamle": 26.0,
+    "bas_hamle": 7.1,
+    "yan_hamle": 25.0,
     "degisken": true,
     "kaynak": "alan rüzgârından",
     "kuyruk": false,
@@ -48,11 +48,11 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 2.0,
-    "yan": 18.9,
+    "bas": 1.9,
+    "yan": 17.9,
     "yan_taraf": "soldan",
-    "bas_hamle": 3.1,
-    "yan_hamle": 29.8,
+    "bas_hamle": null,
+    "yan_hamle": null,
     "degisken": true,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": false,
@@ -61,8 +61,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -7.0,
-    "yan": 14.4,
+    "bas": -4.9,
+    "yan": 17.3,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -77,8 +77,8 @@
     "bas": -5.7,
     "yan": 20.2,
     "yan_taraf": "sağdan",
-    "bas_hamle": -8.5,
-    "yan_hamle": 29.8,
+    "bas_hamle": null,
+    "yan_hamle": null,
     "degisken": true,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
@@ -93,21 +93,13 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 350° 16kt (hamle 27) (değişken 320°–040°) · görüş 10+ km · tavan 2500 ft · 19°C · QNH 1014"
+  "ozet": "Rüzgâr 350° 15kt (hamle 26) (değişken 320°–040°) · görüş 10+ km · tavan 2500 ft · 19°C · QNH 1014"
  },
  "taf": {
   "zaman": "2026-09-28T04:40:00+00:00",
   "metin": "TAF LTFJ 280440Z 2806/2906 35019KT 9999 -SHRA SCT010 BKN028 BKN070 TEMPO 2806/2810 34022G34KT 3200 +SHRA FEW018CB BKN020 BKN070 TEMPO 2810/2814 35020G32KT TEMPO 2820/2824 4000 SHRA BECMG 2822/2902 01009KT"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-22T15:50:00+00:00",
-   "ruzgar_hiz": 10,
-   "tavan": 3300,
-   "qnh": 1013,
-   "sicaklik": 19,
-   "cig_noktasi": 16
-  },
   {
    "zaman": "2026-09-22T16:20:00+00:00",
    "ruzgar_hiz": 8,
@@ -2732,6 +2724,15 @@
    "qnh": 1014,
    "sicaklik": 19,
    "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-28T09:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 15,
+   "tavan": 2500,
+   "qnh": 1014,
+   "sicaklik": 19,
+   "cig_noktasi": 15
   }
  ]
 }
