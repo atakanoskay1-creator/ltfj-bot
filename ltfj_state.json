@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:54346574",
   "id:54351457",
   "id:54362476",
   "id:54368584",
@@ -199,23 +198,16 @@
   "id:55444526",
   "id:55452934",
   "id:55455512",
-  "id:55463904"
+  "id:55463904",
+  "id:55467703"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 282120Z 36014KT 9999 -SHRA SCT011 BKN026 18/16 Q1016 NOSIG RMK RWY24R 35013KT RWY06R 34014KT RWY24L 34011KT",
+ "son_metar": "METAR LTFJ 282150Z 01011KT 340V040 9999 FEW015 BKN035 BKN100 18/16 Q1016 RESHRA NOSIG RMK RWY24R 36011KT RWY06R 35011KT RWY24L 36009KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-28T21:20:00+00:00",
+ "son_veri_zamani": "2026-09-28T21:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-23T00:42:00+00:00",
-   "ruzgar_hiz": 19,
-   "tavan": 2500,
-   "qnh": 1012,
-   "sicaklik": 15,
-   "cig_noktasi": 12
-  },
   {
    "zaman": "2026-09-23T00:50:00+00:00",
    "ruzgar_hiz": 22,
@@ -2864,6 +2856,15 @@
    "qnh": 1016,
    "sicaklik": 18,
    "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-28T21:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 11,
+   "tavan": 3500,
+   "qnh": 1016,
+   "sicaklik": 18,
+   "cig_noktasi": 16
   }
  ],
  "yorum_onbellegi": {
@@ -3926,7 +3927,7 @@
   }
  },
  "notam_son_senkron": "2026-09-28T21:16:44+00:00",
- "guncelleme": "2026-09-28T21:50:59+00:00",
+ "guncelleme": "2026-09-28T21:54:37+00:00",
  "push_gonderilen": [
   "id:55405296"
  ]
