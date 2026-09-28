@@ -82,7 +82,6 @@ from pathlib import Path
 KLASOR = Path(__file__).resolve().parent
 VARSAYILAN_DOSYA = KLASOR / "gozlem_arsivi.csv"
 SURUM_DOSYASI = KLASOR / "gozlem_surumleri.csv"
-CATISMA_DOSYASI = KLASOR / "gozlem_arsivi_catisma.csv"
 DURUM_DOSYASI = KLASOR / "gozlem_arsivi_durum.json"
 
 # Sutun sirasi SABIT - yeni alan yalnizca SONA eklenir, yoksa eski
@@ -99,10 +98,6 @@ AYRISTIRMA_SUTUNLARI = SUTUNLAR[2:12]
 SURUM_SUTUNLARI = ("zaman", "tip", "zaman_ham", "metin", "mgm_id",
                    "mgm_status", "mgm_status_aciklama", "mgm_type",
                    "mgm_type_aciklama", "alinma_zamani", "kaynak")
-
-# Birlestirmede cozulen celiskilerin kaydi (normal calismada BOS kalir).
-CATISMA_SUTUNLARI = ("tespit_zamani", "tur", "zaman", "tip", "kural",
-                     "secilen", "elenen")
 
 GOZLEM_TIPLERI = ("METAR", "SPECI")
 KAYNAK_CANLI = "canli_h0"
@@ -274,33 +269,6 @@ def surumleri_yaz(satirlar: list, dosya: Path = SURUM_DOSYASI) -> None:
     _csv_yaz(sorted(tekil.values(), key=_surum_sirasi), SURUM_SUTUNLARI, dosya)
 
 
-# ------------------------------------------------------ catisma kaydi ---
-def catismalari_oku(dosya: Path = CATISMA_DOSYASI) -> list[dict]:
-    return _csv_oku(dosya)
-
-
-def catismalari_ekle(yeni: list, dosya: Path = CATISMA_DOSYASI) -> int:
-    """Celiski kayitlarini ekler (ekleme-yalnizca, tespit zamani haric
-    ayni kayit ikinci kez yazilmaz). Eklenen sayiyi doner."""
-    if not yeni:
-        return 0
-    mevcut = catismalari_oku(dosya)
-    goruldu = {_deger_demeti(c, CATISMA_SUTUNLARI[1:]) for c in mevcut}
-    eklenen = []
-    for c in yeni:
-        k = _deger_demeti(c, CATISMA_SUTUNLARI[1:])
-        if k not in goruldu:
-            goruldu.add(k)
-            eklenen.append(c)
-    if eklenen:
-        tum = sorted(mevcut + eklenen, key=lambda c: (c.get("zaman") or "",
-                                                      c.get("tip") or "",
-                                                      c.get("tur") or "",
-                                                      c.get("tespit_zamani") or ""))
-        _csv_yaz(tum, CATISMA_SUTUNLARI, dosya)
-    return len(eklenen)
-
-
 # ------------------------------------------------------------- isleme ---
 def arsive_isle(raporlar: list, coz, kaynak: str = "", alinma_zamani: datetime = None,
                 dosya: Path = VARSAYILAN_DOSYA,
@@ -439,12 +407,10 @@ def _kanonik_birlestir(sa: list, sb: list, tespit: str) -> tuple:
                     == _deger_demeti(sec, AYRISTIRMA_SUTUNLARI)):
                 continue
             catismalar.append({
-                "tespit_zamani": tespit, "tur": "kanonik", "zaman": zaman,
-                "tip": tip, "kural": _kural(sec, ele),
-                "secilen": json.dumps(dict(zip(SUTUNLAR, _deger_demeti(sec, SUTUNLAR))),
-                                      ensure_ascii=False),
-                "elenen": json.dumps(dict(zip(SUTUNLAR, _deger_demeti(ele, SUTUNLAR))),
-                                     ensure_ascii=False),
+                "tur": "kanonik", "zaman": zaman, "tip": tip,
+                "kural": _kural(sec, ele), "tespit_zamani": tespit,
+                "secilen": dict(zip(SUTUNLAR, _deger_demeti(sec, SUTUNLAR))),
+                "elenen": dict(zip(SUTUNLAR, _deger_demeti(ele, SUTUNLAR))),
             })
     return sonuc, catismalar
 
@@ -466,28 +432,40 @@ def _surum_birlestir(sa: list, sb: list, tespit: str) -> tuple:
         for ele in sirali[1:]:
             if _deger_demeti(ele, _SURUM_HAM) != _deger_demeti(sec, _SURUM_HAM):
                 catismalar.append({
-                    "tespit_zamani": tespit, "tur": "surum",
-                    "zaman": sec.get("zaman"), "tip": sec.get("tip"),
-                    "kural": "en_erken_alinma",
-                    "secilen": json.dumps(dict(zip(SURUM_SUTUNLARI,
-                                                   _deger_demeti(sec, SURUM_SUTUNLARI))),
-                                          ensure_ascii=False),
-                    "elenen": json.dumps(dict(zip(SURUM_SUTUNLARI,
-                                                  _deger_demeti(ele, SURUM_SUTUNLARI))),
-                                         ensure_ascii=False),
+                    "tur": "surum_ham_fark", "zaman": sec.get("zaman"),
+                    "tip": sec.get("tip"), "kural": "en_erken_alinma",
+                    "tespit_zamani": tespit,
+                    "secilen": dict(zip(SURUM_SUTUNLARI, _deger_demeti(sec, SURUM_SUTUNLARI))),
+                    "elenen": dict(zip(SURUM_SUTUNLARI, _deger_demeti(ele, SURUM_SUTUNLARI))),
                 })
     return sonuc, catismalar
 
 
 def _catisma_bildir(catismalar: list) -> None:
     for c in catismalar:
-        print(f"[UYARI] gözlem arşivi birleştirme çelişkisi ({c['tur']}): "
-              f"{c['zaman']} {c['tip']} - kural {c['kural']}; "
-              f"seçilen {c['secilen']} / elenen {c['elenen']}", file=sys.stderr)
+        baslik = ("DEĞİŞMEZLİK İHLALİ - kanonik çelişki" if c["tur"] == "kanonik"
+                  else "sürüm ham alan farkı")
+        print(f"[UYARI] gözlem arşivi birleştirme: {baslik}: {c['zaman']} {c['tip']} "
+              f"- kural {c['kural']}; seçilen "
+              f"{json.dumps(c['secilen'], ensure_ascii=False)} / elenen "
+              f"{json.dumps(c['elenen'], ensure_ascii=False)}", file=sys.stderr)
 
 
-def birlestir(a: Path, b: Path, hedef: Path, catisma_dosyasi: Path = None,
-              tespit_zamani: datetime = None) -> int:
+def _kanonik_dosya_birlestir(a: Path, b: Path, hedef: Path, tespit: str) -> list:
+    satirlar, catismalar = _kanonik_birlestir(oku(a), oku(b), tespit)
+    yaz(satirlar, hedef)
+    _catisma_bildir(catismalar)
+    return catismalar
+
+
+def _surum_dosya_birlestir(a: Path, b: Path, hedef: Path, tespit: str) -> list:
+    satirlar, catismalar = _surum_birlestir(surumleri_oku(a), surumleri_oku(b), tespit)
+    surumleri_yaz(satirlar, hedef)
+    _catisma_bildir(catismalar)
+    return catismalar
+
+
+def birlestir(a: Path, b: Path, hedef: Path, tespit_zamani: datetime = None) -> int:
     """Iki kanonik arsiv dosyasini BIRLESTIRIR (zaman+tip birlesimi).
 
     NEDEN GEREKLI: ltfj.yml iki kosu ust uste bindiginde
@@ -497,30 +475,60 @@ def birlestir(a: Path, b: Path, hedef: Path, catisma_dosyasi: Path = None,
 
     Ayni anahtarda yalnizca alinma_zamani/kaynak farkliysa (iki kosu ayni
     gozlemi ayni icerikle almis) en erken alinan kalir; bu celiski DEGIL.
-    Ayni anahtarda FARKLI ayristirilmis icerik normal calismada olusmamali.
-    Olursa secim
-    deterministiktir (eski satir, sonra en erken alinma) ama celiski
-    GIZLENMEZ: stderr'e yazilir ve catisma dosyasina kaydedilir."""
+    Ayni anahtarda FARKLI ayristirilmis icerik bir DEGISMEZLIK IHLALIDIR
+    (normal calismada olusmamali). Secim deterministiktir (eski satir,
+    sonra en erken alinma) ama GIZLENMEZ: stderr'e acik uyari; bot
+    kosusunda (birlestir_bizim) durum dosyasinda sayilir. Ham farkli
+    surumler zaten gozlem_surumleri.csv'de denetlenebilir."""
     tespit = _utc_iso(tespit_zamani or datetime.now(timezone.utc))
-    satirlar, catismalar = _kanonik_birlestir(oku(a), oku(b), tespit)
-    yaz(satirlar, hedef)
-    if catismalar:
-        _catisma_bildir(catismalar)
-        catismalari_ekle(catismalar, catisma_dosyasi
-                         or Path(hedef).with_name(CATISMA_DOSYASI.name))
+    _kanonik_dosya_birlestir(a, b, hedef, tespit)
     return len(oku(hedef))
 
 
-def surumleri_birlestir(a: Path, b: Path, hedef: Path, catisma_dosyasi: Path = None,
+def surumleri_birlestir(a: Path, b: Path, hedef: Path,
                         tespit_zamani: datetime = None) -> int:
     tespit = _utc_iso(tespit_zamani or datetime.now(timezone.utc))
-    satirlar, catismalar = _surum_birlestir(surumleri_oku(a), surumleri_oku(b), tespit)
-    surumleri_yaz(satirlar, hedef)
-    if catismalar:
-        _catisma_bildir(catismalar)
-        catismalari_ekle(catismalar, catisma_dosyasi
-                         or Path(hedef).with_name(CATISMA_DOSYASI.name))
+    _surum_dosya_birlestir(a, b, hedef, tespit)
     return len(surumleri_oku(hedef))
+
+
+def catisma_bos() -> dict:
+    return {"kanonik_catisma_sayisi": 0, "kanonik_catisma_son": [],
+            "surum_ham_fark_sayisi": 0, "surum_ham_fark_son": []}
+
+
+def catisma_guncelle(onceki: list, yeni: list) -> dict:
+    """Durum dosyasindaki celiski sayaclari (kalici, ayri dosya YOK).
+
+    onceki: iki tarafin (uzak + bizim) durum['catisma'] bolumleri.
+    Sayac, celiski gorulen FARKLI (zaman, tip) anahtar sayisidir: ayni
+    anahtar sonraki birlestirme denemelerinde yeniden tespit edilirse
+    tekrar sayilmaz (son listesiyle karsilastirilir). Iki taraftan buyuk
+    olan sayac taban alinir. Normal calismada her sey 0 kalir."""
+    out = catisma_bos()
+    for tur in ("kanonik_catisma", "surum_ham_fark"):
+        sayi = max([int((o or {}).get(f"{tur}_sayisi") or 0) for o in onceki] or [0])
+        son, goruldu = [], set()
+        for o in onceki:
+            for c in (o or {}).get(f"{tur}_son") or []:
+                k = (c.get("zaman"), c.get("tip"))
+                if k not in goruldu:
+                    goruldu.add(k)
+                    son.append(c)
+        etiket = "kanonik" if tur == "kanonik_catisma" else "surum_ham_fark"
+        for c in yeni:
+            k = (c["zaman"], c["tip"])
+            if c["tur"] != etiket or k in goruldu:
+                continue
+            goruldu.add(k)
+            sayi += 1
+            son.append({"zaman": c["zaman"], "tip": c["tip"], "kural": c["kural"],
+                        "tespit_zamani": c["tespit_zamani"]})
+        son.sort(key=lambda c: (c.get("tespit_zamani") or "", c.get("zaman") or "",
+                                c.get("tip") or ""))
+        out[f"{tur}_sayisi"] = sayi
+        out[f"{tur}_son"] = son[-LISTE_SINIRI:]
+    return out
 
 
 # -------------------------------------------------------- eksik slotlar ---
@@ -628,8 +636,8 @@ def _ayristirma_farkli(kanonik: dict, surumler: list, coz) -> list:
     return sorted(farkli)
 
 
-def durum_ozeti(kanonik_satirlar: list, surumler: list, catismalar: list,
-                simdi: datetime, coz=None, backfill_yaniti: dict = None) -> dict:
+def durum_ozeti(kanonik_satirlar: list, surumler: list, simdi: datetime,
+                coz=None, backfill_yaniti: dict = None) -> dict:
     """Arsivden TURETILEN saglik ozeti - dosyalardan her zaman yeniden
     uretilebilir (birlestirmede bozulmaz)."""
     kanonik = {(s.get("zaman"), s.get("tip")): s for s in kanonik_satirlar}
@@ -714,8 +722,6 @@ def durum_ozeti(kanonik_satirlar: list, surumler: list, catismalar: list,
             "son": eksik[-LISTE_SINIRI:],
             "en_uzun_bosluk": _en_uzun_bosluk(eksik),
         },
-        "catisma": {"toplam": len(catismalar),
-                    "son": catismalar[-LISTE_SINIRI:]},
     }
 
 
@@ -735,7 +741,6 @@ def _dosyalar(klasor: Path) -> dict:
     klasor = Path(klasor)
     return {"kanonik": klasor / VARSAYILAN_DOSYA.name,
             "surum": klasor / SURUM_DOSYASI.name,
-            "catisma": klasor / CATISMA_DOSYASI.name,
             "durum": klasor / DURUM_DOSYASI.name}
 
 
@@ -757,7 +762,8 @@ def kosu_isle(raporlar_h0: list, h0_alinma: datetime, coz, cek_h24,
     Geri doldurma raporlari YALNIZCA arsive gider; cagiran (bot) onlari
     bildirim/state/sayfa akisina hic almaz. Hicbir hata disari sizmaz."""
     f = _dosyalar(klasor)
-    onceki = durum_oku(f["durum"]).get("cekim") or {}
+    onceki_durum = durum_oku(f["durum"])
+    onceki = onceki_durum.get("cekim") or {}
     cekim = {KAYNAK_CANLI: dict(onceki.get(KAYNAK_CANLI) or {}),
              KAYNAK_BACKFILL: dict(onceki.get(KAYNAK_BACKFILL) or {})}
 
@@ -804,7 +810,10 @@ def kosu_isle(raporlar_h0: list, h0_alinma: datetime, coz, cek_h24,
 
     durum = {"cekim": cekim,
              "arsiv": durum_ozeti(oku(f["kanonik"]), surumleri_oku(f["surum"]),
-                                  catismalari_oku(f["catisma"]), zaman_fn(), coz, yanit)}
+                                  zaman_fn(), coz, yanit),
+             # Celiskiler yalnizca birlestirmede tespit edilir; kosu onlari
+             # oldugu gibi tasir (arsivden turetilemez).
+             "catisma": onceki_durum.get("catisma") or catisma_bos()}
     durum_yaz(durum, f["durum"])
     return durum
 
@@ -824,20 +833,24 @@ def canli_hata_kaydet(hata: Exception, klasor: Path = KLASOR, zaman_fn=_su_an) -
 
 def birlestir_bizim(bizim: Path, klasor: Path = KLASOR, zaman_fn=_su_an) -> dict:
     """Workflow push cakismasi: `klasor` uzaktaki (reset sonrasi) dosyalar,
-    `bizim` bu kosunun kenara aldigi kopyalar. Uc katman birlestirilir,
-    arsiv durumu yeniden uretilir; `cekim` bolumu bu kosununki kalir."""
+    `bizim` bu kosunun kenara aldigi kopyalar. Kanonik ve surum katmanlari
+    birlestirilir, arsiv durumu yeniden uretilir; `cekim` bolumu bu
+    kosununki kalir; celiski sayaclari iki taraftan birlestirilip bu
+    birlestirmede bulunanlar eklenir."""
     f, bz = _dosyalar(klasor), _dosyalar(bizim)
     simdi = zaman_fn()
-    birlestir(f["kanonik"], bz["kanonik"], f["kanonik"], f["catisma"], simdi)
+    tespit = _utc_iso(simdi)
+    uzak_durum, bizim_durum = durum_oku(f["durum"]), durum_oku(bz["durum"])
+    yeni = _kanonik_dosya_birlestir(f["kanonik"], bz["kanonik"], f["kanonik"], tespit)
     if f["surum"].exists() or bz["surum"].exists():
-        surumleri_birlestir(f["surum"], bz["surum"], f["surum"], f["catisma"], simdi)
-    catismalari_ekle(catismalari_oku(bz["catisma"]), f["catisma"])
-    cekim = durum_oku(bz["durum"]).get("cekim") or durum_oku(f["durum"]).get("cekim") or {}
+        yeni += _surum_dosya_birlestir(f["surum"], bz["surum"], f["surum"], tespit)
+    cekim = bizim_durum.get("cekim") or uzak_durum.get("cekim") or {}
     # coz yok: ayristirma karsilastirmasi burada hesaplanmaz (None);
     # sonraki bot kosusu tam ozeti yeniden uretir.
     durum = {"cekim": cekim,
-             "arsiv": durum_ozeti(oku(f["kanonik"]), surumleri_oku(f["surum"]),
-                                  catismalari_oku(f["catisma"]), simdi)}
+             "arsiv": durum_ozeti(oku(f["kanonik"]), surumleri_oku(f["surum"]), simdi),
+             "catisma": catisma_guncelle([uzak_durum.get("catisma"),
+                                          bizim_durum.get("catisma")], yeni)}
     durum_yaz(durum, f["durum"])
     return durum
 
@@ -867,7 +880,7 @@ def main(argv=None) -> int:
     s = a.parse_args(argv)
     if s.birlestir_bizim:
         birlestir_bizim(s.birlestir_bizim, s.dosya.parent)
-        print(f"birleştirildi (kanonik + sürüm + çatışma): {s.birlestir_bizim}")
+        print(f"birleştirildi (kanonik + sürüm): {s.birlestir_bizim}")
     elif s.birlestir:
         n = birlestir(s.birlestir[0], s.birlestir[1], s.dosya)
         print(f"birleştirildi: {n} gözlem -> {s.dosya}")

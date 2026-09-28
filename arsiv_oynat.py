@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Gozlem arsivi geri doldurmasinin SALT OKUNUR dogrulamasi (PR-2).
 
-Repodaki arsiv katmanlarini (gozlem_arsivi.csv, gozlem_surumleri.csv,
-catisma kaydi) GECICI bir dizine kopyalar, bir MGM hours=24 yanitini
+Repodaki arsiv katmanlarini (gozlem_arsivi.csv, gozlem_surumleri.csv)
+GECICI bir dizine kopyalar, bir MGM hours=24 yanitini
 botun H24 yoluyla (ltfj_gozlem_arsivi.arsive_isle, kaynak=backfill_h24)
 bu kopyaya isler ve ne oldugunu raporlar:
 
@@ -57,7 +57,7 @@ def katmanlari_kopyala(kaynak: Path, hedef: Path) -> dict:
     kendi ozetini uretir)."""
     hedef.mkdir(parents=True, exist_ok=True)
     kaynak_f, hedef_f = ga._dosyalar(kaynak), ga._dosyalar(hedef)
-    for ad in ("kanonik", "surum", "catisma"):
+    for ad in ("kanonik", "surum"):
         if kaynak_f[ad].exists():
             shutil.copyfile(kaynak_f[ad], hedef_f[ad])
     return hedef_f
@@ -83,8 +83,7 @@ def oynat(raporlar: list, alinma: datetime, simdi: datetime, dizin: Path,
     yanit = ga._backfill_yaniti(raporlar)
     eksik_sonra = {d["slot"]: d for d in ga.eksik_slotlar(sonra_satirlar, simdi, yanit)}
     surumler = ga.surumleri_oku(f["surum"])
-    durum = ga.durum_ozeti(sonra_satirlar, surumler, ga.catismalari_oku(f["catisma"]),
-                           simdi, coz, yanit)
+    durum = ga.durum_ozeti(sonra_satirlar, surumler, simdi, coz, yanit)
 
     # Idempotency: ayni yanit ikinci kez -> hicbir sey eklenmez, bayt bayt ayni.
     once_bayt = _bayt(f)
@@ -141,7 +140,7 @@ def markdown(baslik: str, r: dict, meta: dict) -> str:
           f"backfill_penceresi_disinda {d['eksik_slot']['backfill_penceresi_disinda']}",
           f"  - son: `{json.dumps(d['eksik_slot']['son'][-8:], ensure_ascii=False)}`",
           f"- ingest tablosu: `{json.dumps(d['ingest']['tablo'], ensure_ascii=False)}`",
-          f"- çatışma kaydı: {d['catisma']['toplam']}", ""]
+          ""]
     for k in r["kontroller"]:
         s.append(f"### {k['anahtar']}")
         s.append(f"- kanonikte: önce {'var' if k['once_kanonikte'] else 'yok'} → "

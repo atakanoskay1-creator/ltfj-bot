@@ -162,7 +162,7 @@ def test_eski_metinsiz_satir_varken_backfill_farkli_icerik_getirirse(klasor):
                        f["kanonik"], f["surum"])
     assert s["eklenen_anahtarlar"] == [] and s["surum_eklenen"] == 1
     assert f["kanonik"].read_bytes() == once
-    d = ga.durum_ozeti(ga.oku(f["kanonik"]), ga.surumleri_oku(f["surum"]), [],
+    d = ga.durum_ozeti(ga.oku(f["kanonik"]), ga.surumleri_oku(f["surum"]),
                        _t("2026-09-28T09:35:54"), metar_coz)
     assert d["surum"]["kanonik_ile_ayristirma_farkli"] == {
         "sayi": 1, "son": ["2026-09-28T06:20:00+00:00 METAR"]}
@@ -170,7 +170,7 @@ def test_eski_metinsiz_satir_varken_backfill_farkli_icerik_getirirse(klasor):
 
 
 def test_ayristirma_karsilastirmasi_coz_verilmezse_hesaplanmaz(klasor):
-    d = ga.durum_ozeti([], [], [], _t("2026-09-28T09:00:00"))
+    d = ga.durum_ozeti([], [], _t("2026-09-28T09:00:00"))
     assert d["surum"]["kanonik_ile_ayristirma_farkli"] is None
 
 
@@ -267,7 +267,7 @@ def test_kurtarilan_ile_60dk_uzeri_gec_ingest_AYRI_metrikler(klasor):
 def test_PR2_oncesi_satirlar_bilinmiyor_sayilir(klasor):
     f = _f(klasor)
     ga.ekle(_raporlar([_k("06:20", 1)]), metar_coz, f["kanonik"])     # eski yol
-    d = ga.durum_ozeti(ga.oku(f["kanonik"]), [], [], _t("2026-09-28T07:00:00"))
+    d = ga.durum_ozeti(ga.oku(f["kanonik"]), [], _t("2026-09-28T07:00:00"))
     assert d["ingest"]["tablo"]["METAR"]["bilinmiyor"] == 1
     assert d["ingest"]["backfill_kurtarilan"]["METAR"] == 0
 
@@ -405,6 +405,10 @@ def _iki_taraf(tmp_path, a_rapor, b_rapor, a_alinma, b_alinma, kaynak=ga.KAYNAK_
     return _f(a), _f(b)
 
 
+def _dosya_adlari(kok):
+    return sorted(p.name for p in kok.rglob("*") if p.is_file())
+
+
 def test_birlestirme_simetrik_ve_idempotent(tmp_path):
     fa, fb = _iki_taraf(tmp_path, [_k("06:20", 1), _k("06:50", 2)],
                         [_k("06:50", 2), _k("07:20", 3)],
@@ -421,49 +425,50 @@ def test_birlestirme_simetrik_ve_idempotent(tmp_path):
     ga.surumleri_birlestir(fb["surum"], fa["surum"], s2)
     assert s1.read_bytes() == s2.read_bytes()
     assert len(ga.surumleri_oku(s1)) == 3
-    assert not (tmp_path / "gozlem_arsivi_catisma.csv").exists()   # celiski yok
 
 
-def test_ayni_kanonik_icerigi_iki_kosu_farkli_zamanda_alirsa_catisma_YOK(tmp_path):
+def test_ayni_kanonik_icerigi_iki_kosu_farkli_zamanda_alirsa_celiski_YOK(tmp_path, capsys):
     """Eszamanli iki kosu ayni gozlemi ayni icerikle alir: yalnizca
-    provenance farkli. En erken alinan kalir, celiski kaydi ACILMAZ."""
+    provenance farkli. En erken alinan kalir, celiski SAYILMAZ."""
     fa, fb = _iki_taraf(tmp_path, [_k("06:50", 2)], [_k("06:50", 2)],
                         _t("2026-09-28T07:25:00"), _t("2026-09-28T07:24:00"))
     h = tmp_path / "k.csv"
     ga.birlestir(fa["kanonik"], fb["kanonik"], h)
     assert [s["alinma_zamani"][11:16] for s in ga.oku(h)] == ["07:24"]
-    assert not (tmp_path / "gozlem_arsivi_catisma.csv").exists()
+    assert "UYARI" not in capsys.readouterr().err
 
 
-def test_ayni_surumu_iki_kosu_farkli_zamanda_gorurse_en_erken_kalir_catisma_YOK(tmp_path):
+def test_ayni_surumu_iki_kosu_farkli_zamanda_gorurse_en_erken_kalir_celiski_YOK(tmp_path, capsys):
     fa, fb = _iki_taraf(tmp_path, [_k("06:50", 2)], [_k("06:50", 2)],
                         _t("2026-09-28T07:25:00"), _t("2026-09-28T07:24:00"))
     h = tmp_path / "s.csv"
     ga.surumleri_birlestir(fa["surum"], fb["surum"], h)
     assert [s["alinma_zamani"][11:16] for s in ga.surumleri_oku(h)] == ["07:24"]
-    assert not (tmp_path / "gozlem_arsivi_catisma.csv").exists()
+    assert "UYARI" not in capsys.readouterr().err
 
 
-def test_kanonik_celiski_deterministik_ama_GIZLENMIYOR(tmp_path, capsys):
-    """Ayni (zaman, tip) iki tarafta FARKLI icerikle: en erken alinan
-    secilir, celiski stderr'e ve catisma dosyasina yazilir; iki yon ayni
-    sonucu verir; yeniden birlestirme celiskiyi cogaltmaz."""
-    fa, fb = _iki_taraf(tmp_path, [_k("06:20", 1, ek="6000 -SHRA 18/16 Q1014")],
-                        [_k("06:20", 1, ek="6000 -SHRA BKN025 18/16 Q1014")],
-                        _t("2026-09-28T06:24:00"), _t("2026-09-28T06:54:00"))
+def _celiskili_taraflar(tmp_path):
+    return _iki_taraf(tmp_path, [_k("06:20", 1, ek="6000 -SHRA 18/16 Q1014")],
+                      [_k("06:20", 1, ek="6000 -SHRA BKN025 18/16 Q1014")],
+                      _t("2026-09-28T06:24:00"), _t("2026-09-28T06:54:00"))
+
+
+def test_kanonik_celiski_deterministik_ama_GIZLENMIYOR_ve_AYRI_DOSYA_YOK(tmp_path, capsys):
+    """Ayni (zaman, tip) iki tarafta FARKLI ayristirilmis icerikle: en erken
+    alinan secilir; stderr'e acik DEGISMEZLIK IHLALI uyarisi yazilir; iki
+    yon ayni sonucu verir; kalici ayri celiski dosyasi URETILMEZ."""
+    fa, fb = _celiskili_taraflar(tmp_path)
+    once = _dosya_adlari(tmp_path)
     h1, h2 = tmp_path / "h1" / "gozlem_arsivi.csv", tmp_path / "h2" / "gozlem_arsivi.csv"
     ga.birlestir(fa["kanonik"], fb["kanonik"], h1)
     ga.birlestir(fb["kanonik"], fa["kanonik"], h2)
-    assert "çelişkisi (kanonik)" in capsys.readouterr().err
+    err = capsys.readouterr().err
+    assert err.count("DEĞİŞMEZLİK İHLALİ - kanonik çelişki: 2026-09-28T06:20:00+00:00 METAR") == 2
+    assert '"tavan": "2500"' in err                           # elenen icerik logda
     assert h1.read_bytes() == h2.read_bytes()
-    assert ga.oku(h1)[0]["tavan"] == "" and ga.oku(h1)[0]["alinma_zamani"].endswith("06:24:00+00:00")
-    c = ga.catismalari_oku(h1.with_name("gozlem_arsivi_catisma.csv"))
-    assert len(c) == 1 and c[0]["tur"] == "kanonik" and c[0]["kural"] == "en_erken_alinma"
-    assert json.loads(c[0]["elenen"])["tavan"] == "2500"
-    ga.birlestir(fa["kanonik"], fb["kanonik"], h1)                   # tekrar
-    assert len(ga.catismalari_oku(h1.with_name("gozlem_arsivi_catisma.csv"))) == 1
-    d = ga.durum_ozeti(ga.oku(h1), [], c, _t("2026-09-28T07:00:00"))
-    assert d["catisma"]["toplam"] == 1
+    assert ga.oku(h1)[0]["tavan"] == ""
+    assert ga.oku(h1)[0]["alinma_zamani"].endswith("06:24:00+00:00")
+    assert _dosya_adlari(tmp_path) == sorted(once + ["gozlem_arsivi.csv"] * 2)
 
 
 def test_kanonik_celiskide_eski_satir_onceligi(tmp_path, capsys):
@@ -476,27 +481,155 @@ def test_kanonik_celiskide_eski_satir_onceligi(tmp_path, capsys):
     h = tmp_path / "h.csv"
     ga.birlestir(yeni, eski, h)
     assert ga.oku(h)[0]["gorus"] == "6000"
-    assert ga.catismalari_oku(tmp_path / "gozlem_arsivi_catisma.csv")[0]["kural"] == \
-        "eski_satir_onceligi"
+    assert "kural eski_satir_onceligi" in capsys.readouterr().err
 
 
-def test_eski_ve_yeni_baslikli_ayni_satir_celiski_SAYILMAZ(tmp_path):
+def test_eski_ve_yeni_baslikli_ayni_satir_celiski_SAYILMAZ(tmp_path, capsys):
     eski, yeni = tmp_path / "eski.csv", tmp_path / "yeni.csv"
     satir = {"zaman": "2026-09-28T06:20:00+00:00", "tip": "METAR", "gorus": "6000"}
     ga._csv_yaz([satir], ga.SUTUNLAR[:12], eski)
     ga._csv_yaz([satir], ga.SUTUNLAR, yeni)
     ga.birlestir(eski, yeni, tmp_path / "h.csv")
-    assert not (tmp_path / "gozlem_arsivi_catisma.csv").exists()
+    assert "UYARI" not in capsys.readouterr().err
 
 
-def test_surum_birlestirmede_ham_alan_farki_kayda_gecer(tmp_path, capsys):
+def test_surum_birlestirmede_ham_alan_farki_uyarilir(tmp_path, capsys):
     fa, fb = _iki_taraf(tmp_path, [_k("06:20", 1)], [_k("06:20", 99)],
                         _t("2026-09-28T06:24:00"), _t("2026-09-28T06:54:00"))
     h = tmp_path / "s.csv"
     ga.surumleri_birlestir(fa["surum"], fb["surum"], h)
-    c = ga.catismalari_oku(tmp_path / "gozlem_arsivi_catisma.csv")
-    assert len(c) == 1 and c[0]["tur"] == "surum"
+    assert "sürüm ham alan farkı: 2026-09-28T06:20:00+00:00 METAR" in capsys.readouterr().err
     assert [s["mgm_id"] for s in ga.surumleri_oku(h)] == ["1"]
+
+
+def test_bot_birlestirmesinde_celiski_DURUM_JSON_da_sayilir_ve_tasinir(tmp_path, capsys):
+    """Tercih edilen model: ayri dosya yok; durum['catisma'] icinde sayac +
+    son (zaman, tip) anahtarlari. Sonraki kosular sayaci tasir; ayni
+    anahtar yeniden tespit edilirse tekrar sayilmaz."""
+    uzak, bizim = tmp_path / "uzak", tmp_path / "bizim"
+    uzak.mkdir(), bizim.mkdir()
+    _kosu(uzak, h0=[_k("06:20", 1, ek="6000 -SHRA 18/16 Q1014")], h24=None,
+          alinma=_t("2026-09-28T06:24:00"), h24_hata=rasat.AgHatasi("x"))
+    _kosu(bizim, h0=[_k("06:20", 1, ek="6000 -SHRA BKN025 18/16 Q1014")], h24=None,
+          alinma=_t("2026-09-28T06:54:00"), h24_hata=rasat.AgHatasi("x"))
+    d = ga.birlestir_bizim(bizim, uzak, zaman_fn=lambda: _t("2026-09-28T06:55:00"))
+    assert d["catisma"]["kanonik_catisma_sayisi"] == 1
+    assert d["catisma"]["kanonik_catisma_son"] == [
+        {"zaman": "2026-09-28T06:20:00+00:00", "tip": "METAR", "kural": "en_erken_alinma",
+         "tespit_zamani": "2026-09-28T06:55:00+00:00"}]
+    # Surum katmani iki ham surumu de tutar (provenance kaybolmaz).
+    assert len(ga.surumleri_oku(_f(uzak)["surum"])) == 2
+    assert "DEĞİŞMEZLİK İHLALİ" in capsys.readouterr().err
+    assert _dosya_adlari(uzak) == ["gozlem_arsivi.csv", "gozlem_arsivi_durum.json",
+                                   "gozlem_surumleri.csv"]
+
+    # ayni celiski ikinci birlestirme denemesinde yeniden tespit -> sayac ayni
+    d = ga.birlestir_bizim(bizim, uzak, zaman_fn=lambda: _t("2026-09-28T06:56:00"))
+    assert d["catisma"]["kanonik_catisma_sayisi"] == 1
+
+    # sonraki normal kosu sayaci tasir; canli hata kaydi da dokunmaz
+    d = _kosu(uzak, h0=[_k("07:20", 3)], h24=[_k("07:20", 3)],
+              alinma=_t("2026-09-28T07:24:00"))
+    assert d["catisma"]["kanonik_catisma_sayisi"] == 1
+    ga.canli_hata_kaydet(rasat.AgHatasi("y"), uzak)
+    assert ga.durum_oku(_f(uzak)["durum"])["catisma"]["kanonik_catisma_sayisi"] == 1
+
+
+def test_normal_kosuda_celiski_sayaclari_SIFIR(klasor):
+    d = _kosu(klasor, h0=[_k("07:20", 3)], h24=[_k("07:20", 3)],
+              alinma=_t("2026-09-28T07:24:00"))
+    assert d["catisma"] == ga.catisma_bos()
+
+
+def test_catisma_guncelle_iki_tarafi_birlestirir_tekrar_saymaz():
+    a = {"kanonik_catisma_sayisi": 2, "kanonik_catisma_son": [
+        {"zaman": "z1", "tip": "METAR", "kural": "k", "tespit_zamani": "t1"},
+        {"zaman": "z2", "tip": "METAR", "kural": "k", "tespit_zamani": "t2"}]}
+    b = {"kanonik_catisma_sayisi": 1, "kanonik_catisma_son": [
+        {"zaman": "z1", "tip": "METAR", "kural": "k", "tespit_zamani": "t1"}]}
+    yeni = [{"tur": "kanonik", "zaman": "z2", "tip": "METAR", "kural": "k",
+             "tespit_zamani": "t3"},
+            {"tur": "kanonik", "zaman": "z3", "tip": "SPECI", "kural": "k",
+             "tespit_zamani": "t3"}]
+    c = ga.catisma_guncelle([a, b], yeni)
+    assert c["kanonik_catisma_sayisi"] == 3
+    assert [x["zaman"] for x in c["kanonik_catisma_son"]] == ["z1", "z2", "z3"]
+    assert c["surum_ham_fark_sayisi"] == 0
+    assert ga.catisma_guncelle([None, {}], []) == ga.catisma_bos()
+
+
+# ====================================== bir kerelik sema gecisi (migration) ===
+def _satirlar(p):
+    return p.read_bytes().decode("utf-8").split("\r\n")
+
+
+def _migrasyon_dogrula(eski_dosya: Path, tmp_path: Path):
+    """Eski bicimli (12 sutun) arsiv, yeni bir satir eklenince yeni bicimde
+    yeniden yazilir: baslik iki sutun uzar, ESKI HER SATIR birebir ayni
+    kalip yalnizca sonuna ',,' eklenir; veri degeri degismez."""
+    hedef = tmp_path / "gozlem_arsivi.csv"
+    hedef.write_bytes(eski_dosya.read_bytes())
+    eski = _satirlar(hedef)
+    eski_basliksiz = [x for x in eski[1:] if x]
+    eski_icerik = ga.oku(hedef)
+    assert eski[0] == ",".join(ga.SUTUNLAR[:12])
+
+    s = ga.arsive_isle(_raporlar([_k("23:50", 9, gun=30)]), metar_coz,
+                       ga.KAYNAK_BACKFILL, _t("2026-09-30T23:55:00"),
+                       hedef, tmp_path / "gozlem_surumleri.csv")
+    assert s["eklenen_anahtarlar"] == ["2026-09-30T23:50:00+00:00 METAR"]
+    yeni = _satirlar(hedef)
+    assert yeni[0] == ",".join(ga.SUTUNLAR)
+    yeni_satir = next(x for x in yeni if x.startswith("2026-09-30T23:50"))
+    yeni_basliksiz = [x for x in yeni[1:] if x and x != yeni_satir]
+    assert yeni_basliksiz == [x + ",," for x in eski_basliksiz]
+    # sutun bazinda: eski 12 sutunun degerleri satir satir ayni
+    sonra = {(r["zaman"], r["tip"]): r for r in ga.oku(hedef)}
+    for r in eski_icerik:
+        y = sonra[(r["zaman"], r["tip"])]
+        assert {k: y[k] for k in ga.SUTUNLAR[:12]} == {k: r[k] for k in ga.SUTUNLAR[:12]}
+        assert y["alinma_zamani"] == "" and y["kaynak"] == ""
+
+    # ikinci yazim: artik yeni bicim -> eski satirlar HIC degismez (bir kerelik)
+    ara = hedef.read_bytes()
+    ga.arsive_isle(_raporlar([_k("23:20", 10, gun=30)]), metar_coz, ga.KAYNAK_BACKFILL,
+                   _t("2026-09-30T23:56:00"), hedef, tmp_path / "gozlem_surumleri.csv")
+    son = _satirlar(hedef)
+    assert [x for x in son if not x.startswith("2026-09-30T23:20")] == _satirlar_bytes(ara)
+    return len(eski_basliksiz)
+
+
+def _satirlar_bytes(b):
+    return b.decode("utf-8").split("\r\n")
+
+
+def test_sema_gecisi_sentetik_eski_dosya(tmp_path):
+    eski = tmp_path / "eski.csv"
+    ga._csv_yaz([{"zaman": "2026-09-23T13:01:00+00:00", "tip": "SPECI", "gorus": "800",
+                  "hava": "-SHRA BR", "cavok": "0"},
+                 {"zaman": "2026-09-23T13:20:00+00:00", "tip": "METAR", "gorus": "9999",
+                  "tavan": "3000", "sicaklik": "18", "cig_noktasi": "16", "ruzgar_yon": "20",
+                  "ruzgar_hiz": "9", "ruzgar_hamle": "", "qnh": "1014", "hava": "",
+                  "cavok": "1"}],
+                ga.SUTUNLAR[:12], eski)
+    assert _migrasyon_dogrula(eski, tmp_path) == 2
+
+
+def test_sema_gecisi_GERCEK_repo_arsivi(tmp_path):
+    """Repodaki gercek gozlem_arsivi.csv (PR-2 oncesi bicim). Dosya ileride
+    yeni bicime gecmisse bu test yalnizca 'yeni bicimde satirlar degismez'
+    sozlesmesini dogrular."""
+    gercek = Path("gozlem_arsivi.csv")
+    if _satirlar(gercek)[0] == ",".join(ga.SUTUNLAR):
+        hedef = tmp_path / "gozlem_arsivi.csv"
+        hedef.write_bytes(gercek.read_bytes())
+        once = _satirlar(hedef)
+        ga.arsive_isle(_raporlar([_k("23:50", 9, gun=30)]), metar_coz, ga.KAYNAK_BACKFILL,
+                       _t("2099-01-01T00:00:00"), hedef, tmp_path / "s.csv")
+        assert [x for x in _satirlar(hedef) if not x.startswith("2026-09-30T23:50")] == once
+        return
+    n = _migrasyon_dogrula(gercek, tmp_path)
+    assert n >= 244
 
 
 def test_birlestir_bizim_uc_katman_ve_durum(tmp_path):
@@ -634,8 +767,11 @@ WF_DOG = Path(".github/workflows/arsiv-dogrulama.yml").read_text(encoding="utf-8
 
 
 def test_bot_is_akisi_yeni_katmanlari_commit_eder_ve_uc_katmani_birlestirir():
-    for d in ("gozlem_surumleri.csv", "gozlem_arsivi_catisma.csv", "gozlem_arsivi_durum.json"):
-        assert d in WF_BOT.split("DOSYALAR=")[1].split("\n")[0]
+    dosyalar = WF_BOT.split("DOSYALAR=")[1].split("\n")[0]
+    for d in ("gozlem_surumleri.csv", "gozlem_arsivi_durum.json"):
+        assert d in dosyalar
+    # celiski kaydi ayri kalici dosya DEGIL (durum JSON'unda sayac)
+    assert "catisma" not in WF_BOT
     assert "--birlestir-bizim /tmp/bizim_arsiv" in WF_BOT
     assert "/tmp/bizim_arsiv.csv" not in WF_BOT
 
