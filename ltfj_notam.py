@@ -259,8 +259,10 @@ MAKS_DETAY_ISTEK = 30
 
 # Bota ait, NOTAC'tan GELMEYEN alanlar - gecmis guncellenirken
 # korunurlar (bkz. gecmisi_guncelle). Hangi bildirimin atildigini
-# bunlar tutuyor; kaybolurlarsa bildirim tekrarlanir.
-YEREL_ISARETLER = ("push_yaklasan", "push_yururluk")
+# bunlar tutuyor; kaybolurlarsa bildirim tekrarlanir. "iptal" de
+# boyle: NOTAC iptal edilen NOTAM'i yeniden dondururse (ya da kaydini
+# guncellerse) NOTAMC'nin biraktigi isaret silinmemeli.
+YEREL_ISARETLER = ("push_yaklasan", "push_yururluk", "iptal")
 
 
 def ham_metinleri_ekle(ham_kayitlar: list[dict], eski_gecmis: dict | None = None,
@@ -493,6 +495,57 @@ def gecmisi_guncelle(eski_gecmis: dict, yeni_kayitlar: list[dict], simdi: str | 
     return gecmis
 
 
+# --------------------------------------------------------------- iptal
+def iptal_zamani(notamc: dict) -> str | None:
+    """NOTAMC'nin iptali yururluge koydugu an: B) alani (effective_start).
+    Yoksa NOTAC'in yayin zamani (notam_issued). Ikisi de yoksa None -
+    tarih UYDURULMAZ."""
+    return notamc.get("effective_start") or notamc.get("notam_issued") or None
+
+
+def iptalleri_isle(gecmis: dict) -> list[str]:
+    """Gecmisteki NOTAMC kayitlarinin iptal ettigi NOTAM'lari isaretler.
+
+    Eslestirme YALNIZCA NOTAMC'nin kendi metninde yazan numarayla
+    (ilgili_notam, bkz. ilgili_notam_referansi) ve ayni lokasyonda
+    yapilir. Numara metinde yoksa ya da iptal edilen NOTAM botun
+    gecmisinde hic gorulmemisse HICBIR SEY isaretlenmez - tahminle yanlis
+    NOTAM'i "iptal edildi" gostermek, iptal edileni gostermemekten daha
+    zararli olur. (Gercek ornek: B3810/26 NOTAMC B3809/26 geldi ama
+    B3809/26 botun gecmisinde yoktu.)
+
+    Isaretlenen kayda:
+      iptal = {"eden": <NOTAMC numarasi>, "eden_id": <NOTAMC id>,
+               "zaman": <iptal zamani, bkz. iptal_zamani>}
+    yazilir. NOTAC'tan gelen alanlara (status dahil) DOKUNULMAZ; iptal
+    bilgisi botun kendi isaretidir. Idempotent: ayni isaret zaten varsa
+    degistirilmez. Yeni isaretlenen NOTAM numaralarini doner."""
+    numaradan = {}
+    for nid, k in gecmis.items():
+        if k.get("number"):
+            numaradan.setdefault((k.get("location"), k["number"].upper()), []).append(nid)
+
+    yeni = []
+    # Deterministik sira: ayni NOTAM'i iki NOTAMC isaret ederse en erken
+    # iptal zamani (sonra numara) kazanir.
+    notamclar = sorted(
+        (k for k in gecmis.values()
+         if (k.get("notam_type") or "").upper() == "C"
+         and (k.get("ilgili_notam") or {}).get("tip") == "C"
+         and (k.get("ilgili_notam") or {}).get("numara")),
+        key=lambda k: (iptal_zamani(k) or "", k.get("number") or ""))
+    for c in notamclar:
+        hedef_no = c["ilgili_notam"]["numara"].upper()
+        for nid in numaradan.get((c.get("location"), hedef_no), []):
+            hedef = gecmis[nid]
+            if nid == c.get("id") or hedef.get("iptal"):
+                continue
+            hedef["iptal"] = {"eden": c.get("number"), "eden_id": c.get("id"),
+                              "zaman": iptal_zamani(c)}
+            yeni.append(hedef.get("number"))
+    return yeni
+
+
 # ----------------------------------------------------------------- web veri
 def yururlukte_mi(kayit: dict, an: datetime | None = None) -> bool:
     """NOTAM VERILEN ANDA yururlukte mi? (baslangic gelmis, bitis
@@ -527,9 +580,13 @@ def notam_veri_yaz(state: dict, hedef: Path, location: str = LOCATION):
         key=lambda k: k.get("last_seen") or "",
         reverse=True,
     )
+    # IPTAL EDILENLER (NOTAMC, bkz. iptalleri_isle) aktif ve yaklasan
+    # listelere GIRMEZ - NOTAC onu hala "active" dondurse bile. Gecmiste
+    # "iptal" isaretiyle kalir; sayfa iptal tarihini orada gosterir.
     aktif = [
         k for k in tum_kayitlar
-        if son_senkron and k.get("last_seen") == son_senkron and k.get("status") == "active"
+        if son_senkron and k.get("last_seen") == son_senkron
+        and k.get("status") == "active" and not k.get("iptal")
     ]
     # YAKLASAN: son senkronda gorulmus ama yururluk BASLANGICI henuz
     # gelmemis kayitlar. Bunlari "aktif" listesine koymak, olmayan bir
@@ -554,7 +611,7 @@ def notam_veri_yaz(state: dict, hedef: Path, location: str = LOCATION):
     simdi_iso = datetime.now(timezone.utc)
     yaklasan = []
     for k in tum_kayitlar:
-        if not son_senkron or k.get("last_seen") != son_senkron:
+        if not son_senkron or k.get("last_seen") != son_senkron or k.get("iptal"):
             continue
         bas = _tarih_ayristir(k.get("effective_start"))
         if bas and bas > simdi_iso:

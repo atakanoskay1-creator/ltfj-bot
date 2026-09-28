@@ -124,6 +124,13 @@ def _notam_gecmisini_birlestir(a: dict, b: dict) -> dict:
         ) or None
         yeni["last_seen"] = max(a_kayit.get("last_seen") or "", b_kayit.get("last_seen") or "") or None
         yeni["last_active"] = max(a_kayit.get("last_active") or "", b_kayit.get("last_active") or "") or None
+        # NOTAMC iptal isareti botun kendi bilgisi: bir tarafta varsa
+        # birlesimde KAYBOLMAMALI (icerigi daha yeni gorulen taraftan
+        # alinsa bile). Iki tarafta da varsa deterministik: en erken zaman.
+        iptaller = [k["iptal"] for k in (a_kayit, b_kayit) if k.get("iptal")]
+        if iptaller:
+            yeni["iptal"] = min(iptaller, key=lambda i: ((i.get("zaman") or ""),
+                                                        (i.get("eden") or "")))
         birlesik[nid] = yeni
 
     if len(birlesik) > NOTAM_GECMIS_LIMIT:
