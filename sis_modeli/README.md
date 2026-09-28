@@ -41,8 +41,12 @@ değil; tanımdaki FG kolu geçerli.
 | FG + SN | 2 |
 | diğer (< 1000 m) | 1 |
 
-Model A'nın 1.702 eğitim pozitifinin 514'ünün (%30) 3 saatlik penceresindeki
-ilk olay gözlemi SN içeriyor.
+Model A'nın 1.702 pozitif eğitim satırının 514'ünün (%30) **3 saatlik hedef
+penceresinde en az bir SN gözlemi bulunuyor.** (Bu veride "penceredeki ilk
+olay gözlemi SN içeriyor" ve "penceredeki olay gözlemlerinden en az biri SN
+içeriyor" ölçüleri de aynı 514'ü veriyor.) Bu, söz konusu satırların "kar
+olayı" olduğu ya da görüşü karın düşürdüğü anlamına gelmez; yalnızca
+pencerede SN kodlu bir gözlem bulunduğunu söyler.
 
 **Adlandırma (sabit):**
 
