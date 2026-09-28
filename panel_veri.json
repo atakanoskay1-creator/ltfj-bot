@@ -1,25 +1,25 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-28T19:21:11+00:00",
+ "uretildi": "2026-09-28T19:24:41+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-28T18:50:00+00:00",
-  "metin": "METAR LTFJ 281850Z 34012KT 310V010 6000 SHRA SCT008 BKN022 18/16 Q1016 BECMG TL2000 NSW RMK RWY24R 33014G24KT 300V360 RWY06R 32014KT RWY24L 34010KT 300V010",
+  "zaman": "2026-09-28T19:20:00+00:00",
+  "metin": "METAR LTFJ 281920Z 34012KT 310V040 8000 -SHRA SCT008 BKN022 18/16 Q1016 BECMG TL2000 NSW RMK RWY24R 33014KT RWY06R 33013KT 290V350 RWY24L 34010KT 310V020",
   "ruzgar": {
    "yon": 340,
    "hiz": 12,
    "hamle": null,
    "degisken": [
     310,
-    10
+    40
    ]
   },
-  "gorus": 6000,
+  "gorus": 8000,
   "cavok": false,
   "tavan": 2200,
   "hava": [
-   "SHRA"
+   "-SHRA"
   ],
   "sicaklik": 18,
   "cig_noktasi": 16,
@@ -48,12 +48,12 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": -3.4,
-    "yan": 13.6,
+    "bas": -0.9,
+    "yan": 13.0,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": false,
+    "degisken": true,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": false
@@ -77,9 +77,9 @@
     "bas": 1.0,
     "yan": 14.0,
     "yan_taraf": "sağdan",
-    "bas_hamle": 1.7,
-    "yan_hamle": 23.9,
-    "degisken": true,
+    "bas_hamle": null,
+    "yan_hamle": null,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -93,21 +93,13 @@
   "gorus_op": [],
   "trend": "Kademeli geçiş: TL2000 NSW",
   "sis_riski": null,
-  "ozet": "Rüzgâr 340° 12kt (değişken 310°–010°) · görüş 6000 m · tavan 2200 ft · sağanak yağmur · 18°C · QNH 1016"
+  "ozet": "Rüzgâr 340° 12kt (değişken 310°–040°) · görüş 8000 m · tavan 2200 ft · hafif sağanak yağmur · 18°C · QNH 1016"
  },
  "taf": {
   "zaman": "2026-09-28T16:40:00+00:00",
   "metin": "TAF LTFJ 281640Z 2818/2918 35012KT 9999 -SHRA SCT013 BKN025 BKN080 TEMPO 2818/2822 35015G25KT 1800 SHRA TEMPO 2822/2902 1800 SHRA TEMPO 2908/2912 01020G30KT 3200 SHRA TEMPO 2912/2916 02020G30KT 4000 SHRA"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-22T22:50:00+00:00",
-   "ruzgar_hiz": 13,
-   "tavan": 2200,
-   "qnh": 1012,
-   "sicaklik": 15,
-   "cig_noktasi": 14
-  },
   {
    "zaman": "2026-09-22T23:20:00+00:00",
    "ruzgar_hiz": 14,
@@ -2746,6 +2738,15 @@
   {
    "zaman": "2026-09-28T18:50:00+00:00",
    "gorus": 6000,
+   "ruzgar_hiz": 12,
+   "tavan": 2200,
+   "qnh": 1016,
+   "sicaklik": 18,
+   "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-28T19:20:00+00:00",
+   "gorus": 8000,
    "ruzgar_hiz": 12,
    "tavan": 2200,
    "qnh": 1016,
