@@ -202,7 +202,7 @@
   "id:55592381"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 290750Z 03011KT 9999 BKN025 BKN080 19/17 Q1019 NOSIG RMK RWY24R 01010KT RWY06R 01010KT RWY24L 01009KT",
+ "son_metar": "METAR LTFJ 290750Z 03011KT 9999 -SHRA BKN025 BKN080 19/17 Q1019 NOSIG RMK RWY24R 01010KT RWY06R 01010KT RWY24L 01009KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
@@ -2891,10 +2891,10 @@
   }
  ],
  "yorum_onbellegi": {
-  "TAF LTFJ 282240Z 2900/2924 34007KT 9999 SCT012 BKN030 BECMG 2900/2903 -SHRA BECMG 2903/2905 35017KT TEMPO 2905/2909 4000 SHRA BECMG 2909/2911 BKN025 BKN080 TEMPO 2911/2915 SHRA SCT010 FEW017CB BKN025 BECMG 2915/2918 35007KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken bulutluluk ve geçici sağanak yağışlar beklenmektedir.\n\n- **2900/2903 UTC:** Rüzgar 340°/7 knot, görüş 9999 metre, orta bulutlar 1200 ft, kırık bulutlar 3000 ft. Kademeli olarak hafif sağanak başlayacak.\n\n- **2903/2905 UTC:** Rüzgar 350°/17 knot'a kademeli geçiş.\n\n- **2905/2909 UTC:** Geçici olarak görüş 4000 metre, sağanak yağışı.\n\n- **2909/2915 UTC:** Kademeli olarak kırık bulutlar 2500 ft, kırık bulutlar 8000 ft. Geçici sağanak, az bulutlar 1000 ft, az gök gürültülü bulutlar 1700 ft, kırık bulutlar 2500 ft.",
   "METAR LTFJ 290420Z 36011KT 330V030 9999 -SHRA BKN028 BKN070 18/15 Q1017 NOSIG RMK RWY24R 35017KT RWY06R 35014G24KT 320V020 RWY24L 01012KT 350V060": "**Rüzgâr:** Kuzeyden 11 knot hızla esen rüzgâr, 330 ile 030 derece arasında değişiyor; 06/24 pistine göre yan bileşen 10 knot civarında.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için rahat.\n\n**Gökyüzü:** Hafif sağanak yağmur düşüyor, 2800 feet yükseklikte çok bulutlu, 7000 feet'te de çok bulutlu tabaka var.\n\n**Uçuşa etkisi:** Hafif sağanak ve yan rüzgâr bileşeni gözleniyor, ancak görüş iyi ve hava eğilimi 2 saat boyunca değişmeyecek.",
   "TAF LTFJ 290440Z 2906/3006 01018KT 9999 -SHRA SCT008 BKN025 BKN080 TEMPO 2906/2910 2800 SHRA TEMPO 2910/2914 02020G30KT 4000 SHRA BECMG 2916/2920 03008KT TEMPO 2922/3002 4000 SHRA PROB30 TEMPO 3002/3006 03018KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde sağanak yağışlı, değişken bulutlu hava beklenmektedir.\n\n- **2906/2910 UTC:** Görüş 2800 metre, sağanak yağış geçici olarak beklenmektedir.\n- **2910/2914 UTC:** Rüzgar 02020G30KT, görüş 4000 metre, sağanak yağış geçici olarak beklenmektedir.\n- **2916/2920 UTC:** Rüzgar kademeli olarak 03008KT'ye geçiş; 2922/3002 UTC arasında görüş 4000 metre, sağanak yağış geçici olarak beklenmektedir.\n- **3002/3006 UTC:** %30 ihtimalle rüzgar 03018KT ile sağanak yağış geçici olarak beklenmektedir.",
-  "SPECI LTFJ 290545Z 03010KT 9999 -SHRA SCT009 BKN025 17/16 Q1018 RESHRA NOSIG RMK RWY24R 02009KT RWY06R 02012KT RWY24L 36004KT 340V040": "**Rüzgâr:** Kuzey-kuzeydoğudan 10 düğüm hızında rüzgâr esiyor, yan bileşen hafif.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için rahat.\n\n**Gökyüzü:** Yaklaşık 900 metrede parçalı bulutlar, 2500 metrede çok bulutlu tabaka var; hafif sağanak yağmur düşüyor.\n\n**Uçuşa etkisi:** Hafif sağanak ve yüksek nem koşulları mevcut, ancak görüş ve rüzgâr şiddeti operasyonel sınırlamaya neden olmuyordu."
+  "SPECI LTFJ 290545Z 03010KT 9999 -SHRA SCT009 BKN025 17/16 Q1018 RESHRA NOSIG RMK RWY24R 02009KT RWY06R 02012KT RWY24L 36004KT 340V040": "**Rüzgâr:** Kuzey-kuzeydoğudan 10 düğüm hızında rüzgâr esiyor, yan bileşen hafif.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için rahat.\n\n**Gökyüzü:** Yaklaşık 900 metrede parçalı bulutlar, 2500 metrede çok bulutlu tabaka var; hafif sağanak yağmur düşüyor.\n\n**Uçuşa etkisi:** Hafif sağanak ve yüksek nem koşulları mevcut, ancak görüş ve rüzgâr şiddeti operasyonel sınırlamaya neden olmuyordu.",
+  "METAR LTFJ 290750Z 03011KT 9999 -SHRA BKN025 BKN080 19/17 Q1019 NOSIG RMK RWY24R 01010KT RWY06R 01010KT RWY24L 01009KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 11 knot hızla esen rüzgâr, hafif yan bileşen içeriyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için rahat.\n\n**Gökyüzü:** Yaklaşık 2500 metre yükseklikte çok bulutlu, 8000 metrede de bulutlu; hafif sağanak yağmur düşüyor.\n\n**Uçuşa etkisi:** Hafif sağanak ve yüksek nem koşulları vardır, ancak görüş ve rüzgâr şiddeti operasyonel sınırlar içindedir."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3952,16 +3952,16 @@
   }
  },
  "notam_son_senkron": "2026-09-29T06:54:50+00:00",
- "guncelleme": "2026-09-29T08:08:39+00:00",
+ "guncelleme": "2026-09-29T08:12:39+00:00",
  "push_gonderilen": [
-  "id:55561305",
-  "id:55554142",
-  "id:55405296",
-  "id:55479506",
-  "id:55543793",
   "id:55565475",
+  "id:55479506",
+  "id:55561305",
+  "id:55543793",
   "id:55552096",
-  "id:55549588",
-  "id:55558361"
+  "id:55405296",
+  "id:55558361",
+  "id:55554142",
+  "id:55549588"
  ]
 }

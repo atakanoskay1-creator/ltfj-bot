@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-29T08:08:39+00:00",
+ "uretildi": "2026-09-29T08:12:39+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
   "zaman": "2026-09-29T07:50:00+00:00",
-  "metin": "METAR LTFJ 290750Z 03011KT 9999 BKN025 BKN080 19/17 Q1019 NOSIG RMK RWY24R 01010KT RWY06R 01010KT RWY24L 01009KT",
+  "metin": "METAR LTFJ 290750Z 03011KT 9999 -SHRA BKN025 BKN080 19/17 Q1019 NOSIG RMK RWY24R 01010KT RWY06R 01010KT RWY24L 01009KT",
   "ruzgar": {
    "yon": 30,
    "hiz": 11,
@@ -15,7 +15,9 @@
   "gorus": 9999,
   "cavok": false,
   "tavan": 2500,
-  "hava": [],
+  "hava": [
+   "-SHRA"
+  ],
   "sicaklik": 19,
   "cig_noktasi": 17,
   "qnh": 1019,
@@ -64,7 +66,7 @@
     "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
-    "kuyruk_asildi": false
+    "kuyruk_asildi": true
    },
    {
     "pist": "24R",
@@ -77,18 +79,20 @@
     "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
-    "kuyruk_asildi": false
+    "kuyruk_asildi": true
    }
   ],
-  "kuyruk_limiti": 10,
-  "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi",
+  "kuyruk_limiti": 5,
+  "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış nedeniyle ıslak/kirli pist kabul edildi",
   "tercih_pist": "06L",
   "rvr": [],
-  "prs": [],
+  "prs": [
+   "24L, 24R için arka rüzgâr 5 kt üstü"
+  ],
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 030° 11kt · görüş 10+ km · tavan 2500 ft · 19°C · QNH 1019"
+  "ozet": "Rüzgâr 030° 11kt · görüş 10+ km · tavan 2500 ft · hafif sağanak yağmur · 19°C · QNH 1019"
  },
  "taf": {
   "zaman": "2026-09-29T04:40:00+00:00",
