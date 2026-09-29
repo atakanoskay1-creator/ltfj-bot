@@ -1,7 +1,5 @@
 {
  "gonderilen": [
-  "id:54696811",
-  "id:54705250",
   "id:54709634",
   "id:54717742",
   "id:54720567",
@@ -199,33 +197,17 @@
   "id:55756879",
   "id:55764893",
   "id:55768973",
-  "id:55777069"
+  "id:55777069",
+  "id:55779016",
+  "id:55779351"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 292220Z 04005KT 010V070 9999 FEW019 BKN026 BKN080 17/15 Q1022 NOSIG RMK RWY24R 04003KT 350V090 RWY06R VRB02KT RWY24L 04004KT",
+ "son_metar": "METAR LTFJ 292250Z 05005KT 8000 -SHRA FEW017 BKN026 BKN080 17/15 Q1022 RESHRA NOSIG RMK RWY24R 04004KT RWY06R 06004KT RWY24L 03004KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-29T22:20:00+00:00",
+ "son_veri_zamani": "2026-09-29T22:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-24T00:50:00+00:00",
-   "gorus": 10000,
-   "ruzgar_hiz": 0,
-   "tavan": null,
-   "qnh": 1020,
-   "sicaklik": 12,
-   "cig_noktasi": 11
-  },
-  {
-   "zaman": "2026-09-24T01:20:00+00:00",
-   "gorus": 10000,
-   "ruzgar_hiz": 0,
-   "tavan": null,
-   "qnh": 1021,
-   "sicaklik": 12,
-   "cig_noktasi": 11
-  },
   {
    "zaman": "2026-09-24T01:50:00+00:00",
    "gorus": 10000,
@@ -2907,6 +2889,24 @@
    "qnh": 1022,
    "sicaklik": 17,
    "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-29T22:37:00+00:00",
+   "gorus": 6000,
+   "ruzgar_hiz": 7,
+   "tavan": 2600,
+   "qnh": 1022,
+   "sicaklik": 17,
+   "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-29T22:50:00+00:00",
+   "gorus": 8000,
+   "ruzgar_hiz": 5,
+   "tavan": 2600,
+   "qnh": 1022,
+   "sicaklik": 17,
+   "cig_noktasi": 15
   }
  ],
  "yorum_onbellegi": {
@@ -4077,9 +4077,10 @@
   }
  },
  "notam_son_senkron": "2026-09-29T22:16:40+00:00",
- "guncelleme": "2026-09-29T22:24:43+00:00",
+ "guncelleme": "2026-09-29T22:54:47+00:00",
  "push_gonderilen": [
-  "id:55680882",
-  "id:55706543"
+  "id:55706543",
+  "id:55779016",
+  "id:55680882"
  ]
 }
