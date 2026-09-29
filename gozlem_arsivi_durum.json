@@ -1,23 +1,23 @@
 {
  "cekim": {
   "canli_h0": {
-   "son_deneme": "2026-09-29T08:54:33+00:00",
-   "son_basarili": "2026-09-29T08:54:33+00:00",
+   "son_deneme": "2026-09-29T09:04:38+00:00",
+   "son_basarili": "2026-09-29T09:04:38+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 3,
     "METAR": 1,
     "SPECI": 1,
     "TAF": 1,
-    "en_eski": "2026-09-29T05:45:00+00:00",
-    "en_yeni": "2026-09-29T08:50:00+00:00"
+    "en_eski": "2026-09-29T08:50:00+00:00",
+    "en_yeni": "2026-09-29T09:01:00+00:00"
    },
    "son_isleme": {
     "kaynak": "canli_h0",
     "rapor": 2,
     "kanonik_eklenen": {
-     "METAR": 1,
-     "SPECI": 0
+     "METAR": 0,
+     "SPECI": 1
     },
     "surum_eklenen": 1,
     "mevcut_anahtara_yeni_surum": 0,
@@ -27,27 +27,27 @@
     "cozulemeyen": 0,
     "zamansiz": 0,
     "eklenen_anahtarlar": [
-     "2026-09-29T08:50:00+00:00 METAR"
+     "2026-09-29T09:01:00+00:00 SPECI"
     ]
    }
   },
   "backfill_h24": {
-   "son_deneme": "2026-09-29T08:54:33+00:00",
-   "son_basarili": "2026-09-29T08:54:35+00:00",
+   "son_deneme": "2026-09-29T09:04:38+00:00",
+   "son_basarili": "2026-09-29T09:04:40+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
-    "kayit": 59,
+    "kayit": 60,
     "METAR": 48,
-    "SPECI": 7,
+    "SPECI": 8,
     "TAF": 4,
     "en_eski": "2026-09-28T09:14:00+00:00",
-    "en_yeni": "2026-09-29T08:50:00+00:00",
+    "en_yeni": "2026-09-29T09:01:00+00:00",
     "veri_alani": "data",
     "saat": 24
    },
    "son_isleme": {
     "kaynak": "backfill_h24",
-    "rapor": 55,
+    "rapor": 56,
     "kanonik_eklenen": {
      "METAR": 0,
      "SPECI": 0
@@ -65,13 +65,13 @@
   }
  },
  "arsiv": {
-  "uretim_zamani": "2026-09-29T08:54:35+00:00",
+  "uretim_zamani": "2026-09-29T09:04:40+00:00",
   "kanonik": {
-   "toplam": 301,
+   "toplam": 302,
    "METAR": 277,
-   "SPECI": 24,
+   "SPECI": 25,
    "ilk": "2026-09-23T13:01:00+00:00",
-   "son": "2026-09-29T08:50:00+00:00",
+   "son": "2026-09-29T09:01:00+00:00",
    "not": "Kanonik satır o anahtarı ilk yakalayan sürümdür; meteorolojik olarak doğru/nihai sürüm iddiası taşımaz."
   },
   "ingest": {
@@ -89,7 +89,7 @@
     },
     "SPECI": {
      "canli_h0": {
-      "60dk_ve_alti": 5,
+      "60dk_ve_alti": 6,
       "60dk_uzeri": 0
      },
      "backfill_h24": {
@@ -118,14 +118,14 @@
    ]
   },
   "surum": {
-   "toplam": 114,
+   "toplam": 115,
    "mgm_status": {
-    "1": 108,
+    "1": 109,
     "4": 6
    },
    "mgm_status_aciklama": {
     "CCA   ": 6,
-    "NORMAL": 108
+    "NORMAL": 109
    },
    "cok_surumlu_anahtar": 3,
    "cok_surumlu_anahtar_son": [
