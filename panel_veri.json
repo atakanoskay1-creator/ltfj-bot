@@ -1,30 +1,30 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-29T09:25:22+00:00",
+ "uretildi": "2026-09-29T09:54:41+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-29T09:20:00+00:00",
-  "metin": "METAR LTFJ 290920Z 03018KT 6000 -SHRA SCT008 BKN025 BKN080 18/16 Q1019 RESHRA NOSIG RMK RWY24R 01017KT RWY06R 01019KT RWY24L 01014KT",
+  "zaman": "2026-09-29T09:50:00+00:00",
+  "metin": "METAR LTFJ 290950Z 02016KT 9999 -SHRA SCT008 BKN025 BKN080 18/17 Q1019 NOSIG RMK RWY24R 01016KT RWY06R 01016KT RWY24L 01014KT",
   "ruzgar": {
-   "yon": 30,
-   "hiz": 18,
+   "yon": 20,
+   "hiz": 16,
    "hamle": null,
    "degisken": null
   },
-  "gorus": 6000,
+  "gorus": 9999,
   "cavok": false,
   "tavan": 2500,
   "hava": [
    "-SHRA"
   ],
   "sicaklik": 18,
-  "cig_noktasi": 16,
+  "cig_noktasi": 17,
   "qnh": 1019,
   "nosig": true,
   "renk": [
-   "WHT",
-   "iyi"
+   "BLU",
+   "çok iyi"
   ],
   "renk_etiketi": "LTFJ Bot durum seviyesi",
   "dikkat": [],
@@ -32,8 +32,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 14.9,
-    "yan": 10.1,
+    "bas": 11.5,
+    "yan": 11.1,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -45,8 +45,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 11.1,
-    "yan": 15.4,
+    "bas": 9.4,
+    "yan": 13.0,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -71,8 +71,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -10.0,
-    "yan": 13.8,
+    "bas": -9.4,
+    "yan": 13.0,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -92,21 +92,13 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 030° 18kt · görüş 6000 m · tavan 2500 ft · hafif sağanak yağmur · 18°C · QNH 1019"
+  "ozet": "Rüzgâr 020° 16kt · görüş 10+ km · tavan 2500 ft · hafif sağanak yağmur · 18°C · QNH 1019"
  },
  "taf": {
   "zaman": "2026-09-29T04:40:00+00:00",
   "metin": "TAF LTFJ 290440Z 2906/3006 01018KT 9999 -SHRA SCT008 BKN025 BKN080 TEMPO 2906/2910 2800 SHRA TEMPO 2910/2914 02020G30KT 4000 SHRA BECMG 2916/2920 03008KT TEMPO 2922/3002 4000 SHRA PROB30 TEMPO 3002/3006 03018KT"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-23T12:20:00+00:00",
-   "ruzgar_hiz": 9,
-   "tavan": 2300,
-   "qnh": 1018,
-   "sicaklik": 17,
-   "cig_noktasi": 10
-  },
   {
    "zaman": "2026-09-23T12:50:00+00:00",
    "ruzgar_hiz": 10,
@@ -2784,6 +2776,15 @@
    "qnh": 1019,
    "sicaklik": 18,
    "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-29T09:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 16,
+   "tavan": 2500,
+   "qnh": 1019,
+   "sicaklik": 18,
+   "cig_noktasi": 17
   }
  ]
 }
