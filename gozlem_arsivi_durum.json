@@ -1,86 +1,92 @@
 {
  "cekim": {
   "canli_h0": {
-   "son_deneme": "2026-09-29T13:24:38+00:00",
-   "son_basarili": "2026-09-29T13:24:38+00:00",
+   "son_deneme": "2026-09-29T13:54:34+00:00",
+   "son_basarili": "2026-09-29T13:54:34+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 3,
     "METAR": 1,
     "SPECI": 1,
     "TAF": 1,
-    "en_eski": "2026-09-29T12:50:00+00:00",
-    "en_yeni": "2026-09-29T13:01:00+00:00"
+    "en_eski": "2026-09-29T13:01:00+00:00",
+    "en_yeni": "2026-09-29T13:50:00+00:00"
    },
    "son_isleme": {
     "kaynak": "canli_h0",
     "rapor": 2,
     "kanonik_eklenen": {
-     "METAR": 0,
+     "METAR": 1,
      "SPECI": 0
     },
-    "surum_eklenen": 0,
+    "surum_eklenen": 1,
     "mevcut_anahtara_yeni_surum": 0,
     "ayni_surum_farkli_ham_zaman": 0,
     "ayni_surum_farkli_id": 0,
     "tip_kodu_uyusmazligi": 0,
     "cozulemeyen": 0,
     "zamansiz": 0,
-    "eklenen_anahtarlar": []
+    "eklenen_anahtarlar": [
+     "2026-09-29T13:50:00+00:00 METAR"
+    ]
    }
   },
   "backfill_h24": {
-   "son_deneme": "2026-09-29T13:24:38+00:00",
-   "son_basarili": "2026-09-29T13:24:40+00:00",
+   "son_deneme": "2026-09-29T13:54:34+00:00",
+   "son_basarili": "2026-09-29T13:54:36+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
-    "kayit": 60,
-    "METAR": 47,
+    "kayit": 61,
+    "METAR": 48,
     "SPECI": 9,
     "TAF": 4,
-    "en_eski": "2026-09-28T13:50:00+00:00",
-    "en_yeni": "2026-09-29T13:01:00+00:00",
+    "en_eski": "2026-09-28T14:20:00+00:00",
+    "en_yeni": "2026-09-29T13:50:00+00:00",
     "veri_alani": "data",
     "saat": 24
    },
    "son_isleme": {
     "kaynak": "backfill_h24",
-    "rapor": 56,
+    "rapor": 57,
     "kanonik_eklenen": {
-     "METAR": 0,
+     "METAR": 1,
      "SPECI": 0
     },
-    "surum_eklenen": 0,
+    "surum_eklenen": 1,
     "mevcut_anahtara_yeni_surum": 0,
     "ayni_surum_farkli_ham_zaman": 0,
     "ayni_surum_farkli_id": 0,
     "tip_kodu_uyusmazligi": 0,
     "cozulemeyen": 0,
     "zamansiz": 0,
-    "eklenen_anahtarlar": [],
-    "backfill_kurtarilan": []
+    "eklenen_anahtarlar": [
+     "2026-09-29T13:20:00+00:00 METAR"
+    ],
+    "backfill_kurtarilan": [
+     "2026-09-29T13:20:00+00:00 METAR"
+    ]
    }
   }
  },
  "arsiv": {
-  "uretim_zamani": "2026-09-29T13:24:40+00:00",
+  "uretim_zamani": "2026-09-29T13:54:36+00:00",
   "kanonik": {
-   "toplam": 312,
-   "METAR": 285,
+   "toplam": 314,
+   "METAR": 287,
    "SPECI": 27,
    "ilk": "2026-09-23T13:01:00+00:00",
-   "son": "2026-09-29T13:01:00+00:00",
+   "son": "2026-09-29T13:50:00+00:00",
    "not": "Kanonik satır o anahtarı ilk yakalayan sürümdür; meteorolojik olarak doğru/nihai sürüm iddiası taşımaz."
   },
   "ingest": {
    "tablo": {
     "METAR": {
      "canli_h0": {
-      "60dk_ve_alti": 51,
+      "60dk_ve_alti": 52,
       "60dk_uzeri": 0
      },
      "backfill_h24": {
-      "60dk_ve_alti": 2,
+      "60dk_ve_alti": 3,
       "60dk_uzeri": 2
      },
      "bilinmiyor": 230
@@ -98,7 +104,7 @@
     }
    },
    "backfill_kurtarilan": {
-    "METAR": 4,
+    "METAR": 5,
     "SPECI": 3
    },
    "60dk_uzeri_gec_ingest": {
@@ -112,18 +118,19 @@
     "2026-09-28T06:50:00+00:00 METAR",
     "2026-09-28T22:20:00+00:00 METAR",
     "2026-09-29T04:29:00+00:00 SPECI",
-    "2026-09-29T06:20:00+00:00 METAR"
+    "2026-09-29T06:20:00+00:00 METAR",
+    "2026-09-29T13:20:00+00:00 METAR"
    ]
   },
   "surum": {
-   "toplam": 125,
+   "toplam": 127,
    "mgm_status": {
-    "1": 119,
-    "4": 6
+    "1": 120,
+    "4": 7
    },
    "mgm_status_aciklama": {
-    "CCA   ": 6,
-    "NORMAL": 119
+    "CCA   ": 7,
+    "NORMAL": 120
    },
    "cok_surumlu_anahtar": 3,
    "cok_surumlu_anahtar_son": [
@@ -183,7 +190,7 @@
    }
   },
   "eksik_slot": {
-   "bekleniyor": 1,
+   "bekleniyor": 0,
    "backfill_penceresi_disinda": {
     "son_7_gun": 2,
     "toplam": 2
@@ -197,11 +204,6 @@
     {
      "slot": "2026-09-27T04:50:00+00:00",
      "durum": "backfill_penceresi_disinda",
-     "mgm_yanitinda_yok": null
-    },
-    {
-     "slot": "2026-09-29T13:20:00+00:00",
-     "durum": "bekleniyor",
      "mgm_yanitinda_yok": null
     }
    ],

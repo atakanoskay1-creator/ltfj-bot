@@ -1,30 +1,30 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-29T13:24:45+00:00",
+ "uretildi": "2026-09-29T13:54:47+00:00",
  "metar": {
-  "tip": "SPECI",
+  "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-29T13:01:00+00:00",
-  "metin": "SPECI LTFJ 291301Z 02017KT 4800 SHRA SCT008 BKN025 BKN080 17/15 Q1020 BECMG TL1330 9999 NSW RMK RWY24R 01016KT RWY06R 01016KT RWY24L 01013KT",
+  "zaman": "2026-09-29T13:50:00+00:00",
+  "metin": "METAR LTFJ 291350Z 02017KT 9999 -SHRA SCT008 BKN025 BKN080 17/15 Q1020 NOSIG RMK RWY24R 36014KT RWY06R 01016KT RWY24L 01012KT",
   "ruzgar": {
    "yon": 20,
    "hiz": 17,
    "hamle": null,
    "degisken": null
   },
-  "gorus": 4800,
+  "gorus": 9999,
   "cavok": false,
   "tavan": 2500,
   "hava": [
-   "SHRA"
+   "-SHRA"
   ],
   "sicaklik": 17,
   "cig_noktasi": 15,
   "qnh": 1020,
-  "nosig": false,
+  "nosig": true,
   "renk": [
-   "GRN",
-   "kabul edilebilir"
+   "BLU",
+   "çok iyi"
   ],
   "renk_etiketi": "LTFJ Bot durum seviyesi",
   "dikkat": [],
@@ -58,8 +58,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -7.6,
-    "yan": 10.5,
+    "bas": -7.0,
+    "yan": 9.7,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -71,8 +71,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -9.4,
-    "yan": 13.0,
+    "bas": -6.1,
+    "yan": 12.6,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -90,23 +90,15 @@
    "24L, 24R için arka rüzgâr 5 kt üstü"
   ],
   "gorus_op": [],
-  "trend": "Kademeli geçiş: TL1330 9999 NSW",
+  "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 020° 17kt · görüş 4800 m · tavan 2500 ft · sağanak yağmur · 17°C · QNH 1020"
+  "ozet": "Rüzgâr 020° 17kt · görüş 10+ km · tavan 2500 ft · hafif sağanak yağmur · 17°C · QNH 1020"
  },
  "taf": {
   "zaman": "2026-09-29T10:40:00+00:00",
   "metin": "TAF LTFJ 291040Z 2912/3012 02017KT 9999 -SHRA BKN025 BKN080 TEMPO 2912/2916 02018G28KT 3200 SHRA BECMG 2918/2921 04007KT BKN030 BKN080 TEMPO 3000/3004 03018G28KT 4000 SHRA BECMG 3004/3006 04018KT"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-23T15:50:00+00:00",
-   "ruzgar_hiz": 4,
-   "tavan": 12000,
-   "qnh": 1019,
-   "sicaklik": 15,
-   "cig_noktasi": 12
-  },
   {
    "zaman": "2026-09-23T16:20:00+00:00",
    "ruzgar_hiz": 4,
@@ -2787,6 +2779,15 @@
   {
    "zaman": "2026-09-29T13:01:00+00:00",
    "gorus": 4800,
+   "ruzgar_hiz": 17,
+   "tavan": 2500,
+   "qnh": 1020,
+   "sicaklik": 17,
+   "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-29T13:50:00+00:00",
+   "gorus": 9999,
    "ruzgar_hiz": 17,
    "tavan": 2500,
    "qnh": 1020,
