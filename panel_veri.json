@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-29T12:21:04+00:00",
+ "uretildi": "2026-09-29T12:24:43+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-29T11:50:00+00:00",
-  "metin": "METAR LTFJ 291150Z 02016KT 9999 -SHRA SCT008 BKN025 BKN080 18/15 Q1020 NOSIG RMK RWY24R 01014KT RWY06R 01017KT RWY24L 02013KT",
+  "zaman": "2026-09-29T12:20:00+00:00",
+  "metin": "METAR LTFJ 291220Z 02016KT 9999 -SHRA SCT008 BKN025 BKN080 18/16 Q1020 NOSIG RMK RWY24R 01014KT RWY06R 01016KT RWY24L 02011KT",
   "ruzgar": {
    "yon": 20,
    "hiz": 16,
@@ -19,7 +19,7 @@
    "-SHRA"
   ],
   "sicaklik": 18,
-  "cig_noktasi": 15,
+  "cig_noktasi": 16,
   "qnh": 1020,
   "nosig": true,
   "renk": [
@@ -45,8 +45,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 10.0,
-    "yan": 13.8,
+    "bas": 9.4,
+    "yan": 13.0,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -58,8 +58,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -9.3,
-    "yan": 9.1,
+    "bas": -7.9,
+    "yan": 7.7,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -99,14 +99,6 @@
   "metin": "TAF LTFJ 291040Z 2912/3012 02017KT 9999 -SHRA BKN025 BKN080 TEMPO 2912/2916 02018G28KT 3200 SHRA BECMG 2918/2921 04007KT BKN030 BKN080 TEMPO 3000/3004 03018G28KT 4000 SHRA BECMG 3004/3006 04018KT"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-23T14:20:00+00:00",
-   "ruzgar_hiz": 5,
-   "tavan": 2300,
-   "qnh": 1019,
-   "sicaklik": 15,
-   "cig_noktasi": 12
-  },
   {
    "zaman": "2026-09-23T14:50:00+00:00",
    "ruzgar_hiz": 4,
@@ -2789,6 +2781,15 @@
    "qnh": 1020,
    "sicaklik": 18,
    "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-29T12:20:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 16,
+   "tavan": 2500,
+   "qnh": 1020,
+   "sicaklik": 18,
+   "cig_noktasi": 16
   }
  ]
 }
