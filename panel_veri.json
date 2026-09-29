@@ -1,18 +1,18 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-29T08:24:42+00:00",
+ "uretildi": "2026-09-29T08:54:40+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-29T08:20:00+00:00",
-  "metin": "METAR LTFJ 290820Z 02010KT 7000 -SHRA SCT018 BKN025 BKN080 19/17 Q1019 NOSIG RMK RWY24R 01010KT RWY06R 01010KT 340V040 RWY24L 01009KT",
+  "zaman": "2026-09-29T08:50:00+00:00",
+  "metin": "METAR LTFJ 290850Z 02013KT 6000 -SHRA SCT015 BKN025 BKN080 19/17 Q1019 NOSIG RMK RWY24R 01012KT RWY06R 01012KT RWY24L 01009KT",
   "ruzgar": {
    "yon": 20,
-   "hiz": 10,
+   "hiz": 13,
    "hamle": null,
    "degisken": null
   },
-  "gorus": 7000,
+  "gorus": 6000,
   "cavok": false,
   "tavan": 2500,
   "hava": [
@@ -32,8 +32,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 7.2,
-    "yan": 7.0,
+    "bas": 9.3,
+    "yan": 9.0,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -45,12 +45,12 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 5.9,
-    "yan": 8.1,
+    "bas": 7.0,
+    "yan": 9.7,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -71,8 +71,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -5.9,
-    "yan": 8.1,
+    "bas": -7.0,
+    "yan": 9.7,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -92,21 +92,13 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 020° 10kt · görüş 7000 m · tavan 2500 ft · hafif sağanak yağmur · 19°C · QNH 1019"
+  "ozet": "Rüzgâr 020° 13kt · görüş 6000 m · tavan 2500 ft · hafif sağanak yağmur · 19°C · QNH 1019"
  },
  "taf": {
   "zaman": "2026-09-29T04:40:00+00:00",
   "metin": "TAF LTFJ 290440Z 2906/3006 01018KT 9999 -SHRA SCT008 BKN025 BKN080 TEMPO 2906/2910 2800 SHRA TEMPO 2910/2914 02020G30KT 4000 SHRA BECMG 2916/2920 03008KT TEMPO 2922/3002 4000 SHRA PROB30 TEMPO 3002/3006 03018KT"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-23T10:50:00+00:00",
-   "ruzgar_hiz": 10,
-   "tavan": 2200,
-   "qnh": 1018,
-   "sicaklik": 17,
-   "cig_noktasi": 12
-  },
   {
    "zaman": "2026-09-23T11:20:00+00:00",
    "ruzgar_hiz": 6,
@@ -2776,6 +2768,15 @@
    "zaman": "2026-09-29T08:20:00+00:00",
    "gorus": 7000,
    "ruzgar_hiz": 10,
+   "tavan": 2500,
+   "qnh": 1019,
+   "sicaklik": 19,
+   "cig_noktasi": 17
+  },
+  {
+   "zaman": "2026-09-29T08:50:00+00:00",
+   "gorus": 6000,
+   "ruzgar_hiz": 13,
    "tavan": 2500,
    "qnh": 1019,
    "sicaklik": 19,
