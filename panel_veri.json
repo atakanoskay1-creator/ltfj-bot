@@ -1,30 +1,30 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-29T09:12:43+00:00",
+ "uretildi": "2026-09-29T09:16:51+00:00",
  "metar": {
   "tip": "SPECI",
   "duzeltme": null,
-  "zaman": "2026-09-29T09:01:00+00:00",
-  "metin": "SPECI LTFJ 290901Z 02012KT 3800 SHRA SCT008 BKN025 BKN080 19/17 Q1019 BECMG TL0950 9999 NSW RMK RWY24R 02012KT RWY06R 01012KT 340V040 RWY24L 03012KT",
+  "zaman": "2026-09-29T09:11:00+00:00",
+  "metin": "SPECI LTFJ 290911Z 04018G28KT 7000 3200NE SHRA SCT008 BKN025 BKN080 18/16 Q1019 BECMG TL0950 9999 NSW RMK RWY24R 02016G26KT 350V050 RWY06R 02016KT RWY24L 02014KT 350V060",
   "ruzgar": {
-   "yon": 20,
-   "hiz": 12,
-   "hamle": null,
+   "yon": 40,
+   "hiz": 18,
+   "hamle": 28,
    "degisken": null
   },
-  "gorus": 3800,
+  "gorus": 7000,
   "cavok": false,
   "tavan": 2500,
   "hava": [
    "SHRA"
   ],
-  "sicaklik": 19,
-  "cig_noktasi": 17,
+  "sicaklik": 18,
+  "cig_noktasi": 16,
   "qnh": 1019,
   "nosig": false,
   "renk": [
-   "GRN",
-   "kabul edilebilir"
+   "WHT",
+   "iyi"
   ],
   "renk_etiketi": "LTFJ Bot durum seviyesi",
   "dikkat": [],
@@ -32,11 +32,11 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 8.6,
-    "yan": 8.4,
+    "bas": 16.4,
+    "yan": 7.3,
     "yan_taraf": "soldan",
-    "bas_hamle": null,
-    "yan_hamle": null,
+    "bas_hamle": 25.6,
+    "yan_hamle": 11.4,
     "degisken": false,
     "kaynak": "alan rüzgârından",
     "kuyruk": false,
@@ -45,12 +45,12 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 7.0,
-    "yan": 9.7,
+    "bas": 11.5,
+    "yan": 11.1,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -58,12 +58,12 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -9.9,
-    "yan": 6.7,
+    "bas": -10.1,
+    "yan": 9.7,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": false,
+    "degisken": true,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": true
@@ -71,12 +71,12 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -8.6,
-    "yan": 8.4,
+    "bas": -11.5,
+    "yan": 11.1,
     "yan_taraf": "sağdan",
-    "bas_hamle": null,
-    "yan_hamle": null,
-    "degisken": false,
+    "bas_hamle": -18.7,
+    "yan_hamle": 18.1,
+    "degisken": true,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": true
@@ -92,21 +92,13 @@
   "gorus_op": [],
   "trend": "Kademeli geçiş: TL0950 9999 NSW",
   "sis_riski": null,
-  "ozet": "Rüzgâr 020° 12kt · görüş 3800 m · tavan 2500 ft · sağanak yağmur · 19°C · QNH 1019"
+  "ozet": "Rüzgâr 040° 18kt (hamle 28) · görüş 7000 m · tavan 2500 ft · sağanak yağmur · 18°C · QNH 1019"
  },
  "taf": {
   "zaman": "2026-09-29T04:40:00+00:00",
   "metin": "TAF LTFJ 290440Z 2906/3006 01018KT 9999 -SHRA SCT008 BKN025 BKN080 TEMPO 2906/2910 2800 SHRA TEMPO 2910/2914 02020G30KT 4000 SHRA BECMG 2916/2920 03008KT TEMPO 2922/3002 4000 SHRA PROB30 TEMPO 3002/3006 03018KT"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-23T11:42:00+00:00",
-   "ruzgar_hiz": 8,
-   "tavan": 2200,
-   "qnh": 1018,
-   "sicaklik": 17,
-   "cig_noktasi": 11
-  },
   {
    "zaman": "2026-09-23T11:50:00+00:00",
    "ruzgar_hiz": 10,
@@ -2782,6 +2774,15 @@
    "qnh": 1019,
    "sicaklik": 19,
    "cig_noktasi": 17
+  },
+  {
+   "zaman": "2026-09-29T09:11:00+00:00",
+   "gorus": 7000,
+   "ruzgar_hiz": 18,
+   "tavan": 2500,
+   "qnh": 1019,
+   "sicaklik": 18,
+   "cig_noktasi": 16
   }
  ]
 }

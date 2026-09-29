@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:54523398",
   "id:54531856",
   "id:54534440",
   "id:54542663",
@@ -199,23 +198,16 @@
   "id:55592381",
   "id:55601254",
   "id:55603880",
-  "id:55606892"
+  "id:55606892",
+  "id:55610914"
  ],
  "ilk_calisma": false,
- "son_metar": "SPECI LTFJ 290901Z 02012KT 3800 SHRA SCT008 BKN025 BKN080 19/17 Q1019 BECMG TL0950 9999 NSW RMK RWY24R 02012KT RWY06R 01012KT 340V040 RWY24L 03012KT",
+ "son_metar": "SPECI LTFJ 290911Z 04018G28KT 7000 3200NE SHRA SCT008 BKN025 BKN080 18/16 Q1019 BECMG TL0950 9999 NSW RMK RWY24R 02016G26KT 350V050 RWY06R 02016KT RWY24L 02014KT 350V060",
  "son_uyari": null,
- "son_renk": "GRN",
+ "son_renk": "WHT",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-29T09:01:00+00:00",
+ "son_veri_zamani": "2026-09-29T09:11:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-23T11:42:00+00:00",
-   "ruzgar_hiz": 8,
-   "tavan": 2200,
-   "qnh": 1018,
-   "sicaklik": 17,
-   "cig_noktasi": 11
-  },
   {
    "zaman": "2026-09-23T11:50:00+00:00",
    "ruzgar_hiz": 10,
@@ -2891,6 +2883,15 @@
    "qnh": 1019,
    "sicaklik": 19,
    "cig_noktasi": 17
+  },
+  {
+   "zaman": "2026-09-29T09:11:00+00:00",
+   "gorus": 7000,
+   "ruzgar_hiz": 18,
+   "tavan": 2500,
+   "qnh": 1019,
+   "sicaklik": 18,
+   "cig_noktasi": 16
   }
  ],
  "yorum_onbellegi": {
@@ -3955,17 +3956,18 @@
   }
  },
  "notam_son_senkron": "2026-09-29T06:54:50+00:00",
- "guncelleme": "2026-09-29T09:12:43+00:00",
+ "guncelleme": "2026-09-29T09:16:51+00:00",
  "push_gonderilen": [
-  "id:55558361",
+  "id:55606892",
+  "id:55554142",
   "id:55405296",
   "id:55561305",
-  "id:55543793",
-  "id:55554142",
   "id:55565475",
   "id:55479506",
-  "id:55552096",
   "id:55549588",
-  "id:55606892"
+  "id:55610914",
+  "id:55558361",
+  "id:55552096",
+  "id:55543793"
  ]
 }
