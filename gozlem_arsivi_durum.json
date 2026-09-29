@@ -1,8 +1,8 @@
 {
  "cekim": {
   "canli_h0": {
-   "son_deneme": "2026-09-29T04:16:36+00:00",
-   "son_basarili": "2026-09-29T04:16:36+00:00",
+   "son_deneme": "2026-09-29T04:20:45+00:00",
+   "son_basarili": "2026-09-29T04:20:45+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 3,
@@ -10,36 +10,38 @@
     "SPECI": 1,
     "TAF": 1,
     "en_eski": "2026-09-29T03:50:00+00:00",
-    "en_yeni": "2026-09-29T04:00:00+00:00"
+    "en_yeni": "2026-09-29T04:15:00+00:00"
    },
    "son_isleme": {
     "kaynak": "canli_h0",
     "rapor": 2,
     "kanonik_eklenen": {
      "METAR": 0,
-     "SPECI": 0
+     "SPECI": 1
     },
-    "surum_eklenen": 0,
+    "surum_eklenen": 1,
     "mevcut_anahtara_yeni_surum": 0,
     "ayni_surum_farkli_ham_zaman": 0,
     "ayni_surum_farkli_id": 0,
     "tip_kodu_uyusmazligi": 0,
     "cozulemeyen": 0,
     "zamansiz": 0,
-    "eklenen_anahtarlar": []
+    "eklenen_anahtarlar": [
+     "2026-09-29T04:15:00+00:00 SPECI"
+    ]
    }
   },
   "backfill_h24": {
-   "son_deneme": "2026-09-29T04:16:36+00:00",
-   "son_basarili": "2026-09-29T04:16:38+00:00",
+   "son_deneme": "2026-09-29T04:20:45+00:00",
+   "son_basarili": "2026-09-29T04:20:47+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 57,
-    "METAR": 48,
-    "SPECI": 5,
+    "METAR": 47,
+    "SPECI": 6,
     "TAF": 4,
-    "en_eski": "2026-09-28T04:20:00+00:00",
-    "en_yeni": "2026-09-29T04:00:00+00:00",
+    "en_eski": "2026-09-28T04:43:00+00:00",
+    "en_yeni": "2026-09-29T04:15:00+00:00",
     "veri_alani": "data",
     "saat": 24
    },
@@ -63,13 +65,13 @@
   }
  },
  "arsiv": {
-  "uretim_zamani": "2026-09-29T04:16:38+00:00",
+  "uretim_zamani": "2026-09-29T04:20:47+00:00",
   "kanonik": {
-   "toplam": 286,
+   "toplam": 287,
    "METAR": 267,
-   "SPECI": 19,
+   "SPECI": 20,
    "ilk": "2026-09-23T13:01:00+00:00",
-   "son": "2026-09-29T04:00:00+00:00",
+   "son": "2026-09-29T04:15:00+00:00",
    "not": "Kanonik satır o anahtarı ilk yakalayan sürümdür; meteorolojik olarak doğru/nihai sürüm iddiası taşımaz."
   },
   "ingest": {
@@ -87,7 +89,7 @@
     },
     "SPECI": {
      "canli_h0": {
-      "60dk_ve_alti": 1,
+      "60dk_ve_alti": 2,
       "60dk_uzeri": 0
      },
      "backfill_h24": {
@@ -114,14 +116,14 @@
    ]
   },
   "surum": {
-   "toplam": 97,
+   "toplam": 98,
    "mgm_status": {
-    "1": 93,
+    "1": 94,
     "4": 4
    },
    "mgm_status_aciklama": {
     "CCA   ": 4,
-    "NORMAL": 93
+    "NORMAL": 94
    },
    "cok_surumlu_anahtar": 1,
    "cok_surumlu_anahtar_son": [
@@ -150,7 +152,7 @@
    }
   },
   "eksik_slot": {
-   "bekleniyor": 0,
+   "bekleniyor": 1,
    "backfill_penceresi_disinda": {
     "son_7_gun": 2,
     "toplam": 2
@@ -164,6 +166,11 @@
     {
      "slot": "2026-09-27T04:50:00+00:00",
      "durum": "backfill_penceresi_disinda",
+     "mgm_yanitinda_yok": null
+    },
+    {
+     "slot": "2026-09-29T04:20:00+00:00",
+     "durum": "bekleniyor",
      "mgm_yanitinda_yok": null
     }
    ],
