@@ -2907,10 +2907,10 @@
   }
  ],
  "yorum_onbellegi": {
-  "TAF LTFJ 290440Z 2906/3006 01018KT 9999 -SHRA SCT008 BKN025 BKN080 TEMPO 2906/2910 2800 SHRA TEMPO 2910/2914 02020G30KT 4000 SHRA BECMG 2916/2920 03008KT TEMPO 2922/3002 4000 SHRA PROB30 TEMPO 3002/3006 03018KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde sağanak yağışlı, değişken bulutlu hava beklenmektedir.\n\n- **2906/2910 UTC:** Görüş 2800 metre, sağanak yağış geçici olarak beklenmektedir.\n- **2910/2914 UTC:** Rüzgar 02020G30KT, görüş 4000 metre, sağanak yağış geçici olarak beklenmektedir.\n- **2916/2920 UTC:** Rüzgar kademeli olarak 03008KT'ye geçiş; 2922/3002 UTC arasında görüş 4000 metre, sağanak yağış geçici olarak beklenmektedir.\n- **3002/3006 UTC:** %30 ihtimalle rüzgar 03018KT ile sağanak yağış geçici olarak beklenmektedir.",
   "SPECI LTFJ 290545Z 03010KT 9999 -SHRA SCT009 BKN025 17/16 Q1018 RESHRA NOSIG RMK RWY24R 02009KT RWY06R 02012KT RWY24L 36004KT 340V040": "**Rüzgâr:** Kuzey-kuzeydoğudan 10 düğüm hızında rüzgâr esiyor, yan bileşen hafif.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için rahat.\n\n**Gökyüzü:** Yaklaşık 900 metrede parçalı bulutlar, 2500 metrede çok bulutlu tabaka var; hafif sağanak yağmur düşüyor.\n\n**Uçuşa etkisi:** Hafif sağanak ve yüksek nem koşulları mevcut, ancak görüş ve rüzgâr şiddeti operasyonel sınırlamaya neden olmuyordu.",
   "METAR LTFJ 290750Z 03011KT 9999 -SHRA BKN025 BKN080 19/17 Q1019 NOSIG RMK RWY24R 01010KT RWY06R 01010KT RWY24L 01009KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 11 knot hızla esen rüzgâr, hafif yan bileşen içeriyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için rahat.\n\n**Gökyüzü:** Yaklaşık 2500 metre yükseklikte çok bulutlu, 8000 metrede de bulutlu; hafif sağanak yağmur düşüyor.\n\n**Uçuşa etkisi:** Hafif sağanak ve yüksek nem koşulları vardır, ancak görüş ve rüzgâr şiddeti operasyonel sınırlar içindedir.",
-  "TAF LTFJ 291040Z 2912/3012 02017KT 9999 -SHRA BKN025 BKN080 TEMPO 2912/2916 02018G28KT 3200 SHRA BECMG 2918/2921 04007KT BKN030 BKN080 TEMPO 3000/3004 03018G28KT 4000 SHRA BECMG 3004/3006 04018KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde kuzey-kuzeybatı rüzgarı ve hafif yağış beklenmektedir.\n\n- **2912/2916 UTC:** Rüzgar 02018G28KT, görüş 3200 m, hafif yağış ve gök bulutlu.\n- **2918/2921 UTC:** Rüzgar kademeli olarak 04007KT'ye geçiş, görüş 9999 m, bulutlu.\n- **3000/3004 UTC:** Rüzgar 03018G28KT, görüş 4000 m, hafif yağış."
+  "TAF LTFJ 291040Z 2912/3012 02017KT 9999 -SHRA BKN025 BKN080 TEMPO 2912/2916 02018G28KT 3200 SHRA BECMG 2918/2921 04007KT BKN030 BKN080 TEMPO 3000/3004 03018G28KT 4000 SHRA BECMG 3004/3006 04018KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde kuzey-kuzeybatı rüzgarı ve hafif yağış beklenmektedir.\n\n- **2912/2916 UTC:** Rüzgar 02018G28KT, görüş 3200 m, hafif yağış ve gök bulutlu.\n- **2918/2921 UTC:** Rüzgar kademeli olarak 04007KT'ye geçiş, görüş 9999 m, bulutlu.\n- **3000/3004 UTC:** Rüzgar 03018G28KT, görüş 4000 m, hafif yağış.",
+  "METAR LTFJ 291450Z 02014KT 6000 SHRA SCT008 BKN025 BKN080 17/15 Q1021 BECMG TL1530 NSW RMK RWY24R 36012KT RWY06R 01013KT RWY24L 36010KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 14 düğüm hızla esen rüzgâr, aktif pistlere göre 10-13 düğüm yan bileşen oluşturuyor.\n\n**Görüş:** 6 kilometre görüş mesafesi, sağanak yağmur nedeniyle sınırlı.\n\n**Gökyüzü:** Düşük seviyede parçalı bulutlar (yaklaşık 800 metre), üzerinde 2500 metre yükseklikte çok bulutlu katman; sağanak yağmur gözleniyor.\n\n**Uçuşa etkisi:** Düşük görüş ve sağanak yağmur, yan rüzgâr bileşeni ile birlikte operasyonel dikkat gerektiriyor."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -3968,7 +3968,7 @@
   }
  },
  "notam_son_senkron": "2026-09-29T13:08:49+00:00",
- "guncelleme": "2026-09-29T15:08:46+00:00",
+ "guncelleme": "2026-09-29T15:12:49+00:00",
  "push_gonderilen": [
   "id:55680882"
  ]
