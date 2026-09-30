@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-30T07:24:48+00:00",
+ "uretildi": "2026-09-30T07:54:39+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-30T07:20:00+00:00",
-  "metin": "METAR LTFJ 300720Z 04013KT 9999 BKN030 BKN080 18/16 Q1023 NOSIG RMK RWY24R 02012KT RWY06R 03015KT RWY24L 03011KT",
+  "zaman": "2026-09-30T07:50:00+00:00",
+  "metin": "METAR LTFJ 300750Z 04013KT 9999 SCT030 BKN080 18/15 Q1023 NOSIG RMK RWY24R 02011KT RWY06R 03012KT RWY24L 03009KT",
   "ruzgar": {
    "yon": 40,
    "hiz": 13,
@@ -14,10 +14,10 @@
   },
   "gorus": 9999,
   "cavok": false,
-  "tavan": 3000,
+  "tavan": 8000,
   "hava": [],
   "sicaklik": 18,
-  "cig_noktasi": 16,
+  "cig_noktasi": 15,
   "qnh": 1023,
   "nosig": true,
   "renk": [
@@ -43,8 +43,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 12.4,
-    "yan": 8.4,
+    "bas": 9.9,
+    "yan": 6.7,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -56,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -9.1,
-    "yan": 6.2,
+    "bas": -7.5,
+    "yan": 5.0,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -69,8 +69,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -8.6,
-    "yan": 8.4,
+    "bas": -7.9,
+    "yan": 7.7,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -82,28 +82,19 @@
   ],
   "kuyruk_limiti": 10,
   "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi",
-  "tercih_pist": "06R",
+  "tercih_pist": "06L",
   "rvr": [],
   "prs": [],
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 040° 13kt · görüş 10+ km · tavan 3000 ft · 18°C · QNH 1023"
+  "ozet": "Rüzgâr 040° 13kt · görüş 10+ km · tavan 8000 ft · 18°C · QNH 1023"
  },
  "taf": {
   "zaman": "2026-09-30T04:40:00+00:00",
   "metin": "TAF LTFJ 300440Z 3006/0106 04007KT 9999 SCT035 BKN090 BECMG 3006/3010 04017KT BKN025 BKN080 TEMPO 3007/3011 3200 SHRA TEMPO 3011/3015 03019G29KT -SHRA TEMPO 3015/3018 -SHRA BECMG 3018/3021 03007KT SCT030"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-24T10:20:00+00:00",
-   "gorus": 6000,
-   "ruzgar_hiz": 8,
-   "tavan": 3500,
-   "qnh": 1022,
-   "sicaklik": 17,
-   "cig_noktasi": 10
-  },
   {
    "zaman": "2026-09-24T10:50:00+00:00",
    "gorus": 8000,
@@ -2794,6 +2785,15 @@
    "qnh": 1023,
    "sicaklik": 18,
    "cig_noktasi": 16
+  },
+  {
+   "zaman": "2026-09-30T07:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 13,
+   "tavan": 8000,
+   "qnh": 1023,
+   "sicaklik": 18,
+   "cig_noktasi": 15
   }
  ]
 }
