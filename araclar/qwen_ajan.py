@@ -297,16 +297,32 @@ def durum(repo: Path) -> str:
     return git(repo, "-c", "core.quotePath=false", "status", "--porcelain", "-uall")
 
 
+def aiderignore_metni(dosyalar: list[str]) -> str:
+    """Aider'a izinli dosyalar ve CONVENTIONS.md disinda her seyi gizler.
+
+    Olculdu (#111 ilk tur): model cevabinda `ltfj_bot.py`, `ayarlar.json`
+    gibi adlar gecince Aider --yes-always ile onlari sohbete ekliyor ve
+    duzenlemeyi UYGULAMADAN modele yeniden soruyor; buyuyen istek LM
+    Studio'da dustu ("fetch failed"), dogru yazilmis test dosyasi bos kaldi.
+    Gizlenen dosya "eklenebilir" sayilmadigi icin bu dongu hic baslamaz."""
+    def kacir(yol):
+        return "".join("\\" + c if c in "[]*?!#\\" else c for c in yol)
+    return "\n".join(["*"] + [f"!{kacir(y)}" for y in [*dosyalar, "CONVENTIONS.md"]]) + "\n"
+
+
 def aider_calistir(repo: Path, mesaj: str, dosyalar: list[str], gunluk: Path = None) -> str:
     gecici = Path(tempfile.mkdtemp(prefix="qwen-ajan-"))
     mesaj_dosyasi = gecici / "mesaj.md"
     mesaj_dosyasi.write_text(mesaj, encoding="utf-8")
+    gizle = gecici / "aiderignore"
+    gizle.write_text(aiderignore_metni(dosyalar), encoding="utf-8")
     komut = [
         ayar("AJAN_AIDER", "aider"),
         "--model", f"openai/{ayar('AJAN_MODEL')}",
         "--openai-api-base", ayar("AJAN_LLM_URL", "http://localhost:1234/v1"),
         "--openai-api-key", ayar("AJAN_LLM_ANAHTAR", "lm-studio"),
         "--read", "CONVENTIONS.md",
+        "--aiderignore", str(gizle),
         "--yes-always", "--no-auto-commits", "--no-dirty-commits",
         "--no-gitignore", "--no-check-update", "--analytics-disable",
         "--no-show-model-warnings", "--no-pretty", "--no-stream",

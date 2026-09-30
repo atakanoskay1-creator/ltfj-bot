@@ -149,3 +149,14 @@ def test_eksik_icerikte_pr_acilmiyor_duzeltme_istenir():
     assert kaynak.index("icerik_eksikleri(repo, degisenler)") < kaynak.index(
         "yesil, cikti = testleri_calistir(repo)")
     assert "mesaj = eksik_mesaji(eksikler)" in kaynak
+
+
+def test_aiderignore_yalnizca_izinli_dosyalari_gorunur_birakir():
+    """#111 ilk tur: cevapta gecen dosya adlari Aider'a eklenince duzenleme
+    uygulanmadan yeniden istek gitti ve LM Studio'da dustu."""
+    metin = aj.aiderignore_metni(["tests/test_a.py", "ltfj_bot.py"])
+    assert metin.splitlines() == ["*", "!tests/test_a.py", "!ltfj_bot.py",
+                                  "!CONVENTIONS.md"]
+    assert aj.aiderignore_metni(["tests/[x]*.py"]).splitlines()[1] == "!tests/\\[x\\]\\*.py"
+    kaynak = _yol.read_text(encoding="utf-8")
+    assert '"--aiderignore", str(gizle)' in kaynak
