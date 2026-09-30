@@ -296,3 +296,42 @@ def test_bot_sis_modeli_ni_import_etmiyor():
     kaynak = Path("ltfj_tahmin_gunlugu.py").read_text(encoding="utf-8")
     assert "sis_modeli" not in "\n".join(l for l in kaynak.splitlines()
                                          if l.startswith(("import", "from")))
+
+
+def test_ozet_bagimsiz_olay_farkli_ilk_olay_sayar():
+    """Ayni onset olayinin cogu tahmini 'oldu' yapar; hepsi AYNI
+    ilk_olayi tasir. bagimsiz_olay farkli ilk_olay sayisidir."""
+    s = [{"evren": "onset", "durum": "oldu", "olasilik": 0.3, "bant": "yuksek",
+          "ilk_olay": "2026-10-01T04:50"},
+         {"evren": "onset", "durum": "oldu", "olasilik": 0.2, "bant": "orta",
+          "ilk_olay": "2026-10-01T04:50"},
+         {"evren": "onset", "durum": "oldu", "olasilik": 0.4, "bant": "yuksek",
+          "ilk_olay": "2026-10-01T12:20"},
+         {"evren": "onset", "durum": "olmadi", "olasilik": 0.004, "bant": "dusuk",
+          "ilk_olay": ""},
+         {"evren": "onset", "durum": "oldu", "olasilik": 0.5, "bant": "yuksek",
+          "ilk_olay": ""},
+         {"evren": "olay_suruyor", "durum": "oldu", "olasilik": 0.9, "bant": "yuksek",
+          "ilk_olay": "2026-10-01T04:50"}]
+    o = tg.ozet(s)
+    assert o["olay"] == 4
+    assert o["bagimsiz_olay"] == 2
+
+
+def test_ozet_bagimsiz_olay_sadece_onset_ve_oldu_sayar():
+    """Belirsiz/bekliyor, olmadi, evren disi ve bos ilk_olay sayilmaz."""
+    s = [{"evren": "onset", "durum": "bekliyor", "olasilik": 0.3, "bant": "orta",
+          "ilk_olay": "2026-10-01T04:50"},
+         {"evren": "onset", "durum": "belirsiz", "olasilik": 0.3, "bant": "orta",
+          "ilk_olay": "2026-10-01T04:50"},
+         {"evren": "onset", "durum": "olmadi", "olasilik": 0.01, "bant": "dusuk",
+          "ilk_olay": ""},
+         {"evren": "olay_suruyor", "durum": "oldu", "olasilik": 0.9, "bant": "yuksek",
+          "ilk_olay": "2026-10-01T04:50"},
+         {"evren": "onset", "durum": "oldu", "olasilik": 0.5, "bant": "yuksek",
+          "ilk_olay": ""}]
+    o = tg.ozet(s)
+    # olmadi + bos ilk_olay'li oldu SONUCLANMIS sayilir (n, olay), ama
+    # bagimsiz olaya girmez
+    assert o["n"] == 2 and o["olay"] == 1
+    assert o["bagimsiz_olay"] == 0
