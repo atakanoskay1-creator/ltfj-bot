@@ -1,7 +1,5 @@
 {
  "gonderilen": [
-  "id:54845305",
-  "id:54847907",
   "id:54856263",
   "id:54860248",
   "id:54867977",
@@ -199,33 +197,17 @@
   "id:55883743",
   "id:55891914",
   "id:55894799",
-  "id:55902829"
+  "id:55902829",
+  "id:55906140",
+  "id:55904714"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 300820Z 03015KT 9999 SCT030 BKN080 18/15 Q1023 NOSIG RMK RWY24R 01014KT RWY06R 02014KT RWY24L 02011KT",
+ "son_metar": "METAR LTFJ 300850Z 03015KT 7000 -SHRA FEW018 BKN025 BKN080 17/15 Q1023 NOSIG RMK RWY24R 02014KT RWY06R 02015KT RWY24L 03014KT",
  "son_uyari": null,
- "son_renk": "BLU",
+ "son_renk": "WHT",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-30T08:20:00+00:00",
+ "son_veri_zamani": "2026-09-30T08:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-24T11:20:00+00:00",
-   "gorus": 9999,
-   "ruzgar_hiz": 2,
-   "tavan": 3500,
-   "qnh": 1022,
-   "sicaklik": 16,
-   "cig_noktasi": 11
-  },
-  {
-   "zaman": "2026-09-24T11:50:00+00:00",
-   "gorus": 9999,
-   "ruzgar_hiz": 0,
-   "tavan": 3500,
-   "qnh": 1022,
-   "sicaklik": 17,
-   "cig_noktasi": 11
-  },
   {
    "zaman": "2026-09-24T12:20:00+00:00",
    "gorus": 9999,
@@ -2907,6 +2889,24 @@
    "qnh": 1023,
    "sicaklik": 18,
    "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-30T08:33:00+00:00",
+   "gorus": 7000,
+   "ruzgar_hiz": 15,
+   "tavan": 2500,
+   "qnh": 1023,
+   "sicaklik": 18,
+   "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-30T08:50:00+00:00",
+   "gorus": 7000,
+   "ruzgar_hiz": 15,
+   "tavan": 2500,
+   "qnh": 1023,
+   "sicaklik": 17,
+   "cig_noktasi": 15
   }
  ],
  "yorum_onbellegi": {
@@ -4079,14 +4079,15 @@
   }
  },
  "notam_son_senkron": "2026-09-30T07:24:47+00:00",
- "guncelleme": "2026-09-30T08:24:42+00:00",
+ "guncelleme": "2026-09-30T08:54:48+00:00",
  "push_gonderilen": [
-  "id:55680882",
-  "id:55867966",
-  "id:55828671",
+  "id:55855893",
   "id:55781220",
-  "id:55779016",
+  "id:55867966",
+  "id:55904714",
+  "id:55828671",
   "id:55706543",
-  "id:55855893"
+  "id:55680882",
+  "id:55779016"
  ]
 }
