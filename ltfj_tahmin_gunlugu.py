@@ -397,9 +397,13 @@ def ozet(sonuclar: list) -> dict:
         brier_iklim = sum((c - (s["durum"] == "oldu")) ** 2 for s in sayilan) / n
         if olay >= YORUM_ESIGI_OLAY and brier_iklim > 0:
             bss = 1 - brier / brier_iklim
-    return {"sayim": say, "n": n, "olay": olay, "bantlar": bantlar,
-            "brier": brier, "brier_iklim": brier_iklim, "bss": bss,
-            "yorum_esigi_olay": YORUM_ESIGI_OLAY}
+    return {"sayim": say, "n": n, "olay": olay,
+            # Ayni sis olayi kendinden onceki birkac tahmini "oldu" yapar;
+            # hepsi ayni ilk_olay'i tasir. Bagimsiz olay = farkli ilk_olay.
+            "bagimsiz_olay": len({s.get("ilk_olay") for s in sayilan
+                                  if s["durum"] == "oldu" and s.get("ilk_olay")}),
+            "bantlar": bantlar, "brier": brier, "brier_iklim": brier_iklim,
+            "bss": bss, "yorum_esigi_olay": YORUM_ESIGI_OLAY}
 
 
 def dogrulama_verisi(klasor: Path = KLASOR, simdi: datetime | None = None) -> dict:
