@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-30T03:20:54+00:00",
+ "uretildi": "2026-09-30T03:24:40+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-30T02:50:00+00:00",
-  "metin": "METAR LTFJ 300250Z 04008KT 9999 -SHRA BKN025 BKN080 17/15 Q1021 NOSIG RMK RWY24R 02006KT RWY06R 04005KT RWY24L 04003KT",
+  "zaman": "2026-09-30T03:20:00+00:00",
+  "metin": "METAR LTFJ 300320Z 04008KT 9999 -SHRA BKN025 BKN080 17/15 Q1021 NOSIG RMK RWY24R 02006KT RWY06R 03008KT RWY24L 01004KT",
   "ruzgar": {
    "yon": 40,
    "hiz": 8,
@@ -45,8 +45,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 4.6,
-    "yan": 2.0,
+    "bas": 6.6,
+    "yan": 4.5,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -58,8 +58,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -2.7,
-    "yan": 1.2,
+    "bas": -2.3,
+    "yan": 3.2,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -97,15 +97,6 @@
   "metin": "TAF LTFJ 292240Z 3000/3024 04008KT 9999 -SHRA FEW012 BKN025 BKN080 BECMG 3004/3006 04018KT TEMPO 3004/3008 3200 SHRA TEMPO 3011/3015 03020G30KT BECMG 3018/3021 03008KT SCT030"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-24T06:20:00+00:00",
-   "gorus": 9999,
-   "ruzgar_hiz": 3,
-   "tavan": null,
-   "qnh": 1022,
-   "sicaklik": 16,
-   "cig_noktasi": 12
-  },
   {
    "zaman": "2026-09-24T06:50:00+00:00",
    "gorus": 9999,
@@ -2790,6 +2781,15 @@
   },
   {
    "zaman": "2026-09-30T02:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 8,
+   "tavan": 2500,
+   "qnh": 1021,
+   "sicaklik": 17,
+   "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-30T03:20:00+00:00",
    "gorus": 9999,
    "ruzgar_hiz": 8,
    "tavan": 2500,
