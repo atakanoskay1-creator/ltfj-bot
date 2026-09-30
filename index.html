@@ -1300,6 +1300,79 @@
   .vfr-nokta.bilinmiyor { background:#64748b; }
   .vfr-panel ul { margin:10px 0 0; padding-left:18px; font-size:var(--f2); }
   .vfr-panel .vfr-esik { color:var(--soluk); font-size:var(--f1); margin-top:10px; }
+
+  /* ---- HAREKET --------------------------------------------------------
+     Kural: hareket BILGI tasir, sus degildir.
+       - Yalnizca opaklik, renk, golge ve donus: yerlesim hic kaymaz.
+       - Sayilar SAYARAK degismez: 800'den 400'e animasyonla inen bir
+         gorus, gercekte hic olmamis ara degerler gosterirdi.
+       - Surekli dongu yok (tazelik nabzi haric); her vurgu TEK seferlik.
+       - Tetikleyici her zaman gercek bir DEGISIM: yeni gozlemde degisen
+         olcu, esik bandina yeni giris, yeni NOTAM, durum rozeti gecisi.
+     prefers-reduced-motion: dosyanin basindaki kural hepsini durdurur;
+     JS tarafi da o tercihte animasyon baslatmaz (bkz. 11_hareket.js). */
+  :root { --hareket-kisa:160ms; --hareket-orta:300ms; --hareket-vurgu:1000ms;
+          --hareket-egri:cubic-bezier(.2,.7,.2,1); }
+
+  /* Yeni gozlemde DEGISEN olcu: bir kez hafif bir zemin + halka, sonra
+     sabit. Golge yerlesimi etkilemez. */
+  @keyframes ltfj-degisti {
+    0%, 35% { background-color:var(--bilgi-zemin); box-shadow:0 0 0 4px var(--bilgi-zemin); }
+    100%    { background-color:transparent; box-shadow:0 0 0 4px transparent; }
+  }
+  .olcu-degisti { border-radius:var(--r1);
+                  animation:ltfj-degisti var(--hareket-vurgu) ease-out 1; }
+
+  /* Esik bandina YENI giren olcu (sinirli/esik alti): tek seferlik,
+     bandin rengiyle bir cerceve. Yanip sonme YOK. */
+  @keyframes ltfj-esik-dikkat {
+    0%, 40% { box-shadow:inset 0 0 0 2px var(--dikkat-dolu); }
+    100%    { box-shadow:inset 0 0 0 2px transparent; }
+  }
+  @keyframes ltfj-esik-uyari {
+    0%, 40% { box-shadow:inset 0 0 0 2px var(--uyari); }
+    100%    { box-shadow:inset 0 0 0 2px transparent; }
+  }
+  .hero-oge-dikkat.esik-girdi { animation:ltfj-esik-dikkat 1400ms ease-out 1; }
+  .hero-oge-uyari.esik-girdi  { animation:ltfj-esik-uyari 1400ms ease-out 1; }
+
+  /* Durum rozeti CANLI'dan ciktiginda (ya da sayfa zaten bayat acildiginda)
+     tek bir halka - rozet kucuk ve kosede, degisimi kacirmak kolay. */
+  @keyframes ltfj-rozet {
+    0%   { box-shadow:0 0 0 0 currentColor; }
+    100% { box-shadow:0 0 0 7px transparent; }
+  }
+  .ust-durum.durum-degisti { animation:ltfj-rozet 900ms ease-out 2; }
+
+  /* Sekme degisiminde yeni panel kisa bir belirme ile gelir. Yalnizca
+     kullanici sekme DEGISTIRINCE (.sekme-gecis): ilk yuklemede panel
+     aninda gorunur, animasyonla gecikmez. */
+  @keyframes ltfj-belir {
+    from { opacity:0; transform:translateY(4px); }
+    to   { opacity:1; transform:none; }
+  }
+  .sekme-gecis .sekme-panel { animation:ltfj-belir var(--hareket-kisa) var(--hareket-egri); }
+
+  /* Katlanir bolumler: acilinca icerik belirir (her tarayicida) ... */
+  details.acildi > :not(summary) { animation:ltfj-belir 180ms var(--hareket-egri); }
+  /* ... ve destekleyen tarayicida yukseklik akici degisir. Desteklemeyen
+     tarayicida bolum eskisi gibi aninda acilir - islev kaybi yok. */
+  @supports (interpolate-size: allow-keywords) {
+    :root { interpolate-size:allow-keywords; }
+    details::details-content {
+      height:0; overflow:clip;
+      transition:height var(--hareket-orta) var(--hareket-egri),
+                 content-visibility var(--hareket-orta) allow-discrete;
+    }
+    details[open]::details-content { height:auto; }
+  }
+
+  /* Son gorulmeden bu yana YENI gelen aktif NOTAM karti: bir kez vurgu. */
+  @keyframes ltfj-notam-yeni {
+    0%, 35% { box-shadow:inset 3px 0 0 var(--bilgi), 0 0 0 3px var(--bilgi-zemin); }
+    100%    { box-shadow:inset 3px 0 0 transparent, 0 0 0 3px transparent; }
+  }
+  .notam-kart.notam-yeni { animation:ltfj-notam-yeni 1400ms ease-out 1; }
 </style>
 <script>
   /* SATIR ICI ve GOVDE CIZILMEDEN ONCE olmak ZORUNDA: paneller varsayilan
@@ -1388,14 +1461,14 @@
      gorunmesin diye serit yalnizca hero ekrandan CIKINCA aciliyor
      (asagidaki IntersectionObserver). JS yoksa ikisi de gorunur -
      eski davranis, bilgi kaybi yok. -->
-<div class="su-an" id="su-an"><div class="hero"><div class="hero-oge"><div class="hero-etiket">GÖRÜŞ</div><div class="hero-deger">10+<span class="hero-birim">km</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><defs><linearGradient id="gd84081" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="currentColor" stop-opacity=".22"/><stop offset="100%" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M4.0,5.4 L12.4,5.4 L20.7,5.4 L29.1,5.4 L37.5,5.4 L45.8,5.4 L54.2,5.4 L62.5,5.4 L67.3,14.6 L70.9,10.0 L79.3,5.4 L87.6,5.4 L96.0,5.4 L96.0,20 L4.0,20 Z" fill="url(#gd84081)" stroke="none"/><path d="M4.0,5.4 L12.4,5.4 L20.7,5.4 L29.1,5.4 L37.5,5.4 L45.8,5.4 L54.2,5.4 L62.5,5.4 L67.3,14.6 L70.9,10.0 L79.3,5.4 L87.6,5.4 L96.0,5.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="5.4" r="3" fill="currentColor"/></svg></div><div class="hero-oge"><div class="hero-etiket">TAVAN</div><div class="hero-deger">2500<span class="hero-birim">ft</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><defs><linearGradient id="gd84081" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="currentColor" stop-opacity=".22"/><stop offset="100%" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M4.0,5.4 L12.4,5.4 L20.7,5.4 L29.1,5.4 L37.5,5.4 L45.8,5.4 L54.2,5.4 L62.5,5.4 L67.3,5.4 L70.9,5.4 L79.3,5.4 L87.6,5.4 L96.0,14.6 L96.0,20 L4.0,20 Z" fill="url(#gd84081)" stroke="none"/><path d="M4.0,5.4 L12.4,5.4 L20.7,5.4 L29.1,5.4 L37.5,5.4 L45.8,5.4 L54.2,5.4 L62.5,5.4 L67.3,5.4 L70.9,5.4 L79.3,5.4 L87.6,5.4 L96.0,14.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="14.6" r="3" fill="currentColor"/></svg></div><div class="hero-oge"><div class="hero-etiket">RÜZGÂR</div><div class="hero-deger">050°/5<span class="hero-birim">kt</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><defs><linearGradient id="gd84081" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="currentColor" stop-opacity=".22"/><stop offset="100%" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M4.0,10.0 L12.4,10.0 L20.7,12.3 L29.1,12.3 L37.5,14.6 L45.8,12.3 L54.2,14.6 L62.5,12.3 L67.3,7.7 L70.9,12.3 L79.3,12.3 L87.6,5.4 L96.0,12.3 L96.0,20 L4.0,20 Z" fill="url(#gd84081)" stroke="none"/><path d="M4.0,10.0 L12.4,10.0 L20.7,12.3 L29.1,12.3 L37.5,14.6 L45.8,12.3 L54.2,14.6 L62.5,12.3 L67.3,7.7 L70.9,12.3 L79.3,12.3 L87.6,5.4 L96.0,12.3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="12.3" r="3" fill="currentColor"/></svg></div><div class="hero-oge"><div class="hero-etiket">SPREAD</div><div class="hero-deger">2.0<span class="hero-birim">°C</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><defs><linearGradient id="gd84081" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="currentColor" stop-opacity=".22"/><stop offset="100%" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M4.0,10.0 L12.4,5.4 L20.7,5.4 L29.1,10.0 L37.5,10.0 L45.8,10.0 L54.2,10.0 L62.5,10.0 L67.3,10.0 L70.9,10.0 L79.3,14.6 L87.6,14.6 L96.0,10.0 L96.0,20 L4.0,20 Z" fill="url(#gd84081)" stroke="none"/><path d="M4.0,10.0 L12.4,5.4 L20.7,5.4 L29.1,10.0 L37.5,10.0 L45.8,10.0 L54.2,10.0 L62.5,10.0 L67.3,10.0 L70.9,10.0 L79.3,14.6 L87.6,14.6 L96.0,10.0" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="10.0" r="3" fill="currentColor"/></svg></div></div></div>
+<div class="su-an" id="su-an"><div class="hero"><div class="hero-oge" data-olcu="gorus" data-bant=""><div class="hero-etiket">GÖRÜŞ</div><div class="hero-deger">10+<span class="hero-birim">km</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><defs><linearGradient id="gd84081" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="currentColor" stop-opacity=".22"/><stop offset="100%" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M4.0,5.4 L12.4,5.4 L20.7,5.4 L29.1,5.4 L37.5,5.4 L45.8,5.4 L54.2,5.4 L62.5,5.4 L67.3,14.6 L70.9,10.0 L79.3,5.4 L87.6,5.4 L96.0,5.4 L96.0,20 L4.0,20 Z" fill="url(#gd84081)" stroke="none"/><path d="M4.0,5.4 L12.4,5.4 L20.7,5.4 L29.1,5.4 L37.5,5.4 L45.8,5.4 L54.2,5.4 L62.5,5.4 L67.3,14.6 L70.9,10.0 L79.3,5.4 L87.6,5.4 L96.0,5.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="5.4" r="3" fill="currentColor"/></svg></div><div class="hero-oge" data-olcu="tavan" data-bant=""><div class="hero-etiket">TAVAN</div><div class="hero-deger">2500<span class="hero-birim">ft</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><defs><linearGradient id="gd84081" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="currentColor" stop-opacity=".22"/><stop offset="100%" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M4.0,5.4 L12.4,5.4 L20.7,5.4 L29.1,5.4 L37.5,5.4 L45.8,5.4 L54.2,5.4 L62.5,5.4 L67.3,5.4 L70.9,5.4 L79.3,5.4 L87.6,5.4 L96.0,14.6 L96.0,20 L4.0,20 Z" fill="url(#gd84081)" stroke="none"/><path d="M4.0,5.4 L12.4,5.4 L20.7,5.4 L29.1,5.4 L37.5,5.4 L45.8,5.4 L54.2,5.4 L62.5,5.4 L67.3,5.4 L70.9,5.4 L79.3,5.4 L87.6,5.4 L96.0,14.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="14.6" r="3" fill="currentColor"/></svg></div><div class="hero-oge" data-olcu="_ruzgar" data-bant=""><div class="hero-etiket">RÜZGÂR</div><div class="hero-deger">050°/5<span class="hero-birim">kt</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><defs><linearGradient id="gd84081" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="currentColor" stop-opacity=".22"/><stop offset="100%" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M4.0,10.0 L12.4,10.0 L20.7,12.3 L29.1,12.3 L37.5,14.6 L45.8,12.3 L54.2,14.6 L62.5,12.3 L67.3,7.7 L70.9,12.3 L79.3,12.3 L87.6,5.4 L96.0,12.3 L96.0,20 L4.0,20 Z" fill="url(#gd84081)" stroke="none"/><path d="M4.0,10.0 L12.4,10.0 L20.7,12.3 L29.1,12.3 L37.5,14.6 L45.8,12.3 L54.2,14.6 L62.5,12.3 L67.3,7.7 L70.9,12.3 L79.3,12.3 L87.6,5.4 L96.0,12.3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="12.3" r="3" fill="currentColor"/></svg></div><div class="hero-oge" data-olcu="_spread" data-bant=""><div class="hero-etiket">SPREAD</div><div class="hero-deger">2.0<span class="hero-birim">°C</span></div><svg class="hero-kivilcim" aria-hidden="true" viewBox="0 0 100 20" class="grafik" preserveAspectRatio="none"><defs><linearGradient id="gd84081" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="currentColor" stop-opacity=".22"/><stop offset="100%" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M4.0,10.0 L12.4,5.4 L20.7,5.4 L29.1,10.0 L37.5,10.0 L45.8,10.0 L54.2,10.0 L62.5,10.0 L67.3,10.0 L70.9,10.0 L79.3,14.6 L87.6,14.6 L96.0,10.0 L96.0,20 L4.0,20 Z" fill="url(#gd84081)" stroke="none"/><path d="M4.0,10.0 L12.4,5.4 L20.7,5.4 L29.1,10.0 L37.5,10.0 L45.8,10.0 L54.2,10.0 L62.5,10.0 L67.3,10.0 L70.9,10.0 L79.3,14.6 L87.6,14.6 L96.0,10.0" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="96.0" cy="10.0" r="3" fill="currentColor"/></svg></div></div></div>
 <div class="veri-serit">
   <span class="veri-oge"><b>METAR</b><time id="veri-metar"
         data-zaman="2026-09-30T00:20:00.865000+00:00"></time></span>
   <span class="veri-oge"><b>TAF</b><time id="veri-taf"
         data-zaman="2026-09-29T22:40:00.572000+00:00"></time></span>
   <span class="veri-oge"><b>NOTAM</b><span id="veri-notam">—</span></span>
-  <span class="veri-oge veri-kaynak">MGM · sayfa 30.09 00:24Z (03:24 yerel)</span>
+  <span class="veri-oge veri-kaynak">MGM · sayfa 30.09 00:30Z (03:30 yerel)</span>
 </div>
 <div class="yapiskan-ust">
 <div class="ozet-serit" id="ozet-serit"><span class="ozet-oge" title="Görüş">10+ km</span><span class="ozet-oge" title="Bulut tavanı">2500 ft</span><span class="ozet-oge" title="Rüzgâr (yön/hız, G=hamle)">050°/5 kt</span><span class="ozet-oge" title="Spread (sıcaklık − çiy noktası)">Δ2.0°</span></div>
@@ -1404,7 +1477,7 @@
 
 <div class="sekme-panel" id="panel-durum" role="tabpanel"
      aria-labelledby="sekme-durum">
-<div class="kart"><div class="basrow"><span class="tip">METAR</span><span class="zaman">30.09 00:20Z (03:20 yerel)</span></div><div class="ozet-ikincil">17°C / çiy 15°C · QNH 1021</div><div class="pist-diyagram"><svg class="pd-svg" viewBox="0 0 120 120" role="img" aria-label="Rüzgâr 050°/5 kt, pist 06L"><defs><marker id="pd-uc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="currentColor"/></marker></defs><circle class="pd-halka" cx="60.0" cy="60.0" r="38.0"/><line class="pd-pist" x1="87.3" y1="46.7" x2="32.7" y2="73.3"/><text class="pd-uc-ad pd-uc-tercih" x="77.8" y="51.4" transform="rotate(-25.9 77.8 51.4)">06</text><text class="pd-uc-ad" x="42.2" y="68.6" transform="rotate(-25.9 42.2 68.6)">24</text><text class="pd-kuzey" x="60.0" y="16.0">K</text><line class="pd-ok" x1="93.8" y1="31.7" x2="82.1" y2="41.4" marker-end="url(#pd-uc)"/></svg><div class="pd-okuma"><div class="pd-pist-ad">06L</div><div class="pd-satir"><span class="pd-etiket">baş</span><b>5</b> kt</div><div class="pd-satir"><span class="pd-etiket">yan</span><b>1</b> kt soldan</div><div class="pd-not">rüzgâra göre hesaplanmış tercih — aktif pisti ATC belirler</div></div></div><table><tr><td>Pist 06L</td><td>050° 5 kt</td></tr><tr><td>Pist 06R</td><td>070° 4 kt</td></tr><tr><td>Pist 24L</td><td>050° 4 kt</td></tr><tr><td>Pist 24R</td><td>030° 5 kt</td></tr><tr><td>Meteorolojik tercih</td><td>06L</td></tr></table><div class="pist-kaynak"><svg class="ikon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M17.8 19.2 16 11l3.5-3.5a2.1 2.1 0 0 0-3-3L13 8 4.8 6.2a1 1 0 0 0-.9 1.7l5.6 3.4-2.3 2.3-2.4-.5a1 1 0 0 0-.9 1.6l2.6 2.6 2.6 2.6a1 1 0 0 0 1.6-.9l-.5-2.4 2.3-2.3 3.4 5.6a1 1 0 0 0 1.7-.9z"/></svg> 06L: alan rüzgârından; 06R, 24L, 24R: AD 2.15 anemometreleri; kuyruk limiti 10 kt — CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi</div><div class="cozum"><div class="coz-bas">Gözlem</div><div class="coz-satir"><code class="jeton">METAR</code><div class="coz-metin"><b>Rapor türü</b><span>Düzenli hava gözlem raporu</span></div></div><div class="coz-satir"><code class="jeton">LTFJ</code><div class="coz-metin"><b>İstasyon</b><span>Havalimanı ICAO kodu</span></div></div><div class="coz-satir"><code class="jeton">300020Z</code><div class="coz-metin"><b>Zaman</b><span>Yayım zamanı — ayın 30&#x27;u saat 00:20 UTC</span></div></div><div class="coz-satir"><code class="jeton">05005KT</code><div class="coz-metin"><b>Rüzgâr</b><span>050° (kuzeydoğu) yönünden 5 kt</span></div></div><div class="coz-satir"><code class="jeton">9999</code><div class="coz-metin"><b>Görüş</b><span>10 km ve üzeri</span></div></div><div class="coz-satir"><code class="jeton">BKN025</code><div class="coz-metin"><b>Bulut</b><span>Çok bulutlu (5–7/8), 2500 ft</span></div></div><div class="coz-satir"><code class="jeton">BKN080</code><div class="coz-metin"><b>Bulut</b><span>Çok bulutlu (5–7/8), 8000 ft</span></div></div><div class="coz-satir"><code class="jeton">17/15</code><div class="coz-metin"><b>Sıcaklık</b><span>17 °C, çiy noktası 15 °C — spread 2 °C</span></div></div><div class="coz-satir"><code class="jeton">Q1021</code><div class="coz-metin"><b>Basınç</b><span>QNH 1021 hPa</span></div></div><div class="coz-satir"><code class="jeton">NOSIG</code><div class="coz-metin"><b>Eğilim</b><span>Önümüzdeki iki saatte önemli değişiklik beklenmiyor</span></div></div><div class="coz-satir coz-dik"><div class="coz-metin"><b>Notlar</b><span>Bu noktadan sonrası ulusal ek bilgidir (RMK)</span></div><code class="jeton jeton-genis">RWY24R 03005KT RWY06R 07004KT RWY24L 05004KT</code></div></div><details class="ham-kat"><summary>Ham metin</summary><pre>METAR LTFJ 300020Z 05005KT 9999 BKN025 BKN080 17/15 Q1021 NOSIG RMK RWY24R 03005KT RWY06R 07004KT RWY24L 05004KT</pre></details></div><div class="kart"><div class="basrow"><span class="tip">TAF</span><span class="zaman">29.09 22:40Z (01:40 yerel)</span></div><details class="kat"><summary><svg class="ikon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M8 14h.01M16 14h.01M9 18h6"/></svg> Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</summary><div class="yorum">**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde hafif yağmurlu hava beklenmektedir.<br>• **3000/3004 UTC:** Rüzgar 040° 8 knot, görüş 9999 metre, hafif sağanak yağmur, az bulutlu 1200 ft, parçalı bulutlu 2500 ft ve 8000 ft.<br>• **3004/3006 UTC:** Rüzgar kademeli olarak 040° 18 knota çıkacak.<br>• **3004/3008 UTC:** Geçici olarak görüş 3200 metreye düşecek, sağanak yağmur devam edecek.<br>• **3011/3015 UTC:** Geçici olarak rüzgar 030° 20 knot, gust 30 knot.<br>• **3018/3021 UTC:** Rüzgar kademeli olarak 030° 8 knota düşecek, parçalı bulutlu 3000 ft.</div></details><details class="cozum cozum-kat"><summary>Çözümleme · 5 grup</summary><div class="coz-grup"><span class="coz-etiket">Tahminin başlangıcı</span><span class="coz-pencere">ayın 30&#x27;u saat 00:00 UTC – ayın 30&#x27;u saat 24:00 UTC</span></div><div class="coz-satir"><code class="jeton">TAF</code><div class="coz-metin"><b>Rapor türü</b><span>Meydan tahmini</span></div></div><div class="coz-satir"><code class="jeton">LTFJ</code><div class="coz-metin"><b>İstasyon</b><span>Havalimanı ICAO kodu</span></div></div><div class="coz-satir"><code class="jeton">292240Z</code><div class="coz-metin"><b>Zaman</b><span>Yayım zamanı — ayın 29&#x27;u saat 22:40 UTC</span></div></div><div class="coz-satir"><code class="jeton">04008KT</code><div class="coz-metin"><b>Rüzgâr</b><span>040° (kuzeydoğu) yönünden 8 kt</span></div></div><div class="coz-satir"><code class="jeton">9999</code><div class="coz-metin"><b>Görüş</b><span>10 km ve üzeri</span></div></div><div class="coz-satir"><code class="jeton">-SHRA</code><div class="coz-metin"><b>Hava olayı</b><span>Hafif sağanak yağmur</span></div></div><div class="coz-satir"><code class="jeton">FEW012</code><div class="coz-metin"><b>Bulut</b><span>Az bulutlu (1–2/8), 1200 ft</span></div></div><div class="coz-satir"><code class="jeton">BKN025</code><div class="coz-metin"><b>Bulut</b><span>Çok bulutlu (5–7/8), 2500 ft</span></div></div><div class="coz-satir"><code class="jeton">BKN080</code><div class="coz-metin"><b>Bulut</b><span>Çok bulutlu (5–7/8), 8000 ft</span></div></div><div class="coz-grup"><span class="coz-etiket">Tedricen değişiyor</span><span class="coz-pencere">ayın 30&#x27;u saat 04:00 UTC – ayın 30&#x27;u saat 06:00 UTC</span></div><div class="coz-satir"><code class="jeton">04018KT</code><div class="coz-metin"><b>Rüzgâr</b><span>040° (kuzeydoğu) yönünden 18 kt</span></div></div><div class="coz-grup"><span class="coz-etiket">Geçici olarak</span><span class="coz-pencere">ayın 30&#x27;u saat 04:00 UTC – ayın 30&#x27;u saat 08:00 UTC</span></div><div class="coz-satir"><code class="jeton">3200</code><div class="coz-metin"><b>Görüş</b><span>3200 m</span></div></div><div class="coz-satir"><code class="jeton">SHRA</code><div class="coz-metin"><b>Hava olayı</b><span>Sağanak yağmur</span></div></div><div class="coz-grup"><span class="coz-etiket">Geçici olarak</span><span class="coz-pencere">ayın 30&#x27;u saat 11:00 UTC – ayın 30&#x27;u saat 15:00 UTC</span></div><div class="coz-satir"><code class="jeton">03020G30KT</code><div class="coz-metin"><b>Rüzgâr</b><span>030° (kuzeydoğu) yönünden 20 kt, 30 kt hamleli</span></div></div><div class="coz-grup"><span class="coz-etiket">Tedricen değişiyor</span><span class="coz-pencere">ayın 30&#x27;u saat 18:00 UTC – ayın 30&#x27;u saat 21:00 UTC</span></div><div class="coz-satir"><code class="jeton">03008KT</code><div class="coz-metin"><b>Rüzgâr</b><span>030° (kuzeydoğu) yönünden 8 kt</span></div></div><div class="coz-satir"><code class="jeton">SCT030</code><div class="coz-metin"><b>Bulut</b><span>Parçalı (3–4/8), 3000 ft</span></div></div></details><details class="ham-kat"><summary>Ham metin</summary><pre>TAF LTFJ 292240Z 3000/3024 04008KT 9999 -SHRA FEW012 BKN025 BKN080
+<div class="kart"><div class="basrow"><span class="tip">METAR</span><span class="zaman">30.09 00:20Z (03:20 yerel)</span></div><div class="ozet-ikincil">17°C / çiy 15°C · QNH 1021</div><div class="pist-diyagram"><svg class="pd-svg" viewBox="0 0 120 120" role="img" aria-label="Rüzgâr 050°/5 kt, pist 06L"><defs><marker id="pd-uc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="currentColor"/></marker></defs><circle class="pd-halka" cx="60.0" cy="60.0" r="38.0"/><line class="pd-pist" x1="87.3" y1="46.7" x2="32.7" y2="73.3"/><text class="pd-uc-ad pd-uc-tercih" x="77.8" y="51.4" transform="rotate(-25.9 77.8 51.4)">06</text><text class="pd-uc-ad" x="42.2" y="68.6" transform="rotate(-25.9 42.2 68.6)">24</text><text class="pd-kuzey" x="60.0" y="16.0">K</text><g class="pd-ok-g" data-yon="50" transform="rotate(50 60 60)"><line class="pd-ok" x1="60.0" y1="15.9" x2="60.0" y2="31.1" marker-end="url(#pd-uc)"/></g></svg><div class="pd-okuma"><div class="pd-pist-ad">06L</div><div class="pd-satir" data-olcu="pd-bas"><span class="pd-etiket">baş</span><b>5</b> kt</div><div class="pd-satir" data-olcu="pd-yan"><span class="pd-etiket">yan</span><b>1</b> kt soldan</div><div class="pd-not">rüzgâra göre hesaplanmış tercih — aktif pisti ATC belirler</div></div></div><table><tr><td>Pist 06L</td><td>050° 5 kt</td></tr><tr><td>Pist 06R</td><td>070° 4 kt</td></tr><tr><td>Pist 24L</td><td>050° 4 kt</td></tr><tr><td>Pist 24R</td><td>030° 5 kt</td></tr><tr><td>Meteorolojik tercih</td><td>06L</td></tr></table><div class="pist-kaynak"><svg class="ikon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M17.8 19.2 16 11l3.5-3.5a2.1 2.1 0 0 0-3-3L13 8 4.8 6.2a1 1 0 0 0-.9 1.7l5.6 3.4-2.3 2.3-2.4-.5a1 1 0 0 0-.9 1.6l2.6 2.6 2.6 2.6a1 1 0 0 0 1.6-.9l-.5-2.4 2.3-2.3 3.4 5.6a1 1 0 0 0 1.7-.9z"/></svg> 06L: alan rüzgârından; 06R, 24L, 24R: AD 2.15 anemometreleri; kuyruk limiti 10 kt — CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi</div><div class="cozum"><div class="coz-bas">Gözlem</div><div class="coz-satir"><code class="jeton">METAR</code><div class="coz-metin"><b>Rapor türü</b><span>Düzenli hava gözlem raporu</span></div></div><div class="coz-satir"><code class="jeton">LTFJ</code><div class="coz-metin"><b>İstasyon</b><span>Havalimanı ICAO kodu</span></div></div><div class="coz-satir"><code class="jeton">300020Z</code><div class="coz-metin"><b>Zaman</b><span>Yayım zamanı — ayın 30&#x27;u saat 00:20 UTC</span></div></div><div class="coz-satir"><code class="jeton">05005KT</code><div class="coz-metin"><b>Rüzgâr</b><span>050° (kuzeydoğu) yönünden 5 kt</span></div></div><div class="coz-satir"><code class="jeton">9999</code><div class="coz-metin"><b>Görüş</b><span>10 km ve üzeri</span></div></div><div class="coz-satir"><code class="jeton">BKN025</code><div class="coz-metin"><b>Bulut</b><span>Çok bulutlu (5–7/8), 2500 ft</span></div></div><div class="coz-satir"><code class="jeton">BKN080</code><div class="coz-metin"><b>Bulut</b><span>Çok bulutlu (5–7/8), 8000 ft</span></div></div><div class="coz-satir"><code class="jeton">17/15</code><div class="coz-metin"><b>Sıcaklık</b><span>17 °C, çiy noktası 15 °C — spread 2 °C</span></div></div><div class="coz-satir"><code class="jeton">Q1021</code><div class="coz-metin"><b>Basınç</b><span>QNH 1021 hPa</span></div></div><div class="coz-satir"><code class="jeton">NOSIG</code><div class="coz-metin"><b>Eğilim</b><span>Önümüzdeki iki saatte önemli değişiklik beklenmiyor</span></div></div><div class="coz-satir coz-dik"><div class="coz-metin"><b>Notlar</b><span>Bu noktadan sonrası ulusal ek bilgidir (RMK)</span></div><code class="jeton jeton-genis">RWY24R 03005KT RWY06R 07004KT RWY24L 05004KT</code></div></div><details class="ham-kat"><summary>Ham metin</summary><pre>METAR LTFJ 300020Z 05005KT 9999 BKN025 BKN080 17/15 Q1021 NOSIG RMK RWY24R 03005KT RWY06R 07004KT RWY24L 05004KT</pre></details></div><div class="kart"><div class="basrow"><span class="tip">TAF</span><span class="zaman">29.09 22:40Z (01:40 yerel)</span></div><details class="kat"><summary><svg class="ikon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M8 14h.01M16 14h.01M9 18h6"/></svg> Genel değerlendirme (yapay zekâ özeti — esas kaynak ham rapordur)</summary><div class="yorum">**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde hafif yağmurlu hava beklenmektedir.<br>• **3000/3004 UTC:** Rüzgar 040° 8 knot, görüş 9999 metre, hafif sağanak yağmur, az bulutlu 1200 ft, parçalı bulutlu 2500 ft ve 8000 ft.<br>• **3004/3006 UTC:** Rüzgar kademeli olarak 040° 18 knota çıkacak.<br>• **3004/3008 UTC:** Geçici olarak görüş 3200 metreye düşecek, sağanak yağmur devam edecek.<br>• **3011/3015 UTC:** Geçici olarak rüzgar 030° 20 knot, gust 30 knot.<br>• **3018/3021 UTC:** Rüzgar kademeli olarak 030° 8 knota düşecek, parçalı bulutlu 3000 ft.</div></details><details class="cozum cozum-kat"><summary>Çözümleme · 5 grup</summary><div class="coz-grup"><span class="coz-etiket">Tahminin başlangıcı</span><span class="coz-pencere">ayın 30&#x27;u saat 00:00 UTC – ayın 30&#x27;u saat 24:00 UTC</span></div><div class="coz-satir"><code class="jeton">TAF</code><div class="coz-metin"><b>Rapor türü</b><span>Meydan tahmini</span></div></div><div class="coz-satir"><code class="jeton">LTFJ</code><div class="coz-metin"><b>İstasyon</b><span>Havalimanı ICAO kodu</span></div></div><div class="coz-satir"><code class="jeton">292240Z</code><div class="coz-metin"><b>Zaman</b><span>Yayım zamanı — ayın 29&#x27;u saat 22:40 UTC</span></div></div><div class="coz-satir"><code class="jeton">04008KT</code><div class="coz-metin"><b>Rüzgâr</b><span>040° (kuzeydoğu) yönünden 8 kt</span></div></div><div class="coz-satir"><code class="jeton">9999</code><div class="coz-metin"><b>Görüş</b><span>10 km ve üzeri</span></div></div><div class="coz-satir"><code class="jeton">-SHRA</code><div class="coz-metin"><b>Hava olayı</b><span>Hafif sağanak yağmur</span></div></div><div class="coz-satir"><code class="jeton">FEW012</code><div class="coz-metin"><b>Bulut</b><span>Az bulutlu (1–2/8), 1200 ft</span></div></div><div class="coz-satir"><code class="jeton">BKN025</code><div class="coz-metin"><b>Bulut</b><span>Çok bulutlu (5–7/8), 2500 ft</span></div></div><div class="coz-satir"><code class="jeton">BKN080</code><div class="coz-metin"><b>Bulut</b><span>Çok bulutlu (5–7/8), 8000 ft</span></div></div><div class="coz-grup"><span class="coz-etiket">Tedricen değişiyor</span><span class="coz-pencere">ayın 30&#x27;u saat 04:00 UTC – ayın 30&#x27;u saat 06:00 UTC</span></div><div class="coz-satir"><code class="jeton">04018KT</code><div class="coz-metin"><b>Rüzgâr</b><span>040° (kuzeydoğu) yönünden 18 kt</span></div></div><div class="coz-grup"><span class="coz-etiket">Geçici olarak</span><span class="coz-pencere">ayın 30&#x27;u saat 04:00 UTC – ayın 30&#x27;u saat 08:00 UTC</span></div><div class="coz-satir"><code class="jeton">3200</code><div class="coz-metin"><b>Görüş</b><span>3200 m</span></div></div><div class="coz-satir"><code class="jeton">SHRA</code><div class="coz-metin"><b>Hava olayı</b><span>Sağanak yağmur</span></div></div><div class="coz-grup"><span class="coz-etiket">Geçici olarak</span><span class="coz-pencere">ayın 30&#x27;u saat 11:00 UTC – ayın 30&#x27;u saat 15:00 UTC</span></div><div class="coz-satir"><code class="jeton">03020G30KT</code><div class="coz-metin"><b>Rüzgâr</b><span>030° (kuzeydoğu) yönünden 20 kt, 30 kt hamleli</span></div></div><div class="coz-grup"><span class="coz-etiket">Tedricen değişiyor</span><span class="coz-pencere">ayın 30&#x27;u saat 18:00 UTC – ayın 30&#x27;u saat 21:00 UTC</span></div><div class="coz-satir"><code class="jeton">03008KT</code><div class="coz-metin"><b>Rüzgâr</b><span>030° (kuzeydoğu) yönünden 8 kt</span></div></div><div class="coz-satir"><code class="jeton">SCT030</code><div class="coz-metin"><b>Bulut</b><span>Parçalı (3–4/8), 3000 ft</span></div></div></details><details class="ham-kat"><summary>Ham metin</summary><pre>TAF LTFJ 292240Z 3000/3024 04008KT 9999 -SHRA FEW012 BKN025 BKN080
     BECMG 3004/3006 04018KT
     TEMPO 3004/3008 3200 SHRA
     TEMPO 3011/3015 03020G30KT
@@ -1720,6 +1793,7 @@ window.ltfjGecenSure = function (ms) {
   // degerlerini bosuna silerdi (sekme secimi localStorage'da, o kaliyor).
   var KONTROL_MS = 300000;            // 5 dk - METAR kadansinin altinda
   var kontrolBekliyor = false;
+  var oncekiSinif = null;
 
   function yenilemeGuvenli() {
     // Kullanici YAZIYORSA yeniden yukleme: LVO RVR girdileri kalici
@@ -1775,7 +1849,12 @@ window.ltfjGecenSure = function (ms) {
     else if (dk <= TAZE_DK) { sinif = "gecikmeli"; metin = "1 GÖZLEM KAÇTI"; }
     else if (dk <= KESINTI_DK) { sinif = "gecikmeli"; metin = "GECİKMELİ"; }
     else { sinif = "kesinti"; metin = "VERİ KESİNTİSİ"; }
-    durumEl.className = "ust-durum " + sinif;
+    // Rozet CANLI'dan ciktiginda (ya da sayfa zaten bayat acildiginda)
+    // TEK SEFERLIK bir halka - kosede kucuk bir rozetin degisimi kolay
+    // kacar. Durum ayni kaldikca 15 sn'lik tazeleme tekrar oynatmaz.
+    var degisti = sinif !== oncekiSinif && sinif !== "taze";
+    oncekiSinif = sinif;
+    durumEl.className = "ust-durum " + sinif + (degisti ? " durum-degisti" : "");
     durumEl.innerHTML = ikonNokta() + metin;
     // Renk TEK BASINA durum anlatmaz - ekran okuyucu icin metin de var.
     durumEl.setAttribute("aria-label", "Veri durumu: " + metin);
@@ -2069,6 +2148,25 @@ window.ltfjKalanSure = function (ms) {
 
   var gecerlilik = window.ltfjNotamGecerlilik;
 
+  // YENI NOTAM VURGUSU (hareket): bu tarayicinin son gordugu aktif
+  // listede OLMAYAN kart, sayfa acilisindaki ILK cizimde bir kez
+  // vurgulanir. Filtre yazarken yeniden cizimlerde tekrar etmez (bkz.
+  // veriYukle). Ilk ziyarette karsilastirma yok -> vurgu yok.
+  var yeniIdler = {};
+  var GORULEN_ANAHTAR = "ltfj-gorulen-notam";
+  function yeniNotamlariBelirle(aktifler) {
+    var simdiki = aktifler.map(function (n) { return n.id; }).filter(Boolean);
+    var onceki = null;
+    try { onceki = JSON.parse(localStorage.getItem(GORULEN_ANAHTAR) || "null"); } catch (e) {}
+    try { localStorage.setItem(GORULEN_ANAHTAR, JSON.stringify(simdiki)); } catch (e) {}
+    var sonuc = {};
+    var azalt = window.matchMedia &&
+                window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!Array.isArray(onceki) || azalt) { return sonuc; }
+    simdiki.forEach(function (id) { if (onceki.indexOf(id) === -1) { sonuc[id] = true; } });
+    return sonuc;
+  }
+
   // NOTAC'IN SIRASI. Kart eskiden tersten diziliyordu: once numara,
   // tip, Q kodu, kategori, BUTUN etiketler ve BUTUN etkilenen pistler
   // tek bir cip duvarinda; duz dil ozeti ise altta, kucuk gri yazida
@@ -2100,7 +2198,7 @@ window.ltfjKalanSure = function (ms) {
     kunye.push(esc(kisaZaman(n.effective_start)) + " → " +
                esc(kisaZaman(n.effective_end)));
     return (
-      '<div class="notam-kart">' +
+      '<div class="notam-kart' + (yeniIdler[n.id] ? " notam-yeni" : "") + '">' +
       '<div class="notam-ust">' + aktifNoktasi +
       '<span class="notam-no">' + esc(n.number || "—") + "</span>" +
       window.ltfjNotamTipEtiketi(n) + kategori +
@@ -2395,7 +2493,11 @@ window.ltfjKalanSure = function (ms) {
       .then(function (v) {
         veri = v;
         aktifFiltreSecenekleriDoldur();
+        // Senkron hic yoksa liste bos gelir; onu "gorulen" diye kaydetmek
+        // bir sonraki acilista TUM kartlari yeni gosterirdi.
+        yeniIdler = v.son_senkron ? yeniNotamlariBelirle(yururluktekiler()) : {};
         aktifGoster();
+        yeniIdler = {};          // vurgu yalnizca ILK cizimde
         // Bolum katli geldigi icin basliktaki sayac, icinde ne kadar kayit
         // oldugunu acmadan gosterir.
         var gecmisSayiEl = document.getElementById("notam-gecmis-sayi");
@@ -3221,6 +3323,121 @@ window.ltfjKalanSure = function (ms) {
     });
     sarmal.addEventListener("pointercancel", gizle);
   });
+})();
+</script>
+<script>
+// ---- HAREKET: yalnizca bilgi tasiyan hareket ------------------------------
+// Sayfa statik; yeni gozlem geldiginde kendini YENIDEN YUKLUYOR (bkz.
+// baslik betigi, yeniVeriVarMi). "Ne degisti?" sorusunun cevabi bu yuzden
+// ancak TARAYICIDA verilebilir: son gorulen gozlemin damgasi ve degerleri
+// localStorage'da tutulur, sayfa YENI bir gozlemle acilinca:
+//   - degeri degisen olcu bir kez vurgulanir (olcu-degisti),
+//   - esik bandina (sinirli / esik alti) YENI giren olcu tek seferlik bir
+//     cerceve alir (esik-girdi),
+//   - ruzgar oku onceki yonden yeni yone doner.
+// Ayni gozlem yeniden yuklenirse HICBIR SEY hareket etmez. localStorage
+// yoksa/atarsa (gizli sekme) sayfa aynen, hareketsiz calisir.
+// prefers-reduced-motion'da hicbir animasyon baslatilmaz.
+(function () {
+  "use strict";
+  var kok = document.documentElement;
+  var azalt = !!(window.matchMedia &&
+                 window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+  function tekSefer(el, sinif) {
+    if (azalt || !el) { return; }
+    el.classList.remove(sinif);
+    void el.offsetWidth;                      // ayni sinifla yeniden baslat
+    el.classList.add(sinif);
+    el.addEventListener("animationend", function bitti() {
+      el.classList.remove(sinif);
+      el.removeEventListener("animationend", bitti);
+    });
+  }
+  window.ltfjTekSeferHareket = tekSefer;
+
+  // -- Sekme gecisi: yalnizca KULLANICI sekme degistirince belirme.
+  var cubuk = document.querySelector(".sekme-cubugu");
+  if (cubuk && !azalt) {
+    cubuk.addEventListener("click", function (e) {
+      if (e.target.closest && e.target.closest(".sekme")) { kok.classList.add("sekme-gecis"); }
+    });
+    cubuk.addEventListener("keydown", function () { kok.classList.add("sekme-gecis"); });
+  }
+
+  // -- Katlanir bolumler: acilinca icerik belirir. "toggle" olayi baloncuk
+  // yapmaz; yakalama asamasinda dinleniyor. Tarayici BASTAN acik gelen
+  // <details> icin de yukleme sirasinda "toggle" atiyor - o ilk dalga
+  // kullanicinin actigi bir sey degil, sayfa yuklenene kadar yok sayiliyor.
+  if (!azalt) {
+    var togglHazir = false;
+    window.addEventListener("load", function () {
+      setTimeout(function () { togglHazir = true; }, 150);
+    });
+    document.addEventListener("toggle", function (e) {
+      var d = e.target;
+      if (togglHazir && d && d.tagName === "DETAILS" && d.open) { tekSefer(d, "acildi"); }
+    }, true);
+  }
+
+  // -- Degisen olcu / esik girisi / ruzgar oku
+  var ANAHTAR = "ltfj-son-gozlem";
+  var durumEl = document.getElementById("ust-durum");
+  var gozlem = durumEl ? durumEl.getAttribute("data-gozlem") : null;
+  if (!gozlem) { return; }
+
+  function metin(el) {
+    var d = el.querySelector(".hero-deger") || el;
+    return (d.textContent || "").replace(/\s+/g, " ").trim();
+  }
+
+  var simdiki = {gozlem: gozlem, degerler: {}, bantlar: {}, yon: null};
+  var olcuEl = {};
+  Array.prototype.forEach.call(document.querySelectorAll("[data-olcu]"), function (el) {
+    var k = el.getAttribute("data-olcu");
+    olcuEl[k] = el;
+    simdiki.degerler[k] = metin(el);
+    simdiki.bantlar[k] = el.getAttribute("data-bant") || "";
+  });
+  var okG = document.querySelector(".pd-ok-g");
+  if (okG) {
+    var y = parseFloat(okG.getAttribute("data-yon"));
+    simdiki.yon = isNaN(y) ? null : y;
+  }
+
+  var onceki = null;
+  try { onceki = JSON.parse(localStorage.getItem(ANAHTAR) || "null"); } catch (e) { onceki = null; }
+  try { localStorage.setItem(ANAHTAR, JSON.stringify(simdiki)); } catch (e) {}
+
+  // Ilk ziyaret ya da AYNI gozlem: karsilastirilacak bir degisim yok.
+  if (!onceki || !onceki.gozlem || onceki.gozlem === gozlem) { return; }
+
+  Object.keys(simdiki.degerler).forEach(function (k) {
+    var el = olcuEl[k];
+    var eski = (onceki.degerler || {})[k];
+    if (eski !== undefined && eski !== simdiki.degerler[k]) {
+      tekSefer(el.querySelector(".hero-deger") || el, "olcu-degisti");
+    }
+    var bant = simdiki.bantlar[k];
+    var eskiBant = (onceki.bantlar || {})[k];
+    if ((bant === "dikkat" || bant === "uyari") && eskiBant !== undefined && eskiBant !== bant) {
+      tekSefer(el, "esik-girdi");
+    }
+  });
+
+  // Ruzgar oku: onceki yonden yeni yone, KISA yoldan (en fazla 180 derece).
+  // CSS transform, SVG'nin transform ozniteliginin YERINE gecer; son durum
+  // oznitelikle ayni aciya oturur.
+  if (okG && !azalt && onceki.yon != null && simdiki.yon != null && onceki.yon !== simdiki.yon) {
+    var fark = ((simdiki.yon - onceki.yon) % 360 + 540) % 360 - 180;
+    var hedef = simdiki.yon, bas = hedef - fark;
+    okG.style.transformBox = "view-box";
+    okG.style.transformOrigin = "60px 60px";
+    okG.style.transform = "rotate(" + bas + "deg)";
+    void okG.getBoundingClientRect();
+    okG.style.transition = "transform 600ms cubic-bezier(.2,.7,.2,1)";
+    okG.style.transform = "rotate(" + hedef + "deg)";
+  }
 })();
 </script>
 </body>
