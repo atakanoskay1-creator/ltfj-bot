@@ -1,16 +1,16 @@
 {
  "cekim": {
   "canli_h0": {
-   "son_deneme": "2026-09-30T01:24:33+00:00",
-   "son_basarili": "2026-09-30T01:24:33+00:00",
+   "son_deneme": "2026-09-30T01:54:34+00:00",
+   "son_basarili": "2026-09-30T01:54:34+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 2,
     "METAR": 1,
     "SPECI": 0,
     "TAF": 1,
-    "en_eski": "2026-09-30T01:20:00+00:00",
-    "en_yeni": "2026-09-30T01:20:00+00:00"
+    "en_eski": "2026-09-30T01:50:00+00:00",
+    "en_yeni": "2026-09-30T01:50:00+00:00"
    },
    "son_isleme": {
     "kaynak": "canli_h0",
@@ -27,21 +27,21 @@
     "cozulemeyen": 0,
     "zamansiz": 0,
     "eklenen_anahtarlar": [
-     "2026-09-30T01:20:00+00:00 METAR"
+     "2026-09-30T01:50:00+00:00 METAR"
     ]
    }
   },
   "backfill_h24": {
-   "son_deneme": "2026-09-30T01:24:33+00:00",
-   "son_basarili": "2026-09-30T01:24:35+00:00",
+   "son_deneme": "2026-09-30T01:54:34+00:00",
+   "son_basarili": "2026-09-30T01:54:36+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 64,
     "METAR": 48,
     "SPECI": 12,
     "TAF": 4,
-    "en_eski": "2026-09-29T01:50:00+00:00",
-    "en_yeni": "2026-09-30T01:20:00+00:00",
+    "en_eski": "2026-09-29T02:20:00+00:00",
+    "en_yeni": "2026-09-30T01:50:00+00:00",
     "veri_alani": "data",
     "saat": 24
    },
@@ -65,20 +65,20 @@
   }
  },
  "arsiv": {
-  "uretim_zamani": "2026-09-30T01:24:35+00:00",
+  "uretim_zamani": "2026-09-30T01:54:36+00:00",
   "kanonik": {
-   "toplam": 340,
-   "METAR": 310,
+   "toplam": 341,
+   "METAR": 311,
    "SPECI": 30,
    "ilk": "2026-09-23T13:01:00+00:00",
-   "son": "2026-09-30T01:20:00+00:00",
+   "son": "2026-09-30T01:50:00+00:00",
    "not": "Kanonik satır o anahtarı ilk yakalayan sürümdür; meteorolojik olarak doğru/nihai sürüm iddiası taşımaz."
   },
   "ingest": {
    "tablo": {
     "METAR": {
      "canli_h0": {
-      "60dk_ve_alti": 74,
+      "60dk_ve_alti": 75,
       "60dk_uzeri": 0
      },
      "backfill_h24": {
@@ -121,14 +121,14 @@
    ]
   },
   "surum": {
-   "toplam": 153,
+   "toplam": 154,
    "mgm_status": {
-    "1": 146,
+    "1": 147,
     "4": 7
    },
    "mgm_status_aciklama": {
     "CCA   ": 7,
-    "NORMAL": 146
+    "NORMAL": 147
    },
    "cok_surumlu_anahtar": 3,
    "cok_surumlu_anahtar_son": [
