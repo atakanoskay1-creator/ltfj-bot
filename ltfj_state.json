@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:55006823",
   "id:55011017",
   "id:55019449",
   "id:55022097",
@@ -199,24 +198,16 @@
   "id:56034881",
   "id:56042988",
   "id:56046332",
-  "id:56054397"
+  "id:56054397",
+  "id:56057105"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 302020Z 03011KT 9999 FEW040 15/09 Q1023 NOSIG RMK RWY24R 02010KT RWY06R 02014KT RWY24L 02010KT",
+ "son_metar": "METAR LTFJ 302050Z 04011KT 9999 FEW040 15/09 Q1023 NOSIG RMK RWY24R 01013KT RWY06R 03013KT RWY24L 02012KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-09-30T20:20:00+00:00",
+ "son_veri_zamani": "2026-09-30T20:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-25T00:20:00+00:00",
-   "gorus": 10000,
-   "ruzgar_hiz": 6,
-   "tavan": null,
-   "qnh": 1020,
-   "sicaklik": 11,
-   "cig_noktasi": 9
-  },
   {
    "zaman": "2026-09-25T00:50:00+00:00",
    "gorus": 10000,
@@ -2907,13 +2898,22 @@
    "qnh": 1023,
    "sicaklik": 15,
    "cig_noktasi": 9
+  },
+  {
+   "zaman": "2026-09-30T20:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 11,
+   "tavan": null,
+   "qnh": 1023,
+   "sicaklik": 15,
+   "cig_noktasi": 9
   }
  ],
  "yorum_onbellegi": {
-  "TAF LTFJ 301640Z 3018/0118 05018KT 9999 SCT030 BECMG 3018/3021 05007KT BECMG 0103/0107 BKN030 BKN080 TEMPO 0107/0111 -SHRA FEW020TCU BKN025 BECMG 0108/0111 05017KT TEMPO 0113/0117 -SHRA FEW020TCU BKN025": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken bulutluluk ve rüzgar değişimleri beklenmektedir.\n\n- **3018/3021 UTC:** Rüzgar 050° yönünden 7 knot'a düşecek, 1000 metre görüş, 3000 feet'te dağınık bulut.\n- **0103/0107 UTC:** 3000 ve 8000 feet'te kırık bulut.\n- **0107/0111 UTC:** Hafif sağanak ve gök gürültülü bulut (2000 feet'te dağınık, 2500 feet'te kırık) geçici olarak beklenmektedir.\n- **0108/0111 UTC:** Rüzgar 050° yönünden 17 knot'a yükselecek; **0113/0117 UTC** arasında hafif sağanak ve gök gürültülü bulut (2000 feet'te dağınık, 2500 feet'te kırık) geçici olarak beklenmektedir.",
-  "METAR LTFJ 301920Z 04013KT 9999 FEW040 16/11 Q1023 NOSIG RMK RWY24R 03011KT RWY06R 02016KT RWY24L 03011KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 13 kilometre/saat hızla esen rüzgâr, yan bileşen 5 kilometre/saat.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 1200 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermemektedir.",
   "METAR LTFJ 301950Z 04012KT 9999 FEW040 16/10 Q1024 NOSIG RMK RWY24R 03008KT RWY06R 03013KT RWY24L 03008KT": "Rüzgâr: Kuzeydoğudan 12 knot (yaklaşık 22 km/s) hızında rüzgâr esiyor, yan bileşen hafif.\n\nGörüş: 10 kilometre ve daha fazla mesafeye kadar net görünüyor, uçuş için görüş yeterli.\n\nGökyüzü: Az bulutlu, bulutlar yaklaşık 1200 metre yükseklikte, yağış yok.\n\nUçuşa etkisi: Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları operasyonel açıdan uygun.",
-  "METAR LTFJ 302020Z 03011KT 9999 FEW040 15/09 Q1023 NOSIG RMK RWY24R 02010KT RWY06R 02014KT RWY24L 02010KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 11 knot (yaklaşık 20 km/saat) hızında rüzgâr esiyor, yan bileşen hafif düzeyde.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 1200 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor; rüzgâr, görüş ve hava koşulları operasyonel sınırlar içinde."
+  "METAR LTFJ 302020Z 03011KT 9999 FEW040 15/09 Q1023 NOSIG RMK RWY24R 02010KT RWY06R 02014KT RWY24L 02010KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 11 knot (yaklaşık 20 km/saat) hızında rüzgâr esiyor, yan bileşen hafif düzeyde.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 1200 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor; rüzgâr, görüş ve hava koşulları operasyonel sınırlar içinde.",
+  "METAR LTFJ 302050Z 04011KT 9999 FEW040 15/09 Q1023 NOSIG RMK RWY24R 01013KT RWY06R 03013KT RWY24L 02012KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 11 knot (yaklaşık 20 km/saat) hızında rüzgâr esiyor, yan bileşen düşük seviyede.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 1200 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor, rüzgâr ve görüş operasyonel açıdan uygun seviyede.",
+  "TAF LTFJ 301640Z 3018/0118 05018KT 9999 SCT030 BECMG 3018/3021 05007KT BECMG 0103/0107 BKN030 BKN080 TEMPO 0107/0111 -SHRA FEW020TCU BKN025 BECMG 0108/0111 05017KT TEMPO 0113/0117 -SHRA FEW020TCU BKN025": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken bulutluluk ve rüzgar değişimleri beklenmektedir.\n\n- **3018/3021 UTC:** Rüzgar 050° 7 knot'a düşecek, görüş 9999 metre, 3000 feet'te dağınık bulut.\n\n- **0103/0107 UTC:** 3000 ve 8000 feet'te kırılgan bulut, rüzgar 050° 17 knot.\n\n- **0107/0111 UTC:** Geçici olarak hafif sağanak ve gök gürültülü bulut (2000 feet'te dağınık, 2500 feet'te kırılgan).\n\n- **0113/0117 UTC:** Geçici olarak hafif sağanak ve gök gürültülü bulut (2000 feet'te dağınık, 2500 feet'te kırılgan)."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -4079,7 +4079,7 @@
   }
  },
  "notam_son_senkron": "2026-09-30T20:08:51+00:00",
- "guncelleme": "2026-09-30T20:24:41+00:00",
+ "guncelleme": "2026-09-30T20:54:43+00:00",
  "push_gonderilen": [
   "id:56007612"
  ]
