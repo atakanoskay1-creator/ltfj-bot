@@ -104,3 +104,24 @@ def test_token_ciktiya_yazilmiyor():
     for satir in kaynak.splitlines():
         if "print(" in satir:
             assert "token" not in satir.lower(), satir
+
+
+def test_gorev_mesaji_baglamdaki_dosya_adlarini_ayiriyor():
+    """Ilk gercek denemede model, metindeki "`ltfj_bot.py` icindeki fonksiyon"
+    ifadesini dosya adi sanip o adla dosya olusturdu."""
+    m = aj.gorev_mesaji({"number": 1, "title": "t", "body": "`ltfj_bot.py` icindeki"},
+                        ["tests/test_a.py"])
+    assert "HARFI HARFINE kullan: tests/test_a.py" in m
+    assert "cumle parcasini dosya adi yapma" in m
+
+
+def test_durum_turkce_adlari_okunur_ve_dosyalari_tek_tek_listeler():
+    kaynak = _yol.read_text(encoding="utf-8")
+    assert '"core.quotePath=false", "status", "--porcelain", "-uall"' in kaynak
+    assert 'git(repo, "status", "--porcelain")' not in kaynak
+
+
+def test_basarisizlik_yorumu_aider_ciktisini_iceriyor_ve_gunluk_git_altinda():
+    kaynak = _yol.read_text(encoding="utf-8")
+    assert "Aider çıktısının son satırları" in kaynak
+    assert 'repo / ".git" / "qwen-ajan-gunluk"' in kaynak
