@@ -1,8 +1,8 @@
 {
  "cekim": {
   "canli_h0": {
-   "son_deneme": "2026-09-30T13:54:38+00:00",
-   "son_basarili": "2026-09-30T13:54:38+00:00",
+   "son_deneme": "2026-09-30T14:04:36+00:00",
+   "son_basarili": "2026-09-30T14:04:36+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 3,
@@ -16,25 +16,22 @@
     "kaynak": "canli_h0",
     "rapor": 2,
     "kanonik_eklenen": {
-     "METAR": 1,
-     "SPECI": 1
+     "METAR": 0,
+     "SPECI": 0
     },
-    "surum_eklenen": 2,
+    "surum_eklenen": 0,
     "mevcut_anahtara_yeni_surum": 0,
     "ayni_surum_farkli_ham_zaman": 0,
     "ayni_surum_farkli_id": 0,
     "tip_kodu_uyusmazligi": 0,
     "cozulemeyen": 0,
     "zamansiz": 0,
-    "eklenen_anahtarlar": [
-     "2026-09-30T13:26:00+00:00 SPECI",
-     "2026-09-30T13:50:00+00:00 METAR"
-    ]
+    "eklenen_anahtarlar": []
    }
   },
   "backfill_h24": {
-   "son_deneme": "2026-09-30T13:54:38+00:00",
-   "son_basarili": "2026-09-30T13:54:41+00:00",
+   "son_deneme": "2026-09-30T14:04:36+00:00",
+   "son_basarili": "2026-09-30T14:04:38+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 60,
@@ -66,7 +63,7 @@
   }
  },
  "arsiv": {
-  "uretim_zamani": "2026-09-30T13:54:41+00:00",
+  "uretim_zamani": "2026-09-30T14:04:38+00:00",
   "kanonik": {
    "toplam": 370,
    "METAR": 335,
