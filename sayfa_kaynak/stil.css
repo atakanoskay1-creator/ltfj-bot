@@ -1270,3 +1270,76 @@
   .vfr-nokta.bilinmiyor { background:#64748b; }
   .vfr-panel ul { margin:10px 0 0; padding-left:18px; font-size:var(--f2); }
   .vfr-panel .vfr-esik { color:var(--soluk); font-size:var(--f1); margin-top:10px; }
+
+  /* ---- HAREKET --------------------------------------------------------
+     Kural: hareket BILGI tasir, sus degildir.
+       - Yalnizca opaklik, renk, golge ve donus: yerlesim hic kaymaz.
+       - Sayilar SAYARAK degismez: 800'den 400'e animasyonla inen bir
+         gorus, gercekte hic olmamis ara degerler gosterirdi.
+       - Surekli dongu yok (tazelik nabzi haric); her vurgu TEK seferlik.
+       - Tetikleyici her zaman gercek bir DEGISIM: yeni gozlemde degisen
+         olcu, esik bandina yeni giris, yeni NOTAM, durum rozeti gecisi.
+     prefers-reduced-motion: dosyanin basindaki kural hepsini durdurur;
+     JS tarafi da o tercihte animasyon baslatmaz (bkz. 11_hareket.js). */
+  :root { --hareket-kisa:160ms; --hareket-orta:300ms; --hareket-vurgu:1000ms;
+          --hareket-egri:cubic-bezier(.2,.7,.2,1); }
+
+  /* Yeni gozlemde DEGISEN olcu: bir kez hafif bir zemin + halka, sonra
+     sabit. Golge yerlesimi etkilemez. */
+  @keyframes ltfj-degisti {
+    0%, 35% { background-color:var(--bilgi-zemin); box-shadow:0 0 0 4px var(--bilgi-zemin); }
+    100%    { background-color:transparent; box-shadow:0 0 0 4px transparent; }
+  }
+  .olcu-degisti { border-radius:var(--r1);
+                  animation:ltfj-degisti var(--hareket-vurgu) ease-out 1; }
+
+  /* Esik bandina YENI giren olcu (sinirli/esik alti): tek seferlik,
+     bandin rengiyle bir cerceve. Yanip sonme YOK. */
+  @keyframes ltfj-esik-dikkat {
+    0%, 40% { box-shadow:inset 0 0 0 2px var(--dikkat-dolu); }
+    100%    { box-shadow:inset 0 0 0 2px transparent; }
+  }
+  @keyframes ltfj-esik-uyari {
+    0%, 40% { box-shadow:inset 0 0 0 2px var(--uyari); }
+    100%    { box-shadow:inset 0 0 0 2px transparent; }
+  }
+  .hero-oge-dikkat.esik-girdi { animation:ltfj-esik-dikkat 1400ms ease-out 1; }
+  .hero-oge-uyari.esik-girdi  { animation:ltfj-esik-uyari 1400ms ease-out 1; }
+
+  /* Durum rozeti CANLI'dan ciktiginda (ya da sayfa zaten bayat acildiginda)
+     tek bir halka - rozet kucuk ve kosede, degisimi kacirmak kolay. */
+  @keyframes ltfj-rozet {
+    0%   { box-shadow:0 0 0 0 currentColor; }
+    100% { box-shadow:0 0 0 7px transparent; }
+  }
+  .ust-durum.durum-degisti { animation:ltfj-rozet 900ms ease-out 2; }
+
+  /* Sekme degisiminde yeni panel kisa bir belirme ile gelir. Yalnizca
+     kullanici sekme DEGISTIRINCE (.sekme-gecis): ilk yuklemede panel
+     aninda gorunur, animasyonla gecikmez. */
+  @keyframes ltfj-belir {
+    from { opacity:0; transform:translateY(4px); }
+    to   { opacity:1; transform:none; }
+  }
+  .sekme-gecis .sekme-panel { animation:ltfj-belir var(--hareket-kisa) var(--hareket-egri); }
+
+  /* Katlanir bolumler: acilinca icerik belirir (her tarayicida) ... */
+  details.acildi > :not(summary) { animation:ltfj-belir 180ms var(--hareket-egri); }
+  /* ... ve destekleyen tarayicida yukseklik akici degisir. Desteklemeyen
+     tarayicida bolum eskisi gibi aninda acilir - islev kaybi yok. */
+  @supports (interpolate-size: allow-keywords) {
+    :root { interpolate-size:allow-keywords; }
+    details::details-content {
+      height:0; overflow:clip;
+      transition:height var(--hareket-orta) var(--hareket-egri),
+                 content-visibility var(--hareket-orta) allow-discrete;
+    }
+    details[open]::details-content { height:auto; }
+  }
+
+  /* Son gorulmeden bu yana YENI gelen aktif NOTAM karti: bir kez vurgu. */
+  @keyframes ltfj-notam-yeni {
+    0%, 35% { box-shadow:inset 3px 0 0 var(--bilgi), 0 0 0 3px var(--bilgi-zemin); }
+    100%    { box-shadow:inset 3px 0 0 transparent, 0 0 0 3px transparent; }
+  }
+  .notam-kart.notam-yeni { animation:ltfj-notam-yeni 1400ms ease-out 1; }

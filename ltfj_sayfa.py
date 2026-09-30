@@ -236,6 +236,7 @@ BETIK_DOSYALARI = (
     ("betik_vfr", "08_vfr.js"),
     ("betik_sis_baglanti", "09_sis_baglanti.js"),
     ("betik_grafik_ipucu", "10_grafik_ipucu.js"),
+    ("betik_hareket", "11_hareket.js"),
 )
 VARLIK_YER_TUTUCU = re.compile(r"@@(\w+)@@")
 
@@ -573,6 +574,7 @@ SABLON = """<!DOCTYPE html>
 <script>{betik_vfr}</script>
 <script>{betik_sis_baglanti}</script>
 <script>{betik_grafik_ipucu}</script>
+<script>{betik_hareket}</script>
 </body>
 </html>
 """
@@ -1426,8 +1428,13 @@ def _hero_html(cozum: dict, gecmis: list, simdi: datetime) -> str:
         sinif = "hero-deger" + (" hero-deger-metin" if not birim else "")
         if band:
             sinif += f" hero-{band}"
+        # data-olcu / data-bant: HAREKET icin (bkz. sayfa_kaynak/
+        # 11_hareket.js). Tarayici son gorulen gozlemin degerlerini
+        # hatirlar; yeni gozlemde yalnizca DEGISEN olcu bir kez vurgulanir,
+        # esik bandina YENI giren olcu tek seferlik isaret alir.
         hucreler.append(
-            f'<div class="hero-oge{" hero-oge-" + band if band else ""}">'
+            f'<div class="hero-oge{" hero-oge-" + band if band else ""}" '
+            f'data-olcu="{anahtar}" data-bant="{band}">'
             f'<div class="hero-etiket">{etiket}'
             f'{band_isareti}</div>'
             f'<div class="{sinif}">{html.escape(deger)}'
@@ -1583,10 +1590,17 @@ def _pist_diyagrami_html(cozum: dict, metin: str, tercih: str | None) -> str:
         # Ruzgar GELDIGI yonden merkeze dogru cizilir (meteorolojik yon).
         # Ok SERIDE GIRMEDEN duruyor (serit yarim uzunlugu .80 yaricap,
         # numaralar .52'de) - boylece hicbir ruzgar yonunde cakismaz.
-        kx, ky = _nokta(yon, YARICAP * 1.16)
-        ix, iy = _nokta(yon, YARICAP * 0.76)
-        ok = (f'<line class="pd-ok" x1="{kx:.1f}" y1="{ky:.1f}" '
-              f'x2="{ix:.1f}" y2="{iy:.1f}" marker-end="url(#pd-uc)"/>')
+        #
+        # KUZEYE cizilip GRUPLA donduruluyor: geometri _nokta(yon, r) ile
+        # birebir ayni (merkez etrafinda yon kadar saat yonunde donus), ama
+        # tarayici oku onceki gozlemin yonunden yenisine dondurebiliyor
+        # (bkz. sayfa_kaynak/11_hareket.js). JS yoksa transform yeterli.
+        kx, ky = _nokta(0, YARICAP * 1.16)
+        ix, iy = _nokta(0, YARICAP * 0.76)
+        ok = (f'<g class="pd-ok-g" data-yon="{yon}" '
+              f'transform="rotate({yon} {MERKEZ_X:g} {MERKEZ_Y:g})">'
+              f'<line class="pd-ok" x1="{kx:.1f}" y1="{ky:.1f}" '
+              f'x2="{ix:.1f}" y2="{iy:.1f}" marker-end="url(#pd-uc)"/></g>')
 
     baslik = (f"Rüzgâr {yon:03d}°/{hiz} kt" if yon is not None and hiz is not None
               else "Rüzgâr yönü değişken")
@@ -1613,10 +1627,10 @@ def _pist_diyagrami_html(cozum: dict, metin: str, tercih: str | None) -> str:
         kuyruk = bas < 0
         bas_sinif = " pd-asan" if kuyruk and abs(bas) > limit else ""
         okuma = (
-            f'<div class="pd-satir{bas_sinif}">'
+            f'<div class="pd-satir{bas_sinif}" data-olcu="pd-bas">'
             f'<span class="pd-etiket">{"kuyruk" if kuyruk else "baş"}</span>'
             f'<b>{abs(bas):.0f}</b> kt</div>'
-            f'<div class="pd-satir"><span class="pd-etiket">yan</span>'
+            f'<div class="pd-satir" data-olcu="pd-yan"><span class="pd-etiket">yan</span>'
             f'<b>{yan:.0f}</b> kt{f" {taraf}" if taraf else ""}</div>')
         if kuyruk and abs(bas) > limit:
             okuma += (f'<div class="pd-not">kuyruk limiti {limit} kt '
