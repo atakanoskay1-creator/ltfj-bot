@@ -237,6 +237,7 @@ BETIK_DOSYALARI = (
     ("betik_sis_baglanti", "09_sis_baglanti.js"),
     ("betik_grafik_ipucu", "10_grafik_ipucu.js"),
     ("betik_hareket", "11_hareket.js"),
+    ("betik_canli", "12_canli.js"),
 )
 VARLIK_YER_TUTUCU = re.compile(r"@@(\w+)@@")
 
@@ -575,6 +576,7 @@ SABLON = """<!DOCTYPE html>
 <script>{betik_sis_baglanti}</script>
 <script>{betik_grafik_ipucu}</script>
 <script>{betik_hareket}</script>
+<script>{betik_canli}</script>
 </body>
 </html>
 """

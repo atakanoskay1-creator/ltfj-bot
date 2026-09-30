@@ -6,8 +6,13 @@
   // Dokunmatik: basili tutup surukledikce gosterir, parmak kalkinca kaybolur.
   // Nokta verisi sayfa uretilirken data-noktalar'a gomulu - hicbir fetch()
   // yapilmaz (bkz. ltfj_sayfa._grafik_blogu).
+  // Canli guncelleme grafikleri yeniden yaziyor (bkz. 12_canli.js) -
+  // kurulum o yuzden tekrar cagrilabilir; ayni kutuya iki kez baglanmaz.
+  function kur() {
   var kutular = document.querySelectorAll(".grafik-kutu");
   Array.prototype.forEach.call(kutular, function (kutu) {
+    if (kutu.getAttribute("data-ipucu-bagli")) return;
+    kutu.setAttribute("data-ipucu-bagli", "1");
     var noktalar;
     try {
       noktalar = JSON.parse(kutu.getAttribute("data-noktalar") || "[]");
@@ -70,4 +75,7 @@
     });
     sarmal.addEventListener("pointercancel", gizle);
   });
+  }
+  window.ltfjGrafikIpucuKur = kur;
+  kur();
 })();

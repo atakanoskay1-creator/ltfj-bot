@@ -1281,30 +1281,79 @@
          olcu, esik bandina yeni giris, yeni NOTAM, durum rozeti gecisi.
      prefers-reduced-motion: dosyanin basindaki kural hepsini durdurur;
      JS tarafi da o tercihte animasyon baslatmaz (bkz. 11_hareket.js). */
-  :root { --hareket-kisa:160ms; --hareket-orta:300ms; --hareket-vurgu:1000ms;
+  :root { --hareket-kisa:160ms; --hareket-orta:300ms; --hareket-vurgu:2600ms;
           --hareket-egri:cubic-bezier(.2,.7,.2,1); }
 
-  /* Yeni gozlemde DEGISEN olcu: bir kez hafif bir zemin + halka, sonra
-     sabit. Golge yerlesimi etkilemez. */
+  /* Yeni gozlemde DEGISEN olcu. Kullanici "degisiklik fark edilmiyor"
+     dedi: ilk surum 1 sn'lik soluk bir zemindi. Simdi sayi kisa bir
+     buyume ile "yerine oturur", ardindan belirgin zemin + halka ~2.6 sn
+     durup soner. Yine TEK sefer; transform/golge yerlesimi kaydirmaz. */
   @keyframes ltfj-degisti {
-    0%, 35% { background-color:var(--bilgi-zemin); box-shadow:0 0 0 4px var(--bilgi-zemin); }
-    100%    { background-color:transparent; box-shadow:0 0 0 4px transparent; }
+    0%      { transform:scale(1.14); background-color:var(--bilgi-zemin);
+              box-shadow:0 0 0 8px var(--bilgi-zemin); }
+    12%     { transform:scale(1); }
+    12%, 55% { background-color:var(--bilgi-zemin); box-shadow:0 0 0 6px var(--bilgi-zemin); }
+    100%    { transform:scale(1); background-color:transparent; box-shadow:0 0 0 6px transparent; }
   }
-  .olcu-degisti { border-radius:var(--r1);
-                  animation:ltfj-degisti var(--hareket-vurgu) ease-out 1; }
+  .olcu-degisti { border-radius:var(--r1); transform-origin:left center;
+                  animation:ltfj-degisti var(--hareket-vurgu) var(--hareket-egri) 1; }
 
-  /* Esik bandina YENI giren olcu (sinirli/esik alti): tek seferlik,
-     bandin rengiyle bir cerceve. Yanip sonme YOK. */
+  /* Degisen olcunun ONCEKI degeri - hucrenin ALT kosesinde ~20 sn durur,
+     sonra soner ve JS onu kaldirir. Gercekte gozlenmis onceki okuma; ara
+     deger degil. Mutlak konum: yerlesimi itmez. UST kosede "eşik altı"
+     etiketinin ustune biniyordu (olculdu, 390px) - esik etiketi rozetten
+     onemli; alt kosede yalnizca egilim cizgisinin ucunu kisa sure ortuyor. */
+  .hero-oge { position:relative; }
+  @keyframes ltfj-onceki {
+    0%   { opacity:0; transform:translateY(-3px); }
+    3%   { opacity:1; transform:none; }
+    85%  { opacity:1; }
+    100% { opacity:0; }
+  }
+  .olcu-onceki {
+    position:absolute; bottom:6px; right:8px; pointer-events:none;
+    font-size:var(--f1); font-weight:600; line-height:1.3; white-space:nowrap;
+    padding:1px 6px; border-radius:var(--r1);
+    background:var(--kart); color:var(--bilgi); box-shadow:inset 0 0 0 1px var(--bilgi-zemin);
+    animation:ltfj-onceki 20s linear 1 forwards;
+  }
+
+  /* Esik bandina YENI giren olcu (sinirli/esik alti): bandin rengiyle
+     UC kez atan bir cerceve, sonra durur. Sonsuz yanip sonme YOK. */
   @keyframes ltfj-esik-dikkat {
-    0%, 40% { box-shadow:inset 0 0 0 2px var(--dikkat-dolu); }
-    100%    { box-shadow:inset 0 0 0 2px transparent; }
+    0%   { box-shadow:inset 0 0 0 3px var(--dikkat-dolu), 0 0 0 0 var(--dikkat-zemin); }
+    60%  { box-shadow:inset 0 0 0 3px var(--dikkat-dolu), 0 0 0 10px transparent; }
+    100% { box-shadow:inset 0 0 0 3px transparent, 0 0 0 0 transparent; }
   }
   @keyframes ltfj-esik-uyari {
-    0%, 40% { box-shadow:inset 0 0 0 2px var(--uyari); }
-    100%    { box-shadow:inset 0 0 0 2px transparent; }
+    0%   { box-shadow:inset 0 0 0 3px var(--uyari), 0 0 0 0 var(--uyari-zemin); }
+    60%  { box-shadow:inset 0 0 0 3px var(--uyari), 0 0 0 10px transparent; }
+    100% { box-shadow:inset 0 0 0 3px transparent, 0 0 0 0 transparent; }
   }
-  .hero-oge-dikkat.esik-girdi { animation:ltfj-esik-dikkat 1400ms ease-out 1; }
-  .hero-oge-uyari.esik-girdi  { animation:ltfj-esik-uyari 1400ms ease-out 1; }
+  .hero-oge-dikkat.esik-girdi { animation:ltfj-esik-dikkat 1100ms ease-out 3; }
+  .hero-oge-uyari.esik-girdi  { animation:ltfj-esik-uyari 1100ms ease-out 3; }
+
+  /* Yeni gozlem DUYURUSU: ekranin ustunden kayarak gelir, ~8 sn durur,
+     dokununca kapanir. Metin: "Yeni gözlem · 08:50Z" + ne oldugu. */
+  .canli-duyuru {
+    /* left+right+auto kenar bosluk: ortali, ama metnin genisligi kadar -
+       left:50% + translate ile genislik ekranin YARISINA sikisiyordu. */
+    position:fixed; z-index:60; left:16px; right:16px; top:10px;
+    width:max-content; max-width:calc(100vw - 32px); margin:0 auto; box-sizing:border-box;
+    display:flex; flex-direction:column; gap:1px; cursor:pointer;
+    padding:9px 16px; border-radius:var(--r2, 10px);
+    background:var(--bilgi); color:var(--bg); font-size:var(--f2); line-height:1.35;
+    box-shadow:0 6px 22px rgba(0,0,0,.22);
+    animation:ltfj-duyuru-gir 420ms var(--hareket-egri) 1;
+  }
+  .canli-duyuru b { font-size:var(--f3); font-weight:700; font-variant-numeric:tabular-nums; }
+  .canli-duyuru span { opacity:.92; }
+  .canli-duyuru.kapaniyor { opacity:0; transform:translateY(-12px);
+                            transition:opacity 280ms ease-in, transform 280ms ease-in; }
+  @keyframes ltfj-duyuru-gir {
+    from { opacity:0; transform:translateY(-16px); }
+    to   { opacity:1; transform:none; }
+  }
 
   /* Durum rozeti CANLI'dan ciktiginda (ya da sayfa zaten bayat acildiginda)
      tek bir halka - rozet kucuk ve kosede, degisimi kacirmak kolay. */
@@ -1342,4 +1391,4 @@
     0%, 35% { box-shadow:inset 3px 0 0 var(--bilgi), 0 0 0 3px var(--bilgi-zemin); }
     100%    { box-shadow:inset 3px 0 0 transparent, 0 0 0 3px transparent; }
   }
-  .notam-kart.notam-yeni { animation:ltfj-notam-yeni 1400ms ease-out 1; }
+  .notam-kart.notam-yeni { animation:ltfj-notam-yeni 2400ms ease-out 1; }

@@ -86,6 +86,33 @@ def test_hareket_azaltma_tercihinde_JS_animasyon_baslatmiyor():
     assert "prefers-reduced-motion: reduce" in NOTAM          # yeni NOTAM
 
 
+def test_esik_vurgusu_sonlu_tekrar():
+    """Daha guclu ama SONLU: esik cercevesi uc kez atar ve durur."""
+    assert "animation:ltfj-esik-uyari 1100ms ease-out 3;" in CSS
+    assert "animation:ltfj-esik-dikkat 1100ms ease-out 3;" in CSS
+
+
+def test_onceki_deger_rozeti_gercek_onceki_okuma_ve_kendini_kaldiriyor():
+    """Degisen olcunun yaninda ONCEKI gozlenen deger kisa sure durur;
+    ara deger uretilmez, rozet animasyon bitince DOM'dan kalkar."""
+    assert 'document.createTextNode("önce " + eskiDeger)' in HAREKET
+    assert 'r.addEventListener("animationend"' in HAREKET
+    # karsilastirmaya rozet metni karismaz
+    assert 'querySelectorAll(".olcu-onceki")' in HAREKET
+    assert "position:absolute" in CSS.split(".olcu-onceki {")[1].split("}")[0]
+
+
+def test_yeni_gozlem_duyurusu_ekran_okuyucuya_da_soyleniyor():
+    assert 'k.setAttribute("role", "status")' in HAREKET
+    assert '"Yeni gözlem · " + zulu(gozlem)' in HAREKET
+    assert 'k.addEventListener("click", kapat)' in HAREKET
+
+
+def test_kiyas_canli_guncellemeden_sonra_da_cagrilabilir():
+    assert "window.ltfjHareketKarsilastir = karsilastir;" in HAREKET
+    assert "karsilastir(false);" in HAREKET
+
+
 def test_ayni_gozlem_yeniden_yuklenince_hicbir_sey_hareket_etmez():
     assert "onceki.gozlem === gozlem) { return; }" in HAREKET
     # ilk ziyaret de karsilastirma yapmaz
@@ -133,12 +160,13 @@ def test_surekli_dongu_yalnizca_eski_tazelik_nabzi():
 
 def test_yeni_animasyonlar_tek_seferlik_ve_yerlesim_kaydirmiyor():
     blok = CSS.split("---- HAREKET ----")[1]
-    for ad in ("ltfj-degisti", "ltfj-esik-dikkat", "ltfj-esik-uyari", "ltfj-rozet",
-               "ltfj-belir", "ltfj-notam-yeni"):
+    adlar = ("ltfj-degisti", "ltfj-esik-dikkat", "ltfj-esik-uyari", "ltfj-rozet",
+             "ltfj-belir", "ltfj-notam-yeni", "ltfj-onceki", "ltfj-duyuru-gir")
+    for ad in adlar:
         assert f"@keyframes {ad}" in blok, ad
     # yalnizca opaklik / renk / golge / transform - yerlesim ozelligi yok
     kareler = re.findall(r"@keyframes[^{]+\{(?:[^{}]*\{[^}]*\})+", blok)
-    assert len(kareler) == 6
+    assert len(kareler) == len(adlar)
     for yasak in ("width", "height", "margin", "padding", "top:", "left:", "font-size"):
         assert not any(yasak in k for k in kareler), yasak
 

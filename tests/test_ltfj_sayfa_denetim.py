@@ -365,15 +365,26 @@ def test_acik_sekme_SUNUCUYA_bakiyor(tmp_path):
     assert "fetch(" in js and 'cache: "no-store"' in js
 
 
-def test_YALNIZCA_gozlem_degistiyse_yeniden_yukluyor(tmp_path):
-    """Kör bir zamanlayıcıyla her N dakikada yeniden yüklemek,
-    değişmemiş veri için kullanıcının yazdığı LVO RVR değerlerini boşuna
-    silerdi (sekme seçimi localStorage'da, o kalıyor)."""
+def test_once_YERINDE_gunceller_yeniden_yukleme_yalnizca_yedek(tmp_path):
+    """KULLANICI ISTEDI: "sayfayi yenilemesem bile bilgi guncellenebilir
+    mi". Yeni sayfa once yerinde uygulanir (12_canli.js); yeniden yukleme
+    yalnizca yerinde guncelleme yapilamazsa ve gozlem DEGISTIYSE."""
     html_metin = _sayfa(tmp_path)
     js = html_metin.split("function yeniVeriVarMi")[1].split("function durumTazele")[0]
+    assert "window.ltfjCanliUygula(metin)" in js
+    assert js.index("ltfjCanliUygula(metin)") < js.index("location.replace")
     assert "m[1] === simdikiGozlem" in js, "damga karsilastirmasi yok"
-    # Karsilastirma, yeniden yuklemeden ONCE gelmeli.
     assert js.index("m[1] === simdikiGozlem") < js.index("location.replace")
+
+
+def test_degismeyen_sayfanin_govdesi_inmiyor(tmp_path):
+    """Her dakika yalnizca HEAD; govde yalnizca ETag/Last-Modified
+    degisince iner."""
+    html_metin = _sayfa(tmp_path)
+    js = html_metin.split("function yeniVeriVarMi")[1].split("function durumTazele")[0]
+    assert 'method: "HEAD"' in js
+    assert "damga === sonSurum" in js
+    assert js.index("damga === sonSurum") < js.index("return fetch(adres()")
 
 
 def test_kullanici_YAZIYORKEN_yeniden_yuklemiyor(tmp_path):
@@ -392,6 +403,8 @@ def test_kontrol_araligi_METAR_kadansinin_ALTINDA(tmp_path):
     html_metin = _sayfa(tmp_path)
     ms = int(re.search(r"var KONTROL_MS = (\d+);", html_metin).group(1))
     assert 0 < ms / 60000 < 30, f"{ms / 60000} dk"
+    # HEAD istegi ucuz; kullanici 5 dakikayi "guncellenmiyor" diye algiladi.
+    assert ms <= 60000
     assert "setInterval(yeniVeriVarMi" in html_metin
 
 

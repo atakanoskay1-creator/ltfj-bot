@@ -49,8 +49,10 @@ def test_vfr_panel_toggle_scripti_var_fetch_yok(tmp_path):
     yapmali, hicbir fetch() cagrisi icermemeli (ATC/NOTAM/LVO script'lerinin
     aksine)."""
     html = _sayfa_yaz(tmp_path, "LTFJ 161250Z 06010KT 9999 FEW020 22/15 Q1013 NOSIG")
-    assert 'document.getElementById("vfr-sekme")' in html
-    idx = html.index('document.getElementById("vfr-sekme")')
+    # Olay yetkilendirme: panel icerigi canli guncellemede yeniden
+    # yaziliyor, dinleyici belgede (bkz. 08_vfr.js).
+    assert 'e.target.closest("#vfr-sekme")' in html
+    idx = html.index('e.target.closest("#vfr-sekme")')
     blok = html[idx - 200: idx + 700]
     yurutulen = "\n".join(satir for satir in blok.splitlines()
                            if not satir.strip().startswith("//"))
