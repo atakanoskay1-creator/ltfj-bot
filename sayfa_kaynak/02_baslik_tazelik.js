@@ -82,6 +82,7 @@ window.ltfjGecenSure = function (ms) {
   // degerlerini bosuna silerdi (sekme secimi localStorage'da, o kaliyor).
   var KONTROL_MS = 300000;            // 5 dk - METAR kadansinin altinda
   var kontrolBekliyor = false;
+  var oncekiSinif = null;
 
   function yenilemeGuvenli() {
     // Kullanici YAZIYORSA yeniden yukleme: LVO RVR girdileri kalici
@@ -137,7 +138,12 @@ window.ltfjGecenSure = function (ms) {
     else if (dk <= TAZE_DK) { sinif = "gecikmeli"; metin = "1 GÖZLEM KAÇTI"; }
     else if (dk <= KESINTI_DK) { sinif = "gecikmeli"; metin = "GECİKMELİ"; }
     else { sinif = "kesinti"; metin = "VERİ KESİNTİSİ"; }
-    durumEl.className = "ust-durum " + sinif;
+    // Rozet CANLI'dan ciktiginda (ya da sayfa zaten bayat acildiginda)
+    // TEK SEFERLIK bir halka - kosede kucuk bir rozetin degisimi kolay
+    // kacar. Durum ayni kaldikca 15 sn'lik tazeleme tekrar oynatmaz.
+    var degisti = sinif !== oncekiSinif && sinif !== "taze";
+    oncekiSinif = sinif;
+    durumEl.className = "ust-durum " + sinif + (degisti ? " durum-degisti" : "");
     durumEl.innerHTML = ikonNokta() + metin;
     // Renk TEK BASINA durum anlatmaz - ekran okuyucu icin metin de var.
     durumEl.setAttribute("aria-label", "Veri durumu: " + metin);

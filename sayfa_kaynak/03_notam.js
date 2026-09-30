@@ -26,6 +26,25 @@
 
   var gecerlilik = window.ltfjNotamGecerlilik;
 
+  // YENI NOTAM VURGUSU (hareket): bu tarayicinin son gordugu aktif
+  // listede OLMAYAN kart, sayfa acilisindaki ILK cizimde bir kez
+  // vurgulanir. Filtre yazarken yeniden cizimlerde tekrar etmez (bkz.
+  // veriYukle). Ilk ziyarette karsilastirma yok -> vurgu yok.
+  var yeniIdler = {};
+  var GORULEN_ANAHTAR = "ltfj-gorulen-notam";
+  function yeniNotamlariBelirle(aktifler) {
+    var simdiki = aktifler.map(function (n) { return n.id; }).filter(Boolean);
+    var onceki = null;
+    try { onceki = JSON.parse(localStorage.getItem(GORULEN_ANAHTAR) || "null"); } catch (e) {}
+    try { localStorage.setItem(GORULEN_ANAHTAR, JSON.stringify(simdiki)); } catch (e) {}
+    var sonuc = {};
+    var azalt = window.matchMedia &&
+                window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!Array.isArray(onceki) || azalt) { return sonuc; }
+    simdiki.forEach(function (id) { if (onceki.indexOf(id) === -1) { sonuc[id] = true; } });
+    return sonuc;
+  }
+
   // NOTAC'IN SIRASI. Kart eskiden tersten diziliyordu: once numara,
   // tip, Q kodu, kategori, BUTUN etiketler ve BUTUN etkilenen pistler
   // tek bir cip duvarinda; duz dil ozeti ise altta, kucuk gri yazida
@@ -57,7 +76,7 @@
     kunye.push(esc(kisaZaman(n.effective_start)) + " → " +
                esc(kisaZaman(n.effective_end)));
     return (
-      '<div class="notam-kart">' +
+      '<div class="notam-kart' + (yeniIdler[n.id] ? " notam-yeni" : "") + '">' +
       '<div class="notam-ust">' + aktifNoktasi +
       '<span class="notam-no">' + esc(n.number || "—") + "</span>" +
       window.ltfjNotamTipEtiketi(n) + kategori +
@@ -352,7 +371,11 @@
       .then(function (v) {
         veri = v;
         aktifFiltreSecenekleriDoldur();
+        // Senkron hic yoksa liste bos gelir; onu "gorulen" diye kaydetmek
+        // bir sonraki acilista TUM kartlari yeni gosterirdi.
+        yeniIdler = v.son_senkron ? yeniNotamlariBelirle(yururluktekiler()) : {};
         aktifGoster();
+        yeniIdler = {};          // vurgu yalnizca ILK cizimde
         // Bolum katli geldigi icin basliktaki sayac, icinde ne kadar kayit
         // oldugunu acmadan gosterir.
         var gecmisSayiEl = document.getElementById("notam-gecmis-sayi");
