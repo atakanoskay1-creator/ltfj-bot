@@ -159,7 +159,9 @@ def gorev_mesaji(issue: dict, dosyalar: list[str]) -> str:
         f"GOREV (#{issue['number']}): {issue['title']}\n\n"
         f"{issue.get('body') or ''}\n\n"
         "CALISMA KURALLARI:\n"
-        f"- Yalnizca su dosyalari degistir/olustur: {', '.join(dosyalar)}\n"
+        f"- DOSYA YOLLARI: yalnizca su yollari HARFI HARFINE kullan: {', '.join(dosyalar)}\n"
+        "- Gorev metninde gecen diger dosya adlari yalnizca BAGLAMDIR: onlari "
+        "duzenleme, yeni dosya adi uydurma, cumle parcasini dosya adi yapma.\n"
         "- Baska hicbir dosyaya dokunma. Git komutu calistirma.\n"
         "- CONVENTIONS.md'deki kurallara uy (veri uydurma, yeni kutuphane yok).\n"
         "- Testler pytest ile calistirilacak; kirmizi olursa cikti sana "
@@ -260,7 +262,13 @@ def testleri_calistir(repo: Path) -> tuple[bool, str]:
     return r.returncode == 0, r.stdout + r.stderr
 
 
-def aider_calistir(repo: Path, mesaj: str, dosyalar: list[str]) -> str:
+def durum(repo: Path) -> str:
+    """Calisma agaci durumu; Turkce dosya adlari okunur yazilsin
+    (core.quotePath), yeni klasorlerin icindeki dosyalar tek tek (-uall)."""
+    return git(repo, "-c", "core.quotePath=false", "status", "--porcelain", "-uall")
+
+
+def aider_calistir(repo: Path, mesaj: str, dosyalar: list[str], gunluk: Path = None) -> str:
     gecici = Path(tempfile.mkdtemp(prefix="qwen-ajan-"))
     mesaj_dosyasi = gecici / "mesaj.md"
     mesaj_dosyasi.write_text(mesaj, encoding="utf-8")
@@ -279,10 +287,18 @@ def aider_calistir(repo: Path, mesaj: str, dosyalar: list[str]) -> str:
         "--test-cmd", f'"{sys.executable}" -m pytest -q -x -p no:cacheprovider',
         "--auto-test",
         "--message-file", str(mesaj_dosyasi),
-        *dosyalar,
     ]
+    if ayar("AJAN_EDIT_FORMAT"):
+        komut += ["--edit-format", ayar("AJAN_EDIT_FORMAT")]
+    komut += dosyalar
     r = calistir(komut, repo, zaman_asimi=int(ayar("AJAN_AIDER_ZAMAN_ASIMI", "3600")))
-    return r.stdout + r.stderr
+    cikti = r.stdout + r.stderr
+    # Modelin ne yaptigi sonradan okunabilsin (ilk gercek denemede
+    # gorulemiyordu). .git/ altinda: hicbir zaman commit'e girmez.
+    if gunluk is not None:
+        gunluk.parent.mkdir(parents=True, exist_ok=True)
+        gunluk.write_text(cikti, encoding="utf-8")
+    return cikti
 
 
 # -------------------------------------------------------------------- ajan ---
@@ -293,11 +309,16 @@ def gorevi_isle(gh: GitHub, repo: Path, issue: dict) -> None:
     temizle(repo)
     izlenenler = set(git(repo, "ls-files").splitlines())
 
+    son_aider = {"cikti": ""}
+
     def basarisiz(neden, ek=""):
         gh.etiket_kaldir(no, ETIKET_ISLENIYOR)
         gh.etiket_ekle(no, ETIKET_BASARISIZ)
+        aider = kuyruk(son_aider["cikti"], 40)
         gh.yorum(no, f"Yerel ajan görevi tamamlayamadı: **{neden}**"
-                 + (f"\n\n```\n{ek}\n```" if ek else ""))
+                 + (f"\n\n```\n{ek}\n```" if ek else "")
+                 + (f"\n\n<details><summary>Aider çıktısının son satırları</summary>"
+                    f"\n\n```\n{aider}\n```\n</details>" if aider else ""))
         temizle(repo)
         print(f"[ajan] #{no} basarisiz: {neden}")
 
@@ -317,8 +338,9 @@ def gorevi_isle(gh: GitHub, repo: Path, issue: dict) -> None:
     yesil, cikti = False, ""
     for tur in range(1, tur_sayisi + 1):
         print(f"[ajan] #{no} tur {tur}/{tur_sayisi}: model calisiyor...")
-        aider_calistir(repo, mesaj, dosyalar)
-        degisenler = degisen_yollar(git(repo, "status", "--porcelain"))
+        son_aider["cikti"] = aider_calistir(
+            repo, mesaj, dosyalar, repo / ".git" / "qwen-ajan-gunluk" / f"{no}-tur{tur}.log")
+        degisenler = degisen_yollar(durum(repo))
         disi = izin_disi(degisenler, dosyalar, izlenenler)
         if disi:
             return basarisiz("model izin verilmeyen dosyalara dokundu", "\n".join(disi))
@@ -332,7 +354,7 @@ def gorevi_isle(gh: GitHub, repo: Path, issue: dict) -> None:
     if not yesil:
         return basarisiz(f"{tur_sayisi} turda testler yeşile dönmedi", kuyruk(cikti))
 
-    degisenler = degisen_yollar(git(repo, "status", "--porcelain"))
+    degisenler = degisen_yollar(durum(repo))
     git(repo, "add", "--", *degisenler)
     git(repo, "commit", "-q", "-m", f"Qwen: {baslik} (#{no})\n\n"
         "Yerel ajan (Qwen) tarafindan uretildi; inceleme bekliyor.")
