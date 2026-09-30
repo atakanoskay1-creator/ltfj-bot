@@ -6,15 +6,19 @@ Model A) gercekte ne kadar tuttu? Holdout (2024-2026) sonucu gecmis
 veride olculdu; bu modul AYNI modeli CANLI kullanimda, sonuc belli
 OLMADAN ONCE kaydedilen tahminlerle olcer.
 
-IKI PARCA
+UC PARCA (sayfaya BASILMAZ - kullanici istedi: "ayri bir dosyada
+tutulmasi yeterli, sonradan acip bakmak icin")
   1) GUNLUK (tahmin_gunlugu.csv) - EKLEME-YALNIZCA. Her yeni gozlem icin
      sayfada gosterilen olasilik, girdileriyle birlikte, sonuc
      bilinmeden yazilir. Anahtar (gozlem_zaman, gozlem_tip); ayni
      gozlemin ilk kaydi kalir (gozlem arsivindeki kuralin aynisi) - bot
      ayni gozlemi sonraki kosularda tekrar gorse de satir DEGISMEZ.
   2) ESLESTIRICI (sonuclandir) - gunlugu gozlem arsiviyle
-     (gozlem_arsivi.csv) karsilastirir. TURETILMIS: sonuc diske yazilmaz,
-     her seferinde iki dosyadan yeniden hesaplanir.
+     (gozlem_arsivi.csv) karsilastirir.
+  3) OKUMA DOSYASI (tahmin_dogrulama.csv) - her kosuda gunluk + arsivden
+     YENIDEN uretilir (TURETILMIS, kaynak degil; silinse de kayip yok).
+     Her satir: tahmin + sonraki 6 METAR + sonuc, en yeni ustte. GitHub
+     CSV'yi tablo olarak gosterir. Ozet olcumler: --ozet.
 
 HEDEF TANIMI - EGITIMDEKIYLE AYNI (sis_modeli/hedef.py, ozellik.py):
   olay = gorus < 1000 m VEYA alani kaplayan FG (MI/BC/PR tanimlayicili
@@ -69,6 +73,15 @@ KLASOR = Path(__file__).resolve().parent
 DOSYA_ADI = "tahmin_gunlugu.csv"
 VARSAYILAN_DOSYA = KLASOR / DOSYA_ADI
 ARSIV_DOSYASI = KLASOR / "gozlem_arsivi.csv"
+DOGRULAMA_DOSYA_ADI = "tahmin_dogrulama.csv"
+DOGRULAMA_SUTUNLARI = (
+    "gozlem_zaman", "gozlem_tip", "olasilik_yuzde", "bant", "evren", "sonuc",
+    "ilk_olay", "slot_1", "slot_2", "slot_3", "slot_4", "slot_5", "slot_6",
+    "speci_olay", "model_surumu",
+)
+# Botun bir slotu arsive alma payi (METAR :20/:50, bot :24/:54 + gecikme):
+# bu surede arsivde olmayan slot "eksik" degil "henuz" yazilir.
+ALIM_PAYI_DK = 40
 
 SUTUNLAR = (
     "gozlem_zaman", "gozlem_tip", "kayit_zamani", "olasilik", "bant", "evren",
@@ -390,7 +403,7 @@ def ozet(sonuclar: list) -> dict:
 
 
 def dogrulama_verisi(klasor: Path = KLASOR, simdi: datetime | None = None) -> dict:
-    """Sayfa icin: gunluk + arsivden sonuclar ve ozet."""
+    """Gunluk + arsivden sonuclar ve ozet."""
     simdi = simdi or datetime.now(timezone.utc)
     gunluk = oku(Path(klasor) / DOSYA_ADI)
     arsiv = []
@@ -403,6 +416,61 @@ def dogrulama_verisi(klasor: Path = KLASOR, simdi: datetime | None = None) -> di
             "baslangic": gunluk[0]["gozlem_zaman"] if gunluk else None}
 
 
+def _saat(iso: str | None) -> str:
+    z = _dt(iso)
+    return _utc(z).strftime("%H:%M") if z else ""
+
+
+def _gozlem_metni(slot: dict) -> str:
+    """'04:50 0800 FG' - METAR'daki gibi 4 haneli gorus + hava kodlari."""
+    g = slot["gorus"]
+    metin = f'{_saat(slot["zaman"])} ' + ("////" if g is None else f"{int(g):04d}")
+    return metin + (f' {slot["hava"]}' if slot["hava"] else "")
+
+
+def dogrulama_satirlari(sonuclar: list, simdi: datetime) -> list[dict]:
+    """Okuma dosyasinin satirlari - en yeni tahmin ustte."""
+    simdi = _utc(simdi)
+    out = []
+    for s in sorted(sonuclar, key=lambda x: x["gozlem_zaman"], reverse=True):
+        satir = {
+            "gozlem_zaman": _utc(_dt(s["gozlem_zaman"])).strftime("%Y-%m-%d %H:%MZ"),
+            "gozlem_tip": s["gozlem_tip"],
+            "olasilik_yuzde": "" if s["olasilik"] is None else f'{100 * s["olasilik"]:.1f}',
+            "bant": s["bant"] or "",
+            "evren": s["evren"],
+            "sonuc": s["durum"],
+            "ilk_olay": _saat(s["ilk_olay"]),
+            "speci_olay": " | ".join(_gozlem_metni(x) for x in s["speci"] if x["olay"]),
+            "model_surumu": s["model_surumu"],
+        }
+        for i, sl in enumerate(s["slotlar"], 1):
+            if sl["var"]:
+                deger = _gozlem_metni(sl) + (" [OLAY]" if sl["olay"] else "")
+            elif _dt(sl["zaman"]) > simdi - timedelta(minutes=ALIM_PAYI_DK):
+                deger = f'{_saat(sl["zaman"])} henuz'
+            else:
+                deger = f'{_saat(sl["zaman"])} yok'
+            satir[f"slot_{i}"] = deger
+        out.append(satir)
+    return out
+
+
+def dogrulama_yaz(klasor: Path = KLASOR, simdi: datetime | None = None) -> dict:
+    """tahmin_dogrulama.csv'yi gunluk + arsivden yeniden uretir; ozeti doner."""
+    simdi = simdi or datetime.now(timezone.utc)
+    v = dogrulama_verisi(klasor, simdi)
+    hedef = Path(klasor) / DOGRULAMA_DOSYA_ADI
+    if not v["sonuclar"]:
+        return v["ozet"]
+    with hedef.open("w", encoding="utf-8", newline="") as f:
+        y = csv.DictWriter(f, fieldnames=DOGRULAMA_SUTUNLARI)
+        y.writeheader()
+        for r in dogrulama_satirlari(v["sonuclar"], simdi):
+            y.writerow(r)
+    return v["ozet"]
+
+
 # ------------------------------------------------------------------ CLI ---
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -410,10 +478,16 @@ def main(argv=None) -> int:
                     help="push cakismasi: bizim gunlugu diskteki ile birlestir")
     ap.add_argument("--dosya", default=str(VARSAYILAN_DOSYA))
     ap.add_argument("--ozet", action="store_true", help="olcumleri yazdir")
+    ap.add_argument("--dogrulama-yaz", action="store_true",
+                    help="tahmin_dogrulama.csv'yi gunluk + arsivden yeniden uret")
     a = ap.parse_args(argv)
     if a.birlestir_bizim:
         n = birlestir_bizim(Path(a.birlestir_bizim), Path(a.dosya))
         print(f"tahmin gunlugu birlestirildi: {n} satir")
+        return 0
+    if a.dogrulama_yaz:
+        o = dogrulama_yaz(Path(a.dosya).resolve().parent)
+        print(f"tahmin_dogrulama.csv: {o['n']} sonuclanan, {o['olay']} olay")
         return 0
     if a.ozet:
         v = dogrulama_verisi(Path(a.dosya).resolve().parent)

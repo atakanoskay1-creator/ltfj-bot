@@ -803,39 +803,6 @@
                     font-size:var(--f1); padding-bottom:2px; }
   .gecis-esik { display:block; font-weight:400; font-size:var(--f1);
                  color:var(--soluk); }
-  /* MODEL DOGRULAMA (ileriye donuk): her tahminin karsisinda sonraki 3
-     saatin 6 rutin METAR'i. Olay hucresi RENK + KALIN metin + cerceve ile
-     ayrisir - renk tek tasiyici degil. Hucreler 390px'te 3x2 sarar. */
-  .dogrulama-tablo .sis-olasilik-bant { font-size:var(--f1); padding:1px 7px; }
-  .dg-skor { font-size:var(--f2); margin-top:8px; font-variant-numeric:tabular-nums; }
-  .dg-sayim { font-size:var(--f1); color:var(--soluk); margin-top:2px; }
-  .dg-liste { margin-top:10px; }
-  .dg-liste > summary { font-size:var(--f2); font-weight:650; cursor:pointer; padding:4px 0; }
-  .dg-satir { border-top:1px solid var(--cizgi); padding:8px 0; }
-  .dg-ust { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
-            font-size:var(--f2); font-variant-numeric:tabular-nums; }
-  .dg-zaman { font-weight:650; }
-  .dg-zaman small { color:var(--soluk); font-weight:500; font-size:var(--f1); }
-  .dg-p .sis-olasilik-bant { font-size:var(--f1); padding:1px 7px; }
-  .dg-sonuc { margin-left:auto; color:var(--soluk); font-weight:600; }
-  .dg-oldu .dg-sonuc { color:var(--uyari-metin); }
-  .dg-slotlar { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:4px;
-                margin-top:6px; }
-  @media (min-width:560px) { .dg-slotlar { grid-template-columns:repeat(6, minmax(0, 1fr)); } }
-  /* Saat USTTE, gozlem altta: "04:50 0800 FG" tek satirda 390px'lik 3
-     sutunda kesiliyordu (olculdu) - olay hucresinin en onemli kismi. */
-  .dg-slot { font-family:var(--mono); font-size:var(--f1); line-height:1.3;
-             padding:3px 6px; border-radius:var(--r1); background:var(--etkilesim);
-             overflow-wrap:anywhere; }
-  .dg-slot i { display:block; font-style:normal; color:var(--soluk); }
-  .dg-slot.dg-olay { background:var(--uyari-zemin); color:var(--uyari-metin);
-                     font-weight:700; box-shadow:inset 0 0 0 1px var(--uyari); }
-  .dg-slot.dg-yok { color:var(--soluk); background:transparent;
-                    box-shadow:inset 0 0 0 1px var(--cizgi); }
-  .dg-slot.dg-gelecek { color:var(--sessiz); background:transparent;
-                        outline:1px dashed var(--cizgi); outline-offset:-1px; }
-  .dg-ek { font-size:var(--f1); color:var(--soluk); margin-top:4px; }
-  .dg-evren-disi { opacity:.72; }
   /* Sis iklimbilimi seridi: tek seri, lejant yok (baslik seriyi adlandiriyor).
      Cubuk --marka: durum rengi DEGIL - "ne kadar sisli" bir durum degil,
      bir miktar. Yalnizca tepe cubuk degeriyle etiketli; digerleri title'da. Opaklik

@@ -457,13 +457,18 @@ Boyut: ~50 gözlem/gün → ~18 bin satır/yıl, satır başı ~90 bayt = **yıl
 
 Soru: sayfadaki "Düşük görüş (< 1000 m) olasılığı" (Model A) canlı kullanımda
 ne kadar tutuyor? `ltfj_tahmin_gunlugu.py` bunu **sonuç belli olmadan önce
-kaydedilen** tahminlerle ölçer.
+kaydedilen** tahminlerle ölçer. **Sayfaya basılmaz** — sonradan açıp bakmak
+için dosyada durur.
 
 - **Günlük (ekleme-yalnızca).** Her yeni gözlem için sayfanın gösterdiği
   olasılık, girdileri ve model sürümü (katsayıların özeti) yazılır. Anahtar
   gözlem zamanı + tip; aynı gözlemin ilk kaydı kalır. Push çakışmasında
   workflow uzaktaki ile bizimkini birleştirir (`--birlestir-bizim`).
-- **Eşleştirici (türetilmiş, diske yazılmaz).** Her tahmin
+- **Okuma dosyası `tahmin_dogrulama.csv` (türetilmiş).** Bot her koşuda
+  günlük + arşivden yeniden üretir; en yeni tahmin üstte, her satırda tahmin,
+  sonraki 6 METAR (`04:50 0800 FG [OLAY]`, henüz arşive girmemişse `henuz`,
+  beklenip arşivde yoksa `yok`) ve sonuç. GitHub CSV'yi tablo olarak gösterir.
+- **Eşleştirici.** Her tahmin
   `gozlem_arsivi.csv`'deki sonraki 3 saatin **6 rutin METAR slotuyla**
   (:20/:50) karşılaştırılır. Olay tanımı eğitimdekiyle aynı: görüş < 1000 m
   veya alanı kaplayan FG. SPECI'deki olay gösterilir ama ölçüme girmez (model
@@ -479,8 +484,7 @@ kaydedilen** tahminlerle ölçer.
   eğilimi girdisi sayfa üretim anından alınıyor; eğitim gözlem zamanını
   kullandı. Günlük ikisini de (`saat_sayfa`, `saat_gozlem`) kaydediyor.
 
-Sayfada: İstatistik sekmesi → "Model doğrulama". Komut satırında:
-`python -m ltfj_tahmin_gunlugu --ozet`.
+Özet ölçümler: `python -m ltfj_tahmin_gunlugu --ozet`.
 
 ## ⚠️ Yasal Uyarı
 

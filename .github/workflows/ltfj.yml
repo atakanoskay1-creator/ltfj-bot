@@ -97,7 +97,7 @@ jobs:
         run: |
           set -u
           DAL="${GITHUB_REF_NAME}"
-          DOSYALAR="ltfj_state.json index.html panel_veri.json notam_veri.json gozlem_arsivi.csv gozlem_surumleri.csv gozlem_arsivi_durum.json tahmin_gunlugu.csv"
+          DOSYALAR="ltfj_state.json index.html panel_veri.json notam_veri.json gozlem_arsivi.csv gozlem_surumleri.csv gozlem_arsivi_durum.json tahmin_gunlugu.csv tahmin_dogrulama.csv"
 
           # `git add` OLMAYAN bir yol icin "fatal: pathspec did not match"
           # verip (Actions run adimlari `bash -e` ile calisir) TUM adimi
@@ -174,6 +174,9 @@ jobs:
               python -m ltfj_tahmin_gunlugu --birlestir-bizim /tmp/bizim_tahmin_gunlugu.csv \
                 --dosya tahmin_gunlugu.csv || true
             fi
+            # Okuma dosyasi TURETILMIS: birlesik gunluk + birlesik arsivden
+            # yeniden uretilir (iki tarafin kopyasi birlestirilmez).
+            python -m ltfj_tahmin_gunlugu --dogrulama-yaz --dosya tahmin_gunlugu.csv || true
             cp /tmp/bizim_index.html index.html 2>/dev/null || true
             cp /tmp/bizim_panel_veri.json panel_veri.json 2>/dev/null || true
             cp /tmp/bizim_notam_veri.json notam_veri.json 2>/dev/null || true

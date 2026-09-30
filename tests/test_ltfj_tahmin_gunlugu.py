@@ -222,39 +222,74 @@ def test_sis_tahmini_en_YENI_gozlemi_seciyor():
     assert sy.sis_tahmini([eski, taf, yeni], [], T0 + timedelta(hours=1))["zaman"] == yeni["zaman"]
 
 
-def test_sayfa_bolumu(tmp_path):
-    assert sy._dogrulama_html(None) == ""
-    tg.kaydet(_tahmin(p=0.31), tmp_path / tg.DOSYA_ADI, T0)
-    with (tmp_path / "gozlem_arsivi.csv").open("w", newline="", encoding="utf-8") as f:
+def _arsiv_yaz(klasor, satirlar):
+    with (klasor / "gozlem_arsivi.csv").open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=["zaman", "tip", "gorus", "hava"])
         w.writeheader()
-        for r in _tam_pencere(T0, olay_k=1)[:3]:
+        for r in satirlar:
             w.writerow(r)
+
+
+def test_okuma_dosyasi_tahmin_karsisinda_6_metar_ve_sonuc(tmp_path):
+    tg.kaydet(_tahmin(p=0.31), tmp_path / tg.DOSYA_ADI, T0)
+    tg.kaydet(_tahmin(z=T0 - timedelta(hours=1), p=0.004), tmp_path / tg.DOSYA_ADI, T0)
+    _arsiv_yaz(tmp_path, _tam_pencere(T0, olay_k=1)[:3]
+               + [_metar(T0 + timedelta(minutes=45), "0900", "FG", tip="SPECI")])
     simdi = T0 + timedelta(minutes=120)
-    h = sy._dogrulama_html(tg.dogrulama_verisi(tmp_path, simdi), simdi)
-    assert 'id="model-dogrulama"' in h and "Model doğrulama" in h
-    assert "olay oldu · 04:50Z" in h and 'dg-slot dg-olay"><i>04:50</i>0600 FG' in h
-    assert "henüz" in h                               # gelecekteki slot eksik DEGIL
-    assert "sonucu belli olmadan" in h
-    assert not any(ord(c) > 0x2FFF for c in h)        # emoji yok
+    o = tg.dogrulama_yaz(tmp_path, simdi)
+    satirlar = list(csv.DictReader((tmp_path / tg.DOGRULAMA_DOSYA_ADI).open(encoding="utf-8")))
+    assert tuple(satirlar[0].keys()) == tg.DOGRULAMA_SUTUNLARI
+    ust = satirlar[0]                                    # en yeni ustte
+    assert ust["gozlem_zaman"] == "2026-10-01 03:50Z" and ust["olasilik_yuzde"] == "31.0"
+    assert ust["sonuc"] == "oldu" and ust["ilk_olay"] == "04:50"
+    assert ust["slot_1"] == "04:20 9999"
+    assert ust["slot_2"] == "04:50 0600 FG [OLAY]"
+    assert ust["slot_4"] == "05:50 henuz"                # gelecekte: eksik DEGIL
+    assert ust["speci_olay"] == "04:35 0900 FG"
+    assert satirlar[1]["slot_1"] == "03:20 yok"          # beklenmesi gereken, arsivde yok
+    assert satirlar[1]["sonuc"] == "oldu"                # 02:50 penceresi 04:50yi de kapsar
+    assert o["olay"] == 2
 
 
-def test_bot_fail_open_ve_sayfaya_veriyor():
+def test_gunluk_bossa_okuma_dosyasi_yazilmaz(tmp_path):
+    tg.dogrulama_yaz(tmp_path, T0)
+    assert not (tmp_path / tg.DOGRULAMA_DOSYA_ADI).exists()
+
+
+def test_okuma_dosyasi_turetilmis_yeniden_uretilir(tmp_path):
+    tg.kaydet(_tahmin(), tmp_path / tg.DOSYA_ADI, T0)
+    _arsiv_yaz(tmp_path, [])
+    tg.dogrulama_yaz(tmp_path, T0 + timedelta(minutes=10))
+    assert "bekliyor" in (tmp_path / tg.DOGRULAMA_DOSYA_ADI).read_text(encoding="utf-8")
+    _arsiv_yaz(tmp_path, _tam_pencere(T0))
+    assert tg.main(["--dogrulama-yaz", "--dosya", str(tmp_path / tg.DOSYA_ADI)]) == 0
+    assert "olmadi" in (tmp_path / tg.DOGRULAMA_DOSYA_ADI).read_text(encoding="utf-8")
+
+
+def test_sayfaya_BASILMIYOR():
+    """Kullanici istedi: dosyada tutulsun, sayfada gosterilmesin."""
+    kaynak = Path("ltfj_sayfa.py").read_text(encoding="utf-8")
+    assert "_dogrulama_html" not in kaynak and "tahmin_dogrulama" not in kaynak
+    assert "dg-slot" not in Path("sayfa_kaynak/stil.css").read_text(encoding="utf-8")
+
+
+def test_bot_fail_open():
     kaynak = Path("ltfj_bot.py").read_text(encoding="utf-8")
-    blok = kaynak.split("tahmin_dogrulama = None")[1].split("sayfa_yaz(raporlar")[0]
+    blok = kaynak.split("# ILERIYE DONUK DOGRULAMA (PR-3)")[1].split("sayfa_yaz(raporlar")[0]
     assert "try:" in blok and "except Exception" in blok
-    assert "ltfj_tahmin_gunlugu.kaydet(" in blok and "dogrulama_verisi(KLASOR)" in blok
-    assert "tahmin_dogrulama=tahmin_dogrulama" in kaynak
+    assert "ltfj_tahmin_gunlugu.kaydet(" in blok and "dogrulama_yaz(KLASOR)" in blok
 
 
 def test_workflow_gunlugu_commit_eder_ve_cakismada_birlestirir():
     wf = Path(".github/workflows/ltfj.yml").read_text(encoding="utf-8")
-    assert "tahmin_gunlugu.csv" in wf.split("DOSYALAR=")[1].split("\n")[0]
+    dosyalar = wf.split("DOSYALAR=")[1].split("\n")[0]
+    assert "tahmin_gunlugu.csv" in dosyalar and "tahmin_dogrulama.csv" in dosyalar
     assert "cp tahmin_gunlugu.csv /tmp/bizim_tahmin_gunlugu.csv" in wf
     assert "python -m ltfj_tahmin_gunlugu --birlestir-bizim /tmp/bizim_tahmin_gunlugu.csv" in wf
     # yedek, reset'ten ONCE; birlestirme reset'ten SONRA
     assert wf.index("cp tahmin_gunlugu.csv /tmp/") < wf.index('git reset --hard "origin/${DAL}"') \
-        < wf.index("--birlestir-bizim /tmp/bizim_tahmin_gunlugu.csv")
+        < wf.index("--birlestir-bizim /tmp/bizim_tahmin_gunlugu.csv") \
+        < wf.index("python -m ltfj_tahmin_gunlugu --dogrulama-yaz")
 
 
 def test_bot_sis_modeli_ni_import_etmiyor():

@@ -1164,10 +1164,10 @@ def main():
                 tahmin_yas_dk = None
 
             # ILERIYE DONUK DOGRULAMA (PR-3): sayfanin gosterecegi dusuk
-            # gorus olasiligi, sonucu belli OLMADAN gunluge yazilir; sayfa
-            # gunlugu gozlem arsiviyle karsilastirip gosterir. FAIL-OPEN:
+            # gorus olasiligi, sonucu belli OLMADAN gunluge yazilir; ayrica
+            # tahmin_dogrulama.csv (tahmin + sonraki 6 METAR + sonuc) yeniden
+            # uretilir. SAYFAYA BASILMAZ - dosyada durur. FAIL-OPEN:
             # gunluk/eslestirme hatasi sayfayi ve botu asla dusurmez.
-            tahmin_dogrulama = None
             try:
                 import ltfj_tahmin_gunlugu
                 from ltfj_sayfa import sis_tahmini
@@ -1175,7 +1175,7 @@ def main():
                 if ltfj_tahmin_gunlugu.kaydet(tahmin, KLASOR / ltfj_tahmin_gunlugu.DOSYA_ADI):
                     print(f"  tahmin günlüğü: {tahmin['tip']} {tahmin['zaman']:%d.%m %H:%M}Z "
                           f"için %{100 * tahmin['olasilik']:.1f} kaydedildi")
-                tahmin_dogrulama = ltfj_tahmin_gunlugu.dogrulama_verisi(KLASOR)
+                ltfj_tahmin_gunlugu.dogrulama_yaz(KLASOR)
             except Exception as e:
                 print(f"[uyarı] Tahmin günlüğü/doğrulama atlandı: {e}", file=sys.stderr)
 
@@ -1183,8 +1183,7 @@ def main():
                       state.get("yorum_onbellegi", {}),
                       ayar("atc_notes", "database_url", varsayilan=""),
                       ayar("push", "vapid_public_key", varsayilan=""),
-                      saatlik_tahmin, tahmin_yas_dk,
-                      tahmin_dogrulama=tahmin_dogrulama)
+                      saatlik_tahmin, tahmin_yas_dk)
         except Exception as e:
             print(f"[uyarı] Web sayfası üretilemedi: {e}", file=sys.stderr)
 

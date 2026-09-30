@@ -2308,162 +2308,8 @@ def _tavan_istatistik_notlari(guncel_cozum: dict | None, gecmis: list,
                             guncel_cozum, sis_p, saat_utc)) if n]
 
 
-def _yuzde(p: float | None) -> str:
-    if p is None:
-        return "—"
-    if p == 0:
-        return "0"
-    return f"{100 * p:.0f}" if p >= 0.01 else f"{100 * p:.1f}"
 
-
-def _dg_saat(iso: str | None) -> str:
-    """Dogrulama listesinde saat: '14:20' (UTC) - baslikta 'Z' bir kez."""
-    try:
-        z = datetime.fromisoformat(iso).astimezone(timezone.utc)
-    except (TypeError, ValueError):
-        return "—"
-    return z.strftime("%H:%M")
-
-
-def _dg_gozlem(slot: dict) -> str:
-    """Slot hucresi: METAR'daki gibi 4 haneli gorus + hava kodlari."""
-    if not slot["var"]:
-        return "—"
-    g = slot["gorus"]
-    metin = "////" if g is None else f"{int(g):04d}"
-    if slot["hava"]:
-        metin += " " + slot["hava"]
-    return metin
-
-
-DG_ALIM_PAYI_DK = 40
-
-DG_SONUC = {
-    "oldu": "olay oldu",
-    "olmadi": "olmadı",
-    "bekliyor": "bekliyor",
-    "eksik_bekleniyor": "eksik gözlem bekleniyor",
-    "belirsiz": "belirsiz (eksik gözlem)",
-}
-
-
-def _dg_satir(s: dict, simdi: datetime) -> str:
-    sonuc = DG_SONUC.get(s["durum"], s["durum"])
-    if s["durum"] == "oldu" and s["ilk_olay"]:
-        sonuc = f"olay oldu · {_dg_saat(s['ilk_olay'])}Z"
-    evren_disi = s["evren"] != "onset"
-    hucreler = []
-    for sl in s["slotlar"]:
-        # "henüz": slot gelecekte YA DA botun onu arsive alacak kosusu
-        # henuz gelmedi (METAR :20/:50, bot :24/:54 + gecikme). "—" ise
-        # beklenmesi gereken bir gozlemin arsivde OLMADIGINI soyler;
-        # ikisi karissaydi her taze tahmin "eksik" gorunurdu.
-        henuz = (not sl["var"] and datetime.fromisoformat(sl["zaman"])
-                 > simdi - timedelta(minutes=DG_ALIM_PAYI_DK))
-        sinif = ("dg-olay" if sl["olay"] else "dg-gelecek" if henuz
-                 else "dg-yok" if not sl["var"] else "")
-        icerik = "henüz" if henuz else html.escape(_dg_gozlem(sl))
-        hucreler.append(f'<span class="dg-slot {sinif}"><i>{_dg_saat(sl["zaman"])}</i>'
-                        f'{icerik}</span>')
-    speci = ""
-    olayli_speci = [x for x in s["speci"] if x["olay"]]
-    if olayli_speci:
-        speci = ('<div class="dg-ek">SPECI\'de olay: '
-                 + ", ".join(f"{_dg_saat(x['zaman'])}Z {html.escape(_dg_gozlem(x))}"
-                             for x in olayli_speci)
-                 + " — ölçüme girmez (model rutin METAR ile eğitildi)</div>")
-    evren = ('<div class="dg-ek">Tahmin anında olay sürüyordu — ölçüme girmez '
-             '(model yalnızca olay yokken eğitildi)</div>') if evren_disi else ""
-    bant = s["bant"] or ""
-    return (f'<div class="dg-satir dg-{s["durum"]}{" dg-evren-disi" if evren_disi else ""}">'
-            '<div class="dg-ust">'
-            f'<span class="dg-zaman">{_dg_saat(s["gozlem_zaman"])}Z '
-            f'<small>{html.escape(s["gozlem_tip"] or "")}</small></span>'
-            f'<span class="dg-p">%{_yuzde(s["olasilik"])} '
-            f'<span class="sis-olasilik-bant {bant}">{BANT_METNI.get(bant, "")}</span></span>'
-            f'<span class="dg-sonuc">{sonuc}</span></div>'
-            f'<div class="dg-slotlar">{"".join(hucreler)}</div>{speci}{evren}</div>')
-
-
-def _dogrulama_html(veri: dict | None, simdi: datetime | None = None) -> str:
-    """MODEL DOGRULAMA (ileriye donuk) - bkz. ltfj_tahmin_gunlugu.
-
-    Kullanici istedi: "model ne tahmin etti, gercekte ne oldu" - her
-    tahminin karsisina sonraki 3 saatin METAR'lari. Tahmin sonuc belli
-    OLMADAN kaydedildi; burada yalnizca karsilastiriliyor. Olcumler
-    (bant orani + Wilson GA, Brier/BSS) onceden sabitlendi."""
-    if not veri:
-        return ""
-    simdi = (simdi or datetime.now(timezone.utc)).astimezone(timezone.utc)
-    sonuclar = veri.get("sonuclar") or []
-    o = veri.get("ozet") or tahmin_gunlugu.ozet(sonuclar)
-    baslangic = veri.get("baslangic")
-    bas_metni = (datetime.fromisoformat(baslangic).astimezone(timezone.utc)
-                 .strftime("%d.%m %H:%MZ") + " itibarıyla") if baslangic else "kayıt yeni başladı"
-
-    satirlar = []
-    for ad in ("dusuk", "orta", "yuksek"):
-        b = o["bantlar"][ad]
-        if b["n"]:
-            ga = b["ga"]
-            oran = (f'<b>%{_yuzde(b["oran"])}</b> '
-                    f'<span class="gecis-esik">%{_yuzde(ga[0])}–{_yuzde(ga[1])}</span>')
-        else:
-            oran = "—"
-        satirlar.append(
-            f'<tr><th scope="row"><span class="sis-olasilik-bant {ad}">'
-            f'{BANT_METNI[ad]}</span></th><td>{b["n"]}</td><td>{b["olay"]}</td>'
-            f'<td>{oran}</td><td>{"—" if b["ort_tahmin"] is None else "%" + _yuzde(b["ort_tahmin"])}</td></tr>')
-
-    if o["n"]:
-        skor = (f'Brier {o["brier"]:.4f} · iklim {o["brier_iklim"]:.4f} · ')
-        skor += (f'<b>BSS {o["bss"]:+.2f}</b>' if o["bss"] is not None else
-                 f'beceri skoru en az {o["yorum_esigi_olay"]} olayla yorumlanır '
-                 f'(şu an {o["olay"]})')
-    else:
-        skor = "Henüz sonuçlanmış tahmin yok — ilk sonuçlar 3 saat sonra."
-    sy = o["sayim"]
-    sayim = (f'{o["n"]} sonuçlanan · {sy["bekliyor"]} bekliyor · '
-             f'{sy["eksik_bekleniyor"]} eksik gözlem bekleniyor · {sy["belirsiz"]} belirsiz · '
-             f'{sy["evren_disi"]} olay sürerken (hariç)')
-
-    son = sorted(sonuclar, key=lambda s: s["gozlem_zaman"], reverse=True)
-    sinir = simdi - timedelta(hours=24)
-    son24 = [s for s in son if datetime.fromisoformat(s["gozlem_zaman"]) >= sinir][:60]
-    olayli = [s for s in son if s["durum"] == "oldu" and s["evren"] == "onset"][:50]
-
-    def liste(baslik, kayitlar, acik=False):
-        if not kayitlar:
-            return ""
-        return (f'<details class="dg-liste"{" open" if acik else ""}><summary>{baslik} '
-                f'<span class="kat-rozet">{len(kayitlar)}</span></summary>'
-                + "".join(_dg_satir(s, simdi) for s in kayitlar) + "</details>")
-
-    return (
-        '<div class="alt-bolum dogrulama" id="model-dogrulama">'
-        '<div class="basrow"><span class="tip">Model doğrulama</span>'
-        f'<span class="zaman">ileriye dönük · {bas_metni}</span></div>'
-        '<div class="sis-olasilik-not">Yukarıdaki düşük görüş olasılığı her yeni '
-        'gözlemde, <b>sonucu belli olmadan</b> kaydediliyor ve sonraki 3 saatin '
-        'rutin METAR\'larıyla (6 gözlem) karşılaştırılıyor. Olay: görüş &lt; 1000 m '
-        'veya alanı kaplayan sis (FG).</div>'
-        '<table class="gecis-tablo dogrulama-tablo">'
-        '<caption class="gecis-caption">gerçekleşme oranı, <b>%95 güven aralığıyla</b></caption>'
-        '<thead><tr><th>bant</th><th>n</th><th>olay</th><th>oran</th>'
-        '<th title="bu banttaki tahminlerin ortalaması">ort. tahmin</th></tr></thead><tbody>'
-        + "".join(satirlar) + '</tbody></table>'
-        f'<div class="dg-skor">{skor}</div>'
-        f'<div class="dg-sayim">{sayim}</div>'
-        + liste("Son 24 saatin tahminleri", son24)
-        + liste("Olayla sonuçlanan tahminler", olayli)
-        + '<div class="sis-olasilik-not">Oran bir bantta modelin “tuttuğunu” tek '
-        'başına söylemez: düşük bantta olay beklenmez, yüksek bantta her tahmin '
-        'olayla sonuçlanmaz. Anlamlı bir karşılaştırma için en az bir sis sezonu '
-        'gerekir. Eksik gözlemli tahminler tahminle doldurulmaz; “belirsiz” sayılır.</div>'
-        '</div>')
-
-
-def _istatistik_html(sis_html: str, notlar: list, dogrulama_html: str = "") -> str:
+def _istatistik_html(sis_html: str, notlar: list) -> str:
     """ARŞİVDEN ÖĞRENİLMİŞ her şey TEK başlık altında.
 
     Neden ayrı bir bölüm: sayfa "bu ölçüm mü, tahmin mi, istatistik mi"
@@ -2478,7 +2324,7 @@ def _istatistik_html(sis_html: str, notlar: list, dogrulama_html: str = "") -> s
     iklim_html = _sis_iklim_html()
     not_html = ("".join(f"<li>{html.escape(n)}</li>" for n in notlar)
                 if notlar else "")
-    if not (sis_html or gecis_html or iklim_html or not_html or dogrulama_html):
+    if not (sis_html or gecis_html or iklim_html or not_html):
         return ""
     tavan_bolumu = (
         '<div class="alt-bolum"><div class="basrow">'
@@ -2492,15 +2338,14 @@ def _istatistik_html(sis_html: str, notlar: list, dogrulama_html: str = "") -> s
     # UCU DE kendi kapsamini yaziyor ("2011–2026 arşivi", "LTFJ'nin
     # 2011–2023 METAR arşivinden...").
     return ('<div class="kart">'
-            f"{sis_html}{dogrulama_html}{tavan_bolumu}{gecis_html}{iklim_html}"
+            f"{sis_html}{tavan_bolumu}{gecis_html}{iklim_html}"
             "</div>")
 
 
 def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict | None = None,
               atc_notes_db_url: str = "", push_vapid_public_key: str = "",
               saatlik_tahmin: list | None = None,
-              tahmin_yas_dk: float | None = None,
-              tahmin_dogrulama: dict | None = None):
+              tahmin_yas_dk: float | None = None):
     """yorum_onbellegi: state["yorum_onbellegi"] (ham rapor metni -> Claude
     yorumu/cevirisi) - Telegram ile PAYLASILAN onbellek, burada okunur,
     YENIDEN hesaplanmaz. Verilmezse (ornegin eski cagiran kod) kartlar
@@ -2598,8 +2443,7 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
                                                yas_dk=tahmin_yas_dk)),
                       istatistik_html=_istatistik_html(
                           _sis_olasiligi_html(guncel_cozum, gecmis, simdi),
-                          _tavan_istatistik_notlari(guncel_cozum, gecmis, simdi),
-                          _dogrulama_html(tahmin_dogrulama, simdi)),
+                          _tavan_istatistik_notlari(guncel_cozum, gecmis, simdi)),
                       sekme_cubugu_html=_sekme_cubugu_html(
                           _sis_olasilik_rozeti(guncel_cozum, gecmis, simdi)),
                       rvr_esikleri_json=json.dumps(lvo.RVR_ESIKLERI, ensure_ascii=False),
