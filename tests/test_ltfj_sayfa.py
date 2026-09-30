@@ -80,13 +80,45 @@ YENI_METAR_ACIK_HAVA = {
 }
 
 
-def test_eski_speci_yeni_metarin_onune_gecmiyor(tmp_path):
-    """Kart sirasi zamana gore olmali: METAR (20:20Z) SPECI'den (09:37Z)
-    daha yeni oldugu icin listede ONCE gelmeli."""
+def test_eski_speci_yeni_metar_varken_kart_olarak_gosterilmez(tmp_path):
+    """Kendisinden daha yeni bir METAR varsa SPECI karti HIC gosterilmez
+    (eskiden METAR'in altinda listeleniyordu ve "su an" gibi okunuyordu)."""
     hedef = tmp_path / "index.html"
     s.sayfa_yaz([ESKI_SPECI_KOTU_HAVA, YENI_METAR_ACIK_HAVA], [], hedef)
     html = hedef.read_text(encoding="utf-8")
-    assert html.index("18.09 20:20Z") < html.index("18.09 09:37Z")
+    assert "18.09 20:20Z" in html
+    assert "SPECI LTFJ 180937Z" not in html
+    assert "18.09 09:37Z" not in html
+
+
+YENI_SPECI_KOTU_HAVA = {
+    "tip": "SPECI",
+    "metin": "SPECI LTFJ 182037Z 04003KT 0800 FG VV002 12/12 Q1016",
+    "zaman": datetime(2026, 9, 18, 20, 37, tzinfo=timezone.utc),
+    "icao": "LTFJ",
+}
+
+
+def test_metardan_yeni_speci_gosterilmeye_devam_eder(tmp_path):
+    """Kural yalnizca ESKI SPECI icin: METAR'dan sonra gelen SPECI kartta
+    kalir ve METAR'in onunde durur."""
+    hedef = tmp_path / "index.html"
+    s.sayfa_yaz([YENI_METAR_ACIK_HAVA, YENI_SPECI_KOTU_HAVA], [], hedef)
+    html = hedef.read_text(encoding="utf-8")
+    assert "SPECI LTFJ 182037Z" in html
+    assert html.index("18.09 20:37Z") < html.index("18.09 20:20Z")
+
+
+def test_gosterilecek_raporlar_kurali():
+    taf = dict(TAF_ORNEK, zaman=datetime(2026, 9, 18, 17, 0, tzinfo=timezone.utc))
+    zamansiz_speci = dict(ESKI_SPECI_KOTU_HAVA, zaman=None)
+    # METAR yoksa hicbir sey elenmez
+    assert s._gosterilecek_raporlar([ESKI_SPECI_KOTU_HAVA, taf]) == [ESKI_SPECI_KOTU_HAVA, taf]
+    # eski ve zamansiz SPECI elenir; METAR, yeni SPECI ve TAF kalir
+    girdi = [YENI_SPECI_KOTU_HAVA, YENI_METAR_ACIK_HAVA, ESKI_SPECI_KOTU_HAVA,
+             zamansiz_speci, taf]
+    assert s._gosterilecek_raporlar(girdi) == [YENI_SPECI_KOTU_HAVA,
+                                              YENI_METAR_ACIK_HAVA, taf]
 
 
 def test_eski_speci_panelleri_kirletmiyor(tmp_path):

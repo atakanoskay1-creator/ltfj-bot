@@ -1020,6 +1020,24 @@ def _sis_olasiligi_hesapla(guncel_cozum: dict | None, gecmis: list,
 BANT_METNI = {"dusuk": "düşük", "orta": "orta", "yuksek": "yüksek"}
 
 
+def _gosterilecek_raporlar(raporlar: list) -> list:
+    """Kart olarak gosterilecek raporlar: kendisinden DAHA YENI bir METAR
+    varsa SPECI karti gosterilmez.
+
+    Olculdu (30.09): 13:26Z SPECI'si saatlerce 23:20Z METAR'inin altinda
+    ayri kart olarak duruyordu; hesaplar zaten en yeni gozlemi kullaniyor
+    (guncel_rapor) ama eski SPECI karti okuyana "su an" gibi goruniyordu.
+    Zamani bilinmeyen SPECI de, bir METAR varken gosterilmez."""
+    metar_zamanlari = [r["zaman"] for r in raporlar
+                       if r.get("tip") == "METAR" and r.get("zaman")]
+    if not metar_zamanlari:
+        return list(raporlar)
+    son_metar = max(metar_zamanlari)
+    return [r for r in raporlar
+            if not (r.get("tip") == "SPECI"
+                    and (not r.get("zaman") or r["zaman"] < son_metar))]
+
+
 def _guncel_rapor(raporlar: list) -> dict | None:
     """En yeni METAR/SPECI - TIPINE degil ZAMANINA gore (bkz. sayfa_yaz)."""
     gozlemler = [r for r in raporlar if r.get("tip") in ("METAR", "SPECI")]
@@ -2383,7 +2401,8 @@ def sayfa_yaz(raporlar: list, gecmis: list, hedef: Path, yorum_onbellegi: dict |
     guncel_rapor = next((r for r in sirali if r["tip"] in ("METAR", "SPECI")), None)
     guncel_cozum = metar_coz(guncel_rapor["metin"]) if guncel_rapor else None
 
-    govde = (("".join(_kart(r, yorum_onbellegi, gecmis, simdi) for r in sirali)
+    govde = (("".join(_kart(r, yorum_onbellegi, gecmis, simdi)
+                      for r in _gosterilecek_raporlar(sirali))
               or "<div class='kart'>Rapor yok.</div>")
              + _trend_bolumu(gecmis, _tavan_yoklugu(guncel_cozum),
                              guncel_rapor.get("zaman") if guncel_rapor else None))
