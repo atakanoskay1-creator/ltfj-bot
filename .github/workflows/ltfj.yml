@@ -97,7 +97,7 @@ jobs:
         run: |
           set -u
           DAL="${GITHUB_REF_NAME}"
-          DOSYALAR="ltfj_state.json index.html panel_veri.json notam_veri.json gozlem_arsivi.csv gozlem_surumleri.csv gozlem_arsivi_durum.json"
+          DOSYALAR="ltfj_state.json index.html panel_veri.json notam_veri.json gozlem_arsivi.csv gozlem_surumleri.csv gozlem_arsivi_durum.json tahmin_gunlugu.csv"
 
           # `git add` OLMAYAN bir yol icin "fatal: pathspec did not match"
           # verip (Actions run adimlari `bash -e` ile calisir) TUM adimi
@@ -151,6 +151,7 @@ jobs:
             for d in gozlem_arsivi.csv gozlem_surumleri.csv gozlem_arsivi_durum.json; do
               cp "$d" /tmp/bizim_arsiv/ 2>/dev/null || true
             done
+            cp tahmin_gunlugu.csv /tmp/bizim_tahmin_gunlugu.csv 2>/dev/null || true
             cp index.html /tmp/bizim_index.html 2>/dev/null || true
             cp panel_veri.json /tmp/bizim_panel_veri.json 2>/dev/null || true
             cp notam_veri.json /tmp/bizim_notam_veri.json 2>/dev/null || true
@@ -166,6 +167,12 @@ jobs:
             if [ -f /tmp/bizim_arsiv/gozlem_arsivi.csv ]; then
               python -m ltfj_gozlem_arsivi --birlestir-bizim /tmp/bizim_arsiv \
                 --dosya gozlem_arsivi.csv || true
+            fi
+            # Tahmin gunlugu de EKLEME-YALNIZCA: araya giren kosunun
+            # kaydettigi tahmin kaybolmasin; ayni gozlemde ONCE kaydedilen kalir.
+            if [ -f /tmp/bizim_tahmin_gunlugu.csv ]; then
+              python -m ltfj_tahmin_gunlugu --birlestir-bizim /tmp/bizim_tahmin_gunlugu.csv \
+                --dosya tahmin_gunlugu.csv || true
             fi
             cp /tmp/bizim_index.html index.html 2>/dev/null || true
             cp /tmp/bizim_panel_veri.json panel_veri.json 2>/dev/null || true
