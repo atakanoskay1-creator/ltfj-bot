@@ -1,24 +1,23 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-09-30T02:24:43+00:00",
+ "uretildi": "2026-09-30T02:54:47+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-09-30T02:20:00+00:00",
-  "metin": "METAR LTFJ 300220Z 10004KT 070V140 9999 BKN025 BKN080 17/15 Q1021 NOSIG RMK RWY24R 10006KT RWY06R 10006KT RWY24L 12005KT 080V190",
+  "zaman": "2026-09-30T02:50:00+00:00",
+  "metin": "METAR LTFJ 300250Z 04008KT 9999 -SHRA BKN025 BKN080 17/15 Q1021 NOSIG RMK RWY24R 02006KT RWY06R 04005KT RWY24L 04003KT",
   "ruzgar": {
-   "yon": 100,
-   "hiz": 4,
+   "yon": 40,
+   "hiz": 8,
    "hamle": null,
-   "degisken": [
-    70,
-    140
-   ]
+   "degisken": null
   },
   "gorus": 9999,
   "cavok": false,
   "tavan": 2500,
-  "hava": [],
+  "hava": [
+   "-SHRA"
+  ],
   "sicaklik": 17,
   "cig_noktasi": 15,
   "qnh": 1021,
@@ -33,12 +32,12 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 3.2,
-    "yan": 2.3,
-    "yan_taraf": "sağdan",
+    "bas": 7.3,
+    "yan": 3.3,
+    "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "alan rüzgârından",
     "kuyruk": false,
     "kuyruk_asildi": false
@@ -46,9 +45,9 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 4.9,
-    "yan": 3.5,
-    "yan_taraf": "sağdan",
+    "bas": 4.6,
+    "yan": 2.0,
+    "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
     "degisken": false,
@@ -59,12 +58,12 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -2.8,
-    "yan": 4.1,
-    "yan_taraf": "soldan",
+    "bas": -2.7,
+    "yan": 1.2,
+    "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
-    "degisken": true,
+    "degisken": false,
     "kaynak": "AD 2.15 anemometreleri",
     "kuyruk": true,
     "kuyruk_asildi": false
@@ -72,9 +71,9 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -4.9,
-    "yan": 3.5,
-    "yan_taraf": "soldan",
+    "bas": -4.3,
+    "yan": 4.2,
+    "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
     "degisken": false,
@@ -83,39 +82,21 @@
     "kuyruk_asildi": false
    }
   ],
-  "kuyruk_limiti": 10,
-  "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi",
-  "tercih_pist": "06R",
+  "kuyruk_limiti": 5,
+  "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış nedeniyle ıslak/kirli pist kabul edildi",
+  "tercih_pist": "06L",
   "rvr": [],
   "prs": [],
   "gorus_op": [],
   "trend": null,
-  "sis_riski": "Sis oluşum göstergesi: yüksek (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 2°C, rüzgâr 4 kt, gece şartları",
-  "ozet": "Rüzgâr 100° 4kt (değişken 070°–140°) · görüş 10+ km · tavan 2500 ft · 17°C · QNH 1021"
+  "sis_riski": "Sis oluşum göstergesi: orta (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 2°C, rüzgâr 8 kt, gece şartları",
+  "ozet": "Rüzgâr 040° 8kt · görüş 10+ km · tavan 2500 ft · hafif sağanak yağmur · 17°C · QNH 1021"
  },
  "taf": {
   "zaman": "2026-09-29T22:40:00+00:00",
   "metin": "TAF LTFJ 292240Z 3000/3024 04008KT 9999 -SHRA FEW012 BKN025 BKN080 BECMG 3004/3006 04018KT TEMPO 3004/3008 3200 SHRA TEMPO 3011/3015 03020G30KT BECMG 3018/3021 03008KT SCT030"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-24T05:20:00+00:00",
-   "gorus": 9999,
-   "ruzgar_hiz": 0,
-   "tavan": null,
-   "qnh": 1022,
-   "sicaklik": 15,
-   "cig_noktasi": 12
-  },
-  {
-   "zaman": "2026-09-24T05:50:00+00:00",
-   "gorus": 9999,
-   "ruzgar_hiz": 3,
-   "tavan": null,
-   "qnh": 1022,
-   "sicaklik": 15,
-   "cig_noktasi": 12
-  },
   {
    "zaman": "2026-09-24T06:20:00+00:00",
    "gorus": 9999,
@@ -2793,6 +2774,24 @@
    "zaman": "2026-09-30T02:20:00+00:00",
    "gorus": 9999,
    "ruzgar_hiz": 4,
+   "tavan": 2500,
+   "qnh": 1021,
+   "sicaklik": 17,
+   "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-30T02:26:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 5,
+   "tavan": 2500,
+   "qnh": 1021,
+   "sicaklik": 17,
+   "cig_noktasi": 15
+  },
+  {
+   "zaman": "2026-09-30T02:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 8,
    "tavan": 2500,
    "qnh": 1021,
    "sicaklik": 17,
