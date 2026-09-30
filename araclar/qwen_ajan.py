@@ -168,6 +168,12 @@ def gorev_mesaji(issue: dict, dosyalar: list[str]) -> str:
         "verilecek, o zaman duzelt. Testi silme/atlatma.\n")
 
 
+def eksik_mesaji(eksikler: list[str]) -> str:
+    return ("Su dosyalar BOS ya da icinde hic test yok: " + ", ".join(eksikler)
+            + ". Dosyanin TAM icerigini yaz (gorevdeki testlerin hepsi); "
+            "yalnizca izin verilen dosyalari degistir.")
+
+
 def duzeltme_mesaji(test_ciktisi: str) -> str:
     return ("Testler KIRMIZI. Asagidaki ciktiya gore duzelt; yalnizca izin "
             "verilen dosyalari degistir, testi silme ya da atlatma.\n\n"
@@ -262,6 +268,29 @@ def testleri_calistir(repo: Path) -> tuple[bool, str]:
     return r.returncode == 0, r.stdout + r.stderr
 
 
+def icerik_eksikleri(repo: Path, yollar: list[str]) -> list[str]:
+    """Bos kalan dosyalar ve icinde toplanan test olmayan test dosyalari.
+
+    Aider, listede olup bulunmayan dosyayi bastan BOS olusturur; model icerik
+    yazmazsa dosya bos kalir, tum paket yine yesil gecer ve bos dosya PR olur
+    (ilk ajan PR'i #113 boyle geldi). pytest'in "test toplanmadi" kodu 5."""
+    eksik = []
+    for y in yollar:
+        dosya = repo / y
+        if not dosya.is_file():
+            continue                            # silinen dosya
+        if not dosya.read_text(encoding="utf-8", errors="replace").strip():
+            eksik.append(y)
+            continue
+        ad = Path(y)
+        if ad.parts[:1] == ("tests",) and ad.name.startswith("test_") and ad.suffix == ".py":
+            r = calistir([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider",
+                          "--collect-only", y], repo, zaman_asimi=300)
+            if r.returncode == 5:
+                eksik.append(y)
+    return eksik
+
+
 def durum(repo: Path) -> str:
     """Calisma agaci durumu; Turkce dosya adlari okunur yazilsin
     (core.quotePath), yeni klasorlerin icindeki dosyalar tek tek (-uall)."""
@@ -335,7 +364,7 @@ def gorevi_isle(gh: GitHub, repo: Path, issue: dict) -> None:
 
     mesaj = gorev_mesaji(issue, dosyalar)
     tur_sayisi = int(ayar("AJAN_TUR", "3"))
-    yesil, cikti = False, ""
+    yesil, cikti, neden = False, "", ""
     for tur in range(1, tur_sayisi + 1):
         print(f"[ajan] #{no} tur {tur}/{tur_sayisi}: model calisiyor...")
         son_aider["cikti"] = aider_calistir(
@@ -346,13 +375,21 @@ def gorevi_isle(gh: GitHub, repo: Path, issue: dict) -> None:
             return basarisiz("model izin verilmeyen dosyalara dokundu", "\n".join(disi))
         if not degisenler:
             return basarisiz("model hiçbir dosyayı değiştirmedi")
+        eksikler = icerik_eksikleri(repo, degisenler)
+        if eksikler:
+            neden = f"{tur_sayisi} turda dosya boş kaldı ya da test yazılmadı"
+            cikti = "\n".join(eksikler)
+            print(f"[ajan] #{no} tur {tur}: icerik eksik: {', '.join(eksikler)}")
+            mesaj = eksik_mesaji(eksikler)
+            continue
         yesil, cikti = testleri_calistir(repo)
         print(f"[ajan] #{no} tur {tur}: testler {'YESIL' if yesil else 'KIRMIZI'}")
         if yesil:
             break
+        neden = f"{tur_sayisi} turda testler yeşile dönmedi"
         mesaj = duzeltme_mesaji(cikti)
     if not yesil:
-        return basarisiz(f"{tur_sayisi} turda testler yeşile dönmedi", kuyruk(cikti))
+        return basarisiz(neden, kuyruk(cikti))
 
     degisenler = degisen_yollar(durum(repo))
     git(repo, "add", "--", *degisenler)

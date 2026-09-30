@@ -23,6 +23,8 @@ Claude görev yazar ──► GitHub issue [qwen-gorev]
 - **Hangi dosyalar değişebilir:** yalnızca issue'daki `## Dosyalar` listesindekiler.
   - Şunlar listelense bile **her zaman yasak**: bot'un ürettiği dosyalar, dondurulmuş modeller, `.github/`, `araclar/` ve `CONVENTIONS.md`.
   - İhlal olursa hiçbir şey push edilmez.
+- **Boş sonuç PR olmaz:** değişen dosya boş kaldıysa ya da yeni test dosyasında hiç test yoksa
+  bu tur başarısız sayılır, modelden içeriği yazması istenir. Tüm turlarda böyle kalırsa PR açılmaz.
 - **Nerede çalışır:** yalnızca `--kur` ile hazırlanmış, işaretli **ayrı bir klonda**.
   - Ajan o klonu her görevden sonra sıfırlar.
   - Sizin çalışma klasörünüze dokunmaz.

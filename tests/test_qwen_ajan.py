@@ -125,3 +125,27 @@ def test_basarisizlik_yorumu_aider_ciktisini_iceriyor_ve_gunluk_git_altinda():
     kaynak = _yol.read_text(encoding="utf-8")
     assert "Aider çıktısının son satırları" in kaynak
     assert 'repo / ".git" / "qwen-ajan-gunluk"' in kaynak
+
+
+def test_bos_dosya_ve_testsiz_test_dosyasi_eksik_sayilir(tmp_path):
+    """Ilk ajan PR'i (#113) bos bir test dosyasiydi: Aider dosyayi bos
+    olusturdu, model yazmadi, paket yine yesildi."""
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests" / "test_bos.py").write_text("\n  \n", encoding="utf-8")
+    (tmp_path / "tests" / "test_testsiz.py").write_text("import os\n", encoding="utf-8")
+    (tmp_path / "tests" / "test_dolu.py").write_text(
+        "def test_a():\n    assert True\n", encoding="utf-8")
+    (tmp_path / "modul.py").write_text("", encoding="utf-8")
+    (tmp_path / "dolu.py").write_text("X = 1\n", encoding="utf-8")
+    yollar = ["tests/test_bos.py", "tests/test_testsiz.py", "tests/test_dolu.py",
+              "modul.py", "dolu.py", "silinen.py"]
+    assert aj.icerik_eksikleri(tmp_path, yollar) == [
+        "tests/test_bos.py", "tests/test_testsiz.py", "modul.py"]
+
+
+def test_eksik_icerikte_pr_acilmiyor_duzeltme_istenir():
+    kaynak = _yol.read_text(encoding="utf-8")
+    assert "eksikler = icerik_eksikleri(repo, degisenler)" in kaynak
+    assert kaynak.index("icerik_eksikleri(repo, degisenler)") < kaynak.index(
+        "yesil, cikti = testleri_calistir(repo)")
+    assert "mesaj = eksik_mesaji(eksikler)" in kaynak
