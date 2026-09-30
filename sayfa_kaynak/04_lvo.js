@@ -339,5 +339,6 @@
 
   awosYukle();
   notamYukle();
+  window.ltfjLvoNotamYenile = notamYukle;
   setInterval(function () { awosYukle(); }, 45000);
 })();

@@ -434,4 +434,7 @@
     aramaCalistir();
   });
   veriYukle();
+  // Canli guncelleme (12_canli.js) yeni sayfayla birlikte NOTAM'lari da
+  // tazeler; yeni NOTAM vurgusu o cizimde de bir kez calisir.
+  window.ltfjNotamYenile = veriYukle;
 })();

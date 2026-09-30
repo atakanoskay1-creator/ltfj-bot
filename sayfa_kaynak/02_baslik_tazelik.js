@@ -76,13 +76,25 @@ window.ltfjGecenSure = function (ms) {
   // Yani once 45 DAKIKALIK BIR METAR "CANLI" diye gosteriliyor (sessiz
   // ve yanlis), sonra da yanlis alarm veriliyor. Ikisi de kotu.
   //
-  // COZUM: kadansa yakin araliklarla SUNUCUYA BAK, ama YALNIZCA GOZLEM
-  // DEGISTIYSE yeniden yukle. Kor bir zamanlayiciyla her N dakikada
-  // yeniden yuklemek, degismemis veri icin kullanicinin yazdigi LVO RVR
-  // degerlerini bosuna silerdi (sekme secimi localStorage'da, o kaliyor).
-  var KONTROL_MS = 300000;            // 5 dk - METAR kadansinin altinda
+  // COZUM: kadansa yakin araliklarla SUNUCUYA BAK, ama YALNIZCA SAYFA
+  // DEGISTIYSE bir sey yap.
+  //
+  // CANLI GUNCELLEME (kullanici istedi: "sayfayi yenilemesem bile bilgi
+  // guncellenebilir mi"). Eskiden yeni gozlem gorulunce SAYFA YENIDEN
+  // YUKLENIYORDU; yazarken / panel acikken ise hic yuklenmiyor ve kullanici
+  // eski veriye bakmaya devam ediyordu. Artik yeni HTML indirilip veri
+  // bolgeleri YERINDE degistiriliyor (bkz. 12_canli.js): kaydirma, acik
+  // sekme, acik bolumler ve yazilan girdiler oldugu gibi kaliyor.
+  // Yerinde degisim yapilamazsa (sayfa yapisi degismis) eski yol: gozlem
+  // degistiyse ve guvenliyse yeniden yukle.
+  //
+  // MALIYET: her dakika yalnizca bir HEAD istegi (govdesiz, ~1 KB).
+  // Sayfanin kendisi (~60 KB) YALNIZCA surum damgasi (ETag /
+  // Last-Modified) degisince iner - yani bot her yeni sayfa yazdiginda.
+  var KONTROL_MS = 60000;             // 1 dk - METAR kadansinin cok altinda
   var kontrolBekliyor = false;
   var oncekiSinif = null;
+  var sonSurum = null;                // son UYGULANAN sayfanin damgasi
 
   function yenilemeGuvenli() {
     // Kullanici YAZIYORSA yeniden yukleme: LVO RVR girdileri kalici
@@ -97,20 +109,42 @@ window.ltfjGecenSure = function (ms) {
     return true;
   }
 
+  function surumDamgasi(y) {
+    return y.headers.get("ETag") || y.headers.get("Last-Modified") || null;
+  }
+
   function yeniVeriVarMi() {
     if (kontrolBekliyor || document.hidden || !window.fetch) { return; }
     var simdikiGozlem = durumEl ? durumEl.getAttribute("data-gozlem") : null;
     if (!simdikiGozlem) { return; }
     kontrolBekliyor = true;
-    fetch(window.location.pathname + "?_=" + Date.now(), {cache: "no-store"})
-      .then(function (y) { return y.ok ? y.text() : null; })
-      .then(function (metin) {
+    function adres() { return window.location.pathname + "?_=" + Date.now(); }
+    fetch(adres(), {method: "HEAD", cache: "no-store"})
+      .then(function (h) {
+        var damga = h.ok ? surumDamgasi(h) : null;
+        // Damga AYNIYSA govde hic inmez.
+        if (damga && damga === sonSurum) { return null; }
+        return fetch(adres(), {cache: "no-store"}).then(function (y) {
+          if (!y.ok) { return null; }
+          var d = surumDamgasi(y) || damga;
+          return y.text().then(function (metin) { return {metin: metin, damga: d}; });
+        });
+      })
+      .then(function (cevap) {
         kontrolBekliyor = false;
-        if (!metin) { return; }
+        if (!cevap || !cevap.metin) { return; }
+        var metin = cevap.metin;
         var m = metin.match(/id="ust-durum" data-gozlem="([^"]*)"/);
-        // Damga AYNIYSA yeniden yukleme yok: bayatlik gercek, rozet
-        // onu durustce zaten soyluyor.
-        if (!m || m[1] === simdikiGozlem || !m[1]) { return; }
+        if (!m || !m[1]) { return; }
+        // Once YERINDE guncelleme. "bekle": kullanici su an degisecek
+        // bolgenin icinde yaziyor ya da bir pencere acik - damga
+        // kaydedilmiyor, bir sonraki kontrolde yeniden denenir.
+        var sonuc = window.ltfjCanliUygula ? window.ltfjCanliUygula(metin) : "yukle";
+        if (sonuc === "bekle") { return; }
+        if (sonuc !== "yukle") { sonSurum = cevap.damga; return; }
+        // YEDEK YOL: yerinde guncellenemedi. Damga AYNIYSA yeniden yukleme
+        // yok: bayatlik gercek, rozet onu durustce zaten soyluyor.
+        if (m[1] === simdikiGozlem) { sonSurum = cevap.damga; return; }
         if (!yenilemeGuvenli()) { return; }
         window.location.replace(window.location.pathname + "?_=" + Date.now());
       })
@@ -181,8 +215,11 @@ window.ltfjGecenSure = function (ms) {
   }
 
   function hepsi() { durumTazele(); yaslariTazele(); fazTazele(); }
+  // Canli guncelleme yeni damgalari yazdiktan sonra rozet/yaslar HEMEN
+  // tazelensin, 15 sn beklemesin.
+  window.ltfjBaslikTazele = hepsi;
   hepsi();
-  // Kadans kontrolu: 5 dakikada bir sunucuya bak. Sekme arkada iken
+  // Kadans kontrolu: dakikada bir sunucuya bak. Sekme arkada iken
   // atlaniyor (pil), one gelince hemen bir kez bakiliyor.
   setInterval(yeniVeriVarMi, KONTROL_MS);
   // 15 sn: dakika degisimini kacirmayacak kadar sik, saniye saymayacak
