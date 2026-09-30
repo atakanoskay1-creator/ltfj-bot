@@ -453,6 +453,39 @@ ancak SPECI taşıyan başka bir arşiv kaynağı bulunursa gelir (IEM'in
 
 Boyut: ~50 gözlem/gün → ~18 bin satır/yıl, satır başı ~90 bayt = **yılda ~1,6 MB**.
 
+### 16. İleriye Dönük Model Doğrulama (`tahmin_gunlugu.csv`)
+
+Soru: sayfadaki "Düşük görüş (< 1000 m) olasılığı" (Model A) canlı kullanımda
+ne kadar tutuyor? `ltfj_tahmin_gunlugu.py` bunu **sonuç belli olmadan önce
+kaydedilen** tahminlerle ölçer. **Sayfaya basılmaz** — sonradan açıp bakmak
+için dosyada durur.
+
+- **Günlük (ekleme-yalnızca).** Her yeni gözlem için sayfanın gösterdiği
+  olasılık, girdileri ve model sürümü (katsayıların özeti) yazılır. Anahtar
+  gözlem zamanı + tip; aynı gözlemin ilk kaydı kalır. Push çakışmasında
+  workflow uzaktaki ile bizimkini birleştirir (`--birlestir-bizim`).
+- **Okuma dosyası `tahmin_dogrulama.csv` (türetilmiş).** Bot her koşuda
+  günlük + arşivden yeniden üretir; en yeni tahmin üstte, her satırda tahmin,
+  sonraki 6 METAR (`04:50 0800 FG [OLAY]`, henüz arşive girmemişse `henuz`,
+  beklenip arşivde yoksa `yok`) ve sonuç. GitHub CSV'yi tablo olarak gösterir.
+- **Eşleştirici.** Her tahmin
+  `gozlem_arsivi.csv`'deki sonraki 3 saatin **6 rutin METAR slotuyla**
+  (:20/:50) karşılaştırılır. Olay tanımı eğitimdekiyle aynı: görüş < 1000 m
+  veya alanı kaplayan FG. SPECI'deki olay gösterilir ama ölçüme girmez (model
+  rutin METAR ızgarasıyla eğitildi). Sonuç: `oldu` / `olmadi` / `bekliyor` /
+  `eksik_bekleniyor` / `belirsiz`. Eksik slot **tahminle doldurulmaz**.
+- **Evren.** Olay sürerken verilen tahmin `olay_suruyor` diye işaretlenir ve
+  ölçüme girmez (model yalnızca olay yokken eğitildi).
+- **Önceden sabitlenen ölçümler.** Bant başına (sayfadaki düşük/orta/yüksek)
+  gerçekleşme oranı + Wilson %95 güven aralığı; Brier ve iklime göre BSS.
+  BSS, 10 olay birikmeden gösterilmez.
+- **Geriye dönük doldurma YOK.** Günlük merge'den itibaren birikir.
+- **Bilinen fark (düzeltilmedi, ölçülüyor).** Canlı hesabın `saat` ve spread
+  eğilimi girdisi sayfa üretim anından alınıyor; eğitim gözlem zamanını
+  kullandı. Günlük ikisini de (`saat_sayfa`, `saat_gozlem`) kaydediyor.
+
+Özet ölçümler: `python -m ltfj_tahmin_gunlugu --ozet`.
+
 ## ⚠️ Yasal Uyarı
 
 Bu yazılım tamamen **eğitim, simülasyon ve hobi amaçlı** olarak geliştirilmiştir. Havacılıkta hava durumu verileri hayati önem taşır. Bu botun sağladığı veriler gecikmeli, eksik veya hatalı olabilir. **Gerçek uçuş planlamaları veya gerçek havacılık operasyonları için kesinlikle KULLANILAMAZ.** Gerçek uçuş operasyonları için sadece yetkili ve resmi meteoroloji servis sağlayıcılarını kullanınız.

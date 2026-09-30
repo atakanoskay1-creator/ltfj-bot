@@ -1163,6 +1163,22 @@ def main():
                 saatlik_tahmin = []
                 tahmin_yas_dk = None
 
+            # ILERIYE DONUK DOGRULAMA (PR-3): sayfanin gosterecegi dusuk
+            # gorus olasiligi, sonucu belli OLMADAN gunluge yazilir; ayrica
+            # tahmin_dogrulama.csv (tahmin + sonraki 6 METAR + sonuc) yeniden
+            # uretilir. SAYFAYA BASILMAZ - dosyada durur. FAIL-OPEN:
+            # gunluk/eslestirme hatasi sayfayi ve botu asla dusurmez.
+            try:
+                import ltfj_tahmin_gunlugu
+                from ltfj_sayfa import sis_tahmini
+                tahmin = sis_tahmini(raporlar, state.get("olcum_gecmisi", []))
+                if ltfj_tahmin_gunlugu.kaydet(tahmin, KLASOR / ltfj_tahmin_gunlugu.DOSYA_ADI):
+                    print(f"  tahmin günlüğü: {tahmin['tip']} {tahmin['zaman']:%d.%m %H:%M}Z "
+                          f"için %{100 * tahmin['olasilik']:.1f} kaydedildi")
+                ltfj_tahmin_gunlugu.dogrulama_yaz(KLASOR)
+            except Exception as e:
+                print(f"[uyarı] Tahmin günlüğü/doğrulama atlandı: {e}", file=sys.stderr)
+
             sayfa_yaz(raporlar, state.get("olcum_gecmisi", []), KLASOR / "index.html",
                       state.get("yorum_onbellegi", {}),
                       ayar("atc_notes", "database_url", varsayilan=""),

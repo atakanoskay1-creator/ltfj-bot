@@ -20,6 +20,7 @@ import ltfj_gorus_gecis_tablo as gecis_tablo
 import ltfj_sis_iklim_tablo as sis_iklim
 import ltfj_sis_olasilik as sis_olasilik
 import ltfj_sis_olasilik_b as sis_olasilik_b
+import ltfj_tahmin_gunlugu as tahmin_gunlugu
 import ltfj_vfr as vfr
 from ltfj_analiz import (TAVAN_KATMANLARI, metar_coz, ozet_satiri,
                          uyarilar)
@@ -1016,6 +1017,52 @@ def _sis_olasiligi_hesapla(guncel_cozum: dict | None, gecmis: list,
         spread_egilim_3=_spread_egilimi(gecmis, simdi))
 
 
+BANT_METNI = {"dusuk": "düşük", "orta": "orta", "yuksek": "yüksek"}
+
+
+def _guncel_rapor(raporlar: list) -> dict | None:
+    """En yeni METAR/SPECI - TIPINE degil ZAMANINA gore (bkz. sayfa_yaz)."""
+    gozlemler = [r for r in raporlar if r.get("tip") in ("METAR", "SPECI")]
+    if not gozlemler:
+        return None
+    return max(gozlemler, key=lambda r: r["zaman"].timestamp() if r.get("zaman") else 0)
+
+
+def sis_tahmini(raporlar: list, gecmis: list, simdi: datetime | None = None) -> dict | None:
+    """Sayfadaki dusuk gorus olasiligi (Model A) - AYNI girdiler, AYNI
+    hesap (_sis_olasiligi_hesapla) - ve ileriye donuk dogrulama icin
+    gerekenler (bkz. ltfj_tahmin_gunlugu). Tahmin yoksa (girdi eksik)
+    None. Yeni bir tahmin URETMEZ; sayfanin gosterdigini disa acar.
+
+    saat_sayfa / saat_gozlem: canli hesap saati SAYFA uretim anindan
+    aliyor, egitim GOZLEM zamanini kullandi. Cogu zaman ayni saat; ikisi
+    de kaydediliyor ki fark olculebilsin."""
+    simdi = simdi or datetime.now(timezone.utc).astimezone(YEREL_TZ)
+    rapor = _guncel_rapor(raporlar)
+    if not rapor or not rapor.get("zaman"):
+        return None
+    cozum = metar_coz(rapor["metin"])
+    p = _sis_olasiligi_hesapla(cozum, gecmis, simdi)
+    if p is None:
+        return None
+    sicaklik, cig = cozum.get("sicaklik"), cozum.get("cig_noktasi")
+    spread = None if sicaklik is None or cig is None else sicaklik - cig
+    ruzgar_k = sis_olasilik.ruzgar_kuzey_bileseni(cozum.get("ruzgar_yon"),
+                                                  cozum.get("ruzgar_hiz"))
+    egilim = _spread_egilimi(gecmis, simdi)
+    saat_sayfa = simdi.astimezone(timezone.utc).hour
+    p_b = sis_olasilik_b.olasilik(spread=spread, sicaklik=sicaklik, saat=saat_sayfa,
+                                  ruzgar_kuzey=ruzgar_k, spread_egilim_3=egilim)
+    return {
+        "zaman": rapor["zaman"], "tip": rapor["tip"], "olasilik": p,
+        "gorus": cozum.get("gorus"), "hava": cozum.get("hava") or [],
+        "spread": spread, "ruzgar_kuzey": ruzgar_k, "spread_egilim_3": egilim,
+        "saat_sayfa": saat_sayfa,
+        "saat_gozlem": rapor["zaman"].astimezone(timezone.utc).hour,
+        "b_tertil": sis_olasilik_b.tertil(p, p_b),
+    }
+
+
 def _sis_olasilik_rozeti(guncel_cozum: dict | None, gecmis: list,
                          simdi: datetime) -> str:
     """Sekme çubuğundaki kısa olasılık rozeti - kartın kendisiyle AYNI
@@ -1054,12 +1101,10 @@ def _sis_olasiligi_html(guncel_cozum: dict | None, gecmis: list,
     # 5x) olcume bakilarak SONRADAN degil, ONCEDEN (a priori) secildi -
     # ltfj_lvo_farkindalik.TAVAN_KAT_ESIGI'deki ayni disiplin.
     kat = p / sis_olasilik.TABAN_ORAN
-    if kat < 2:
-        bant_sinif, bant_metin = "dusuk", "düşük"
-    elif kat < 5:
-        bant_sinif, bant_metin = "orta", "orta"
-    else:
-        bant_sinif, bant_metin = "yuksek", "yüksek"
+    # Bant sinirlari TEK yerde (tahmin_gunlugu.BANT_KAT_SINIRLARI): ileriye
+    # donuk dogrulama AYNI bantlarla sayiyor, ikisi birbirinden kopmasin.
+    bant_sinif = tahmin_gunlugu.bant(p)
+    bant_metin = BANT_METNI[bant_sinif]
     taban_yuzde = f"{100 * sis_olasilik.TABAN_ORAN:.1f}"
     # "kat" 1'e yakinken ("X kat yuksek/dusuk" 1 veya 0 gibi anlamsiz bir
     # sayiya yuvarlanabilir) duz "kac kat" yerine "bu seviyeye yakin"
@@ -2261,6 +2306,7 @@ def _tavan_istatistik_notlari(guncel_cozum: dict | None, gecmis: list,
     return [n for n in (farkindalik.tavan_istatistik_notu(guncel_cozum),
                         farkindalik.tavan_dis_kaynak_notu(
                             guncel_cozum, sis_p, saat_utc)) if n]
+
 
 
 def _istatistik_html(sis_html: str, notlar: list) -> str:
