@@ -503,6 +503,10 @@ def telegram_duzenle(token, chat_id, mesaj_id, metin) -> bool:
             return True
         print(f"[uyarı] Durum mesajı güncellenemedi: {e}", file=sys.stderr)
         return False
+    except requests.RequestException as e:
+        # Ag hatasi (zaman asim, baglanti kopmasi vb.) fail-open: kosu devam eder
+        print(f"[uyarı] Durum mesajı güncellenemedi (ag hatasi): {e}", file=sys.stderr)
+        return False
 
 
 def telegram_sabitle(token, chat_id, mesaj_id):
@@ -511,6 +515,9 @@ def telegram_sabitle(token, chat_id, mesaj_id):
             disable_notification=True)
     except RuntimeError as e:
         print(f"[uyarı] Mesaj sabitlenemedi: {e}", file=sys.stderr)
+    except requests.RequestException as e:
+        # Ag hatasi (zaman asim, baglanti kopmasi vb.) fail-open: kosu devam eder
+        print(f"[uyarı] Mesaj sabitlenemedi (ag hatasi): {e}", file=sys.stderr)
 
 
 # ------------------------------------------------------------- bildirim ---
