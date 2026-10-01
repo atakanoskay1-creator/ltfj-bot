@@ -4,7 +4,7 @@ gozlem_zaman,gozlem_tip,olasilik_yuzde,bant,evren,sonuc,ilk_olay,slot_1,slot_2,s
 2026-10-01 01:20Z,METAR,0.4,dusuk,onset,bekliyor,,01:50 9999 -SHRA,02:20 9999,02:50 henuz,03:20 henuz,03:50 henuz,04:20 henuz,,A-8ce949a537
 2026-10-01 00:50Z,METAR,0.3,dusuk,onset,bekliyor,,01:20 9999,01:50 9999 -SHRA,02:20 9999,02:50 henuz,03:20 henuz,03:50 henuz,,A-8ce949a537
 2026-10-01 00:20Z,METAR,0.2,dusuk,onset,bekliyor,,00:50 9999,01:20 9999,01:50 9999 -SHRA,02:20 9999,02:50 henuz,03:20 henuz,,A-8ce949a537
-2026-09-30 23:50Z,METAR,0.2,dusuk,onset,bekliyor,,00:20 9999,00:50 9999,01:20 9999,01:50 9999 -SHRA,02:20 9999,02:50 henuz,,A-8ce949a537
+2026-09-30 23:50Z,METAR,0.2,dusuk,onset,eksik_bekleniyor,,00:20 9999,00:50 9999,01:20 9999,01:50 9999 -SHRA,02:20 9999,02:50 henuz,,A-8ce949a537
 2026-09-30 23:20Z,METAR,0.2,dusuk,onset,olmadi,,23:50 9999,00:20 9999,00:50 9999,01:20 9999,01:50 9999 -SHRA,02:20 9999,,A-8ce949a537
 2026-09-30 22:50Z,METAR,0.2,dusuk,onset,olmadi,,23:20 9999,23:50 9999,00:20 9999,00:50 9999,01:20 9999,01:50 9999 -SHRA,,A-8ce949a537
 2026-09-30 22:20Z,METAR,0.1,dusuk,onset,olmadi,,22:50 9999,23:20 9999,23:50 9999,00:20 9999,00:50 9999,01:20 9999,,A-8ce949a537
