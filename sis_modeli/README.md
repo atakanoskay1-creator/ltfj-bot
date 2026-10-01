@@ -867,6 +867,22 @@ koruması (LTBA/DS3505 satırları atılır); iki dosya `zaman` üzerinden birle
 Üretim: *Actions → Sis modeli RVR verisi* (elle, varsayılan 2012–bugün).
 Yalnızca eğitim/analiz içindir; canlı bota bağlanmaz.
 
+### QV3 — LVO Hazırlık Safhası'na geçiş (deneysel, canlıda değil)
+
+Hedef: 3 saat içinde RVR < 800 m veya tavan < 200 ft (TL.007 6.2.a). Değişken
+seti her fold'un kendi eğitim verisinde ileri seçimle bulunur. Walk-forward
+2015–2023: AP 0,165 (Model A'nın 5 değişkeni aynı hedefte 0,155, görüş bandı
+iklimi 0,113, ay×saat 0,026). Ömerli değişkeni (`kd_nemli`/`kd_hafif`) 4
+fold'un 3'ünde seçildi. Sıklığa dayalı "kararlı seçim" denendi, daha kötü
+(AP 0,138): nem/rüzgâr değişkenleri birbirinin yerine geçiyor. Saf Python GBM
+(`qv3_gbm.py`): AP 0,196, AUC 0,938 — sıralama belirgin iyi, olasılıklar fazla
+yüksek; tek yıllık Platt kalibrasyonu yüzdeleri düzeltiyor ama kırılgan.
+Etkileşim terimli lojistik regresyon GBM'in farkını kapatmadı (AP 0,163).
+3 yıllık Platt ile dondurulan GBM, önceden yazılmış protokolle **holdout
+2024–2026'da** AP 0,158 / AUC 0,935 / BSS +0,057 verdi (Model A seti 0,117,
+fark +0,041, aralık +0,011…+0,070); başarı ölçütü sağlandı, olasılıklar bu kez
+düşük kaldı. Ayrıntı: `QV3_RAPOR.md`. Canlıya bağlı değil.
+
 ### Ömerli'den nem taşınması — dolaylı gösterge (`omerli_advek.py`)
 
 Ömerli tarafında arşivli nem ölçümü yok; LTFJ METAR'ından dolaylı bir
