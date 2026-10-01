@@ -1,9 +1,5 @@
+"""sis_modeli/pist_ruzgar_iklimi.py (yerel Qwen ajanı, #125)."""
 import pytest
-import sys
-import os
-
-# sis_modeli paketini import edebilmek için kök dizini path'e ekle
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import sis_modeli.pist_ruzgar_iklimi as p
 

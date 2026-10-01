@@ -1,33 +1,17 @@
+#!/usr/bin/env python3
+"""LTFJ pist/rüzgâr iklimi: ay ve saate göre 24'e kuyruk rüzgârı oranı.
+
+Salt okuma - model eğitmez, dosya yazmaz. Kullanım (repo kökünden):
+    python -m sis_modeli.pist_ruzgar_iklimi
+"""
+
 import csv
 import gzip
 import math
 import os
 import sys
 
-# ltfj_ayarlar modülü sis_modeli dizininde veya üst dizinde olabilir
-# Proje yapısına göre import yolu ayarlanmalı.
-# Genellikle sis_modeli bir paket ise: from ltfj_ayarlar import ...
-# Eğer ltfj_ayarlar.py sis_modeli içinde değilse, sys.path ayarı gerekebilir.
-# Ancak görev "tek kaynak" diyor ve CONVENTIONS.md'de ltfj_ayarlar.py'nin varlığından bahsediliyor.
-# Standart bir python projesinde ltfj_ayarlar.py kök dizindeyse ve sis_modeli bir paketse:
-# from ltfj_ayarlar import PIST_EKSENI_24
-# Eğer ltfj_ayarlar.py sis_modeli içindeyse:
-# from .ltfj_ayarlar import PIST_EKSENI_24
-# Görev metninde "from ltfj_ayarlar import PIST_EKSENI_24" denmiş.
-# Bu, ltfj_ayarlar'ın sys.path'te olması gerektiği anlamına gelir.
-# Sis_modeli dizininde çalıştırıldığında kök dizin sys.path'te olmalı.
-
-try:
-    from ltfj_ayarlar import PIST_EKSENI_24
-except ImportError:
-    # Eğer doğrudan import edilemiyorsa, sis_modeli dizinini path'e ekleme denemesi
-    # Ancak CONVENTIONS.md'ye göre "Yeni kütüphane ekleme" ve "Küçük değişiklik".
-    # En güvenli yol, ltfj_ayarlar'ın kök dizinde olduğunu varsaymak ve betiğin kök dizinden çalıştırılmasını sağlamak.
-    # Ya da sis_modeli/__init__.py varsa ve ltfj_ayarlar kökteyse, betik kökten çalıştırılmalı.
-    # Burada basitçe import hatasını yakalayıp kullanıcıya bilgi verelim veya varsayalım.
-    # Görev metni "from ltfj_ayarlar import PIST_EKSENI_24" diyor, bunu aynen kullanacağım.
-    # Eğer hata verirse, bu bir kurulum/çalıştırma hatasıdır.
-    raise
+from ltfj_ayarlar import PIST_EKSENI_24   # 244.12 derece, tek kaynak
 
 SINIFLAR = ("sakin", "degisken", "24_kuyruk", "06_kuyruk", "serbest")
 
