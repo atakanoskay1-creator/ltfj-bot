@@ -76,13 +76,36 @@ def _yil_indir(yil: int, oturum: requests.Session, istasyon: str = ISTASYON) -> 
     raise VeriCekmeHatasi(f"{istasyon} {yil} icin arsiv alinamadi: {son_hata}")
 
 
-def _satirlari_coz(ham_csv: str) -> tuple[list, Counter]:
+# METAR metninin basinda istasyon kodundan once gelebilen sozcukler
+_ONEKLER = {"METAR", "SPECI", "COR", "AUTO"}
+# IEM'in NCEI ISD'den yeniden kurdugu satirlar (2005-2008 LTFJ): gercek METAR
+# degil - gorus mil cinsinden ve 7SM'de tavanli, hava/bulut grubu yok.
+IEM_YENIDEN_KURULMUS = "IEM_DS3505"
+
+
+def metar_istasyonu(metin: str) -> str | None:
+    """METAR metnindeki ICAO kodu (ilk 4 harfli sozcuk, METAR/SPECI/COR
+    oneklerinden sonra). Bulunamazsa None."""
+    for t in metin.split():
+        if t in _ONEKLER:
+            continue
+        return t if len(t) == 4 and t.isalpha() and t.isupper() else None
+    return None
+
+
+def _satirlari_coz(ham_csv: str, istasyon: str = ISTASYON) -> tuple[list, Counter]:
     """IEM CSV'sini ozellik satirlarina cevirir. (satirlar, atlama_sayaci)
     doner - atlama sayaci NEDEN bazinda kirilimlidir, cunku tek bir toplam
     sayi veri kalitesi sorununu gizler.
 
     IEM ciktisi 'station,valid,metar' sutunlarini tasir; valid UTC'dir
-    (istekte tz=Etc/UTC verildi)."""
+    (istekte tz=Etc/UTC verildi).
+
+    ISTASYON KONTROLU (01.10.2026, olculdu): IEM station=LTFJ istegine 2011
+    icin 16.821 LTBA (Ataturk) METAR'i dondurdu; 'station' sutunu yine LTFJ
+    diyor, yalnizca METAR metni dogruyu soyluyor. Metindeki ICAO kodu
+    istenen istasyon degilse satir atilir. IEM_DS3505 isaretli yeniden
+    kurulmus satirlar da acikca atilir (ayristirici zaten okuyamiyordu)."""
     okuyucu = csv.DictReader(io.StringIO(ham_csv))
     satirlar, atlanan = [], Counter()
     for kayit in okuyucu:
@@ -90,6 +113,13 @@ def _satirlari_coz(ham_csv: str) -> tuple[list, Counter]:
         ham_zaman = (kayit.get("valid") or "").strip()
         if not metin or not ham_zaman:
             atlanan["metar/zaman bos"] += 1
+            continue
+        if IEM_YENIDEN_KURULMUS in metin:
+            atlanan["IEM_DS3505 (ISD'den yeniden kurulmus)"] += 1
+            continue
+        metin_istasyonu = metar_istasyonu(metin)
+        if metin_istasyonu != istasyon:
+            atlanan[f"baska istasyon ({metin_istasyonu or '?'})"] += 1
             continue
         try:
             zaman = datetime.strptime(ham_zaman, "%Y-%m-%d %H:%M").replace(
@@ -119,7 +149,7 @@ def arsivi_uret(baslangic: int, bitis: int, cikti: Path,
         with requests.Session() as oturum:
             for yil in range(baslangic, bitis + 1):
                 ham = _yil_indir(yil, oturum, istasyon)
-                satirlar, atlanan = _satirlari_coz(ham)
+                satirlar, atlanan = _satirlari_coz(ham, istasyon)
                 for s in satirlar:
                     yazici.writerow(s)
                 toplam += len(satirlar)
