@@ -858,6 +858,43 @@ def en_yeni_rapor(raporlar: list, tipler) -> dict | None:
     return max(adaylar, key=lambda r: r.get("zaman") or en_eski)
 
 
+def bayat_canliyi_tamamla(canli: list, h24: list | None) -> tuple[list, list]:
+    """MGM'nin anlik ucu (hours=0) zaman zaman ESKI raporda takili kaliyor;
+    ayni anda hours=24 ucu guncel. Olculdu (01.10.2026 12:04Z): h0 09:20
+    METAR'ini dondururken h24'te 11:50 vardi -> sayfa 2,5 saat geride kaldi.
+
+    Kural: h24'te canlidakinden DAHA YENI bir gozlem (METAR/SPECI) varsa
+    canli bayattir; gozlemler, h0'in normal verdigi bicimde (tipin en
+    yenisi: bir METAR, bir SPECI) h24'ten alinir. TAF ayrica: h24'teki en
+    yeni TAF daha yeniyse o alinir. Canli guncelse liste AYNEN doner.
+    Donus: (rapor listesi - en yeni once, h24'ten alinanlar)."""
+    if not h24:
+        return canli, []
+    en_eski = datetime.min.replace(tzinfo=timezone.utc)
+
+    def zaman(r):
+        return r.get("zaman") or en_eski
+
+    def en_yeni(liste, tipler):
+        adaylar = [r for r in liste if r.get("tip") in tipler and r.get("zaman")]
+        return max(adaylar, key=zaman, default=None)
+
+    sonuc, alinan = list(canli), []
+    h24_gozlem, canli_gozlem = en_yeni(h24, GOZLEM_TIPLERI), en_yeni(canli, GOZLEM_TIPLERI)
+    if h24_gozlem and (canli_gozlem is None or zaman(h24_gozlem) > zaman(canli_gozlem)):
+        yeni = [r for r in (en_yeni(h24, ("METAR",)), en_yeni(h24, ("SPECI",))) if r]
+        sonuc = [r for r in sonuc if r.get("tip") not in GOZLEM_TIPLERI] + yeni
+        alinan += yeni
+    h24_taf, canli_taf = en_yeni(h24, ("TAF",)), en_yeni(sonuc, ("TAF",))
+    if h24_taf and (canli_taf is None or zaman(h24_taf) > zaman(canli_taf)):
+        sonuc = [r for r in sonuc if r.get("tip") != "TAF"] + [h24_taf]
+        alinan.append(h24_taf)
+    if not alinan:
+        return canli, []
+    sonuc.sort(key=zaman, reverse=True)
+    return sonuc, alinan
+
+
 def durum_mesaji_kur(raporlar: list, state: dict) -> str:
     """Sabitlenmis 'su an' mesaji - her raporda yerinde guncellenir."""
     metar = en_yeni_rapor(raporlar, GOZLEM_TIPLERI)
@@ -1006,24 +1043,39 @@ def main():
     # GERI DOLDURMA: canli hours=0 yalnizca son raporlari verir; iki kosu
     # arasinda yayinlanip yerini yenisine birakan METAR/SPECI kaciyor
     # (27.09 16:20, 28.09 06:50). kosu_isle once bu raporlari, sonra AYRI
-    # bir hours=24 cekimini YALNIZCA arsive isler - o raporlar asagidaki
-    # bildirim/state/sayfa akisina hic girmez (`raporlar` degismez).
+    # bir hours=24 cekimini arsive isler. O raporlar bildirim/state/sayfa
+    # akisina YALNIZCA canli uc bayatsa girer (bayat_canliyi_tamamla).
     #
     # FAIL-OPEN: arsiv yazilamazsa METAR/TAF/bildirim akisi ETKILENMEZ.
+    h24 = {}
+
+    def h24_cek():
+        h24["raporlar"] = raporlari_cek(ICAO, timeout=ltfj_gozlem_arsivi.BACKFILL_ZAMAN_ASIMI,
+                                        saat=ltfj_gozlem_arsivi.BACKFILL_SAAT,
+                                        deneme=ltfj_gozlem_arsivi.BACKFILL_DENEME)
+        return h24["raporlar"]
+
     try:
         import ltfj_gozlem_arsivi
         durum = ltfj_gozlem_arsivi.kosu_isle(
-            raporlar, canli_alinma, metar_coz,
-            lambda: raporlari_cek(ICAO, timeout=ltfj_gozlem_arsivi.BACKFILL_ZAMAN_ASIMI,
-                                  saat=ltfj_gozlem_arsivi.BACKFILL_SAAT,
-                                  deneme=ltfj_gozlem_arsivi.BACKFILL_DENEME),
-            KLASOR)
+            raporlar, canli_alinma, metar_coz, h24_cek, KLASOR)
         n = sum(durum["cekim"]["canli_h0"].get("son_isleme", {})
                 .get("kanonik_eklenen", {}).values())
         if n:
             print(f"  gözlem arşivine {n} yeni kayıt eklendi.")
     except Exception as e:
         print(f"[uyarı] Gözlem arşivi güncellenemedi: {e}", file=sys.stderr)
+
+    # MGM anlik ucu bayat kalirsa sayfa/state/bildirim h24'teki en yeni
+    # raporla devam eder (bkz. bayat_canliyi_tamamla). Fail-open.
+    try:
+        raporlar, alinan = bayat_canliyi_tamamla(raporlar, h24.get("raporlar"))
+        if alinan:
+            print("[uyarı] MGM anlık uç bayat; 24 saatlik uçtan alındı: "
+                  + ", ".join(f"{r['tip']} {r['zaman']:%d%H%MZ}" for r in alinan),
+                  file=sys.stderr)
+    except Exception as e:
+        print(f"[uyarı] Bayat canlı kontrolü yapılamadı: {e}", file=sys.stderr)
 
     sessizlik_kontrol(state, raporlar, token, chat_id)
 

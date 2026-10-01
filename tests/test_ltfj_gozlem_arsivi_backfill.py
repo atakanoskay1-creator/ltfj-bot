@@ -732,18 +732,24 @@ def _bot():
     return ast.parse(Path("bot/ltfj_bot.py").read_text(encoding="utf-8"))
 
 
-def test_bot_H24_cekimini_YALNIZCA_kosu_isle_ye_verilen_lambda_icinde_yapar():
-    """Geri doldurma raporlari `raporlar` degiskenine / bildirim akisina
-    hic girmemeli: saat= ile raporlari_cek yalnizca kosu_isle'nin
-    argumanindaki lambda'da cagrilir."""
+def _h24_cek_fonksiyonu(kok):
+    """main icindeki, kosu_isle'ye verilen hours=24 cekim fonksiyonu."""
+    adlar = {arg.id for d in ast.walk(kok)
+             if isinstance(d, ast.Call) and isinstance(d.func, ast.Attribute)
+             and d.func.attr == "kosu_isle"
+             for arg in d.args if isinstance(arg, ast.Name)}
+    fonks = [d for d in ast.walk(kok) if isinstance(d, ast.FunctionDef) and d.name in adlar]
+    assert len(fonks) == 1, adlar
+    return fonks[0]
+
+
+def test_bot_H24_cekimini_YALNIZCA_kosu_isle_ye_verilen_fonksiyonda_yapar():
+    """hours=24 cekimi (saat=) yalnizca kosu_isle'ye verilen fonksiyonda
+    yapilir. Bu raporlar `raporlar`'a YALNIZCA bayat_canliyi_tamamla
+    uzerinden girer (MGM anlik ucu bayatsa; bkz.
+    test_ltfj_bot_bayat_canli.py) - baska hicbir yol yok."""
     kok = _bot()
-    izinli = set()
-    for d in ast.walk(kok):
-        if (isinstance(d, ast.Call) and isinstance(d.func, ast.Attribute)
-                and d.func.attr == "kosu_isle"):
-            for arg in d.args:
-                if isinstance(arg, ast.Lambda):
-                    izinli |= {id(x) for x in ast.walk(arg)}
+    izinli = {id(x) for x in ast.walk(_h24_cek_fonksiyonu(kok))}
     saatli = [d for d in ast.walk(kok)
               if isinstance(d, ast.Call) and isinstance(d.func, ast.Name)
               and d.func.id == "raporlari_cek"
@@ -751,7 +757,11 @@ def test_bot_H24_cekimini_YALNIZCA_kosu_isle_ye_verilen_lambda_icinde_yapar():
     assert saatli and all(id(d) in izinli for d in saatli)
     atamalar = [d for d in ast.walk(kok) if isinstance(d, ast.Assign)
                 and any(isinstance(t, ast.Name) and t.id == "raporlar" for t in d.targets)]
-    assert len(atamalar) == 1                     # yalnizca canli hours=0 cagrisi
+    assert len(atamalar) == 1                     # canli hours=0 cagrisi
+    demetler = [ast.unparse(d.value.func) for d in ast.walk(kok) if isinstance(d, ast.Assign)
+                and any(isinstance(t, ast.Tuple) and any(isinstance(e, ast.Name) and e.id == "raporlar"
+                                                         for e in t.elts) for t in d.targets)]
+    assert demetler == ["bayat_canliyi_tamamla"]
 
 
 def test_bot_canli_hata_dalinda_arsiv_sagligini_fail_open_kaydeder():
@@ -801,10 +811,9 @@ def test_bot_geri_doldurmayi_TEK_deneme_ve_kisa_zaman_asimiyla_cagirir():
     """Bot is akisi 5 dk ile sinirli: geri doldurma canli akisin suresini
     tehlikeye atmamali (en kotu durum ~ baglanti 10 sn + okuma 20 sn)."""
     assert ga.BACKFILL_DENEME == 1 and ga.BACKFILL_ZAMAN_ASIMI <= 20
-    lambdalar = [a for d in ast.walk(_bot()) if isinstance(d, ast.Call)
-                 and isinstance(d.func, ast.Attribute) and d.func.attr == "kosu_isle"
-                 for a in d.args if isinstance(a, ast.Lambda)]
-    cagri = lambdalar[0].body
+    cagri = next(d for d in ast.walk(_h24_cek_fonksiyonu(_bot()))
+                 if isinstance(d, ast.Call) and isinstance(d.func, ast.Name)
+                 and d.func.id == "raporlari_cek")
     kw = {k.arg: ast.unparse(k.value) for k in cagri.keywords}
     assert kw == {"timeout": "ltfj_gozlem_arsivi.BACKFILL_ZAMAN_ASIMI",
                   "saat": "ltfj_gozlem_arsivi.BACKFILL_SAAT",
