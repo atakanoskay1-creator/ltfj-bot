@@ -34,10 +34,12 @@ Continue, Cline vb.) ve insan için geçerlidir. Aider: `aider --read CONVENTION
 - **Bot üretir, elle değiştirme:** `index.html`, `ltfj_state.json`,
   `panel_veri.json`, `notam_veri.json`, `gozlem_arsivi.csv`,
   `gozlem_surumleri.csv`, `gozlem_arsivi_durum.json`, `tahmin_gunlugu.csv`,
-  `tahmin_dogrulama.csv`, `dis_kaynak_cache.json`, `omerli_gozlem.csv`.
+  `tahmin_dogrulama.csv`, `dis_kaynak_cache.json`, `omerli_gozlem.csv`,
+  `lvo_hazirlik_gunlugu.csv`.
 - **Dondurulmuş modeller (izleme dönemi, değişiklik yok):** `sis_modeli/`
   altındaki eğitim kodu ve veriler, `bot/ltfj_sis_olasilik.py`,
-  `bot/ltfj_sis_olasilik_b.py`, `bot/ltfj_tavan_tablosu.py`. Katsayı, eşik ve
+  `bot/ltfj_sis_olasilik_b.py`, `bot/ltfj_tavan_tablosu.py`, `bot/ltfj_lvo_hazirlik.py`
+  ve `sis_modeli/veri/qv3_donmus.json` (QV3 gölge modu). Katsayı, eşik ve
   kalibrasyon değişikliği yapılmaz; yeni model deneyi başlatılmaz.
   İstisna: açıkça istenen SALT OKUMA analiz betikleri (`sis_modeli/`
   altında yeni dosya, mevcutları değiştirmeden).

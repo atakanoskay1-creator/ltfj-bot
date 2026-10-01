@@ -106,7 +106,7 @@ jobs:
         run: |
           set -u
           DAL="${GITHUB_REF_NAME}"
-          DOSYALAR="ltfj_state.json index.html panel_veri.json notam_veri.json gozlem_arsivi.csv gozlem_surumleri.csv gozlem_arsivi_durum.json tahmin_gunlugu.csv tahmin_dogrulama.csv omerli_gozlem.csv"
+          DOSYALAR="ltfj_state.json index.html panel_veri.json notam_veri.json gozlem_arsivi.csv gozlem_surumleri.csv gozlem_arsivi_durum.json tahmin_gunlugu.csv tahmin_dogrulama.csv omerli_gozlem.csv lvo_hazirlik_gunlugu.csv"
 
           # `git add` OLMAYAN bir yol icin "fatal: pathspec did not match"
           # verip (Actions run adimlari `bash -e` ile calisir) TUM adimi
@@ -162,6 +162,7 @@ jobs:
             done
             cp tahmin_gunlugu.csv /tmp/bizim_tahmin_gunlugu.csv 2>/dev/null || true
             cp omerli_gozlem.csv /tmp/bizim_omerli_gozlem.csv 2>/dev/null || true
+            cp lvo_hazirlik_gunlugu.csv /tmp/bizim_lvo_hazirlik_gunlugu.csv 2>/dev/null || true
             cp index.html /tmp/bizim_index.html 2>/dev/null || true
             cp panel_veri.json /tmp/bizim_panel_veri.json 2>/dev/null || true
             cp notam_veri.json /tmp/bizim_notam_veri.json 2>/dev/null || true
@@ -188,6 +189,11 @@ jobs:
             if [ -f /tmp/bizim_omerli_gozlem.csv ]; then
               python bot/ltfj_omerli.py --birlestir-bizim /tmp/bizim_omerli_gozlem.csv \
                 --dosya omerli_gozlem.csv || true
+            fi
+            # QV3 golge gunlugu de EKLEME-YALNIZCA: ayni gozlemde ONCE kaydedilen kalir.
+            if [ -f /tmp/bizim_lvo_hazirlik_gunlugu.csv ]; then
+              python bot/ltfj_lvo_hazirlik.py --birlestir-bizim /tmp/bizim_lvo_hazirlik_gunlugu.csv \
+                --dosya lvo_hazirlik_gunlugu.csv || true
             fi
             # Okuma dosyasi TURETILMIS: birlesik gunluk + birlesik arsivden
             # yeniden uretilir (iki tarafin kopyasi birlestirilmez).

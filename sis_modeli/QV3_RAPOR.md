@@ -457,6 +457,30 @@ GBM + Platt AP aralığı: 0,120–0,205.
 dönemi bitince, olasılık seviyesinin (kalibrasyonun) güncel yıllarla
 yenilenmesiyle birlikte değerlendirilmeli.
 
+## Gölge mod (canlı kayıt, sayfada yok)
+
+`bot/ltfj_lvo_hazirlik.py` her yeni rutin METAR için **dondurulmuş, holdout'ta
+test edilen modeli olduğu gibi** çalıştırır. Yeniden eğitim yapılmadı.
+Olasılık sonuç belli olmadan `lvo_hazirlik_gunlugu.csv`'ye eklenir.
+
+**Sayfaya, panele, Telegram'a ve bildirime hiçbir şey gitmez.** Hata olursa
+bot akışı etkilenmez (fail-open).
+
+- **Girdiler:** eğitimdekiyle aynı ayrıştırıcıdan (`metar_coz`) ve gözlem
+  arşivindeki rutin METAR'lardan hesaplanır.
+  - Eğilimler tam 1 ve 3 saat önceki METAR'dan alınır.
+  - SPECI değerlendirilmez; eğitimde SPECI yoktu.
+- **Eşitlik kilidi:** `tests/test_ltfj_lvo_hazirlik.py`, canlı girdileri ve
+  olasılığı eğitim hattının kendisiyle karşılaştırır (`ozellik_cikar` →
+  `hedef.hazirla` → `aday_ekle` → GBM). Dokuz METAR'lık bir dizide (KD
+  rüzgâr, BR → BCFG + RVR, VRB, eksik QNH, CAVOK) birebir aynı sonuç verir.
+- **O an şart varsa** (RVR < 800 m veya tavan < 200 ft) olasılık yazılmaz;
+  satır `hazirlik_suruyor` olur.
+- **Değerlendirme:** sis mevsiminin ortasında günlük, gözlem sürümlerindeki
+  METAR metinlerinden (RVR dahil) sonuçlandırılır. Holdout ölçütleri
+  kullanılır: AP, BSS, olay yakalama, uyarı yükü. Sayfaya alınıp
+  alınmayacağına o zaman karar verilir.
+
 ## Yorum
 
 1. **Hedef öğrenilebilir.**

@@ -881,7 +881,8 @@ Etkileşim terimli lojistik regresyon GBM'in farkını kapatmadı (AP 0,163).
 3 yıllık Platt ile dondurulan GBM, önceden yazılmış protokolle **holdout
 2024–2026'da** AP 0,158 / AUC 0,935 / BSS +0,057 verdi (Model A seti 0,117,
 fark +0,041, aralık +0,011…+0,070); başarı ölçütü sağlandı, olasılıklar bu kez
-düşük kaldı. Ayrıntı: `QV3_RAPOR.md`. Canlıya bağlı değil.
+düşük kaldı. Ayrıntı: `QV3_RAPOR.md`. **Gölge mod:** bot her rutin METAR'da
+olasılığı `lvo_hazirlik_gunlugu.csv`'ye yazar; sayfada/bildirimde yok.
 
 ### Ömerli'den nem taşınması — dolaylı gösterge (`omerli_advek.py`)
 
