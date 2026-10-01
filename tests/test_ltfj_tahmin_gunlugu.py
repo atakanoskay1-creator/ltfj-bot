@@ -60,7 +60,7 @@ def test_bant_sinirlari_sayfadakiyle_ayni_kaynak():
     assert tg.bant(c * 1.99) == "dusuk"
     assert tg.bant(c * 2) == "orta" and tg.bant(c * 4.99) == "orta"
     assert tg.bant(c * 5) == "yuksek"
-    kaynak = Path("ltfj_sayfa.py").read_text(encoding="utf-8")
+    kaynak = Path("bot/ltfj_sayfa.py").read_text(encoding="utf-8")
     assert "bant_sinif = tahmin_gunlugu.bant(p)" in kaynak
     assert "if kat < 2:" not in kaynak                   # ikinci kopya yok
 
@@ -268,13 +268,13 @@ def test_okuma_dosyasi_turetilmis_yeniden_uretilir(tmp_path):
 
 def test_sayfaya_BASILMIYOR():
     """Kullanici istedi: dosyada tutulsun, sayfada gosterilmesin."""
-    kaynak = Path("ltfj_sayfa.py").read_text(encoding="utf-8")
+    kaynak = Path("bot/ltfj_sayfa.py").read_text(encoding="utf-8")
     assert "_dogrulama_html" not in kaynak and "tahmin_dogrulama" not in kaynak
     assert "dg-slot" not in Path("sayfa_kaynak/stil.css").read_text(encoding="utf-8")
 
 
 def test_bot_fail_open():
-    kaynak = Path("ltfj_bot.py").read_text(encoding="utf-8")
+    kaynak = Path("bot/ltfj_bot.py").read_text(encoding="utf-8")
     blok = kaynak.split("# ILERIYE DONUK DOGRULAMA (PR-3)")[1].split("sayfa_yaz(raporlar")[0]
     assert "try:" in blok and "except Exception" in blok
     assert "ltfj_tahmin_gunlugu.kaydet(" in blok and "dogrulama_yaz(KLASOR)" in blok
@@ -285,15 +285,15 @@ def test_workflow_gunlugu_commit_eder_ve_cakismada_birlestirir():
     dosyalar = wf.split("DOSYALAR=")[1].split("\n")[0]
     assert "tahmin_gunlugu.csv" in dosyalar and "tahmin_dogrulama.csv" in dosyalar
     assert "cp tahmin_gunlugu.csv /tmp/bizim_tahmin_gunlugu.csv" in wf
-    assert "python -m ltfj_tahmin_gunlugu --birlestir-bizim /tmp/bizim_tahmin_gunlugu.csv" in wf
+    assert "python bot/ltfj_tahmin_gunlugu.py --birlestir-bizim /tmp/bizim_tahmin_gunlugu.csv" in wf
     # yedek, reset'ten ONCE; birlestirme reset'ten SONRA
     assert wf.index("cp tahmin_gunlugu.csv /tmp/") < wf.index('git reset --hard "origin/${DAL}"') \
         < wf.index("--birlestir-bizim /tmp/bizim_tahmin_gunlugu.csv") \
-        < wf.index("python -m ltfj_tahmin_gunlugu --dogrulama-yaz")
+        < wf.index("python bot/ltfj_tahmin_gunlugu.py --dogrulama-yaz")
 
 
 def test_bot_sis_modeli_ni_import_etmiyor():
-    kaynak = Path("ltfj_tahmin_gunlugu.py").read_text(encoding="utf-8")
+    kaynak = Path("bot/ltfj_tahmin_gunlugu.py").read_text(encoding="utf-8")
     assert "sis_modeli" not in "\n".join(l for l in kaynak.splitlines()
                                          if l.startswith(("import", "from")))
 

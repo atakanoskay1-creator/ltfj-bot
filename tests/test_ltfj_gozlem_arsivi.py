@@ -214,7 +214,7 @@ def test_cli_bos_arsivde_cokmuyor(tmp_path, capsys):
 def _bot_agaci():
     import ast
     from pathlib import Path
-    return ast.parse(Path("ltfj_bot.py").read_text(encoding="utf-8"))
+    return ast.parse(Path("bot/ltfj_bot.py").read_text(encoding="utf-8"))
 
 
 def _arsiv_cagrisini_saran_try():
@@ -253,7 +253,7 @@ def test_bot_arsivi_state_yazmadan_ONCE_guncelliyor():
     'rapor donmedi' dalindan once olmali - yoksa hicbir zaman
     calismayan bir kod parcasi olur."""
     import ast
-    kaynak = __import__("pathlib").Path("ltfj_bot.py").read_text(encoding="utf-8")
+    kaynak = __import__("pathlib").Path("bot/ltfj_bot.py").read_text(encoding="utf-8")
     kok = ast.parse(kaynak)
     arsiv_satiri = _arsiv_cagrisini_saran_try().lineno
     olcum = next(d.lineno for d in ast.walk(kok)

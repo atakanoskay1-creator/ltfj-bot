@@ -16,6 +16,10 @@ loga yazılır). Böylece Actions adımı kırmızı/yeşil olarak da okunabilir
 """
 
 import sys
+from pathlib import Path
+
+# bot modulleri bot/ altinda; repo kokunden `python araclar/push_testi.py`.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "bot"))
 
 import ltfj_push
 from ltfj_ayarlar import ayar

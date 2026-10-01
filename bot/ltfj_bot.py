@@ -45,7 +45,7 @@ from ltfj_rasat import AgHatasi, AyiklamaHatasi, raporlari_cek
 
 # ----------------------------------------------------------------- ayarlar ---
 ICAO = AYARLAR.get("istasyon", "LTFJ")
-KLASOR = Path(__file__).resolve().parent
+KLASOR = Path(__file__).resolve().parent.parent   # repo koku (modul bot/ altinda)
 STATE = KLASOR / "ltfj_state.json"
 ENV = KLASOR / ".env"
 

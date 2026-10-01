@@ -18,10 +18,10 @@ KOK = Path(__file__).resolve().parent.parent
 # Calisma aninda (her 15 dakikada bir) calisan modiller - bunlarin HICBIRI
 # sis_modeli'ne bagimli olmamali.
 CALISMA_ANI_MODULLERI = (
-    "ltfj_bot.py", "ltfj_sayfa.py", "ltfj_pist.py", "ltfj_analiz.py",
-    "ltfj_rasat.py", "ltfj_panel.py", "ltfj_notam.py", "ltfj_ayarlar.py",
-    "state_birlestir.py", "ltfj_vfr.py", "ltfj_lvo_referans.py",
-    "ltfj_lvo_farkindalik.py", "ltfj_atc_notes_cleanup.py",
+    "bot/ltfj_bot.py", "bot/ltfj_sayfa.py", "bot/ltfj_pist.py", "bot/ltfj_analiz.py",
+    "bot/ltfj_rasat.py", "bot/ltfj_panel.py", "bot/ltfj_notam.py", "bot/ltfj_ayarlar.py",
+    "bot/state_birlestir.py", "bot/ltfj_vfr.py", "bot/ltfj_lvo_referans.py",
+    "bot/ltfj_lvo_farkindalik.py", "bot/ltfj_atc_notes_cleanup.py",
 )
 
 ZAMAN = datetime(2024, 1, 15, 5, 20, tzinfo=timezone.utc)

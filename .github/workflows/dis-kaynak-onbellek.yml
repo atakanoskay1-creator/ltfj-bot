@@ -44,7 +44,7 @@ jobs:
         run: pip install --quiet requests
 
       - name: Önbelleği güncelle
-        run: python -m ltfj_dis_kaynak_cache
+        run: python bot/ltfj_dis_kaynak_cache.py
 
       - name: Önbelleği repoya geri yaz
         run: |

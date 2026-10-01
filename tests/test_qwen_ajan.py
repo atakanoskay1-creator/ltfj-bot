@@ -26,7 +26,7 @@ def test_dosyalar_bolumu_ayristiriliyor():
 
 @pytest.mark.parametrize("yol", [
     "index.html", "ltfj_state.json", "gozlem_arsivi.csv", "tahmin_gunlugu.csv",
-    "ltfj_sis_olasilik.py", "ltfj_tavan_tablosu.py", "CONVENTIONS.md", ".env",
+    "bot/ltfj_sis_olasilik.py", "bot/ltfj_tavan_tablosu.py", "omerli_gozlem.csv", "CONVENTIONS.md", ".env",
     ".github/workflows/ltfj.yml", "araclar/qwen_ajan.py",
     "sis_modeli/veri/ltfj_ozellik.csv.gz", "sis_modeli/hedef.py",
     "../disari.py", "/etc/passwd", "C:/Windows/x.py",

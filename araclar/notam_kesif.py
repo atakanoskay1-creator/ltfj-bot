@@ -19,6 +19,11 @@ import os
 import sys
 from datetime import datetime, timezone
 
+from pathlib import Path
+
+# bot modulleri bot/ altinda; repo kokunden `python araclar/notam_kesif.py`.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "bot"))
+
 import ltfj_notam_client as client
 
 LOCATION = os.environ.get("NOTAM_KESIF_LOCATION", "LTFJ")

@@ -26,7 +26,7 @@ def _cozum(sicaklik=8, cig=7.5, gorus=3000):
 # ------------------------------------------------------------------ tablo
 def test_modul_hicbir_sey_import_etmiyor():
     """Dondurulmus cikti saf veri + aritmetik olmali."""
-    agac = ast.parse((KOK / "ltfj_tavan_tablosu.py").read_text(encoding="utf-8"))
+    agac = ast.parse((KOK / "bot/ltfj_tavan_tablosu.py").read_text(encoding="utf-8"))
     for node in ast.walk(agac):
         assert not isinstance(node, (ast.Import, ast.ImportFrom)), ast.dump(node)
 

@@ -82,7 +82,7 @@ GitHub'da *New issue → Qwen görevi* şablonunu kullanın. Başlık kısa olsu
 Ne yapılacak, neden.
 
 ## Dosyalar
-- ltfj_bot.py
+- bot/ltfj_bot.py
 - tests/test_yeni.py
 
 ## Kabul

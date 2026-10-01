@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - "mgm_kesif.py"
+      - "araclar/mgm_kesif.py"
       - ".github/workflows/mgm-kesif.yml"
 
 permissions:
@@ -42,7 +42,7 @@ jobs:
         run: pip install --quiet requests
 
       - name: Kesif
-        run: python mgm_kesif.py --ham-dizin "$RUNNER_TEMP/mgm_kesif"
+        run: python araclar/mgm_kesif.py --ham-dizin "$RUNNER_TEMP/mgm_kesif"
 
       - name: Ham yanitlari artifact olarak yukle
         if: always()

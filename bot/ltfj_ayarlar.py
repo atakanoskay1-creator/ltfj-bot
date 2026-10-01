@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-KLASOR = Path(__file__).resolve().parent
+KLASOR = Path(__file__).resolve().parent.parent   # repo koku (modul bot/ altinda)
 DOSYA = KLASOR / "ayarlar.json"
 
 # LTFJ Turkiye'de, "yerel saat" her zaman Europe/Istanbul demektir. Bunu

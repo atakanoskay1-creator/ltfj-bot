@@ -95,7 +95,7 @@ def test_woe_tablolari_katsayilarla_ayni_alanlari_kapsiyor():
 def test_calisma_ani_modulu_sis_modelini_import_etmiyor():
     """Egitim laboratuvari (sis_modeli/) calisma anina SIZMAMALI - buraya
     yalnizca dondurulmus ciktilar tasinir."""
-    agac = ast.parse((KOK / "ltfj_sis_olasilik.py").read_text(encoding="utf-8"))
+    agac = ast.parse((KOK / "bot/ltfj_sis_olasilik.py").read_text(encoding="utf-8"))
     for node in ast.walk(agac):
         adlar = ([a.name for a in node.names] if isinstance(node, ast.Import)
                  else [node.module or ""] if isinstance(node, ast.ImportFrom) else [])
@@ -120,7 +120,7 @@ def _importlar(dosya: str) -> set:
 
 def test_calisma_aninda_agir_bagimlilik_yok():
     """Kart calisma aninda sadece standart kutuphaneyle hesaplanmali."""
-    assert _importlar("ltfj_sis_olasilik.py") == {"math"}
+    assert _importlar("bot/ltfj_sis_olasilik.py") == {"math"}
 
 
 # ------------------------------------------------------------------- sayfa

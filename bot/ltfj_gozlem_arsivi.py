@@ -79,7 +79,7 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-KLASOR = Path(__file__).resolve().parent
+KLASOR = Path(__file__).resolve().parent.parent   # repo koku (modul bot/ altinda)
 VARSAYILAN_DOSYA = KLASOR / "gozlem_arsivi.csv"
 SURUM_DOSYASI = KLASOR / "gozlem_surumleri.csv"
 DURUM_DOSYASI = KLASOR / "gozlem_arsivi_durum.json"

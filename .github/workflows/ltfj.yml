@@ -81,25 +81,26 @@ jobs:
         run: |
           python - <<'PY'
           import subprocess, sys
+          sys.path.insert(0, "bot")   # bot modulleri bot/ altinda
           import ltfj_dis_kaynak_cache as c
           yas = c.tahmin_yasi_dk()
           if yas is not None and yas <= c.TAHMIN_ESIK_DK:
               print(f"önbellek taze ({yas:.0f} dk), tazeleme atlandı.")
               sys.exit(0)
           print(f"önbellek bayat ({'yok' if yas is None else f'{yas:.0f} dk'}), tazeleniyor...")
-          subprocess.run([sys.executable, "-m", "ltfj_dis_kaynak_cache"], check=False)
+          subprocess.run([sys.executable, "bot/ltfj_dis_kaynak_cache.py"], check=False)
           PY
 
       - name: Botu calistir
-        run: python ltfj_bot.py
+        run: python bot/ltfj_bot.py
 
-      # Omerli tarafi MGM istasyonlari (ltfj_omerli.py): yalnizca ileriye
+      # Omerli tarafi MGM istasyonlari (bot/ltfj_omerli.py): yalnizca ileriye
       # donuk kayit, bot/model okumaz. Hata yutulur - METAR/TAF akisi ve
       # commit adimi hicbir kosulda etkilenmez.
       - name: Omerli istasyonlarini kaydet (hata yutulur)
         continue-on-error: true
         timeout-minutes: 1
-        run: python -m ltfj_omerli
+        run: python bot/ltfj_omerli.py
 
       - name: State ve sayfayi repoya geri yaz
         run: |
@@ -166,7 +167,7 @@ jobs:
             cp notam_veri.json /tmp/bizim_notam_veri.json 2>/dev/null || true
             git fetch origin "${DAL}"
             git reset --hard "origin/${DAL}"
-            python state_birlestir.py ltfj_state.json /tmp/bizim_state.json
+            python bot/state_birlestir.py ltfj_state.json /tmp/bizim_state.json
             # Gozlem arsivi EKLEME-YALNIZCA: reset sonrasi uzaktakiyle
             # bizimkini BIRLESTIR (kanonik + surum), yoksa araya giren
             # kosunun ekledigi gozlemler kaybolur. Kanonik celiski (degismezlik
@@ -174,23 +175,23 @@ jobs:
             # sayac. Durumun arsiv bolumu birlesik dosyalardan yeniden
             # uretilir; cekim sagligi bu kosununki kalir.
             if [ -f /tmp/bizim_arsiv/gozlem_arsivi.csv ]; then
-              python -m ltfj_gozlem_arsivi --birlestir-bizim /tmp/bizim_arsiv \
+              python bot/ltfj_gozlem_arsivi.py --birlestir-bizim /tmp/bizim_arsiv \
                 --dosya gozlem_arsivi.csv || true
             fi
             # Tahmin gunlugu de EKLEME-YALNIZCA: araya giren kosunun
             # kaydettigi tahmin kaybolmasin; ayni gozlemde ONCE kaydedilen kalir.
             if [ -f /tmp/bizim_tahmin_gunlugu.csv ]; then
-              python -m ltfj_tahmin_gunlugu --birlestir-bizim /tmp/bizim_tahmin_gunlugu.csv \
+              python bot/ltfj_tahmin_gunlugu.py --birlestir-bizim /tmp/bizim_tahmin_gunlugu.csv \
                 --dosya tahmin_gunlugu.csv || true
             fi
             # Omerli kaydi da EKLEME-YALNIZCA: ayni dilimde ONCE kaydedilen kalir.
             if [ -f /tmp/bizim_omerli_gozlem.csv ]; then
-              python -m ltfj_omerli --birlestir-bizim /tmp/bizim_omerli_gozlem.csv \
+              python bot/ltfj_omerli.py --birlestir-bizim /tmp/bizim_omerli_gozlem.csv \
                 --dosya omerli_gozlem.csv || true
             fi
             # Okuma dosyasi TURETILMIS: birlesik gunluk + birlesik arsivden
             # yeniden uretilir (iki tarafin kopyasi birlestirilmez).
-            python -m ltfj_tahmin_gunlugu --dogrulama-yaz --dosya tahmin_gunlugu.csv || true
+            python bot/ltfj_tahmin_gunlugu.py --dogrulama-yaz --dosya tahmin_gunlugu.csv || true
             cp /tmp/bizim_index.html index.html 2>/dev/null || true
             cp /tmp/bizim_panel_veri.json panel_veri.json 2>/dev/null || true
             cp /tmp/bizim_notam_veri.json notam_veri.json 2>/dev/null || true

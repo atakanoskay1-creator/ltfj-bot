@@ -41,4 +41,4 @@ jobs:
         run: pip install --quiet requests
 
       - name: Kesif
-        run: python notam_kesif.py
+        run: python araclar/notam_kesif.py

@@ -729,7 +729,7 @@ def test_ham_alanlar_panel_verisini_DEGISTIRMEZ(tmp_path):
 
 # =================================================== bot entegrasyonu ====
 def _bot():
-    return ast.parse(Path("ltfj_bot.py").read_text(encoding="utf-8"))
+    return ast.parse(Path("bot/ltfj_bot.py").read_text(encoding="utf-8"))
 
 
 def test_bot_H24_cekimini_YALNIZCA_kosu_isle_ye_verilen_lambda_icinde_yapar():
@@ -793,7 +793,7 @@ def test_dogrulama_is_akisi_salt_okunur_ve_artifact_a_BAGIMLI_DEGIL():
 
 def test_bot_arsiv_dogrulama_betigini_CAGIRMAZ():
     """Replay yalnizca PR-2 dogrulamasi; production akisinda yok."""
-    for dosya in ("ltfj_bot.py", "ltfj_gozlem_arsivi.py", ".github/workflows/ltfj.yml"):
+    for dosya in ("bot/ltfj_bot.py", "bot/ltfj_gozlem_arsivi.py", ".github/workflows/ltfj.yml"):
         assert "arsiv_oynat" not in Path(dosya).read_text(encoding="utf-8")
 
 

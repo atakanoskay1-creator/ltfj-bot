@@ -48,7 +48,7 @@ from pathlib import Path
 from sis_modeli.gorus_gecis import ASGARI_YILLIK_KAYIT
 
 VARSAYILAN_VERI = Path(__file__).resolve().parent / "veri" / "ltfj_ozellik.csv.gz"
-DONDURULMUS_YOL = Path(__file__).resolve().parent.parent / "ltfj_sis_iklim_tablo.py"
+DONDURULMUS_YOL = Path(__file__).resolve().parent.parent / "bot" / "ltfj_sis_iklim_tablo.py"
 
 YEREL_OFSET = timedelta(hours=3)
 SAKIN_KT = 2

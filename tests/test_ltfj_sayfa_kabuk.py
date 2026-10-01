@@ -143,12 +143,12 @@ def test_RENK_SIMGE_TELEGRAM_tarafinda_KALIYOR():
     # KULLANIMA bakiyoruz, metne degil: aciklama satirlari bu adi anmakta
     # serbest ve testin ilk surumu tam da kendi yorumuma takilmisti.
     import ast
-    kok = ast.parse(open("ltfj_sayfa.py", encoding="utf-8").read())
+    kok = ast.parse(open("bot/ltfj_sayfa.py", encoding="utf-8").read())
     adlar = {d.id for d in ast.walk(kok) if isinstance(d, ast.Name)}
     adlar |= {a.name for d in ast.walk(kok) if isinstance(d, ast.ImportFrom)
               for a in d.names}
     assert "RENK_SIMGE" not in adlar, "web sayfasi hâlâ RENK_SIMGE kullaniyor"
-    bot = ast.parse(open("ltfj_bot.py", encoding="utf-8").read())
+    bot = ast.parse(open("bot/ltfj_bot.py", encoding="utf-8").read())
     bot_adlar = {d.id for d in ast.walk(bot) if isinstance(d, ast.Name)}
     assert "RENK_SIMGE" in bot_adlar, "Telegram tarafindan da dusmus"
 

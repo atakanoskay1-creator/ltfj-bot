@@ -316,7 +316,7 @@ def _satir_yaz(ad: str, o: dict) -> None:
           f"{o['medyan']:>9.1f}{o['p75']:>8.1f}")
 
 
-DONDURULMUS_YOL = Path(__file__).resolve().parent.parent / "ltfj_gorus_gecis_tablo.py"
+DONDURULMUS_YOL = Path(__file__).resolve().parent.parent / "bot" / "ltfj_gorus_gecis_tablo.py"
 
 
 def _dondur(sonuc: dict, ilk: int, son: int, olay_sayisi: int) -> None:
