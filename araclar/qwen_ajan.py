@@ -134,6 +134,19 @@ def degisen_yollar(porcelain: str) -> list[str]:
     return [y for y in out if not aider_dosyasi_mi(y)]
 
 
+def basibos_yollar(porcelain: str, izinliler: list[str]) -> list[str]:
+    """Izinli listede OLMAYAN, takip edilmeyen YENI dosyalar (`??`).
+
+    Olculdu (#140): model kodu dogru yazdi ama cevabina "Sorun su: ..."
+    diye bir aciklama satiri ekledi; Aider bunu dosya adi sanip bos bir dosya
+    olusturdu ve gorev "izin verilmeyen dosya" diye dustu. Hic commit'e
+    girmemis bu dosyalar silinir; IZLENEN bir dosyaya dokunmak yine hatadir
+    (izin_disi)."""
+    return [y.strip('"') for y in (satir[3:] for satir in porcelain.splitlines()
+                                   if satir.startswith("?? "))
+            if y.strip('"') not in izinliler and not aider_dosyasi_mi(y.strip('"'))]
+
+
 def izin_disi(degisenler: list[str], izinliler: list[str], izlenenler: set) -> list[str]:
     """Degisen ama izin verilmeyen (ya da yasak) yollar."""
     return [y for y in degisenler
@@ -165,6 +178,8 @@ def gorev_mesaji(issue: dict, dosyalar: list[str]) -> str:
         "- Gorev metninde gecen diger dosya adlari yalnizca BAGLAMDIR: onlari "
         "duzenleme, yeni dosya adi uydurma, cumle parcasini dosya adi yapma.\n"
         "- Baska hicbir dosyaya dokunma. Git komutu calistirma.\n"
+        "- Kod bloklarinin disina aciklama yazma; bir sorun goruyorsan "
+        "yalnizca kod yorumu olarak yaz.\n"
         "- CONVENTIONS.md'deki kurallara uy (veri uydurma, yeni kutuphane yok).\n"
         "- Testler pytest ile calistirilacak; kirmizi olursa cikti sana "
         "verilecek, o zaman duzelt. Testi silme/atlatma.\n")
@@ -415,10 +430,16 @@ def gorevi_isle(gh: GitHub, repo: Path, issue: dict) -> None:
     mesaj = gorev_mesaji(issue, dosyalar)
     tur_sayisi = int(ayar("AJAN_TUR", "3"))
     yesil, cikti, neden = False, "", ""
+    silinenler = []
     for tur in range(1, tur_sayisi + 1):
         print(f"[ajan] #{no} tur {tur}/{tur_sayisi}: model calisiyor...")
         son_aider["cikti"] = aider_calistir(
             repo, mesaj, dosyalar, repo / ".git" / "qwen-ajan-gunluk" / f"{no}-tur{tur}.log")
+        basibos = basibos_yollar(durum(repo), dosyalar)
+        if basibos:
+            git(repo, "clean", "-q", "-f", "--", *basibos)
+            silinenler.extend(y for y in basibos if y not in silinenler)
+            print(f"[ajan] #{no} tur {tur}: basibos yeni dosya silindi: {', '.join(basibos)}")
         degisenler = degisen_yollar(durum(repo))
         disi = izin_disi(degisenler, dosyalar, izlenenler)
         if disi:
@@ -451,7 +472,9 @@ def gorevi_isle(gh: GitHub, repo: Path, issue: dict) -> None:
     govde = (f"Refs #{no}\n\n**Yerel ajan (Qwen) tarafından üretildi — merge "
              "öncesi inceleme gerekli.**\n\n"
              "Değişen dosyalar:\n" + "".join(f"- `{y}`\n" for y in degisenler)
-             + f"\nTest sonucu (ajanın bilgisayarında):\n```\n{kuyruk(cikti, 3)}\n```")
+             + f"\nTest sonucu (ajanın bilgisayarında):\n```\n{kuyruk(cikti, 3)}\n```"
+             + ("\n\nModelin oluşturup ajanın sildiği başıboş dosyalar: "
+                + ", ".join(f"`{y}`" for y in silinenler) if silinenler else ""))
     url = gh.pr_ac(dal, f"Qwen: {baslik}", govde)
     gh.etiket_kaldir(no, ETIKET_ISLENIYOR)
     gh.etiket_ekle(no, ETIKET_BITTI)
