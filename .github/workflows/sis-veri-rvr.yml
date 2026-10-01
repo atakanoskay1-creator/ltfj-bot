@@ -1,0 +1,71 @@
+name: Sis modeli RVR verisi
+
+# LTFJ METAR arsivinden pist ucu bazli RVR'i ceker (veri_cek_rvr.py) ve
+# sis_modeli/veri/ltfj_rvr.csv.gz olarak yazar. LVO Hazirlik Safhasi hedefi
+# (RVR < 800 m) icin gerekli; dondurulmus ltfj_ozellik.csv.gz DEGISMEZ.
+# SADECE EGITIM/ANALIZ icindir - canli bota baglanmaz. Elle tetiklenir.
+on:
+  workflow_dispatch:
+    inputs:
+      baslangic:
+        description: "Başlangıç yılı"
+        required: false
+        default: "2012"
+      bitis:
+        description: "Bitiş yılı (boş bırakılırsa içinde bulunulan yıl)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sis-modeli-rvr-verisi
+  cancel-in-progress: false
+
+jobs:
+  veri:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Repoyu al
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Bagimliliklar
+        run: pip install --quiet requests
+
+      - name: RVR arsivini cek
+        run: |
+          set -eu
+          BITIS="${{ inputs.bitis }}"
+          if [ -z "${BITIS}" ]; then BITIS="$(date -u +%Y)"; fi
+          python -m sis_modeli.veri_cek_rvr \
+            --baslangic "${{ inputs.baslangic }}" \
+            --bitis "${BITIS}"
+
+      - name: Yeni veriyi repoya yaz
+        run: |
+          set -eu
+          DOSYA="sis_modeli/veri/ltfj_rvr.csv.gz"
+          if [ -z "$(git status --porcelain -- ${DOSYA})" ]; then
+            echo "Veri degismedi, commit yok."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "${DOSYA}"
+          git commit -m "sis modeli: pist ucu bazli RVR verisi güncellendi [skip ci]"
+          # Bot main'e ~4 dk'da bir yaziyor: reddedilirse yalnizca bu dosyayi
+          # tasiyan commit'i guncel main'in ustune al.
+          for deneme in 1 2 3; do
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then exit 0; fi
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+          done
+          echo "3 denemede push edilemedi." >&2
+          exit 1

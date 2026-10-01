@@ -856,6 +856,17 @@ rüzgârın KD bileşeni ve sabah saati ile etkileşim; (4) ileride Ömerli tara
 nemi (ERA5/NWP). **Şimdi model değişmedi** (izleme dönemi). Canlı sayfa
 METAR'daki pist bazlı RVR'yi zaten gösteriyor; eksik olan önceden tahmin.
 
+### Pist ucu bazlı RVR arşivi (`veri_cek_rvr.py`, `veri/ltfj_rvr.csv.gz`)
+
+LVO Hazırlık Safhası (TL.007 madde 6.2.a) RVR < 800 m **veya** bulut tabanının
+CAT II seviyesine (200 ft altı) inmesiyle başlar. `ltfj_ozellik.csv.gz` RVR
+saklamadığı için (ve dondurulmuş olduğu için) RVR **ayrı** bir dosyada:
+`zaman`, `rvr_06`, `rvr_24` (uç bazında en düşük, L/R birleşik), `rvr_min`,
+`rvr_ham` (gözlem kısmındaki gruplar aynen). Aynı IEM kaynağı ve istasyon
+koruması (LTBA/DS3505 satırları atılır); iki dosya `zaman` üzerinden birleşir.
+Üretim: *Actions → Sis modeli RVR verisi* (elle, varsayılan 2012–bugün).
+Yalnızca eğitim/analiz içindir; canlı bota bağlanmaz.
+
 ### Ömerli'den nem taşınması — dolaylı gösterge (`omerli_advek.py`)
 
 Ömerli tarafında arşivli nem ölçümü yok; LTFJ METAR'ından dolaylı bir
