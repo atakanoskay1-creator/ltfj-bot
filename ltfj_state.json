@@ -2910,10 +2910,10 @@
   }
  ],
  "yorum_onbellegi": {
-  "SPECI LTFJ 011940Z 04013KT 9999 -SHRA SCT035 BKN080 16/11 Q1023 NOSIG RMK RWY24R 02011KT RWY06R 03014KT RWY24L 03010KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 13 knot (yaklaşık 24 km/saat) hızında rüzgâr esiyor, yan bileşen hafif.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat.\n\n**Gökyüzü:** 3500 feet (yaklaşık 1050 metre) yükseklikte parçalı bulutlar, 8000 feet (yaklaşık 2400 metre) yükseklikte çok bulutlu; hafif sağanak yağmur düşüyor.\n\n**Uçuşa etkisi:** Hafif sağanak ve orta seviye bulutluluk gözleniyor, ancak görüş ve rüzgâr koşulları sınırlayıcı değil.",
   "METAR LTFJ 011950Z 04014KT 9999 -SHRA SCT035 BKN080 16/11 Q1023 NOSIG RMK RWY24R 02014KT RWY06R 03015KT RWY24L 03012KT": "**Rüzgâr:** Kuzey-kuzeydoğu yönünden 14 knot (yaklaşık 26 km/s) hızında rüzgâr esiyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafeden görünürlük var, uçuş için rahat bir durum.\n\n**Gökyüzü:** Kısmi bulutlu 3500 feet (yaklaşık 1050 metre) ve çok bulutlu 8000 feet (yaklaşık 2400 metre) seviyelerinde bulutlar var; hafif sağanak yağmur gözlemleniyor.\n\n**Uçuşa etkisi:** Hafif sağanak ve bulutluluk gözlemlenmekle birlikte, görüş ve rüzgâr şiddeti operasyonel sınırlamaya neden olmamaktadır; hava durumu önümüzdeki 2 saatte önemli değişiklik göstermeyecektir.",
   "METAR LTFJ 012020Z 04011KT 9999 SCT035 BKN080 15/12 Q1023 RESHRA NOSIG RMK RWY24R 03009KT RWY06R 04011KT RWY24L 05008KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 11 düğüm hızında rüzgâr esiyor, hafif yan bileşeni var.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, görüş açısından rahat koşullar var.\n\n**Gökyüzü:** 3500 feet yükseklikte parçalı bulutlar, 8000 feet yükseklikte çok bulutlu katman var; yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler içinde kısıtlayıcı unsur bulunmuyor, hava koşulları operasyonel açıdan uygun görünüyor.",
-  "TAF LTFJ 011640Z 0118/0218 04007KT 9999 SCT030 BKN080 TEMPO 0118/0122 -SHRA BECMG 0200/0204 -SHRA BKN025 BKN080 BECMG 0204/0207 04018KT PROB40 TEMPO 0207/0211 4000 TSRA FEW018CB BKN025 TEMPO 0211/0214 4000 SHRA FEW018CB BKN025": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken bulutlu hava beklenmektedir; dönem içinde sağanak ve gök gürültülü sağanak geçişleri öngörülmektedir.\n\n- **0118/0122 UTC:** Geçici olarak hafif sağanak.\n- **0200/0204 UTC:** Kademeli geçişle hafif sağanak sona eriyor, bulutlar 2500 ft'e alçalıyor.\n- **0204/0207 UTC:** Rüzgar kademeli olarak 18 knot'a artıyor.\n- **0207/0214 UTC:** %40 ihtimalle geçici olarak 4000 m görüş, gök gürültülü sağanak ve 1800 ft'de hümülüs bulutlar."
+  "TAF LTFJ 011640Z 0118/0218 04007KT 9999 SCT030 BKN080 TEMPO 0118/0122 -SHRA BECMG 0200/0204 -SHRA BKN025 BKN080 BECMG 0204/0207 04018KT PROB40 TEMPO 0207/0211 4000 TSRA FEW018CB BKN025 TEMPO 0211/0214 4000 SHRA FEW018CB BKN025": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken bulutlu hava beklenmektedir; dönem içinde sağanak ve gök gürültülü sağanak geçişleri öngörülmektedir.\n\n- **0118/0122 UTC:** Geçici olarak hafif sağanak.\n- **0200/0204 UTC:** Kademeli geçişle hafif sağanak sona eriyor, bulutlar 2500 ft'e alçalıyor.\n- **0204/0207 UTC:** Rüzgar kademeli olarak 18 knot'a artıyor.\n- **0207/0214 UTC:** %40 ihtimalle geçici olarak 4000 m görüş, gök gürültülü sağanak ve 1800 ft'de hümülüs bulutlar.",
+  "METAR LTFJ 012050Z 04006KT 9999 SCT035 BKN080 14/12 Q1023 NOSIG RMK RWY24R 03006KT 010V070 RWY06R 04008KT RWY24L 03006KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 6 knot (yaklaşık 11 km/saat) hafif rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat.\n\n**Gökyüzü:** Yaklaşık 3500 metreden başlayarak parçalı bulutlar, 8000 metreden çok bulutlu hava; yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr, görüş ve yağış kısıtlaması yoktur, hava koşulları operasyonel açıdan sınırlayıcı değildir."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -4148,7 +4148,7 @@
   }
  },
  "notam_son_senkron": "2026-10-01T18:08:48+00:00",
- "guncelleme": "2026-10-01T20:56:42+00:00",
+ "guncelleme": "2026-10-01T21:01:17+00:00",
  "push_gonderilen": [
   "id:56347100"
  ]
