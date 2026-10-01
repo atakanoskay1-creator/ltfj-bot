@@ -756,6 +756,35 @@ python -m sis_modeli.gorus_gecis --veri gozlem_arsivi.csv
 Bu **geriye dönük bir düzeltme değildir** — dondurulmuş tablodaki sayılar
 IEM arşivinden gelmeye devam ediyor. Ayrıntı: ana `README.md` §11.
 
+### Sis gün doğumundan ne kadar sonra kalkıyor? — `sis_kalkis.py`
+
+Soru (operasyonel): *"Gün doğdu, meydan hâlâ sisli — görüş ne zaman
+1000 m'nin üstüne çıkar?"* Model değil, tarihsel iklimbilim
+(`python -m sis_modeli.sis_kalkis`, 01.10.2026).
+
+Olaylar `gorus_gecis.olaylari_bul()` ile (TR07 tanımı, 2011+: 64 olay).
+Evren: gün doğumu anında sisin sürdüğü ve kalkışı ölçülebilen olaylar
+(**39**). Kalkış = son <1000 m gözleminden sonraki ilk ≥1000 m gözlemi;
+gün doğumu `ltfj_pist._gunes_saatleri` (sayfadaki gün/gece ile aynı hesap).
+
+| grup | n | %25 | medyan | %75 | %90 | ≤1 sa | ≤2 sa | ≤3 sa | ≤4 sa |
+|---|---|---|---|---|---|---|---|---|---|
+| tümü | 39 | 70 dk | **135 dk** | 170 dk | 201 dk | %15 | %44 | %80 | %97 |
+| Eki–Mar | 24 | 77 dk | **163 dk** | 188 dk | 207 dk | %12 | %33 | %71 | %96 |
+| Nis–Eyl | 15 | 68 dk | **107 dk** | 132 dk | 146 dk | %20 | %60 | %93 | %100 |
+
+**Okuma:** gün doğumunda süren sis tipik olarak **~2–2.5 saat** sonra
+kalkıyor; kışın (zayıf güneş) yaklaşık bir saat daha geç. Gün doğumundan
+sonraki ilk saatte kalkan olay azınlıkta (%15); 4 saati aşan tek olay
+var (250 dk). 39 olayın hiçbiri öncesindeki 3 saatte yağış görmemiş —
+gün doğumunda süren sisler bu arşivde radyasyon tipi.
+
+**Sınırlar:** örneklem küçük (39 olay; mevsim alt grupları 15–24), aralık
+verilmedi, sayılar kaba yol gösterici. Süreler 30 dk ızgaraya yuvarlıdır.
+Sis sıklığındaki 2023 sonrası düşüş (`SIS_EGILIMI.md`) bu tabloyu
+etkilemez (kalkış süresi olay başına ölçülüyor) ama son yıllardan az
+olay geliyor.
+
 ### Düşük görüş/FG olayı iklimbilimi — `sis_iklim.py`
 
 **Bu da bir model değil, sayım.** Soru: LTFJ'de Model A'nın hedef olayı
