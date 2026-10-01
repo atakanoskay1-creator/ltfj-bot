@@ -856,6 +856,28 @@ rüzgârın KD bileşeni ve sabah saati ile etkileşim; (4) ileride Ömerli tara
 nemi (ERA5/NWP). **Şimdi model değişmedi** (izleme dönemi). Canlı sayfa
 METAR'daki pist bazlı RVR'yi zaten gösteriyor; eksik olan önceden tahmin.
 
+### Ömerli'den nem taşınması — dolaylı gösterge (`omerli_advek.py`)
+
+Ömerli tarafında arşivli nem ölçümü yok; LTFJ METAR'ından dolaylı bir
+gösterge: gece/sabah (20–04 UTC), o an sis/parçalı sis yokken, spread ve
+rüzgâra göre **sonraki 3 saatte sis veya parçalı sis** (BCFG/PRFG/MIFG/VCFG)
+olasılığı (`python -m sis_modeli.omerli_advek`). K-KD = 0–60°.
+
+| spread | K-KD 3–10 kt | K-KD >10 kt | diğer yön | sakin (<3 kt) |
+|---|---|---|---|---|
+| ≤1 °C, 2012–2025 | **%11.3** (n=12.450) | %3.2 | %6.4 | %9.8 |
+| ≤1 °C, 2021–23 hariç | **%11.5** (n=8.551) | %4.0 | %5.9 | %10.6 |
+| ≤1 °C, yalnız 2024–25 | **%14.0** (n=1.082) | %4.0 | %10.4 (n=338) | %5.8 (n=154) |
+| 2–3 °C, 2012–2025 | **%3.5** (n=20.177) | %1.1 | %1.1 | %1.6 |
+
+(2021–23 çiy noktası kusuru spread'i küçülttüğü için ayrıca hariç tutuldu.)
+Aynı spread'te **hafif K-KD rüzgârı** riski diğer yönlerin ~2 katına
+(2024–25'te ~1.3 katına) çıkarıyor; kuvvetli K-KD karıştırıp düşürüyor.
+Spread 2–3 °C'de bile hafif K-KD diğerlerinin ~3 katı — Ömerli'den nemli
+hava taşınması hipoteziyle tutarlı. V3 için aday: rüzgâr yönü × hız ×
+spread etkileşimi (lojistik regresyonda etkileşim terimi). **Model
+değişmedi** (izleme dönemi).
+
 ### Düşük görüş/FG olayı iklimbilimi — `sis_iklim.py`
 
 **Bu da bir model değil, sayım.** Soru: LTFJ'de Model A'nın hedef olayı
