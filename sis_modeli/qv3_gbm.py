@@ -20,8 +20,8 @@ YONTEM (LightGBM/XGBoost'un cekirdegi, kucultulmus):
     sonra tum egitimle o sayida yeniden egitilir - test yillari karismaz.
 
 KALIBRASYON: ham GBM olasiliklari fazla yuksek cikti (ort. %1,36, gerceklesen
-%0,87). Agac sayisi secilen ic modelin ic dogrulama yilindaki tahminleriyle
-iki harita uydurulur ve nihai modelin ciktisina uygulanir - test yillari
+%0,87). Egitimin son KALIBRASYON_YILI yilinin donem-disi tahminleriyle iki
+harita uydurulur ve nihai modelin ciktisina uygulanir - test yillari
 karismaz:
   - Platt (ASIL, sonuclardan ONCE secildi): p' = sigmoid(a*logit(p) + b);
     siralamayi bozmaz, yalnizca yuzdeleri duzeltir.
@@ -225,18 +225,42 @@ def platt_uygula(p: float, ab: tuple) -> float:
     return _sigmoid(ab[0] * _logit(p) + ab[1])
 
 
+KALIBRASYON_YILI = 3
+
+
+def kalibrasyon_ciftleri(egitim: list, alanlar, agac: int,
+                         yil_sayisi: int = KALIBRASYON_YILI) -> list:
+    """Egitimin son `yil_sayisi` yilinin DONEM-DISI tahminleri: her yil, o
+    yildan ONCEKI yillarla egitilmis modelle tahmin edilir. [(p, y)]
+
+    Tek yillik kalibrasyon (ilk deneme) o yilin karakterine fazla bagliydi:
+    olayli 2014 haritayi yukari itip 2015-16'yi bozdu. Birden fazla yil bu
+    oynakligi dengeler (kalibrasyon.py Model A icin ayni ilkeyi kullanir).
+    yil_sayisi=3 sonuclara bakilmadan secildi."""
+    yillar = sorted({r["dt"].year for r in egitim})
+    ciftler = []
+    for yil in yillar[1:][-yil_sayisi:]:
+        once = [r for r in egitim if r["dt"].year < yil]
+        bu = [r for r in egitim if r["dt"].year == yil]
+        if not any(r["hedef"] for r in once):
+            continue
+        m = egit(once, alanlar, agac)
+        ciftler += [(olasilik(m, r), bool(r["hedef"])) for r in bu]
+    return ciftler
+
+
 def egit_kalibreli(egitim: list, alanlar=qv3_model.ADAYLAR) -> dict:
-    """Agac sayisi + iki kalibrasyon haritasi egitimin son yilinda; nihai
-    model tum egitimle. {"model", "agac", "platt", "izotonik"}"""
+    """Agac sayisi egitimin son yilinda; kalibrasyon haritalari son
+    KALIBRASYON_YILI yilin donem-disi tahminleriyle; nihai model tum
+    egitimle. {"model", "agac", "platt", "izotonik", "kalibrasyon_n"}"""
     son = max(r["dt"].year for r in egitim)
     ic_e = [r for r in egitim if r["dt"].year < son]
     ic_t = [r for r in egitim if r["dt"].year == son]
     egri = egit(ic_e, alanlar, MAKS_AGAC, dogrulama=ic_t)["ap_egrisi"]
     n = max(egri, key=lambda c: (c[1], -c[0]))[0]
-    ic_model = egit(ic_e, alanlar, n)
-    ciftler = [(olasilik(ic_model, r), bool(r["hedef"])) for r in ic_t]
+    ciftler = kalibrasyon_ciftleri(egitim, alanlar, n)
     return {"model": egit(egitim, alanlar, n), "agac": n,
-            "platt": platt_uydur(ciftler),
+            "platt": platt_uydur(ciftler), "kalibrasyon_n": len(ciftler),
             "izotonik": kalibrasyon.kalibrasyon_tablosu(kalibrasyon.izotonik_uydur(ciftler))}
 
 
@@ -289,7 +313,8 @@ def main() -> int:
         iklim = model.iklim_baseline(egitim)
         ik = [model.iklim_tahmin(iklim, r) for r in test]
         print(f"=== Test {test_yillari[0]}-{test_yillari[-1]}: {k['agac']} ağaç, "
-              f"Platt a={k['platt'][0]:.2f} b={k['platt'][1]:+.2f}, "
+              f"Platt a={k['platt'][0]:.2f} b={k['platt'][1]:+.2f} "
+              f"({k['kalibrasyon_n']} an), "
               f"gerçekleşen %{100 * sum(g) / len(g):.2f}")
         for t in turler:
             print(f"  {t:<9} {_olc(p[t], g, ik)}")

@@ -14,7 +14,9 @@ Tekrar üretmek için (repo kökünden):
 python -m sis_modeli.qv3_hedef   # evren ve yıllık pozitifler
 python -m sis_modeli.qv3_egit             # seçim + etkileşim + walk-forward (~3 dk)
 python -m sis_modeli.qv3_egit --kararli   # + kararlı seçim (~9 dk)
-python -m sis_modeli.qv3_gbm              # GBM + kalibrasyon (~4 dk)
+python -m sis_modeli.qv3_gbm              # GBM + kalibrasyon, walk-forward (~5 dk)
+python -m sis_modeli.qv3_dondur           # 2012-2023 ile dondur -> veri/qv3_donmus.json
+python -m sis_modeli.qv3_holdout          # 2024-2026 tek atış
 ```
 
 ## Veri ve hedef (`qv3_hedef.py`)
@@ -86,7 +88,8 @@ durum Model A'da da görülmüştü.
 | **QV3** (veriyle seçilen set) | **0,165** | 0,905 | **0,00789** | **+0,085** |
 | QV3 kararlı seçim (aşağıda) | 0,138 | 0,868 | 0,00803 | +0,069 |
 | **GBM** (`qv3_gbm.py`, 22 adayın hepsi; aşağıda) | **0,196** | **0,938** | 0,00825 | +0,043 |
-| GBM + Platt kalibrasyonu (aşağıda) | 0,176 | 0,936 | 0,00805 | +0,066 |
+| GBM + Platt, tek yıllık kalibrasyon (ilk deneme) | 0,176 | 0,936 | 0,00805 | +0,066 |
+| **GBM + Platt, 3 yıllık kalibrasyon (dondurulan)** | **0,191** | **0,935** | **0,00778** | **+0,097** |
 | QV3 + etkileşim terimleri (aşağıda) | 0,163 | 0,908 | 0,00789 | +0,084 |
 | Model A'nın 5 değişkeni (bu hedefte yeniden eğitildi) | 0,155 | **0,915** | 0,00795 | +0,077 |
 | Mevcut görüş bandı iklimi | 0,113 | 0,792 | 0,00809 | +0,062 |
@@ -251,9 +254,40 @@ Orta aralıkta isabetli; üst uçta (az örnek) hâlâ fazla iddialı.
   kalıyor; Platt dönem içinde AP'yi değiştirmez. Ama her dönem farklı yöne
   kaydırıldığı için dönemler birleştirilince sıralama karışıyor. Tek bir
   canlı modelde bu sorun olmaz; AP için dönem değerleri esas alınmalı.
-- **V3 önerisi:** kalibrasyonu tek yıl yerine birden fazla yılın
-  dönem-dışı tahminleriyle yapmak (`kalibrasyon.py`'nin Model A için
-  yaptığı gibi). Bu denemede sonuca bakılarak değiştirilmedi.
+#### Çok yıllı kalibrasyon (`kalibrasyon_ciftleri`) — dondurulan yöntem
+
+Tek yıl yerine eğitimin **son 3 yılının dönem-dışı tahminleri**
+kullanıldı (`kalibrasyon.py`'nin Model A için yaptığı gibi). Her yıl,
+kendisinden önceki yıllarla eğitilmiş modelle tahmin edildi. Kalibrasyon
+seti dönem başına 35–52 bin an. 3 yıl sonuçlara bakılmadan seçildi.
+
+| Dönem | Gerçekleşen | Ham ort. | Platt ort. | Ham BSS | Platt BSS |
+|---|---|---|---|---|---|
+| 2015–16 | %1,16 | %1,51 | %1,70 | +0,066 | +0,063 |
+| 2017–18 | %0,82 | %1,35 | %1,14 | +0,087 | **+0,142** |
+| 2019–20 | %0,63 | %1,35 | %0,69 | −0,038 | **+0,112** |
+| 2021–23 | %0,87 | %1,28 | %0,67 | +0,032 | **+0,092** |
+| **Toplam** | %0,87 | %1,36 | **%1,01** | +0,043 | **+0,097** |
+
+- Birleşik AP **0,191**. Tek yıllıkta 0,176, hamda 0,196. Dönemler artık
+  daha tutarlı kaydırılıyor.
+- **BSS +0,097, tüm modellerin en iyisi** (WoE QV3 +0,085).
+
+Güvenilirlik, 3 yıllık Platt sonrası:
+
+| Model ne dedi | Gerçekleşen | n |
+|---|---|---|
+| %1 | %1 | 152.820 |
+| %14 | %13 | 1.660 |
+| %24 | %19 | 490 |
+| %35 | %32 | 246 |
+| %45 | %36 | 128 |
+| %64 | %56 | 52 |
+| %84 | %59 | 34 |
+
+%35'e kadar isabetli; üst uçta hâlâ biraz fazla iddialı, ama az örnek.
+İzotonik benzer sonuç veriyor (AP 0,193, BSS +0,099); asıl yöntem
+önceden Platt seçildiği için Platt dondu.
 
 ### Etkileşim terimli lojistik regresyon — GBM'in farkını açıklamıyor
 
@@ -292,6 +326,56 @@ olmadı.
 En iyisini bu testin sonucuna bakarak seçmek biraz iyimserlik katar. Kesin
 karar ancak holdout (2024–2026) açıldığında verilebilir.
 
+## Holdout protokolü (2024–2026) — holdout AÇILMADAN önce yazıldı
+
+**Dondurulan model** (`python -m sis_modeli.qv3_dondur` →
+`veri/qv3_donmus.json`):
+
+- **GBM:** 22 aday, derinlik 3, öğrenme hızı 0,1, negatif örnekleme %10.
+  - Eğitim: 2012–2023 tamamı.
+  - Ağaç sayısı: 2012–2022 ile eğitip 2023'te AP'ye göre.
+  - Platt kalibrasyonu: 2021–2023'ün dönem-dışı tahminleriyle.
+- **Karşılaştırmalar** (hepsi 2012–2023 ile, aynı kurallarla):
+  - QV3 WoE (değişkenler ileri seçimle, iç doğrulama 2023);
+  - Model A'nın 5 değişkeni;
+  - görüş bandı iklimi;
+  - ay × saat iklimi.
+
+**Dondurma çıktısı** (holdout açılmadan, olduğu gibi kaydedildi):
+
+- **GBM:** 50 ağaç. 2023 iç doğrulamasında seçildi; 2023 olayı az bir yıl,
+  walk-forward'da bu sayı 50–250 arasındaydı.
+  - Platt a = 1,026, b = −0,113; 52.266 kalibrasyon anı.
+  - Önem: spread %29, görüş %27, sıcaklık %8, tavan %7, saat %6,
+    **kd_nemli %6**.
+- **QV3 WoE:** ileri seçim yalnızca `rvr_min_d` ve `sicaklik`'ı seçti
+  (L2 10 000).
+  - Aynı kural, ama tek iç doğrulama yılı (2023) zayıf olduğu için bu
+    karşılaştırma modeli muhtemelen zayıf.
+  - Protokol değiştirilmedi. Asıl karşılaştırma Model A setiyle.
+
+**Ölçütler** (`python -m sis_modeli.qv3_holdout`, tek atış):
+
+1. **Asıl:** GBM + Platt'ın AP'si, ROC-AUC, Brier, BSS (ay × saat iklimine
+   göre) ve ortalama tahmin / gerçekleşen.
+2. **Fark testi:** GBM + Platt ile QV3 WoE ve Model A seti arasındaki AP
+   farkı için gün blok bootstrap (500 tekrar, eşli), %5–%95 aralığı.
+3. Yıl bazında AP.
+4. Uyarı eşikleri (%10, %20, %30):
+   - önceden yakalanan olay (1 saatten kısa boşluk aynı olay);
+   - uyarı günü;
+   - uyarı anlarının isabeti.
+5. Güvenilirlik tablosu (10 kova).
+
+**Kural:**
+
+- Sonuç ne çıkarsa çıksın aşağıya aynen yazılır.
+- Holdout'a bakılarak model, eşik ya da kalibrasyon değiştirilmez.
+- Değiştirilirse holdout "kullanılmış" sayılır, yeni bir test dönemi
+  beklenir.
+- **Başarı ölçütü** (önceden): GBM + Platt'ın AP'si görüş bandı iklimini
+  ve Model A setini geçmeli; BSS > 0 olmalı.
+
 ## Yorum
 
 1. **Hedef öğrenilebilir.**
@@ -328,5 +412,5 @@ karar ancak holdout (2024–2026) açıldığında verilebilir.
     `rvr_min` tüm uçların en düşüğü.
 - **2021–2023 çiy noktası kusuru** spread'i etkiliyor; bu dönem ayrıca
   temizlenmedi.
-- **Holdout (2024–2026) açılmadı.** Bir modele karar vermeden açılmamalı.
+- **Holdout (2024–2026)** yalnızca dondurulan modellerle, protokole göre bir kez açılacak.
 - **Canlıya bağlanmadı.** İzleme dönemi kuralı: model değişikliği yok.
