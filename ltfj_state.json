@@ -202,7 +202,7 @@
   "id:56193515"
  ],
  "ilk_calisma": false,
- "son_metar": "SPECI LTFJ 010731Z 03011KT 9000 -SHRA SCT030 BKN080 17/13 Q1022 NOSIG RMK RWY24R 02011KT 350V070 RWY06R 02010KT RWY24L 02012KT",
+ "son_metar": "SPECI CCALTFJ 010731Z 03011KT 9000 -SHRA FEW017TCU SCT030 BKN080 17/13 Q1022 NOSIG RMK RWY24R 02011KT 350V070 RWY06R 02010KT RWY24L 02012KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
@@ -4079,7 +4079,7 @@
   }
  },
  "notam_son_senkron": "2026-10-01T05:12:44+00:00",
- "guncelleme": "2026-10-01T07:36:41+00:00",
+ "guncelleme": "2026-10-01T07:40:58+00:00",
  "push_gonderilen": [
   "id:56193515"
  ]
