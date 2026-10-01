@@ -74,6 +74,19 @@ def test_ileri_secim_bilgili_degiskeni_alir_gurultuyu_almaz():
     assert dict(sonuc["iv"])["gorus"] > dict(sonuc["iv"])["saat"]
 
 
+def test_ileri_secim_dogrulama_yili_secilebilir():
+    sonuc = q.ileri_secim(_sentetik(), adaylar=("gorus", "saat"), dogrulama_yili=2015)
+    assert sonuc["secilen"] == ["gorus"]
+
+
+def test_kararli_secim_her_yili_sirayla_dogrulama_yapar():
+    sonuc = q.kararli_secim(_sentetik(), adaylar=("gorus", "saat"))
+    assert sonuc["kosu"] == 3
+    assert sonuc["secilen"] == ["gorus"]
+    assert sonuc["siklik"]["gorus"] == 1.0
+    assert sonuc["siklik"].get("saat", 0) < q.KARARLILIK_ESIGI
+
+
 @pytest.mark.parametrize("gorus,bant", [
     (None, None), (500, 0), (1000, 1), (1999, 1), (4000, 3), (9998, 4), (9999, 5), (10000, 5),
 ])

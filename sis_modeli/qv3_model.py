@@ -148,16 +148,17 @@ def _ap_alt_kume(sutun_e, sutun_t, y_e, y_t, alanlar) -> float:
 
 
 def ileri_secim(egitim: list, adaylar=ADAYLAR, maks=MAKS_DEGISKEN,
-                min_kazanc=MIN_KAZANC) -> dict:
-    """Egitimin son yili ic dogrulama, oncesi ic egitim:
+                min_kazanc=MIN_KAZANC, dogrulama_yili: int = None) -> dict:
+    """Egitimin son yili (ya da dogrulama_yili) ic dogrulama, kalan yillar
+    ic egitim:
       1) ic egitimde IV < IV_ESIK olanlar elenir, kalanlardan IV'si en
          yuksek ON_SECIM aday alinir;
       2) bos kumeden baslayip her adimda ic dogrulama AP'sini en cok
          artiran degisken eklenir; kazanc min_kazanc'in altina dusunce durur.
     Donus: {"secilen": [...], "adimlar": [(alan, ap)], "iv": [(alan, iv)]}"""
-    yillar = sorted({r["dt"].year for r in egitim})
-    ic_e = [r for r in egitim if r["dt"].year < yillar[-1]]
-    ic_t = [r for r in egitim if r["dt"].year == yillar[-1]]
+    yil = dogrulama_yili or max(r["dt"].year for r in egitim)
+    ic_e = [r for r in egitim if r["dt"].year != yil]
+    ic_t = [r for r in egitim if r["dt"].year == yil]
     iv = iv_tarama(ic_e, adaylar)
     havuz = [a for a, v in iv if v >= IV_ESIK][:ON_SECIM]
     tablolar = woe_tablolari(ic_e, havuz)
@@ -180,3 +181,24 @@ def ileri_secim(egitim: list, adaylar=ADAYLAR, maks=MAKS_DEGISKEN,
         adimlar.append((a, round(ap, 4)))
         mevcut = ap
     return {"secilen": secilen, "adimlar": adimlar, "iv": iv}
+
+
+KARARLILIK_ESIGI = 0.5
+
+
+def kararli_secim(egitim: list, adaylar=ADAYLAR, esik=KARARLILIK_ESIGI) -> dict:
+    """Tek yillik ic dogrulama gurultulu (yilda 76-285 pozitif an): secim
+    fold'dan fold'a degisiyordu. Burada egitimin HER yili sirayla ic
+    dogrulama olur (yil-disarida-birak), ileri secim her seferinde yeniden
+    yapilir; kosularin en az `esik` kadarinda secilen degiskenler kalir
+    (siklik sirasiyla). Hicbir yilda pozitif yoksa o yil atlanir.
+    Donus: {"secilen": [...], "siklik": {alan: oran}, "kosu": n}"""
+    sayac, kosu = Counter(), 0
+    for yil in sorted({r["dt"].year for r in egitim}):
+        if not any(r["hedef"] for r in egitim if r["dt"].year == yil):
+            continue
+        sayac.update(ileri_secim(egitim, adaylar, dogrulama_yili=yil)["secilen"])
+        kosu += 1
+    siklik = {a: n / kosu for a, n in sayac.most_common()} if kosu else {}
+    return {"secilen": [a for a, o in siklik.items() if o >= esik],
+            "siklik": siklik, "kosu": kosu}

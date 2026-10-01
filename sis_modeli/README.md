@@ -873,7 +873,9 @@ Hedef: 3 saat içinde RVR < 800 m veya tavan < 200 ft (TL.007 6.2.a). Değişken
 seti her fold'un kendi eğitim verisinde ileri seçimle bulunur. Walk-forward
 2015–2023: AP 0,165 (Model A'nın 5 değişkeni aynı hedefte 0,155, görüş bandı
 iklimi 0,113, ay×saat 0,026). Ömerli değişkeni (`kd_nemli`/`kd_hafif`) 4
-fold'un 3'ünde seçildi. Ayrıntı: `QV3_RAPOR.md`. Holdout açılmadı.
+fold'un 3'ünde seçildi. Sıklığa dayalı "kararlı seçim" denendi, daha kötü
+(AP 0,138): nem/rüzgâr değişkenleri birbirinin yerine geçiyor. Ayrıntı:
+`QV3_RAPOR.md`. Holdout açılmadı.
 
 ### Ömerli'den nem taşınması — dolaylı gösterge (`omerli_advek.py`)
 

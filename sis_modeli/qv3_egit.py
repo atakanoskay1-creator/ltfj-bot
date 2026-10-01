@@ -57,14 +57,18 @@ def fold_calistir(egitim: list, test: list) -> dict:
     secim = qv3_model.ileri_secim(egitim)
     alanlar = secim["secilen"] or list(qv3_model.MODEL_A_ALANLARI)
     beta, tablolar, l2 = qv3_model.egit(egitim, alanlar)
+    kararli = qv3_model.kararli_secim(egitim)
+    alanlar_k = kararli["secilen"] or list(qv3_model.MODEL_A_ALANLARI)
+    beta_k, tablolar_k, l2_k = qv3_model.egit(egitim, alanlar_k)
     beta_a, tablolar_a, l2_a = qv3_model.egit(egitim, qv3_model.MODEL_A_ALANLARI)
     iklim = model.iklim_baseline(egitim)
     g_iklim = gorus_iklimi(egitim)
     return {
-        "secim": secim, "l2": l2, "l2_a": l2_a,
+        "secim": secim, "kararli": kararli, "l2": l2, "l2_k": l2_k, "l2_a": l2_a,
         "gercek": [bool(r["hedef"]) for r in test],
         "tahmin": {
             "QV3": [qv3_model.olasilik(beta, r, tablolar) for r in test],
+            "QV3 kararlı": [qv3_model.olasilik(beta_k, r, tablolar_k) for r in test],
             "Model A seti": [qv3_model.olasilik(beta_a, r, tablolar_a) for r in test],
             "görüş bandı iklimi": [gorus_iklimi_tahmin(g_iklim, r) for r in test],
             "ay×saat iklimi": [model.iklim_tahmin(iklim, r) for r in test],
@@ -80,12 +84,13 @@ def main() -> int:
           f"{sum(r['hedef'] for r in gelistirme)} pozitif\n")
 
     birikmis = {"gercek": [], "tahmin": {}}
-    secim_sayaci = Counter()
+    secim_sayaci, kararli_sayac = Counter(), Counter()
     for egitim_yillari, test_yillari in bolme.foldlar():
         egitim = bolme.ayir(gelistirme, egitim_yillari)
         test = bolme.ayir(gelistirme, test_yillari)
         f = fold_calistir(egitim, test)
         secim_sayaci.update(f["secim"]["secilen"])
+        kararli_sayac.update(f["kararli"]["secilen"])
         print(f"=== Test {test_yillari[0]}-{test_yillari[-1]} "
               f"(eğitim {min(r['dt'].year for r in egitim)}-{egitim_yillari[-1]}), "
               f"{sum(f['gercek'])} pozitif")
@@ -93,6 +98,10 @@ def main() -> int:
             f"{a} {v:.2f}" for a, v in f["secim"]["iv"][:10]))
         print("  ileri seçim: " + " -> ".join(f"{a} ({ap:.3f})" for a, ap in f["secim"]["adimlar"])
               + f"   [L2 QV3 {f['l2']:g}, Model A seti {f['l2_a']:g}]")
+        k = f["kararli"]
+        print(f"  kararlı seçim ({k['kosu']} koşu, eşik %{100 * qv3_model.KARARLILIK_ESIGI:.0f}): "
+              + ", ".join(k["secilen"]) + "   [sıklık: "
+              + ", ".join(f"{a} {o:.0%}" for a, o in k["siklik"].items()) + f"; L2 {f['l2_k']:g}]")
         iklim = f["tahmin"]["ay×saat iklimi"]
         for ad, t in f["tahmin"].items():
             o = olcutler(t, f["gercek"], iklim)
@@ -110,6 +119,8 @@ def main() -> int:
               f"Brier {o['Brier']:.5f}  BSS {o['BSS']:+.3f}")
     print("\nSeçilme sıklığı (fold sayısı): " + ", ".join(
         f"{a} {n}" for a, n in secim_sayaci.most_common()))
+    print("Kararlı seçimde (fold sayısı): " + ", ".join(
+        f"{a} {n}" for a, n in kararli_sayac.most_common()))
     return 0
 
 

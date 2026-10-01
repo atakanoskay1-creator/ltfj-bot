@@ -8,11 +8,11 @@ Safhası'na geçilecek mi?
 QV3 **canlıya bağlanmaz**; yalnızca V3 için görmek amaçlıdır. Canlı Model A,
 onun veri dosyası ve 2024–2026 holdout'u **değişmedi / açılmadı**.
 
-Tekrar üretmek için (repo kökünden, ~2 dk):
+Tekrar üretmek için (repo kökünden):
 
 ```
 python -m sis_modeli.qv3_hedef   # evren ve yıllık pozitifler
-python -m sis_modeli.qv3_egit    # seçim + walk-forward
+python -m sis_modeli.qv3_egit    # seçim + walk-forward (~8 dk, kararlı seçim dahil)
 ```
 
 ## Veri ve hedef (`qv3_hedef.py`)
@@ -82,6 +82,7 @@ durum Model A'da da görülmüştü.
 | Model | AP | ROC-AUC | Brier | BSS (ay×saat'e göre) |
 |---|---|---|---|---|
 | **QV3** (veriyle seçilen set) | **0,165** | 0,905 | **0,00789** | **+0,085** |
+| QV3 kararlı seçim (aşağıda) | 0,138 | 0,868 | 0,00803 | +0,069 |
 | Model A'nın 5 değişkeni (bu hedefte yeniden eğitildi) | 0,155 | **0,915** | 0,00795 | +0,077 |
 | Mevcut görüş bandı iklimi | 0,113 | 0,792 | 0,00809 | +0,062 |
 | Ay × saat iklimi | 0,026 | 0,760 | 0,00862 | 0 |
@@ -94,6 +95,57 @@ Dönem dönem AP (QV3 / Model A seti):
 | 2017–18 | 0,229 | 0,205 |
 | 2019–20 | 0,207 | 0,192 |
 | 2021–23 | 0,178 | 0,156 |
+
+### Uyarı eşiği karşılığı (QV3, 2015–2023)
+
+Olay = önümüzdeki 3 saatte Hazırlık şartına giden pozitif anlar bloğu
+(244 olay). "Olasılık eşiği geçince uyarı" denseydi:
+
+| Eşik | Önceden en az bir uyarı alan olay | Uyarı verilen gün (3.267 gün) | Uyarı anlarının isabeti |
+|---|---|---|---|
+| %5 | **%84** (205) | 1.060 | %11 |
+| %10 | %62 (151) | 499 | %20 |
+| %20 | %43 (104) | 227 | %31 |
+| %30 | %30 (74) | 147 | %41 |
+
+İsabet, uyarı verilen anlardan sonraki 3 saatte gerçekten Hazırlık
+şartının oluşma payıdır.
+
+### Kararlı seçim denemesi (`qv3_model.kararli_secim`) — işe yaramadı
+
+Tek yıllık iç doğrulama gürültülü olduğu için, her test döneminde eğitimin
+**her yılı sırayla** iç doğrulama yapıldı ve ileri seçim yeniden koşuldu.
+Koşuların en az %50'sinde seçilen değişkenler tutuldu. Eşik sonuçlara
+bakmadan sabitlendi.
+
+| Test dönemi | Koşu | Kararlı set | Yakın kalanlar (sıklık) |
+|---|---|---|---|
+| 2015–16 | 3 | görüş, saat, spread_egilim_3 | kd_nemli, kd_hafif, br %33 |
+| 2017–18 | 5 | saat, görüş | spread, spread_egilim_3, ruzgar_kuzey %40 |
+| 2019–20 | 7 | saat, görüş, rvr_24 | **kd_nemli %43** |
+| 2021–23 | 9 | saat, görüş | **kd_nemli %44**, ruzgar_kuzey %44 |
+
+Sonuç: AP **0,138**. Bu, tek yıllık seçimin (0,165) ve Model A setinin
+(0,155) altında. Dönem dönem kararlı seçim hep daha düşük:
+
+| Dönem | Kararlı | Tek yıllık |
+|---|---|---|
+| 2015–16 | 0,172 | 0,183 |
+| 2017–18 | 0,154 | 0,229 |
+| 2019–20 | 0,184 | 0,207 |
+| 2021–23 | 0,152 | 0,178 |
+
+**Neden:** nem ve rüzgâr değişkenleri (spread ve eğilimi, ruzgar_kuzey,
+kd_nemli, kd_hafif) **birbirinin yerine geçiyor**. Her koşuda biri seçiliyor
+ama hangisinin seçildiği değişiyor. Bu yüzden tek tek hiçbiri %50'yi
+geçemiyor ve set görüş + saate iniyor; o iki değişken de bu bilgiyi
+taşımıyor.
+
+Ders: tek tek kararlılık burada yanlış ölçüt. Doğrusu bu ailenin **bir
+temsilcisini** kesin tutmak.
+
+Eşiği sonuçlara bakarak düşürmek (örneğin %30) test verisine ayar olurdu;
+yapılmadı.
 
 ## Yorum
 
@@ -112,11 +164,14 @@ Dönem dönem AP (QV3 / Model A seti):
    (README "Ömerli'den nem taşınması") Hazırlık hedefinde de bilgi taşıyor.
 4. **RVR, görüşün yerini tutmuyor; ama 2 dönemde ek bilgi olarak seçildi.**
    RVR yalnızca görüş/RVR < 1500 m iken raporlandığı için çoğu anda boş.
-5. **Seçim kararsız.**
-   - İç doğrulama tek yıl ve yılda 76–285 pozitif an var.
+5. **Seçim kararsız; ama bunun nedeni gürültü değil, ikame.**
    - Görüş ve saat dışındaki değişkenler dönemden döneme değişiyor.
-   - V3'te daha kararlı bir seçim için iç doğrulama 2 yıl ya da bootstrap ile
-     sıklık seçimi denenebilir.
+   - Kararlı seçim denemesi bunun büyük ölçüde nem/rüzgâr değişkenlerinin
+     birbirinin yerine geçmesinden kaynaklandığını gösterdi. Sıklığa göre
+     tek tek elemek setin bilgisini düşürdü (AP 0,138).
+   - V3 için öneri: değişkenleri **aile** olarak seçmek. Örneğin "nem
+     (spread ailesi)" ve "Ömerli (KD × spread)" ailelerinden en az birer
+     temsilci zorunlu tutulur, temsilci iç doğrulamayla seçilir.
 
 ## Sınırlar
 
