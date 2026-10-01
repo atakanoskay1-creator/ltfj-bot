@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:55157958",
   "id:55159649",
   "id:55161265",
   "id:55163427",
@@ -199,24 +198,16 @@
   "id:56156057",
   "id:56162722",
   "id:56167577",
-  "id:56180033"
+  "id:56180033",
+  "id:56183818"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 010620Z 05010KT 9999 SCT030 BKN080 17/11 Q1022 NOSIG RMK RWY24R 03008KT RWY06R 04012KT RWY24L 06009KT",
+ "son_metar": "METAR LTFJ 010650Z 05010KT 9999 SCT030 BKN080 19/12 Q1022 NOSIG RMK RWY24R 04010KT 360V070 RWY06R 04012KT RWY24L 05012KT 020V090",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-10-01T06:20:00+00:00",
+ "son_veri_zamani": "2026-10-01T06:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-25T11:50:00+00:00",
-   "gorus": 9999,
-   "ruzgar_hiz": 11,
-   "tavan": null,
-   "qnh": 1018,
-   "sicaklik": 24,
-   "cig_noktasi": 11
-  },
   {
    "zaman": "2026-09-25T12:20:00+00:00",
    "gorus": 9999,
@@ -2907,13 +2898,22 @@
    "qnh": 1022,
    "sicaklik": 17,
    "cig_noktasi": 11
+  },
+  {
+   "zaman": "2026-10-01T06:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 10,
+   "tavan": 8000,
+   "qnh": 1022,
+   "sicaklik": 19,
+   "cig_noktasi": 12
   }
  ],
  "yorum_onbellegi": {
-  "TAF LTFJ 010440Z 0106/0206 04008KT 9999 SCT035 BKN090 BECMG 0106/0108 04018KT TEMPO 0107/0111 -SHRA FEW020TCU BKN030 BKN080 TEMPO 0111/0115 04018G28KT -SHRA FEW020TCU BKN030 BKN080 TEMPO 0115/0119 04018G28KT -SHRA BKN025 BKN080 BECMG 0120/0122 04008KT BECMG 0122/0202 -SHRA BKN030 BKN080 TEMPO 0202/0206 4000 SHRA BR": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken hava koşulları beklenmektedir; hafif yağışlar ve rüzgar artışı öngörülmektedir.\n\n- **0106/0108 UTC:** Rüzgar kademeli olarak 04018KT'ye geçecektir.\n- **0107/0111 UTC:** Hafif sağanak yağış, az bulutlu 020 ft'de gök gürültülü bulut, 030 ve 080 ft'de parçalı bulut geçici olarak beklenmektedir.\n- **0111/0115 UTC:** Hafif sağanak yağış, rüzgar 04018G28KT, az bulutlu 020 ft'de gök gürültülü bulut, 030 ve 080 ft'de parçalı bulut geçici olarak beklenmektedir.\n- **0115/0119 UTC:** Hafif sağanak yağış, rüzgar 04018G28KT, 025 ft'de parçalı bulut, 080 ft'de parçalı bulut geçici olarak beklenmektedir.\n- **0120/0122 UTC:** Rüzgar kademeli olarak 04008KT'ye geçecektir.\n- **0122/0202 UTC:** Hafif sağanak yağış, 030 ve 080 ft'de parçalı bulut kademeli olarak beklenmektedir.\n- **0202/0206 UTC:** Görüş 4000 m, sağanak yağış ve sis geçici olarak beklenmektedir.",
-  "METAR LTFJ 010520Z 04009KT 9999 SCT030 BKN080 16/12 Q1022 NOSIG RMK RWY24R 04008KT RWY06R 04010KT RWY24L 06009KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 9 knot (yaklaşık 17 km/s) hızında hafif rüzgâr esiyor, yan bileşen düşük seviyede.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** 3000 feet (yaklaşık 900 metre) yükseklikte parçalı bulutlar, 8000 feet (yaklaşık 2400 metre) yükseklikte çok bulutlu katman var; yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor, rüzgâr ve görüş uçuş için uygun seviyelerde.",
   "METAR LTFJ 010550Z 04009KT 9999 SCT030 BKN080 17/12 Q1022 NOSIG RMK RWY24R 01008KT RWY06R 02010KT RWY24L 04009KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 9 knot (yaklaşık 17 km/s) hızında hafif rüzgâr esiyor, yan bileşen 4 knot seviyesinde.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** 3000 feet (yaklaşık 900 metre) yükseklikte parçalı bulutlar, 8000 feet (yaklaşık 2400 metre) yükseklikte çok bulutlu katman var; yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor, rüzgâr ve görüş uçuş için uygun seviyelerde.",
-  "METAR LTFJ 010620Z 05010KT 9999 SCT030 BKN080 17/11 Q1022 NOSIG RMK RWY24R 03008KT RWY06R 04012KT RWY24L 06009KT": "**Rüzgâr:** Kuzeydoğudan 10 knot (yaklaşık 18 km/saat) hızında rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** 3000 feet (yaklaşık 900 metre) yükseklikte parçalı bulutlar, 8000 feet (yaklaşık 2400 metre) yükseklikte daha yoğun bulutlar var; yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor, rüzgâr ve görüş uçuş için uygun durumda."
+  "METAR LTFJ 010620Z 05010KT 9999 SCT030 BKN080 17/11 Q1022 NOSIG RMK RWY24R 03008KT RWY06R 04012KT RWY24L 06009KT": "**Rüzgâr:** Kuzeydoğudan 10 knot (yaklaşık 18 km/saat) hızında rüzgâr esiyor, yan bileşen çok düşük.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** 3000 feet (yaklaşık 900 metre) yükseklikte parçalı bulutlar, 8000 feet (yaklaşık 2400 metre) yükseklikte daha yoğun bulutlar var; yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor, rüzgâr ve görüş uçuş için uygun durumda.",
+  "METAR LTFJ 010650Z 05010KT 9999 SCT030 BKN080 19/12 Q1022 NOSIG RMK RWY24R 04010KT 360V070 RWY06R 04012KT RWY24L 05012KT 020V090": "**Rüzgâr:** Kuzey-kuzeydoğudan 10 düğüm hızında rüzgâr esiyor, yan bileşen çok az.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için rahat.\n\n**Gökyüzü:** 3000 metre yükseklikte parçalı bulutlar, 8000 metre yükseklikte çok bulutlu, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları operasyonel olarak uygun.",
+  "TAF LTFJ 010440Z 0106/0206 04008KT 9999 SCT035 BKN090 BECMG 0106/0108 04018KT TEMPO 0107/0111 -SHRA FEW020TCU BKN030 BKN080 TEMPO 0111/0115 04018G28KT -SHRA FEW020TCU BKN030 BKN080 TEMPO 0115/0119 04018G28KT -SHRA BKN025 BKN080 BECMG 0120/0122 04008KT BECMG 0122/0202 -SHRA BKN030 BKN080 TEMPO 0202/0206 4000 SHRA BR": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken hava koşulları beklenmektedir; rüzgar artışı ve sağanak yağışlar öngörülmektedir.\n\n- **0106/0108 UTC:** Rüzgar kademeli olarak 04008KT'den 04018KT'ye geçecektir.\n- **0107/0115 UTC:** Hafif sağanak ve gök gürültülü bulutlar beklenmektedir; rüzgar 04018G28KT'ye ulaşacaktır.\n- **0115/0119 UTC:** Hafif sağanak ve gök gürültülü bulutlar devam edecektir; rüzgar 04018G28KT'de kalacaktır.\n- **0120/0202 UTC:** Rüzgar kademeli olarak 04008KT'ye düşecek, hafif sağanak ve sisli koşullar beklenmektedir.\n- **0202/0206 UTC:** Görüş 4000 m'ye düşecek, sağanak ve sis beklenmektedir."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -4079,12 +4079,12 @@
   }
  },
  "notam_son_senkron": "2026-10-01T05:12:44+00:00",
- "guncelleme": "2026-10-01T06:52:45+00:00",
+ "guncelleme": "2026-10-01T06:56:49+00:00",
  "push_gonderilen": [
-  "id:56153537",
+  "id:56140466",
+  "id:56156057",
   "id:56143057",
   "id:56127280",
-  "id:56156057",
-  "id:56140466"
+  "id:56153537"
  ]
 }
