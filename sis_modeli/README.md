@@ -1379,6 +1379,54 @@ da aşırı nadir WoE hücrelerini elemeyi) SONUÇLARA bakmadan, a priori olarak
 büyütülmüş havuza uyarlayıp yeniden dondurmak — tek seferlik bir sayı
 seçimi değil, prosedürün kendisinin gözden geçirilmesi gerekir.
 
+## Model A — ROC-AUC (sonradan eklenen tanımlayıcı ölçü)
+
+Model A'nın ROC-AUC'si bugüne kadar raporlanmamıştı (yalnızca Model B
+ve ufuk deneyi için ölçülmüştü). 01.10.2026'da `egit.py` ve
+`holdout_degerlendir.py` çıktısına ROC-AUC sütunu eklendi ve iki betik
+yeniden çalıştırıldı. **Model, değişkenler, L2 ızgarası ve hiçbir karar
+değişmedi**; mevcut sütunlar kayıtlı değerlerle birebir aynı çıktı
+(walk-forward AP 0.210 / BSS 0.118; holdout Brier×10⁴ 40.85 / BSS 0.092 /
+AP 0.184). Holdout zaten açılmış olduğu için bu yeni bir "açılış" değil,
+mevcut sonuca eklenen tanımlayıcı bir ölçüdür.
+
+**Walk-forward (2015–2023, 155.634 an, 1.238 pozitif):**
+
+| yöntem | AP | ROC-AUC |
+|---|---|---|
+| **Model A** | **0.210** | **0.918** |
+| süreklilik | 0.153 | 0.814 |
+| basit kural | 0.038 | 0.837 |
+| iklim (ay × saat) | 0.018 | 0.736 |
+
+Fold bazında Model A: 2015–16 0.917 · 2017–18 0.929 · 2019–20 0.958 ·
+2021–23 0.896.
+
+**Holdout (2024–2026, 47.415 an, 214 pozitif):**
+
+| yöntem | AP | ROC-AUC |
+|---|---|---|
+| **Model A** | **0.184** | **0.895** |
+| Model B (görüşsüz) | 0.075 | 0.905 |
+| süreklilik | 0.132 | 0.770 |
+| basit kural | 0.048 | 0.830 |
+| iklim (ay × saat) | 0.013 | 0.796 |
+
+(Model B satırı `olusum_holdout_degerlendir.py` çıktısından. O betiğin
+iklim referansı farklı tanımlandığı için ROC-AUC'si 0.500; buradaki
+iklim satırı `holdout_degerlendir.py`'nin ay × saat tablosudur.)
+
+**Okuma — ROC-AUC bu problemde neden ana ölçü değil:** holdout'ta
+görüşsüz Model B'nin ROC-AUC'si (0.905) canlı Model A'nınkinden (0.895)
+*yüksek*, oysa AP'de A, B'nin ~2.5 katı (0.184 vs 0.075) ve olay
+yakalamada çok önde (≥%5 eşikte 21/33 vs 5/33 bağımsız olay). Taban oran
+%0.45 iken ROC-AUC'yi büyük ölçüde kolay negatifler (açık hava, büyük
+spread) belirliyor: iki model de onları iyi sıralıyor, fark asıl zor
+bölgede (sis yaklaşırken) ortaya çıkıyor ve ROC-AUC bunu göremiyor. Bu
+yüzden karar ölçüleri AP, LSS/log-likelihood ve olay yakalama olarak
+kalır; ROC-AUC yalnızca tanımlayıcı olarak raporlanır (bkz.
+`degerlendir.roc_auc` uyarısı).
+
 ## Sınırlar
 
 Bu bir **iklim + süreklilik** modelidir, fizik modeli değildir: yaklaşan bir

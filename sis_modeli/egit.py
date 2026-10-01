@@ -81,7 +81,7 @@ def main(argv=None) -> int:
     birikmis_tahmin = {k: [] for k in ("model", "iklim", "süreklilik", "basit kural")}
 
     print(f"{'fold (test yılı)':<20}{'n':>8}{'poz':>6}"
-          f"{'Brier×10⁴':>11}{'BSS':>8}{'AP':>8}{'L2':>8}")
+          f"{'Brier×10⁴':>11}{'BSS':>8}{'AP':>8}{'ROC-AUC':>9}{'L2':>8}")
     for egitim_yillari, test_yillari in bolme.foldlar():
         egitim = bolme.ayir(gelistirme, egitim_yillari)
         test = bolme.ayir(gelistirme, test_yillari)
@@ -94,7 +94,9 @@ def main(argv=None) -> int:
         etiket = "-".join(str(y) for y in (test_yillari[0], test_yillari[-1]))
         print(f"{etiket:<20}{len(test):>8}{sum(s['gercek']):>6}"
               f"{1e4*degerlendir.brier(s['tahmin']['model'], s['gercek']):>11.2f}"
-              f"{bss:>8.3f}{ap:>8.3f}{s['l2']:>8.0f}")
+              f"{bss:>8.3f}{ap:>8.3f}"
+              f"{degerlendir.roc_auc(s['tahmin']['model'], s['gercek']):>9.3f}"
+              f"{s['l2']:>8.0f}")
         birikmis["gercek"].extend(s["gercek"])
         birikmis["test"].extend(s["test"])
         for k, v in s["tahmin"].items():
@@ -102,11 +104,13 @@ def main(argv=None) -> int:
 
     g = birikmis["gercek"]
     print(f"\n=== Tüm fold'lar birikmiş: {len(g)} an, {sum(g)} pozitif ===")
-    print(f"{'yöntem':<16}{'Brier×10⁴':>11}{'BSS (iklime göre)':>20}{'AP':>8}")
+    print(f"{'yöntem':<16}{'Brier×10⁴':>11}{'BSS (iklime göre)':>20}{'AP':>8}"
+          f"{'ROC-AUC':>9}")
     for ad, p in birikmis_tahmin.items():
         bss = degerlendir.brier_skill(p, g, birikmis_tahmin["iklim"])
         print(f"{ad:<16}{1e4*degerlendir.brier(p, g):>11.2f}{bss:>20.3f}"
-              f"{degerlendir.ortalama_kesinlik(p, g):>8.3f}")
+              f"{degerlendir.ortalama_kesinlik(p, g):>8.3f}"
+              f"{degerlendir.roc_auc(p, g):>9.3f}")
 
     alt, ust = degerlendir.blok_guven_araligi(
         birikmis["test"], birikmis_tahmin["model"], g,

@@ -45,14 +45,15 @@ def main() -> int:
     }
 
     print(f"Seçilen L2 (iç doğrulamayla): {l2:.0f}\n")
-    print(f"{'yöntem':<16}{'Brier×10⁴':>11}{'BSS':>8}{'AP':>8}{'AP %5–%95':>18}")
+    print(f"{'yöntem':<16}{'Brier×10⁴':>11}{'BSS':>8}{'AP':>8}{'AP %5–%95':>18}"
+          f"{'ROC-AUC':>9}")
     for ad, p in tahminler.items():
         bss = degerlendir.brier_skill(p, gercek, tahminler["iklim"])
         ap = degerlendir.ortalama_kesinlik(p, gercek)
         alt, ust = degerlendir.blok_guven_araligi(test, p, gercek,
                                                   degerlendir.ortalama_kesinlik)
         print(f"{ad:<16}{1e4*degerlendir.brier(p, gercek):>11.2f}{bss:>8.3f}{ap:>8.3f}"
-              f"{f'{alt:.3f} – {ust:.3f}':>18}")
+              f"{f'{alt:.3f} – {ust:.3f}':>18}{degerlendir.roc_auc(p, gercek):>9.3f}")
 
     print("\n=== Güvenilirlik (model) ===")
     print(f"  {'kova':<10}{'n':>8}{'ort. tahmin':>13}{'gerçekleşen':>13}{'poz':>6}")
