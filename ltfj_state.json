@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:55173900",
   "id:55175951",
   "id:55182945",
   "id:55187696",
@@ -199,24 +198,16 @@
   "id:56192048",
   "id:56193515",
   "id:56194759",
-  "id:56203733"
+  "id:56203733",
+  "id:56207048"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 010820Z 04010KT 9999 SCT030 BKN080 16/13 Q1023 RESHRA NOSIG RMK RWY24R 03008KT RWY06R 04010KT RWY24L 05009KT",
+ "son_metar": "METAR LTFJ 010850Z 03010KT 9999 SCT030 BKN080 18/14 Q1022 NOSIG RMK RWY24R 03009KT RWY06R 03010KT RWY24L 04010KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-10-01T08:20:00+00:00",
+ "son_veri_zamani": "2026-10-01T08:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-25T14:20:00+00:00",
-   "gorus": 9999,
-   "ruzgar_hiz": 14,
-   "tavan": null,
-   "qnh": 1018,
-   "sicaklik": 21,
-   "cig_noktasi": 12
-  },
   {
    "zaman": "2026-09-25T14:50:00+00:00",
    "gorus": 9999,
@@ -2907,13 +2898,22 @@
    "qnh": 1023,
    "sicaklik": 16,
    "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-10-01T08:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 10,
+   "tavan": 8000,
+   "qnh": 1022,
+   "sicaklik": 18,
+   "cig_noktasi": 14
   }
  ],
  "yorum_onbellegi": {
-  "SPECI CCALTFJ 010731Z 03011KT 9000 -SHRA FEW017TCU SCT030 BKN080 17/13 Q1022 NOSIG RMK RWY24R 02011KT 350V070 RWY06R 02010KT RWY24L 02012KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 11 düğüm hızla esen rüzgâr, yan bileşeni hafif düzeyde.\n\n**Görüş:** 9000 metre görüş mesafesi, uçuş için yeterli.\n\n**Gökyüzü:** Az bulutlu başlayıp 1700 metrede gelişen kule bulutları, 3000 metrede parçalı bulutlar, 8000 metrede çok bulutlu tabaka; hafif sağanak yağmuru eşlik ediyor.\n\n**Uçuşa etkisi:** Hafif sağanak ve düşük bulut tabakaları gözlenmekte, ancak görüş ve rüzgâr şiddeti operasyonel sınırlar içinde.",
   "METAR LTFJ 010750Z 05013KT 9999 -SHRA FEW017TCU SCT030 BKN080 16/14 Q1023 NOSIG RMK RWY24R 04011KT RWY06R 04012KT RWY24L 05011KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 13 düğüm hızla esen rüzgâr, yan bileşen çok az.\n\n**Görüş:** 10 kilometre ve daha fazla görüş, uçuş için rahat.\n\n**Gökyüzü:** Yaklaşık 520 metre yükseklikte gelişen kule bulutlar ve az bulutluluk, 900 metre civarında parçalı bulutluluk, 2400 metre yükseklikte çok bulutlu; hafif sağanak yağmur düşüyor.\n\n**Uçuşa etkisi:** Hafif sağanak ve yüksek nem koşulları gözlenmekte, ancak görüş ve rüzgâr şiddeti operasyonel sınırlamaya neden olmamaktadır.",
   "METAR LTFJ 010820Z 04010KT 9999 SCT030 BKN080 16/13 Q1023 RESHRA NOSIG RMK RWY24R 03008KT RWY06R 04010KT RWY24L 05009KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 10 düğüm hızında rüzgâr esiyor, yan bileşen hafif.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mevcut, uçuş için rahat.\n\n**Gökyüzü:** 3000 feet yükseklikte parçalı bulutlar, 8000 feet yükseklikte çok bulutlu, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor, rüzgâr ve görüş operasyonel sınırlar içinde.",
-  "TAF LTFJ 010440Z 0106/0206 04008KT 9999 SCT035 BKN090 BECMG 0106/0108 04018KT TEMPO 0107/0111 -SHRA FEW020TCU BKN030 BKN080 TEMPO 0111/0115 04018G28KT -SHRA FEW020TCU BKN030 BKN080 TEMPO 0115/0119 04018G28KT -SHRA BKN025 BKN080 BECMG 0120/0122 04008KT BECMG 0122/0202 -SHRA BKN030 BKN080 TEMPO 0202/0206 4000 SHRA BR": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken hava koşulları beklenmektedir; rüzgar artışı ve sağanak yağışlar öngörülmektedir.\n\n- **0106/0108 UTC:** Rüzgar kademeli olarak 04008KT'den 04018KT'ye geçecektir.\n\n- **0107/0111 UTC:** Hafif sağanak, az bulutlu 020 ft'de gök gürültülü bulut, 030 ve 080 ft'de parçalı bulut beklenmektedir.\n\n- **0111/0115 UTC:** Rüzgar 04018G28KT, hafif sağanak, az bulutlu 020 ft'de gök gürültülü bulut, 030 ve 080 ft'de parçalı bulut beklenmektedir.\n\n- **0115/0119 UTC:** Rüzgar 04018G28KT, hafif sağanak, 025 ft'de parçalı bulut, 080 ft'de parçalı bulut beklenmektedir.\n\n- **0120/0122 UTC:** Rüzgar kademeli olarak 04008KT'ye düşecektir.\n\n- **0122/0202 UTC:** Hafif sağanak, 030 ve 080 ft'de parçalı bulut beklenmektedir.\n\n- **0202/0206 UTC:** Görüş 4000 m, sağanak ve sis beklenmektedir."
+  "TAF LTFJ 010440Z 0106/0206 04008KT 9999 SCT035 BKN090 BECMG 0106/0108 04018KT TEMPO 0107/0111 -SHRA FEW020TCU BKN030 BKN080 TEMPO 0111/0115 04018G28KT -SHRA FEW020TCU BKN030 BKN080 TEMPO 0115/0119 04018G28KT -SHRA BKN025 BKN080 BECMG 0120/0122 04008KT BECMG 0122/0202 -SHRA BKN030 BKN080 TEMPO 0202/0206 4000 SHRA BR": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken hava koşulları beklenmektedir; rüzgar artışı ve sağanak yağışlar öngörülmektedir.\n\n- **0106/0108 UTC:** Rüzgar kademeli olarak 04008KT'den 04018KT'ye geçecektir.\n\n- **0107/0111 UTC:** Hafif sağanak, az bulutlu 020 ft'de gök gürültülü bulut, 030 ve 080 ft'de parçalı bulut beklenmektedir.\n\n- **0111/0115 UTC:** Rüzgar 04018G28KT, hafif sağanak, az bulutlu 020 ft'de gök gürültülü bulut, 030 ve 080 ft'de parçalı bulut beklenmektedir.\n\n- **0115/0119 UTC:** Rüzgar 04018G28KT, hafif sağanak, 025 ft'de parçalı bulut, 080 ft'de parçalı bulut beklenmektedir.\n\n- **0120/0122 UTC:** Rüzgar kademeli olarak 04008KT'ye düşecektir.\n\n- **0122/0202 UTC:** Hafif sağanak, 030 ve 080 ft'de parçalı bulut beklenmektedir.\n\n- **0202/0206 UTC:** Görüş 4000 m, sağanak ve sis beklenmektedir.",
+  "METAR LTFJ 010850Z 03010KT 9999 SCT030 BKN080 18/14 Q1022 NOSIG RMK RWY24R 03009KT RWY06R 03010KT RWY24L 04010KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 10 düğüm hızında rüzgâr esiyor, hafif yan bileşeni var.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için rahat koşullar.\n\n**Gökyüzü:** 3000 feet yükseklikte parçalı bulutlar, 8000 feet yükseklikte çok bulutlu katman var; yağış yok.\n\n**Uçuşa etkisi:** Gözlenen veriler kısıtlayıcı unsur içermiyor, rüzgâr ve görüş uçuş için uygun seviyededir."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -4079,7 +4079,7 @@
   }
  },
  "notam_son_senkron": "2026-10-01T08:17:03+00:00",
- "guncelleme": "2026-10-01T08:52:50+00:00",
+ "guncelleme": "2026-10-01T08:56:49+00:00",
  "push_gonderilen": [
   "id:56193515"
  ]
