@@ -624,9 +624,15 @@ def test_sema_gecisi_GERCEK_repo_arsivi(tmp_path):
         hedef = tmp_path / "gozlem_arsivi.csv"
         hedef.write_bytes(gercek.read_bytes())
         once = _satirlar(hedef)
-        ga.arsive_isle(_raporlar([_k("23:50", 9, gun=30)]), metar_coz, ga.KAYNAK_BACKFILL,
+        # Sentetik kayit, gercek arsivde OLAMAYACAK bir zamanda: arsiv
+        # 27.09'dan basliyor ve yalnizca ileri buyuyor. (Onceden 30.09
+        # 23:50 kullaniliyordu; bot o METAR'i gercekten arsive yazinca
+        # test kirildi.)
+        ga.arsive_isle(_raporlar([_k("23:13", 9, gun=1)]), metar_coz, ga.KAYNAK_BACKFILL,
                        _t("2099-01-01T00:00:00"), hedef, tmp_path / "s.csv")
-        assert [x for x in _satirlar(hedef) if not x.startswith("2026-09-30T23:50")] == once
+        sonra = _satirlar(hedef)
+        assert any(x.startswith("2026-09-01T23:13") for x in sonra)
+        assert [x for x in sonra if not x.startswith("2026-09-01T23:13")] == once
         return
     n = _migrasyon_dogrula(gercek, tmp_path)
     assert n >= 244
