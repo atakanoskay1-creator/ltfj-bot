@@ -33,7 +33,7 @@ Bu proje, İstanbul Sabiha Gökçen Havalimanı (LTFJ) için güncel havacılık
 | `sis_modeli/` | Sis/tavan modellerinin eğitim ve analiz kodu, veri arşivi ve notlar (salt okuma analizleri dahil). |
 | `tests/` | pytest paketi (`python -m pytest -q`). |
 | `sayfa_kaynak/`, `yazitipi/` | Web sayfasının CSS/JS ve yazı tipi dosyaları. |
-| kök dizin | GitHub Pages dosyaları (`index.html`, `panel.html`, `sw.js`, ikonlar) ve botun yazdığı veri dosyaları (`ltfj_state.json`, `gozlem_arsivi.csv`, `tahmin_gunlugu.csv`, `omerli_gozlem.csv` vb.). Pages kökten yayınladığı ve günlük kontroller bu yolları okuduğu için bunlar kökte kalır. |
+| kök dizin | GitHub Pages dosyaları (`index.html`, `panel.html`, `sw.js`, ikonlar) ve botun yazdığı veri dosyaları (`ltfj_state.json`, `gozlem_arsivi.csv`, `tahmin_gunlugu.csv`, `omerli_gozlem.csv`, `lvo_hazirlik_gunlugu.csv` vb.). Pages kökten yayınladığı ve günlük kontroller bu yolları okuduğu için bunlar kökte kalır. |
 
 Bot modülleri dosya yollarını repo köküne göre çözer; komutlar her zaman repo kökünden çalıştırılır.
 

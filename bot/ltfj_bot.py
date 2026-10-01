@@ -1238,6 +1238,18 @@ def main():
             except Exception as e:
                 print(f"[uyarı] Tahmin günlüğü/doğrulama atlandı: {e}", file=sys.stderr)
 
+            # QV3 GOLGE MODU (bkz. ltfj_lvo_hazirlik): LVO Hazirlik olasiligi
+            # yalnizca lvo_hazirlik_gunlugu.csv'ye yazilir - sayfaya, panele,
+            # Telegram'a, bildirime HICBIR SEY gitmez. FAIL-OPEN.
+            try:
+                import ltfj_lvo_hazirlik
+                golge = ltfj_lvo_hazirlik.kosu(raporlar, KLASOR)
+                if golge:
+                    print(f"  LVO hazırlık (gölge): {golge['gozlem_zaman'][11:16]}Z "
+                          f"{golge['durum']} {golge['olasilik'] or '-'}")
+            except Exception as e:
+                print(f"[uyarı] LVO hazırlık gölge modu atlandı: {e}", file=sys.stderr)
+
             sayfa_yaz(raporlar, state.get("olcum_gecmisi", []), KLASOR / "index.html",
                       state.get("yorum_onbellegi", {}),
                       ayar("atc_notes", "database_url", varsayilan=""),
