@@ -23,6 +23,7 @@ Claude görev yazar ──► GitHub issue [qwen-gorev]
 - **Hangi dosyalar değişebilir:** yalnızca issue'daki `## Dosyalar` listesindekiler.
   - Şunlar listelense bile **her zaman yasak**: bot'un ürettiği dosyalar, dondurulmuş modeller, `.github/`, `araclar/` ve `CONVENTIONS.md`.
   - İhlal olursa hiçbir şey push edilmez.
+  - Model listede olmayan **yeni** bir dosya oluşturursa (ör. açıklama satırını dosya adı sanması, #140) o dosya silinir ve PR açıklamasında belirtilir; var olan (izlenen) bir dosyaya dokunmak yine ihlaldir.
 - **Boş sonuç PR olmaz:** değişen dosya boş kaldıysa ya da yeni test dosyasında hiç test yoksa
   bu tur başarısız sayılır, modelden içeriği yazması istenir. Tüm turlarda böyle kalırsa PR açılmaz.
   Başka bir fonksiyonun içinde tanımlanmış `test_*` fonksiyonu (pytest onu hiç çalıştırmaz) da aynı şekilde yakalanır.

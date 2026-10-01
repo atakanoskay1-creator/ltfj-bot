@@ -50,6 +50,24 @@ def test_porcelain_ayristirma_aider_dosyalarini_yok_sayar():
                                         "eski.py", "yeni.py", "silinen.py"]
 
 
+def test_basibos_yeni_dosyalar_ayiklanir():
+    """#140: model aciklama satirini dosya adi yapti ("Sorun şu")."""
+    cikti = (" M ltfj_bot.py\n?? tests/test_yeni.py\n?? Sorun şu\n"
+             "?? .aider.chat.history.md\n?? sis_modeli/uydurma.py\n M index.html\n")
+    izinli = ["ltfj_bot.py", "tests/test_yeni.py"]
+    assert aj.basibos_yollar(cikti, izinli) == ["Sorun şu", "sis_modeli/uydurma.py"]
+
+
+def test_basibos_temizlik_izin_kontrolunden_once_ve_yalnizca_yeni_dosyalarda():
+    kaynak = _yol.read_text(encoding="utf-8")
+    govde = kaynak[kaynak.index("def gorevi_isle"):]
+    assert govde.index("basibos_yollar(durum(repo), dosyalar)") \
+        < govde.index("disi = izin_disi(degisenler, dosyalar, izlenenler)")
+    # git clean yalnizca takip edilmeyen dosyalari siler; izlenen dosyaya
+    # dokunmak izin_disi ile yine basarisiz
+    assert 'git(repo, "clean", "-q", "-f", "--", *basibos)' in govde
+
+
 def test_izin_disi_degisiklik_yakalaniyor():
     izinli = ["ltfj_bot.py", "tests/test_yeni.py"]
     assert aj.izin_disi(["ltfj_bot.py"], izinli, IZLENEN) == []
