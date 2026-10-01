@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:55062454",
   "id:55064696",
   "id:55072770",
   "id:55075567",
@@ -199,24 +198,16 @@
   "id:56081730",
   "id:56088846",
   "id:56092992",
-  "id:56103083"
+  "id:56103083",
+  "id:56108875"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 010020Z 02010KT 9999 FEW040 15/10 Q1022 NOSIG RMK RWY24R 01009KT RWY06R 01010KT RWY24L 02009KT",
+ "son_metar": "METAR LTFJ 010050Z 03009KT 9999 FEW040 15/11 Q1022 NOSIG RMK RWY24R 02010KT RWY06R 08005KT RWY24L 03009KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-10-01T00:20:00+00:00",
+ "son_veri_zamani": "2026-10-01T00:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-25T04:20:00+00:00",
-   "gorus": 10000,
-   "ruzgar_hiz": 7,
-   "tavan": null,
-   "qnh": 1020,
-   "sicaklik": 12,
-   "cig_noktasi": 9
-  },
   {
    "zaman": "2026-09-25T04:50:00+00:00",
    "gorus": 10000,
@@ -2907,13 +2898,22 @@
    "qnh": 1022,
    "sicaklik": 15,
    "cig_noktasi": 10
+  },
+  {
+   "zaman": "2026-10-01T00:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 9,
+   "tavan": null,
+   "qnh": 1022,
+   "sicaklik": 15,
+   "cig_noktasi": 11
   }
  ],
  "yorum_onbellegi": {
-  "TAF LTFJ 302240Z 0100/0124 04008KT 9999 SCT030 BKN080 BECMG 0107/0109 04018KT TEMPO 0108/0112 -SHRA FEW020TCU BKN025 TEMPO 0112/0116 04018G29KT -SHRA FEW018CB BKN025 PROB40 TEMPO 0116/0120 04016G27KT -SHRA BKN025 BKN080 BECMG 0120/0123 03007KT -SHRA SCT012 BKN025 BKN080": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken bulutluluk ve geçici hafif yağışlı dönemler beklenmektedir.\n\n- **0100/0107 UTC:** Rüzgar 040° 8 knot, görüş 9999 metre, orta bulutlar 3000 ft, kırık bulutlar 8000 ft.\n\n- **0107/0109 UTC:** Kademeli geçiş — rüzgar 040° 18 knot.\n\n- **0108/0112 UTC:** Geçici — hafif yağmur, az bulutlar 2000 ft'de gök gürültülü bulut, kırık bulutlar 2500 ft.\n\n- **0112/0116 UTC:** Geçici — rüzgar 040° 18 knot, gust 29 knot; hafif yağmur, az bulutlar 1800 ft'de kümülonimbus, kırık bulutlar 2500 ft.\n\n- **0116/0120 UTC:** %40 ihtimal geçici — rüzgar 040° 16 knot, gust 27 knot; hafif yağmur, kırık bulutlar 2500 ft ve 8000 ft.\n\n- **0120/0123 UTC:** Kademeli geçiş — rüzgar 030° 7 knot; hafif yağmur, dağınık bulutlar 1200 ft, kırık bulutlar 2500 ft ve 8000 ft.",
-  "METAR LTFJ 302320Z 03010KT 9999 FEW040 15/10 Q1022 NOSIG RMK RWY24R 02013KT RWY06R 03011KT RWY24L 03010KT": "**Rüzgâr:** Kuzey-kuzeydoğu yönünden 10 knot (yaklaşık 18 km/s) hızında rüzgâr esiyor, yan bileşen hafif.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 1200 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor, hava koşulları uçuş için uygun.",
   "METAR LTFJ 302350Z 03010KT 9999 FEW040 15/10 Q1022 NOSIG RMK RWY24R 03008KT RWY06R 03010KT RWY24L 03009KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 10 knot (yaklaşık 18 km/saat) hızında hafif rüzgâr esiyor, yan bileşen 6 knot seviyesindedir.\n\n**Görüş:** 10 kilometre ve daha fazla mesafeden net görüş sağlanıyor, uçuş için görüş açısından rahat koşullar var.\n\n**Gökyüzü:** Az bulutlu hava, bulutlar yaklaşık 1200 metre yükseklikte, yağış yok, hava açık.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı unsur oluşturmuyor, hava koşulları operasyonel açıdan elverişli görünüyor.",
-  "METAR LTFJ 010020Z 02010KT 9999 FEW040 15/10 Q1022 NOSIG RMK RWY24R 01009KT RWY06R 01010KT RWY24L 02009KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 10 knot (yaklaşık 18 km/saat) hızında rüzgâr esiyor, yan bileşen 7 knot düzeyinde.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede görüş mevcut, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 1200 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlenen veriler kısıtlayıcı unsur içermemektedir; rüzgâr, görüş ve hava koşulları operasyonel sınırlar içindedir."
+  "METAR LTFJ 010020Z 02010KT 9999 FEW040 15/10 Q1022 NOSIG RMK RWY24R 01009KT RWY06R 01010KT RWY24L 02009KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 10 knot (yaklaşık 18 km/saat) hızında rüzgâr esiyor, yan bileşen 7 knot düzeyinde.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede görüş mevcut, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 1200 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlenen veriler kısıtlayıcı unsur içermemektedir; rüzgâr, görüş ve hava koşulları operasyonel sınırlar içindedir.",
+  "METAR LTFJ 010050Z 03009KT 9999 FEW040 15/11 Q1022 NOSIG RMK RWY24R 02010KT RWY06R 08005KT RWY24L 03009KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 9 knot hızında rüzgâr esiyor, yan bileşen 5 knot seviyesinde.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mesafesi var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Az bulutlu, bulutlar yaklaşık 1200 metre yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler kısıtlayıcı unsur içermiyor, rüzgâr ve görüş operasyonel sınırlar içinde.",
+  "TAF LTFJ 302240Z 0100/0124 04008KT 9999 SCT030 BKN080 BECMG 0107/0109 04018KT TEMPO 0108/0112 -SHRA FEW020TCU BKN025 TEMPO 0112/0116 04018G29KT -SHRA FEW018CB BKN025 PROB40 TEMPO 0116/0120 04016G27KT -SHRA BKN025 BKN080 BECMG 0120/0123 03007KT -SHRA SCT012 BKN025 BKN080": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken bulutluluk ve geçici hafif yağışlı dönemler beklenmektedir.\n\n- **0100/0107 UTC:** Rüzgar 040° 8 knot, görüş 9999 metre, orta bulutlar 3000 ft, kırık bulutlar 8000 ft.\n\n- **0107/0109 UTC:** Kademeli geçiş — rüzgar 040° 18 knot.\n\n- **0108/0112 UTC:** Geçici — hafif yağmur, az bulutlar 2000 ft'de gök gürültülü bulut, kırık bulutlar 2500 ft.\n\n- **0112/0116 UTC:** Geçici — rüzgar 040° 18 knot, gust 29 knot; hafif yağmur, az bulutlar 1800 ft'de kümülonimbus, kırık bulutlar 2500 ft.\n\n- **0116/0120 UTC:** %40 ihtimal geçici — rüzgar 040° 16 knot, gust 27 knot; hafif yağmur, kırık bulutlar 2500 ft ve 8000 ft.\n\n- **0120/0123 UTC:** Kademeli geçiş — rüzgar 030° 7 knot; hafif yağmur, dağınık bulutlar 1200 ft, kırık bulutlar 2500 ft ve 8000 ft."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -4079,6 +4079,6 @@
   }
  },
  "notam_son_senkron": "2026-09-30T23:12:34+00:00",
- "guncelleme": "2026-10-01T00:56:33+00:00",
+ "guncelleme": "2026-10-01T01:01:23+00:00",
  "push_gonderilen": []
 }
