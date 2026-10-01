@@ -2,7 +2,7 @@
  "istasyon": "LTFJ",
  "kaynak": "NOTAC",
  "bilgi_uyarisi": "Bilgi amaçlıdır. Operasyon öncesi güncel resmî NOTAM/PIB kontrol edilmelidir.",
- "uretildi": "2026-09-30T23:56:37+00:00",
+ "uretildi": "2026-10-01T00:01:19+00:00",
  "son_senkron": "2026-09-30T23:12:34+00:00",
  "aktif": [
   {
@@ -438,34 +438,6 @@
   }
  ],
  "yaklasan": [
-  {
-   "id": "8995e757-c85f-4029-95a9-d33c7c8d7b03",
-   "number": "A3739/26",
-   "notam_type": "N",
-   "location": "LTFJ",
-   "status": "upcoming",
-   "effective_start": "2026-10-01T00:00:00Z",
-   "effective_end": "2026-10-14T23:59:00Z",
-   "notam_issued": "2026-08-24T08:46:00Z",
-   "notam_updated": "2026-08-24T08:46:00Z",
-   "record_updated_at": "2026-08-24T09:00:04.756805Z",
-   "q_code": "QFATT",
-   "category_kodu": "OTHER",
-   "category_etiketi": "Other",
-   "tags": [
-    "facilities"
-   ],
-   "affected_elements": [],
-   "text": "TRIGGER NOTAM-PERM AIRAC AIP AMDT 10/26 WEF 01 OCT 2026\r\nCHANGES OF LTFJ AD 2.20 LOCAL AERODROME REGULATIONS , AD 2.22 FLIGHT \r\nPROCEDURES, AD 2 LTFJ ADC, IAC-15, IAC-16, IAC-17, IAC-18, IAC-19, \r\nIAC-20",
-   "raw": "",
-   "ilgili_notam": null,
-   "reading_short": "Aerodrome regulations and flight procedures are being updated.",
-   "reading_long": "The published local aerodrome regulations, flight procedures and several instrument approach charts for this aerodrome are being updated, effective 1 October 2026.",
-   "source": "NOTAC",
-   "first_seen": "2026-09-25T21:48:05+00:00",
-   "last_seen": "2026-09-30T23:12:34+00:00",
-   "last_active": null
-  },
   {
    "id": "6ec8b3a2-1c88-4bee-a604-e053badc4619",
    "number": "B1300/26",
