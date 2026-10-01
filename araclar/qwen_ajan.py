@@ -59,7 +59,8 @@ YASAK_DOSYALAR = frozenset({
     "index.html", "ltfj_state.json", "panel_veri.json", "notam_veri.json",
     "gozlem_arsivi.csv", "gozlem_surumleri.csv", "gozlem_arsivi_durum.json",
     "tahmin_gunlugu.csv", "tahmin_dogrulama.csv", "dis_kaynak_cache.json",
-    "ltfj_sis_olasilik.py", "ltfj_sis_olasilik_b.py", "ltfj_tavan_tablosu.py",
+    "omerli_gozlem.csv",
+    "bot/ltfj_sis_olasilik.py", "bot/ltfj_sis_olasilik_b.py", "bot/ltfj_tavan_tablosu.py",
     "CONVENTIONS.md", ".env",
 })
 YASAK_ONEKLER = (".github/", "araclar/", "sis_modeli/veri/")

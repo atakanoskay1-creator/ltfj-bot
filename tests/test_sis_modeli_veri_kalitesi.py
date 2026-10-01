@@ -113,7 +113,7 @@ def test_dondurulmus_model_ab_sonrasi_korundu():
 
 def test_veri_kalitesi_calisma_anina_sizmiyor():
     """Izolasyon sozlesmesi: bot sis_modeli/'ni import ETMEZ."""
-    for dosya in ("ltfj_sis_olasilik.py", "ltfj_bot.py", "ltfj_sayfa.py"):
+    for dosya in ("bot/ltfj_sis_olasilik.py", "bot/ltfj_bot.py", "bot/ltfj_sayfa.py"):
         agac = ast.parse((KOK / dosya).read_text(encoding="utf-8"))
         for node in ast.walk(agac):
             adlar = ([a.name for a in node.names] if isinstance(node, ast.Import)

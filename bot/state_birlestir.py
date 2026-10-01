@@ -8,7 +8,7 @@ listelerinin BIRLESIMI alinir. Bir rapor iki tarafta da "gonderildi" ise zaten
 gonderilmistir; birinde varsa yine gonderilmistir.
 
 Kullanim:
-  python state_birlestir.py hedef.json digeri.json
+  python bot/state_birlestir.py hedef.json digeri.json
      -> ikisini birlestirip hedef.json'a yazar
 """
 
@@ -181,7 +181,7 @@ def birlestir(a: dict, b: dict) -> dict:
 
 def main():
     if len(sys.argv) != 3:
-        sys.exit("Kullanim: python state_birlestir.py hedef.json digeri.json")
+        sys.exit("Kullanim: python bot/state_birlestir.py hedef.json digeri.json")
 
     hedef, digeri = Path(sys.argv[1]), Path(sys.argv[2])
     sonuc = birlestir(oku(hedef), oku(digeri))

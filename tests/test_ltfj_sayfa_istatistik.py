@@ -134,7 +134,7 @@ def test_dondurulmus_tablo_agir_bagimlilik_ICERMIYOR():
     import ast
     from pathlib import Path
     kok = Path(__file__).resolve().parent.parent
-    agac = ast.parse((kok / "ltfj_gorus_gecis_tablo.py").read_text(encoding="utf-8"))
+    agac = ast.parse((kok / "bot/ltfj_gorus_gecis_tablo.py").read_text(encoding="utf-8"))
     importlar = [n for n in ast.walk(agac)
                  if isinstance(n, (ast.Import, ast.ImportFrom))]
     assert importlar == [], "dondurulmuş tablo hiçbir şey import etmemeli"

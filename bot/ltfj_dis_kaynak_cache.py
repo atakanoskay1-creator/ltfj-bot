@@ -45,8 +45,8 @@ zamanlı FORECAST API'sinin (api.open-meteo.com) "current" bloğu kullanılır.
                    eğitilmedi; bu blok bilgi amaçlıdır.
 
 Kullanım:
-    python -m ltfj_dis_kaynak_cache             # çek + yaz (ağ gerekir)
-    python -m ltfj_dis_kaynak_cache --oku        # sadece mevcut önbelleği oku
+    python bot/ltfj_dis_kaynak_cache.py         # çek + yaz (ağ gerekir)
+    python bot/ltfj_dis_kaynak_cache.py --oku   # sadece mevcut önbelleği oku
 """
 
 import argparse
@@ -60,7 +60,7 @@ import requests
 import ltfj_rasat
 from ltfj_analiz import metar_coz
 
-VARSAYILAN_DOSYA = Path(__file__).resolve().parent / "dis_kaynak_cache.json"
+VARSAYILAN_DOSYA = Path(__file__).resolve().parent.parent / "dis_kaynak_cache.json"
 
 # Bundan eskiyse alan "dış veri yok" sayılır - onbellek yazma cadence'i
 # (varsayılan 20 dk, dis-kaynak-onbellek.yml) + birkaç deneme payı.

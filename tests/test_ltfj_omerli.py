@@ -124,16 +124,16 @@ WF = Path(".github/workflows/ltfj.yml").read_text(encoding="utf-8")
 def test_is_akisi_kaydeder_hatayi_yutar_ve_cakismada_birlestirir():
     assert "omerli_gozlem.csv" in WF.split("DOSYALAR=")[1].split("\n")[0]
     adim = WF.split("Omerli istasyonlarini kaydet")[1].split("- name:")[0]
-    assert "continue-on-error: true" in adim and "python -m ltfj_omerli" in adim
+    assert "continue-on-error: true" in adim and "python bot/ltfj_omerli.py" in adim
     # bot adimindan SONRA, commit adimindan ONCE
-    assert WF.index("python ltfj_bot.py") < WF.index("python -m ltfj_omerli\n") \
+    assert WF.index("python bot/ltfj_bot.py") < WF.index("python bot/ltfj_omerli.py\n") \
         < WF.index("State ve sayfayi repoya geri yaz")
     # yedek reset'ten ONCE, birlestirme reset'ten SONRA
     assert WF.index("cp omerli_gozlem.csv /tmp/bizim_omerli_gozlem.csv") \
         < WF.index('git reset --hard "origin/${DAL}"') \
-        < WF.index("python -m ltfj_omerli --birlestir-bizim /tmp/bizim_omerli_gozlem.csv")
+        < WF.index("python bot/ltfj_omerli.py --birlestir-bizim /tmp/bizim_omerli_gozlem.csv")
 
 
 def test_bot_ve_sayfa_omerli_kaydini_okumaz():
-    for dosya in ("ltfj_bot.py", "ltfj_sayfa.py", "ltfj_sis_olasilik.py"):
+    for dosya in ("bot/ltfj_bot.py", "bot/ltfj_sayfa.py", "bot/ltfj_sis_olasilik.py"):
         assert "omerli" not in Path(dosya).read_text(encoding="utf-8").lower()

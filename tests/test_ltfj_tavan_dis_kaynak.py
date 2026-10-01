@@ -105,8 +105,8 @@ def _importlar(dosya: str) -> set:
 
 
 def test_calisma_ani_modulu_sis_modelini_import_etmiyor():
-    assert not any(a.startswith("sis_modeli") for a in _importlar("ltfj_tavan_dis_kaynak.py"))
+    assert not any(a.startswith("sis_modeli") for a in _importlar("bot/ltfj_tavan_dis_kaynak.py"))
 
 
 def test_calisma_aninda_agir_bagimlilik_yok():
-    assert _importlar("ltfj_tavan_dis_kaynak.py") == {"math"}
+    assert _importlar("bot/ltfj_tavan_dis_kaynak.py") == {"math"}

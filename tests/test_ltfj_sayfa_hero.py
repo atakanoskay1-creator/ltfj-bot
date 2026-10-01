@@ -125,7 +125,7 @@ def test_bot_olcum_gecmisine_GORUS_yaziyor():
     """Çizginin veri kaynağı. Bu alan düşerse görüş eğilimi sessizce
     kaybolur ve kimse fark etmez."""
     import ast
-    kok = ast.parse(open("ltfj_bot.py", encoding="utf-8").read())
+    kok = ast.parse(open("bot/ltfj_bot.py", encoding="utf-8").read())
     fonk = next(d for d in ast.walk(kok)
                 if isinstance(d, ast.FunctionDef)
                 and d.name == "olcum_gecmisini_guncelle")

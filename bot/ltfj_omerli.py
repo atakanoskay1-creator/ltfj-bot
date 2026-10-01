@@ -29,8 +29,8 @@ KURALLAR
     continue-on-error).
 
 Kullanim (repo kokunden):
-    python -m ltfj_omerli                          # cek + ekle
-    python -m ltfj_omerli --birlestir-bizim DOSYA  # push cakismasi
+    python bot/ltfj_omerli.py                          # cek + ekle
+    python bot/ltfj_omerli.py --birlestir-bizim DOSYA  # push cakismasi
 """
 
 import argparse

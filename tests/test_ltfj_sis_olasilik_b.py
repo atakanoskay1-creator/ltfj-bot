@@ -97,7 +97,7 @@ def test_tertil_siniri_disindaki_a_bandinda_none():
 
 # --------------------------------------------------------------- izolasyon
 def test_calisma_ani_modulu_sis_modelini_import_etmiyor():
-    agac = ast.parse((KOK / "ltfj_sis_olasilik_b.py").read_text(encoding="utf-8"))
+    agac = ast.parse((KOK / "bot/ltfj_sis_olasilik_b.py").read_text(encoding="utf-8"))
     for node in ast.walk(agac):
         adlar = ([a.name for a in node.names] if isinstance(node, ast.Import)
                  else [node.module or ""] if isinstance(node, ast.ImportFrom) else [])
@@ -117,7 +117,7 @@ def _importlar(dosya: str) -> set:
 
 
 def test_calisma_aninda_agir_bagimlilik_yok():
-    assert _importlar("ltfj_sis_olasilik_b.py") == {"math"}
+    assert _importlar("bot/ltfj_sis_olasilik_b.py") == {"math"}
 
 
 # ------------------------------------------------------------------- sayfa

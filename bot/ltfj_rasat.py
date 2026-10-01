@@ -6,7 +6,7 @@ Sayfa Next.js. Veri HTML icindeki <script id="__NEXT_DATA__"> etiketinde JSON ol
 geliyor. Biz o JSON'u cekip ayikliyoruz. Ekstra kutuphane yok, sadece requests.
 
 Kurulum:  pip install requests
-Calistir: python ltfj_rasat.py
+Calistir: python bot/ltfj_rasat.py
 """
 
 import json

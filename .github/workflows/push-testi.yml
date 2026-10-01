@@ -31,4 +31,4 @@ jobs:
       # Basarisizsa adim KIRMIZI olur - Actions sekmesinde tek bakista
       # gorunur, log okumaya gerek kalmaz.
       - name: Test bildirimi gonder
-        run: python push_testi.py
+        run: python araclar/push_testi.py

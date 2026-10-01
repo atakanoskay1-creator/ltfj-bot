@@ -13,6 +13,15 @@ Continue, Cline vb.) ve insan için geçerlidir. Aider: `aider --read CONVENTION
 - Küçük, tek amaçlı değişiklik yap. İstenmeyen dosyaya dokunma, "bu arada"
   düzeltmesi yapma.
 
+## Dizin yapısı
+- `bot/`: botun çalışma zamanı modülleri (`ltfj_*.py`, `state_birlestir.py`).
+  Komutlar repo kökünden çalışır: `python bot/ltfj_bot.py`. Testler ve
+  `sis_modeli` bu dizini kendiliğinden `sys.path`'e ekler.
+- `araclar/`: elle/ayrı workflow ile çalışan yardımcı betikler.
+- `sis_modeli/`: model eğitim/analiz kodu ve verisi.
+- Kök dizin: GitHub Pages dosyaları ve botun yazdığı veri dosyaları.
+  Yeni `.py` dosyası köke eklenmez.
+
 ## Test
 - Her değişiklikten sonra: `python -m pytest -q` (yaklaşık 90 sn).
 - Test kırmızıyken iş bitmiş sayılmaz. Testi geçirmek için testi silme,
@@ -25,10 +34,10 @@ Continue, Cline vb.) ve insan için geçerlidir. Aider: `aider --read CONVENTION
 - **Bot üretir, elle değiştirme:** `index.html`, `ltfj_state.json`,
   `panel_veri.json`, `notam_veri.json`, `gozlem_arsivi.csv`,
   `gozlem_surumleri.csv`, `gozlem_arsivi_durum.json`, `tahmin_gunlugu.csv`,
-  `tahmin_dogrulama.csv`, `dis_kaynak_cache.json`.
+  `tahmin_dogrulama.csv`, `dis_kaynak_cache.json`, `omerli_gozlem.csv`.
 - **Dondurulmuş modeller (izleme dönemi, değişiklik yok):** `sis_modeli/`
-  altındaki eğitim kodu ve veriler, `ltfj_sis_olasilik.py`,
-  `ltfj_sis_olasilik_b.py`, `ltfj_tavan_tablosu.py`. Katsayı, eşik ve
+  altındaki eğitim kodu ve veriler, `bot/ltfj_sis_olasilik.py`,
+  `bot/ltfj_sis_olasilik_b.py`, `bot/ltfj_tavan_tablosu.py`. Katsayı, eşik ve
   kalibrasyon değişikliği yapılmaz; yeni model deneyi başlatılmaz.
   İstisna: açıkça istenen SALT OKUMA analiz betikleri (`sis_modeli/`
   altında yeni dosya, mevcutları değiştirmeden).
@@ -38,7 +47,7 @@ Continue, Cline vb.) ve insan için geçerlidir. Aider: `aider --read CONVENTION
 - `NOTAC_API_KEY`, `TELEGRAM_BOT_TOKEN`, `ANTHROPIC_API_KEY`,
   `VAPID_PRIVATE_KEY`, `FIREBASE_SERVICE_ACCOUNT` hiçbir log'a, HTML'e, JS'e,
   test çıktısına yazılmaz.
-- `ltfj_bot.py`'yi gerçek anahtarlarla yerelde çalıştırma: Telegram grubuna
+- `bot/ltfj_bot.py`'yi gerçek anahtarlarla yerelde çalıştırma: Telegram grubuna
   gerçek mesaj gider ve state dosyaları değişir. Denemeyi testlerle yap.
 
 ## Davranış kuralları

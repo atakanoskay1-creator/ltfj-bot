@@ -69,7 +69,7 @@ from pathlib import Path
 import ltfj_sis_olasilik as sis_olasilik
 from ltfj_analiz import RE_HAVA
 
-KLASOR = Path(__file__).resolve().parent
+KLASOR = Path(__file__).resolve().parent.parent   # repo koku (modul bot/ altinda)
 DOSYA_ADI = "tahmin_gunlugu.csv"
 VARSAYILAN_DOSYA = KLASOR / DOSYA_ADI
 ARSIV_DOSYASI = KLASOR / "gozlem_arsivi.csv"

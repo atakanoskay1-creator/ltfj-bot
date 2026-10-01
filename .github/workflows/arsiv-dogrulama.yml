@@ -16,9 +16,9 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - "ltfj_gozlem_arsivi.py"
-      - "ltfj_rasat.py"
-      - "arsiv_oynat.py"
+      - "bot/ltfj_gozlem_arsivi.py"
+      - "bot/ltfj_rasat.py"
+      - "araclar/arsiv_oynat.py"
       - ".github/workflows/arsiv-dogrulama.yml"
 
 permissions:
@@ -61,7 +61,7 @@ jobs:
       - name: Kayittan yeniden oynatma
         if: steps.indir.outcome == 'success'
         run: |
-          eval python arsiv_oynat.py --json "$RUNNER_TEMP/kayit/mgm_hours_24.json" \
+          eval python araclar/arsiv_oynat.py --json "$RUNNER_TEMP/kayit/mgm_hours_24.json" \
             --alinma "$KAYIT_ALINMA" $KONTROLLER
 
       - name: Kayit yoksa not dus
@@ -71,4 +71,4 @@ jobs:
             | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Canli H24 kuru calistirma
-        run: eval python arsiv_oynat.py --canli $KONTROLLER
+        run: eval python araclar/arsiv_oynat.py --canli $KONTROLLER

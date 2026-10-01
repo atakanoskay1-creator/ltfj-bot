@@ -16,7 +16,7 @@ ve verilmişse --ham-dizin'e (Actions'ta geçici dizin, artifact olarak
 yüklenir) yazar. Repo dosyalarına, state'e ya da arşive dokunmaz.
 
 Çalıştırma (GitHub Actions, "MGM keşif" iş akışı):
-    python mgm_kesif.py --ham-dizin "$RUNNER_TEMP/mgm_kesif"
+    python araclar/mgm_kesif.py --ham-dizin "$RUNNER_TEMP/mgm_kesif"
 """
 
 import argparse
@@ -26,6 +26,9 @@ import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+
+# bot modulleri bot/ altinda; repo kokunden `python araclar/mgm_kesif.py`.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "bot"))
 
 import ltfj_rasat as rasat
 

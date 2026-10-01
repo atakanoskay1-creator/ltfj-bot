@@ -81,11 +81,12 @@ def test_ana_akisa_dokunmuyor():
     from pathlib import Path
 
     kok = Path(__file__).resolve().parent.parent
-    agac = ast.parse((kok / "push_testi.py").read_text(encoding="utf-8"))
+    agac = ast.parse((kok / "araclar" / "push_testi.py").read_text(encoding="utf-8"))
     adlar = set()
     for node in ast.walk(agac):
         if isinstance(node, ast.Import):
             adlar.update(a.name.split(".")[0] for a in node.names)
         elif isinstance(node, ast.ImportFrom) and node.module:
             adlar.add(node.module.split(".")[0])
-    assert adlar == {"sys", "ltfj_push", "ltfj_ayarlar"}
+    # pathlib yalnizca bot/ dizinini sys.path'e eklemek icin
+    assert adlar == {"sys", "pathlib", "ltfj_push", "ltfj_ayarlar"}

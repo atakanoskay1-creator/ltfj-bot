@@ -131,8 +131,8 @@ def test_wf_olc_temel_alanlarla_cokmez():
 
 # -------------------------------------------------------------- izolasyon
 def test_calisma_ani_modulu_tavan_gorussuzu_import_etmiyor():
-    for dosya in ("ltfj_sis_olasilik.py", "ltfj_tavan_tablosu.py",
-                  "ltfj_sayfa.py", "ltfj_bot.py", "ltfj_lvo_farkindalik.py"):
+    for dosya in ("bot/ltfj_sis_olasilik.py", "bot/ltfj_tavan_tablosu.py",
+                  "bot/ltfj_sayfa.py", "bot/ltfj_bot.py", "bot/ltfj_lvo_farkindalik.py"):
         agac = ast.parse((KOK / dosya).read_text(encoding="utf-8"))
         for node in ast.walk(agac):
             adlar = ([a.name for a in node.names] if isinstance(node, ast.Import)

@@ -21,7 +21,7 @@ Iki kaynak:
 Repo dosyalarina YAZMAZ. Production bagimliligi DEGILDIR: bot bu betigi
 cagirmaz; kayitli artifact silinse de normal sistem etkilenmez.
 
-    python arsiv_oynat.py --json mgm_hours_24.json --alinma 2026-09-28T09:35:54Z \\
+    python araclar/arsiv_oynat.py --json mgm_hours_24.json --alinma 2026-09-28T09:35:54Z \\
         --kontrol "2026-09-27T16:20 METAR"
 """
 import argparse
@@ -33,11 +33,14 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
+# bot modulleri bot/ altinda; repo kokunden `python araclar/arsiv_oynat.py`.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "bot"))
+
 import ltfj_gozlem_arsivi as ga
 import ltfj_rasat as rasat
 from ltfj_analiz import metar_coz
 
-KLASOR = Path(__file__).resolve().parent
+KLASOR = Path(__file__).resolve().parent.parent   # repo koku (betik araclar/ altinda)
 
 
 def _zaman(s: str) -> datetime:

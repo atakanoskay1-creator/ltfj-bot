@@ -201,7 +201,7 @@ def test_calisma_ani_modulu_tavan_modulunu_import_etmiyor():
     import ast
     from pathlib import Path
     kok = Path(__file__).resolve().parent.parent
-    for dosya in ("ltfj_sis_olasilik.py", "ltfj_sayfa.py", "ltfj_bot.py"):
+    for dosya in ("bot/ltfj_sis_olasilik.py", "bot/ltfj_sayfa.py", "bot/ltfj_bot.py"):
         agac = ast.parse((kok / dosya).read_text(encoding="utf-8"))
         for node in ast.walk(agac):
             adlar = ([a.name for a in node.names] if isinstance(node, ast.Import)

@@ -162,11 +162,11 @@ def test_is_akisi_salt_okunur():
 def test_is_akisi_zamanlanmis_degil_ve_tetikleyiciler_dar():
     assert "schedule" not in WF and "cron" not in WF
     assert "workflow_dispatch:" in WF
-    assert 'paths:\n      - "mgm_kesif.py"\n      - ".github/workflows/mgm-kesif.yml"' in WF
+    assert 'paths:\n      - "araclar/mgm_kesif.py"\n      - ".github/workflows/mgm-kesif.yml"' in WF
 
 
 def test_is_akisi_kesif_betigini_gecici_dizinle_calistirir():
-    assert 'python mgm_kesif.py --ham-dizin "$RUNNER_TEMP/mgm_kesif"' in WF
+    assert 'python araclar/mgm_kesif.py --ham-dizin "$RUNNER_TEMP/mgm_kesif"' in WF
     assert "actions/upload-artifact@v4" in WF
 
 

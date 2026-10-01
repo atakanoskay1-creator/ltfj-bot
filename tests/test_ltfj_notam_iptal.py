@@ -263,7 +263,7 @@ def test_GERCEK_B3853_B3790_senkron_beklemeden_isaretlenir(tmp_path):
 def test_bot_iptal_kontrolunu_HER_KOSUDA_senkrondan_sonra_fail_open_calistirir():
     import ast
     from pathlib import Path
-    kok = ast.parse(Path("ltfj_bot.py").read_text(encoding="utf-8"))
+    kok = ast.parse(Path("bot/ltfj_bot.py").read_text(encoding="utf-8"))
     main = next(d for d in kok.body if isinstance(d, ast.FunctionDef) and d.name == "main")
 
     def cagri_satiri(ad, attr=None):

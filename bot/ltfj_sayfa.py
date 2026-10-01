@@ -222,7 +222,7 @@ YAZITIPI_CSS = "\n".join(
 #
 # ESDEGERLIK: bu ayrim yapilirken uretilen sayfa, saat dondurularak
 # gercek state'ten once/sonra URETILDI ve BAYT BAYT AYNI cikti.
-VARLIK_KLASORU = Path(__file__).resolve().parent / "sayfa_kaynak"
+VARLIK_KLASORU = Path(__file__).resolve().parent.parent / "sayfa_kaynak"
 STIL_DOSYASI = "stil.css"
 # (SABLON'daki yer tutucu, dosya) - SIRA ONEMLI DEGIL, her betik kendi
 # yer tutucusuna gider; sayfadaki sira SABLON'daki yerlerinden gelir.

@@ -20,9 +20,22 @@ Bu proje, İstanbul Sabiha Gökçen Havalimanı (LTFJ) için güncel havacılık
 
 1. **Tetikleyici:** `cron-job.org` belirli dakikalarda (`10, 25, 40, 55`) GitHub API'sine bir `repository_dispatch` isteği gönderir.
 2. **İş Akışı:** GitHub Actions uyanır ve Python ortamını ayağa kaldırır.
-3. **Veri Çekme ve Analiz:** `ltfj_rasat.py` ve `ltfj_bot.py` dosyaları çalışır; web'den güncel veri alınır, eski durum ile karşılaştırılır ve Anthropic API'ye yorumlatılır.
+3. **Veri Çekme ve Analiz:** `bot/ltfj_rasat.py` ve `bot/ltfj_bot.py` dosyaları çalışır; web'den güncel veri alınır, eski durum ile karşılaştırılır ve Anthropic API'ye yorumlatılır.
 4. **Bildirim:** Eğer hava durumunda değişiklik varsa, Telegram Bot API üzerinden ilgili sohbete/kanala mesaj atılır.
 5. **Kayıt:** Güncel durum `index.html` dosyasına yazılır ve bot tarafından repoya otomatik olarak `push` edilir.
+
+### Dizin yapısı
+
+| Yer | İçerik |
+|---|---|
+| `bot/` | Botun çalışma zamanı modülleri (`ltfj_*.py`, `state_birlestir.py`). Workflow `python bot/ltfj_bot.py` ile çalıştırır. |
+| `araclar/` | Elle ya da ayrı workflow ile çalışan yardımcı betikler: keşif (`mgm_kesif.py`, `notam_kesif.py`), push testi, arşiv doğrulama (`arsiv_oynat.py`), yerel Qwen ajanı. |
+| `sis_modeli/` | Sis/tavan modellerinin eğitim ve analiz kodu, veri arşivi ve notlar (salt okuma analizleri dahil). |
+| `tests/` | pytest paketi (`python -m pytest -q`). |
+| `sayfa_kaynak/`, `yazitipi/` | Web sayfasının CSS/JS ve yazı tipi dosyaları. |
+| kök dizin | GitHub Pages dosyaları (`index.html`, `panel.html`, `sw.js`, ikonlar) ve botun yazdığı veri dosyaları (`ltfj_state.json`, `gozlem_arsivi.csv`, `tahmin_gunlugu.csv`, `omerli_gozlem.csv` vb.). Pages kökten yayınladığı ve günlük kontroller bu yolları okuduğu için bunlar kökte kalır. |
+
+Bot modülleri dosya yollarını repo köküne göre çözer; komutlar her zaman repo kökünden çalıştırılır.
 
 ## 🚀 Kurulum ve Ayarlar
 
@@ -484,7 +497,7 @@ için dosyada durur.
   eğilimi girdisi sayfa üretim anından alınıyor; eğitim gözlem zamanını
   kullandı. Günlük ikisini de (`saat_sayfa`, `saat_gozlem`) kaydediyor.
 
-Özet ölçümler: `python -m ltfj_tahmin_gunlugu --ozet`.
+Özet ölçümler: `python bot/ltfj_tahmin_gunlugu.py --ozet`.
 
 ## ⚠️ Yasal Uyarı
 
