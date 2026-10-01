@@ -25,6 +25,7 @@ Claude görev yazar ──► GitHub issue [qwen-gorev]
   - İhlal olursa hiçbir şey push edilmez.
 - **Boş sonuç PR olmaz:** değişen dosya boş kaldıysa ya da yeni test dosyasında hiç test yoksa
   bu tur başarısız sayılır, modelden içeriği yazması istenir. Tüm turlarda böyle kalırsa PR açılmaz.
+  Başka bir fonksiyonun içinde tanımlanmış `test_*` fonksiyonu (pytest onu hiç çalıştırmaz) da aynı şekilde yakalanır.
 - **Nerede çalışır:** yalnızca `--kur` ile hazırlanmış, işaretli **ayrı bir klonda**.
   - Ajan o klonu her görevden sonra sıfırlar.
   - Sizin çalışma klasörünüze dokunmaz.

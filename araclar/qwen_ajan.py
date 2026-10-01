@@ -29,6 +29,7 @@ KULLANIM
 """
 
 import argparse
+import ast
 import os
 import re
 import subprocess
@@ -168,10 +169,17 @@ def gorev_mesaji(issue: dict, dosyalar: list[str]) -> str:
         "verilecek, o zaman duzelt. Testi silme/atlatma.\n")
 
 
-def eksik_mesaji(eksikler: list[str]) -> str:
-    return ("Su dosyalar BOS ya da icinde hic test yok: " + ", ".join(eksikler)
-            + ". Dosyanin TAM icerigini yaz (gorevdeki testlerin hepsi); "
-            "yalnizca izin verilen dosyalari degistir.")
+def eksik_mesaji(eksikler: list[str], ic_ice: list[str] = ()) -> str:
+    parcalar = []
+    if eksikler:
+        parcalar.append("Su dosyalar BOS ya da icinde hic test yok: " + ", ".join(eksikler)
+                        + ". Dosyanin TAM icerigini yaz (gorevdeki testlerin hepsi).")
+    if ic_ice:
+        parcalar.append("Su test fonksiyonlari baska bir fonksiyonun ICINDE tanimli; pytest "
+                        "onlari HIC calistirmaz: " + ", ".join(ic_ice) + ". Her test "
+                        "fonksiyonunu modul duzeyinde tanimla; @pytest.mark.parametrize "
+                        "dekoratorunu o fonksiyonun hemen ustune yaz.")
+    return " ".join(parcalar) + " Yalnizca izin verilen dosyalari degistir."
 
 
 def duzeltme_mesaji(test_ciktisi: str) -> str:
@@ -291,6 +299,31 @@ def icerik_eksikleri(repo: Path, yollar: list[str]) -> list[str]:
     return eksik
 
 
+def ic_ice_testler(repo: Path, yollar: list[str]) -> list[str]:
+    """Baska bir fonksiyonun icinde tanimlanmis test_* fonksiyonlari.
+
+    Olculdu (#122 -> PR #124): model parametrize'i ic ice fonksiyona koydu;
+    pytest ic fonksiyonu hic toplamadigi icin 12 testin 9'u calismadan
+    "gecti" gorundu. Sozdizimi hatasi pytest'e birakilir (kirmizi doner)."""
+    bulunan = []
+    for y in yollar:
+        ad = Path(y)
+        if not (ad.name.startswith("test_") and ad.suffix == ".py" and (repo / y).is_file()):
+            continue
+        try:
+            agac = ast.parse((repo / y).read_text(encoding="utf-8", errors="replace"))
+        except SyntaxError:
+            continue
+        for dis in ast.walk(agac):
+            if not isinstance(dis, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            for ic in ast.walk(dis):
+                if (ic is not dis and isinstance(ic, (ast.FunctionDef, ast.AsyncFunctionDef))
+                        and ic.name.startswith("test")):
+                    bulunan.append(f"{y}: {dis.name}.{ic.name}")
+    return bulunan
+
+
 def durum(repo: Path) -> str:
     """Calisma agaci durumu; Turkce dosya adlari okunur yazilsin
     (core.quotePath), yeni klasorlerin icindeki dosyalar tek tek (-uall)."""
@@ -392,11 +425,13 @@ def gorevi_isle(gh: GitHub, repo: Path, issue: dict) -> None:
         if not degisenler:
             return basarisiz("model hiçbir dosyayı değiştirmedi")
         eksikler = icerik_eksikleri(repo, degisenler)
-        if eksikler:
-            neden = f"{tur_sayisi} turda dosya boş kaldı ya da test yazılmadı"
-            cikti = "\n".join(eksikler)
-            print(f"[ajan] #{no} tur {tur}: icerik eksik: {', '.join(eksikler)}")
-            mesaj = eksik_mesaji(eksikler)
+        ic_ice = ic_ice_testler(repo, degisenler)
+        if eksikler or ic_ice:
+            neden = (f"{tur_sayisi} turda dosya boş kaldı, test yazılmadı ya da "
+                     "testler iç içe tanımlandığı için çalışmıyor")
+            cikti = "\n".join(eksikler + ic_ice)
+            print(f"[ajan] #{no} tur {tur}: icerik eksik: {', '.join(eksikler + ic_ice)}")
+            mesaj = eksik_mesaji(eksikler, ic_ice)
             continue
         yesil, cikti = testleri_calistir(repo)
         print(f"[ajan] #{no} tur {tur}: testler {'YESIL' if yesil else 'KIRMIZI'}")

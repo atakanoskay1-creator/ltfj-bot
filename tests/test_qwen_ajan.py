@@ -148,7 +148,8 @@ def test_eksik_icerikte_pr_acilmiyor_duzeltme_istenir():
     assert "eksikler = icerik_eksikleri(repo, degisenler)" in kaynak
     assert kaynak.index("icerik_eksikleri(repo, degisenler)") < kaynak.index(
         "yesil, cikti = testleri_calistir(repo)")
-    assert "mesaj = eksik_mesaji(eksikler)" in kaynak
+    assert "mesaj = eksik_mesaji(eksikler, ic_ice)" in kaynak
+    assert "ic_ice = ic_ice_testler(repo, degisenler)" in kaynak
 
 
 def test_aiderignore_yalnizca_izinli_dosyalari_gorunur_birakir():
@@ -160,3 +161,35 @@ def test_aiderignore_yalnizca_izinli_dosyalari_gorunur_birakir():
     assert aj.aiderignore_metni(["tests/[x]*.py"]).splitlines()[1] == "!tests/\\[x\\]\\*.py"
     kaynak = _yol.read_text(encoding="utf-8")
     assert '"--aiderignore", str(gizle)' in kaynak
+
+
+def test_ic_ice_test_fonksiyonlari_yakalanir(tmp_path):
+    """#122 -> PR #124: parametrize ic ice fonksiyona konunca pytest o
+    testleri hic calistirmiyordu; paket yine yesildi."""
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests" / "test_kotu.py").write_text(
+        "import pytest\n"
+        "def test_sinif():\n"
+        "    @pytest.mark.parametrize('x', [1, 2])\n"
+        "    def test_degerler(x):\n"
+        "        assert x\n"
+        "class TestSinif:\n"
+        "    def test_yontem(self):\n"
+        "        assert True\n", encoding="utf-8")
+    (tmp_path / "tests" / "test_iyi.py").write_text(
+        "import pytest\n"
+        "@pytest.mark.parametrize('x', [1, 2])\n"
+        "def test_a(x):\n"
+        "    def yardimci():\n"
+        "        return x\n"
+        "    assert yardimci()\n", encoding="utf-8")
+    (tmp_path / "tests" / "test_bozuk.py").write_text("def test_(:\n", encoding="utf-8")
+    yollar = ["tests/test_kotu.py", "tests/test_iyi.py", "tests/test_bozuk.py", "modul.py"]
+    assert aj.ic_ice_testler(tmp_path, yollar) == ["tests/test_kotu.py: test_sinif.test_degerler"]
+
+
+def test_eksik_mesaji_ic_ice_aciklamasi():
+    m = aj.eksik_mesaji([], ["tests/test_a.py: test_x.test_y"])
+    assert "modul duzeyinde" in m and "tests/test_a.py: test_x.test_y" in m
+    assert "BOS" not in m
+    assert "BOS" in aj.eksik_mesaji(["tests/test_b.py"])
