@@ -33,6 +33,19 @@ SAYISAL = ("gorus", "gorus_egilim_1", "rvr_min_d", "rvr_24_d", "rvr_06_d", "tava
            "qnh_egilim_3", "saat", "ay")
 IKILI = ("parcali_sis", "br", "yagis", "kd_hafif", "kd_nemli")
 ADAYLAR = SAYISAL + IKILI
+
+# ETKILESIM adaylari (GBM'in kazancinin ne kadari etkilesimden geliyor?).
+# WoE lojistik model degiskenleri AYRI AYRI ogrenir; iki degiskenin birlikte
+# etkisini ancak birlesik bir kategoriyle gorebilir. Fiziksel olarak
+# anlamli uc cift, sonuclara BAKILMADAN tanimlandi; spread her birinde var
+# cunku GBM'in en cok kullandigi degisken spread'di ve WoE'de goruse
+# golgede kaliyordu:
+#   spread x gece (20-06 UTC)     - radyasyon sisi geceye bagli
+#   spread x gorus bandi          - nemli hava + zaten dusen gorus
+#   spread x ruzgar hizi bandi    - sakin/hafif ruzgar ile doyma
+# Her biri bir kategori kodu; WoE'de her kod kendi kovasi (KATEGORIK).
+ETKILESIM = ("spread_x_gece", "spread_x_gorus", "spread_x_ruzgar")
+KATEGORI_SAYISI = {"spread_x_gece": 8, "spread_x_gorus": 12, "spread_x_ruzgar": 12}
 MODEL_A_ALANLARI = ("spread", "spread_egilim_3", "saat", "ruzgar_kuzey", "gorus")
 
 IV_ESIK = 0.02            # "zayif"in alti - secime hic girmez
@@ -72,10 +85,38 @@ def aday_ekle(kayitlar: list) -> list:
     return kayitlar
 
 
+def _spread_bandi(sp):
+    if sp is None:
+        return None
+    return 0 if sp <= 1 else 1 if sp <= 2 else 2 if sp <= 4 else 3
+
+
+def etkilesim_ekle(kayitlar: list) -> list:
+    """ETKILESIM kodlarini ekler (eksik girdi -> None)."""
+    for r in kayitlar:
+        sb = _spread_bandi(r.get("spread"))
+        saat, gorus, hiz = r.get("saat"), r.get("gorus"), r.get("ruzgar_hiz")
+        r["spread_x_gece"] = (None if sb is None or saat is None
+                              else sb * 2 + int(saat >= 20 or saat <= 6))
+        r["spread_x_gorus"] = (None if sb is None or gorus is None
+                               else sb * 3 + (0 if gorus < 3000 else 1 if gorus < 9999 else 2))
+        r["spread_x_ruzgar"] = (None if sb is None or hiz is None
+                                else sb * 3 + (0 if hiz < 3 else 1 if hiz <= 10 else 2))
+    return kayitlar
+
+
+def _sinirlar(alan):
+    if alan in IKILI:
+        return [1]
+    if alan in KATEGORI_SAYISI:
+        return list(range(1, KATEGORI_SAYISI[alan]))
+    return None
+
+
 def woe_tablolari(egitim: list, alanlar) -> dict:
     tablolar = {}
     for a in alanlar:
-        t = woe.kova_tablosu(egitim, a, "hedef", sinirlar=[1] if a in IKILI else None)
+        t = woe.kova_tablosu(egitim, a, "hedef", sinirlar=_sinirlar(a))
         if t:
             tablolar[a] = t
     return tablolar

@@ -19,7 +19,15 @@ YONTEM (LightGBM/XGBoost'un cekirdegi, kucultulmus):
   - Agac sayisi egitimin SON YILINDA (ic dogrulama) AP'ye gore secilir,
     sonra tum egitimle o sayida yeniden egitilir - test yillari karismaz.
 
-Kullanim (repo kokunden, ~birkac on dakika):
+KALIBRASYON: ham GBM olasiliklari fazla yuksek cikti (ort. %1,36, gerceklesen
+%0,87). Agac sayisi secilen ic modelin ic dogrulama yilindaki tahminleriyle
+iki harita uydurulur ve nihai modelin ciktisina uygulanir - test yillari
+karismaz:
+  - Platt (ASIL, sonuclardan ONCE secildi): p' = sigmoid(a*logit(p) + b);
+    siralamayi bozmaz, yalnizca yuzdeleri duzeltir.
+  - Izotonik (ikincil, kalibrasyon.py): basamakli, siralamayi biraz bozabilir.
+
+Kullanim (repo kokunden, ~5 dk):
     python -m sis_modeli.qv3_gbm
 """
 
@@ -28,7 +36,7 @@ import random
 from bisect import bisect_right
 from collections import Counter
 
-from sis_modeli import bolme, degerlendir, model, qv3_hedef, qv3_model
+from sis_modeli import bolme, degerlendir, kalibrasyon, model, qv3_hedef, qv3_model
 from sis_modeli.istatistik import VARSAYILAN_VERI, veri_oku
 
 KOVA_SAYISI = 32
@@ -181,6 +189,57 @@ def egit_secerek(egitim: list, alanlar=qv3_model.ADAYLAR) -> tuple:
     return egit(egitim, alanlar, en_iyi), en_iyi
 
 
+def _logit(p: float) -> float:
+    p = min(max(p, 1e-6), 1 - 1e-6)
+    return math.log(p / (1 - p))
+
+
+def platt_uydur(ciftler: list, l2: float = 1e-3) -> tuple:
+    """[(p, y)] -> (a, b): p' = sigmoid(a*logit(p) + b). Newton, 2 parametre."""
+    a, b = 1.0, 0.0
+    for _ in range(50):
+        ga = gb = haa = hab = hbb = 0.0
+        for p, y in ciftler:
+            x = _logit(p)
+            q = _sigmoid(a * x + b)
+            r, w = q - float(bool(y)), q * (1 - q)
+            ga += r * x
+            gb += r
+            haa += w * x * x
+            hab += w * x
+            hbb += w
+        haa += l2
+        hbb += l2
+        det = haa * hbb - hab * hab
+        if det <= 0:
+            break
+        da = (hbb * ga - hab * gb) / det
+        db = (haa * gb - hab * ga) / det
+        a, b = a - da, b - db
+        if abs(da) + abs(db) < 1e-9:
+            break
+    return a, b
+
+
+def platt_uygula(p: float, ab: tuple) -> float:
+    return _sigmoid(ab[0] * _logit(p) + ab[1])
+
+
+def egit_kalibreli(egitim: list, alanlar=qv3_model.ADAYLAR) -> dict:
+    """Agac sayisi + iki kalibrasyon haritasi egitimin son yilinda; nihai
+    model tum egitimle. {"model", "agac", "platt", "izotonik"}"""
+    son = max(r["dt"].year for r in egitim)
+    ic_e = [r for r in egitim if r["dt"].year < son]
+    ic_t = [r for r in egitim if r["dt"].year == son]
+    egri = egit(ic_e, alanlar, MAKS_AGAC, dogrulama=ic_t)["ap_egrisi"]
+    n = max(egri, key=lambda c: (c[1], -c[0]))[0]
+    ic_model = egit(ic_e, alanlar, n)
+    ciftler = [(olasilik(ic_model, r), bool(r["hedef"])) for r in ic_t]
+    return {"model": egit(egitim, alanlar, n), "agac": n,
+            "platt": platt_uydur(ciftler),
+            "izotonik": kalibrasyon.kalibrasyon_tablosu(kalibrasyon.izotonik_uydur(ciftler))}
+
+
 def olasilik(m: dict, kayit: dict) -> float:
     kv = [kova(kayit.get(a), m["sinirlar"][a]) for a in m["alanlar"]]
     return _sigmoid(m["f0"] + sum(_agac_tahmin(t, kv) for t in m["agaclar"]))
@@ -202,36 +261,51 @@ def onem(m: dict) -> list:
     return [(a, v / toplam) for a, v in sayac.most_common()]
 
 
+def _olc(p, g, ik) -> str:
+    return (f"AP {degerlendir.ortalama_kesinlik(p, g):.3f}  AUC {degerlendir.roc_auc(p, g):.3f}  "
+            f"Brier {degerlendir.brier(p, g):.5f}  BSS {degerlendir.brier_skill(p, g, ik):+.3f}  "
+            f"ort. tahmin %{100 * sum(p) / len(p):.2f}")
+
+
 def main() -> int:
     aday = qv3_model.aday_ekle(qv3_hedef.veri_hazirla(veri_oku(VARSAYILAN_VERI),
                                                       qv3_hedef.rvr_oku()))
     gelistirme = bolme.gelistirme(aday)
     print(f"Geliştirme evreni (2012-2023, holdout kapalı): {len(gelistirme)} an, "
           f"{sum(r['hedef'] for r in gelistirme)} pozitif\n")
-    tum_p, tum_g, tum_iklim = [], [], []
+    turler = ("ham", "Platt", "izotonik")
+    tum = {t: [] for t in turler}
+    tum_g, tum_iklim = [], []
     onem_toplam = Counter()
     for egitim_yillari, test_yillari in bolme.foldlar():
         egitim = bolme.ayir(gelistirme, egitim_yillari)
         test = bolme.ayir(gelistirme, test_yillari)
-        m, n = egit_secerek(egitim)
-        p = [olasilik(m, r) for r in test]
+        k = egit_kalibreli(egitim)
+        ham = [olasilik(k["model"], r) for r in test]
+        p = {"ham": ham,
+             "Platt": [platt_uygula(x, k["platt"]) for x in ham],
+             "izotonik": [kalibrasyon.kalibre_uygula(x, k["izotonik"]) for x in ham]}
         g = [bool(r["hedef"]) for r in test]
         iklim = model.iklim_baseline(egitim)
         ik = [model.iklim_tahmin(iklim, r) for r in test]
-        print(f"=== Test {test_yillari[0]}-{test_yillari[-1]}: {n} ağaç, "
-              f"AP {degerlendir.ortalama_kesinlik(p, g):.3f}  AUC {degerlendir.roc_auc(p, g):.3f}  "
-              f"Brier {degerlendir.brier(p, g):.5f}  BSS {degerlendir.brier_skill(p, g, ik):+.3f}")
-        o = onem(m)
+        print(f"=== Test {test_yillari[0]}-{test_yillari[-1]}: {k['agac']} ağaç, "
+              f"Platt a={k['platt'][0]:.2f} b={k['platt'][1]:+.2f}, "
+              f"gerçekleşen %{100 * sum(g) / len(g):.2f}")
+        for t in turler:
+            print(f"  {t:<9} {_olc(p[t], g, ik)}")
+            tum[t] += p[t]
+        o = onem(k["model"])
         print("  önem: " + ", ".join(f"{a} {v:.0%}" for a, v in o[:8]))
         onem_toplam.update(dict(o))
-        tum_p += p
         tum_g += g
         tum_iklim += ik
-    print(f"\n=== TOPLAM (2015-2023), {sum(tum_g)} pozitif: "
-          f"AP {degerlendir.ortalama_kesinlik(tum_p, tum_g):.3f}  "
-          f"AUC {degerlendir.roc_auc(tum_p, tum_g):.3f}  "
-          f"Brier {degerlendir.brier(tum_p, tum_g):.5f}  "
-          f"BSS {degerlendir.brier_skill(tum_p, tum_g, tum_iklim):+.3f}")
+    print(f"\n=== TOPLAM (2015-2023), {sum(tum_g)} pozitif, "
+          f"gerçekleşen %{100 * sum(tum_g) / len(tum_g):.2f}")
+    for t in turler:
+        print(f"  {t:<9} {_olc(tum[t], tum_g, tum_iklim)}")
+    print("  güvenilirlik (Platt): " + "; ".join(
+        f"{k['ortalama_tahmin']:.0%}->{k['gerceklesen']:.0%} (n={k['n']})"
+        for k in degerlendir.guvenilirlik(tum["Platt"], tum_g, kova_sayisi=10) if k["n"]))
     print("Ortalama önem: " + ", ".join(
         f"{a} {v / 4:.0%}" for a, v in onem_toplam.most_common(10)))
     return 0

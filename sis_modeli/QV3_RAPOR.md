@@ -12,8 +12,9 @@ Tekrar üretmek için (repo kökünden):
 
 ```
 python -m sis_modeli.qv3_hedef   # evren ve yıllık pozitifler
-python -m sis_modeli.qv3_egit    # seçim + walk-forward (~8 dk, kararlı seçim dahil)
-python -m sis_modeli.qv3_gbm     # GBM (~3 dk)
+python -m sis_modeli.qv3_egit             # seçim + etkileşim + walk-forward (~3 dk)
+python -m sis_modeli.qv3_egit --kararli   # + kararlı seçim (~9 dk)
+python -m sis_modeli.qv3_gbm              # GBM + kalibrasyon (~4 dk)
 ```
 
 ## Veri ve hedef (`qv3_hedef.py`)
@@ -85,6 +86,8 @@ durum Model A'da da görülmüştü.
 | **QV3** (veriyle seçilen set) | **0,165** | 0,905 | **0,00789** | **+0,085** |
 | QV3 kararlı seçim (aşağıda) | 0,138 | 0,868 | 0,00803 | +0,069 |
 | **GBM** (`qv3_gbm.py`, 22 adayın hepsi; aşağıda) | **0,196** | **0,938** | 0,00825 | +0,043 |
+| GBM + Platt kalibrasyonu (aşağıda) | 0,176 | 0,936 | 0,00805 | +0,066 |
+| QV3 + etkileşim terimleri (aşağıda) | 0,163 | 0,908 | 0,00789 | +0,084 |
 | Model A'nın 5 değişkeni (bu hedefte yeniden eğitildi) | 0,155 | **0,915** | 0,00795 | +0,077 |
 | Mevcut görüş bandı iklimi | 0,113 | 0,792 | 0,00809 | +0,062 |
 | Ay × saat iklimi | 0,026 | 0,760 | 0,00862 | 0 |
@@ -213,6 +216,77 @@ yükünde** karşılaştırmak gerek.
 
 Aynı sayıda uyarı gününde aynı oranda olay yakalanıyor. GBM'in farkı,
 uyarı verdiği anların daha isabetli olması (%20 → %28; %11 → %15).
+
+### GBM kalibrasyonu — yüzdeler düzeliyor, ama tek yıl kırılgan
+
+Ağaç sayısının seçildiği iç modelin iç doğrulama yılındaki tahminleriyle
+iki harita uyduruldu ve nihai modele uygulandı; test yılları karışmadı.
+**Platt** (p' = sigmoid(a·logit p + b), sıralamayı bozmaz) sonuçlar
+görülmeden **asıl** yöntem olarak seçildi. İzotonik ikincil yöntem.
+
+| Dönem | Kalibrasyon yılı | Gerçekleşen | Ham ort. | Platt ort. | Ham BSS | Platt BSS |
+|---|---|---|---|---|---|---|
+| 2015–16 | 2014 | %1,16 | %1,51 | %1,93 | +0,066 | −0,003 |
+| 2017–18 | 2016 | %0,82 | %1,35 | %0,58 | +0,087 | **+0,138** |
+| 2019–20 | 2018 | %0,63 | %1,35 | %0,94 | −0,038 | +0,060 |
+| 2021–23 | 2020 | %0,87 | %1,28 | %0,51 | +0,032 | +0,084 |
+| **Toplam** | | %0,87 | %1,36 | **%0,94** | +0,043 | **+0,066** |
+
+Güvenilirlik, Platt sonrası:
+
+| Model ne dedi | Gerçekleşen | n |
+|---|---|---|
+| %13 | %10 | 1.815 |
+| %24 | %21 | 431 |
+| %34 | %31 | 248 |
+| %45 | %26 | 148 |
+| %65 | %28 | 72 |
+| %94 | %52 | 48 |
+
+Orta aralıkta isabetli; üst uçta (az örnek) hâlâ fazla iddialı.
+
+- **Kalibrasyon yılı belirleyici.** Olaylı bir yıl (2014) haritayı yukarı,
+  sakin bir yıl aşağı itiyor. 2015–16'da Platt durumu kötüleştirdi.
+- **Birleşik AP neden düştü (0,196 → 0,176):** dönem içi sıralama aynı
+  kalıyor; Platt dönem içinde AP'yi değiştirmez. Ama her dönem farklı yöne
+  kaydırıldığı için dönemler birleştirilince sıralama karışıyor. Tek bir
+  canlı modelde bu sorun olmaz; AP için dönem değerleri esas alınmalı.
+- **V3 önerisi:** kalibrasyonu tek yıl yerine birden fazla yılın
+  dönem-dışı tahminleriyle yapmak (`kalibrasyon.py`'nin Model A için
+  yaptığı gibi). Bu denemede sonuca bakılarak değiştirilmedi.
+
+### Etkileşim terimli lojistik regresyon — GBM'in farkını açıklamıyor
+
+Soru: GBM'in kazancı etkileşimlerden mi geliyor; basit bir modele
+etkileşim eklemek yeter mi? Fiziksel olarak anlamlı üç birleşik kategori,
+sonuçlar görülmeden tanımlandı ve aday havuzuna eklendi
+(`qv3_model.ETKILESIM`):
+
+- spread bandı × gece;
+- spread bandı × görüş bandı;
+- spread bandı × rüzgâr hızı bandı.
+
+Seçim aynı kurallarla yapıldı.
+
+- Sonuç: AP **0,163**; etkileşimsiz QV3 0,165, GBM 0,196.
+- Etkileşimler 4 dönemin 2'sinde seçildi (2017–18: spread × gece; 2019–20:
+  spread × görüş ve spread × rüzgâr). İki dönemde de test AP'si düştü:
+  0,229 → 0,199 ve 0,207 → 0,172. İç doğrulamada iyi görünüp testte
+  tutmadılar.
+- 2015–16'da etkileşim seçilmedi, ama havuz değiştiği için seçim yolu da
+  değişti ve AP 0,183'ten 0,165'e indi.
+- 2021–23'te seçim aynı kaldı.
+
+Yorum: GBM'in üstünlüğü bu basit ikili etkileşimlerden **gelmiyor**.
+Muhtemel kaynaklar iki tane:
+
+- GBM 22 değişkenin hepsini aynı anda kullanabiliyor; WoE modeli seçimle
+  4–6 değişkende kalıyor.
+- Çok yönlü, eşikli ilişkileri yakalıyor; örneğin "tavan düşük **ve**
+  spread küçük **ve** gece".
+
+Okunabilir bir modelle aynı sonucu almak bu iki denemeyle mümkün
+olmadı.
 
 **Uyarı:** aynı 2015–2023 testinde artık birkaç yöntem karşılaştırıldı.
 En iyisini bu testin sonucuna bakarak seçmek biraz iyimserlik katar. Kesin

@@ -876,7 +876,9 @@ iklimi 0,113, ay×saat 0,026). Ömerli değişkeni (`kd_nemli`/`kd_hafif`) 4
 fold'un 3'ünde seçildi. Sıklığa dayalı "kararlı seçim" denendi, daha kötü
 (AP 0,138): nem/rüzgâr değişkenleri birbirinin yerine geçiyor. Saf Python GBM
 (`qv3_gbm.py`): AP 0,196, AUC 0,938 — sıralama belirgin iyi, olasılıklar fazla
-yüksek (kalibrasyon gerekir). Ayrıntı: `QV3_RAPOR.md`. Holdout açılmadı.
+yüksek; tek yıllık Platt kalibrasyonu yüzdeleri düzeltiyor ama kırılgan.
+Etkileşim terimli lojistik regresyon GBM'in farkını kapatmadı (AP 0,163).
+Ayrıntı: `QV3_RAPOR.md`. Holdout açılmadı.
 
 ### Ömerli'den nem taşınması — dolaylı gösterge (`omerli_advek.py`)
 

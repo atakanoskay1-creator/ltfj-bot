@@ -31,6 +31,26 @@ def test_aday_ekle_turetilmis_alanlar():
     ]
 
 
+@pytest.mark.parametrize("spread,saat,gorus,hiz,beklenen", [
+    (0, 3, 2000, 2, (1, 0, 0)),       # bant 0, gece, gorus<3000, sakin
+    (1, 12, 5000, 5, (0, 1, 1)),      # bant 0, gunduz, orta gorus, 3-10 kt
+    (2, 22, 9999, 12, (3, 5, 5)),     # bant 1, gece, gorus>=9999, >10 kt
+    (3, 6, 9999, 0, (5, 8, 6)),       # bant 2
+    (7, 13, 1000, 4, (6, 9, 10)),     # bant 3
+    (None, 3, 2000, 2, (None, None, None)),
+])
+def test_etkilesim_kodlari(spread, saat, gorus, hiz, beklenen):
+    r = q.etkilesim_ekle([{"spread": spread, "saat": saat, "gorus": gorus, "ruzgar_hiz": hiz}])[0]
+    assert (r["spread_x_gece"], r["spread_x_gorus"], r["spread_x_ruzgar"]) == beklenen
+
+
+def test_etkilesim_kategorileri_kendi_kovasinda():
+    E = [{"spread_x_gece": k, "hedef": k == 1 and i % 4 == 0}
+         for k in range(8) for i in range(400)]
+    tablo = q.woe_tablolari(E, ["spread_x_gece"])["spread_x_gece"]
+    assert len(tablo) == 8 and max(tablo, key=lambda t: t["woe"])["kova"] == 1
+
+
 def test_ikili_alan_iki_kovada_kalir():
     """Esit frekansli kovalama nadir 0/1 degiskeni tek kovaya dusururdu."""
     E = ([{"parcali_sis": 1, "hedef": i % 3 == 0} for i in range(300)]

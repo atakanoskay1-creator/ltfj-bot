@@ -62,6 +62,19 @@ def test_agac_sayisi_ic_dogrulamada_secilir():
     assert len(m["agaclar"]) == n
 
 
+def test_platt_fazla_yuksek_olasiliklari_duzeltir():
+    """Gercek oran p/2 iken model p diyor -> Platt asagi ceker, sirayi korur."""
+    rnd = random.Random(5)
+    ciftler = []
+    for _ in range(20000):
+        p = rnd.choice((0.02, 0.1, 0.4))
+        ciftler.append((p, rnd.random() < p / 2))
+    ab = G.platt_uydur(ciftler)
+    duzeltilmis = [G.platt_uygula(p, ab) for p in (0.02, 0.1, 0.4)]
+    assert duzeltilmis == sorted(duzeltilmis)
+    assert abs(duzeltilmis[1] - 0.05) < 0.015 and abs(duzeltilmis[2] - 0.2) < 0.04
+
+
 def test_holdout_acilmaz():
     kaynak = open("sis_modeli/qv3_gbm.py", encoding="utf-8").read()
     assert "bolme.gelistirme(aday)" in kaynak and "bolme.holdout" not in kaynak
