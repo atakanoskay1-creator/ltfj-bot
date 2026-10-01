@@ -878,7 +878,10 @@ fold'un 3'ünde seçildi. Sıklığa dayalı "kararlı seçim" denendi, daha kö
 (`qv3_gbm.py`): AP 0,196, AUC 0,938 — sıralama belirgin iyi, olasılıklar fazla
 yüksek; tek yıllık Platt kalibrasyonu yüzdeleri düzeltiyor ama kırılgan.
 Etkileşim terimli lojistik regresyon GBM'in farkını kapatmadı (AP 0,163).
-Ayrıntı: `QV3_RAPOR.md`. Holdout açılmadı.
+3 yıllık Platt ile dondurulan GBM, önceden yazılmış protokolle **holdout
+2024–2026'da** AP 0,158 / AUC 0,935 / BSS +0,057 verdi (Model A seti 0,117,
+fark +0,041, aralık +0,011…+0,070); başarı ölçütü sağlandı, olasılıklar bu kez
+düşük kaldı. Ayrıntı: `QV3_RAPOR.md`. Canlıya bağlı değil.
 
 ### Ömerli'den nem taşınması — dolaylı gösterge (`omerli_advek.py`)
 

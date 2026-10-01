@@ -5,8 +5,9 @@ Safhası'na geçilecek mi?
 
 Şart (TL.007 madde 6.2.a): RVR < 800 m **veya** tavan < 200 ft.
 
-QV3 **canlıya bağlanmaz**; yalnızca V3 için görmek amaçlıdır. Canlı Model A,
-onun veri dosyası ve 2024–2026 holdout'u **değişmedi / açılmadı**.
+QV3 **canlıya bağlanmaz**; yalnızca V3 için görmek amaçlıdır. Canlı Model A
+ve onun veri dosyası **değişmedi**. 2024–2026 holdout'u yalnızca dondurulan
+modellerle, önceden yazılmış protokole göre **bir kez** açıldı (aşağıda).
 
 Tekrar üretmek için (repo kökünden):
 
@@ -376,6 +377,86 @@ karar ancak holdout (2024–2026) açıldığında verilebilir.
 - **Başarı ölçütü** (önceden): GBM + Platt'ın AP'si görüş bandı iklimini
   ve Model A setini geçmeli; BSS > 0 olmalı.
 
+## Holdout sonucu (2024-01-01 – 2026-09-17, tek atış)
+
+- Kapsam: 47.279 an, 423 pozitif (%0,89), **71 olay**, 991 gün.
+- Protokol, holdout açılmadan `2dfe8ae` commit'iyle kaydedildi.
+- Sonuçtan sonra hiçbir şey değiştirilmedi.
+
+| Model | AP | ROC-AUC | Brier | BSS | Ort. tahmin |
+|---|---|---|---|---|---|
+| **GBM + Platt** (asıl) | **0,158** | **0,935** | **0,00829** | **+0,057** | %0,51 |
+| GBM ham | 0,158 | 0,935 | 0,00825 | +0,061 | %0,61 |
+| Model A seti | 0,117 | 0,896 | 0,00865 | +0,016 | %0,81 |
+| QV3 WoE | 0,087 | 0,750 | 0,00883 | −0,005 | %0,92 |
+| Görüş bandı iklimi | 0,061 | 0,688 | 0,00862 | +0,019 | %0,68 |
+| Ay × saat iklimi | 0,028 | 0,787 | 0,00879 | 0 | %0,95 |
+
+Yıl bazında AP:
+
+| Yıl | Pozitif | GBM + Platt | Model A seti | QV3 WoE | Görüş bandı |
+|---|---|---|---|---|---|
+| 2024 | 149 | **0,125** | 0,081 | 0,056 | 0,031 |
+| 2025 | 141 | **0,149** | 0,117 | 0,101 | 0,088 |
+| 2026* | 133 | **0,247** | 0,172 | 0,120 | 0,085 |
+
+\* 17 Eylül 2026'ya kadar.
+
+**Eşli fark** (gün blok bootstrap, 500 tekrar, %5–%95):
+
+| Fark | Medyan | Aralık | Pozitif replika |
+|---|---|---|---|
+| GBM + Platt − Model A seti | **+0,041** | +0,011 … +0,070 | %98 |
+| GBM + Platt − QV3 WoE | +0,066 | +0,030 … +0,104 | %100 |
+
+GBM + Platt AP aralığı: 0,120–0,205.
+
+**Başarı ölçütü (önceden yazılan): SAĞLANDI.**
+
+- AP görüş bandı iklimini (0,061) ve Model A setini (0,117) geçti; Model A
+  setine farkın aralığı sıfırın üstünde.
+- BSS > 0.
+- Üç yılın üçünde de en yüksek AP.
+
+**Ama dikkat:**
+
+1. **Walk-forward'dan düşük** (0,191 → 0,158). Beklenen bir düşüş, iki
+   nedeni var:
+   - aynı test döneminde birkaç yöntem karşılaştırılmasının iyimserliği;
+   - dondurulan modelde ağaç sayısının olayı az 2023'e göre seçilmesi
+     (yalnızca 50 ağaç).
+2. **Bu kez olasılıklar düşük kaldı.** Ortalama tahmin %0,51, gerçekleşen
+   %0,89. Walk-forward'daki fazla yüksek tahminin tersi: holdout yılları
+   eğitimin son yıllarından daha olaylı. Orta aralık yine makul:
+
+   | Model ne dedi | Gerçekleşen | n |
+   |---|---|---|
+   | %14 | %17 | 146 |
+   | %24 | %25 | 44 |
+   | %35 | %47 | 32 |
+
+   Üst uç çok az örnekli.
+3. **Uyarı eşikleri** (GBM + Platt):
+
+   | Eşik | Önceden yakalanan olay | Uyarı günü (991 gün) | İsabet |
+   |---|---|---|---|
+   | %10 | %45 (32/71) | 112 | %24 |
+   | %20 | %32 (23/71) | 63 | %32 |
+   | %30 | %27 (19/71) | 42 | %36 |
+
+   Olasılıklar düşük kaldığı için aynı eşik walk-forward'dakinden daha az
+   olay yakalıyor; isabet ise korunuyor. Canlıda eşik, olasılık değil
+   **uyarı yükü** üzerinden belirlenmeli.
+4. **QV3 WoE zayıf çıktı.** Dondurmada not edildiği gibi yalnızca 2
+   değişken seçilmişti. Tek yıllık iç doğrulamaya dayalı seçim kırılgan.
+5. **71 olay az.** Aralıklar geniş; sonuç yönü açık ama büyüklüğü kesin
+   değil.
+
+**Sonuç:** GBM, WoE ailesinden (Model A dahil) daha iyi bir LVO Hazırlık
+öngörücüsü olarak holdout'u geçti. Canlıya alınması ayrı bir karar. İzleme
+dönemi bitince, olasılık seviyesinin (kalibrasyonun) güncel yıllarla
+yenilenmesiyle birlikte değerlendirilmeli.
+
 ## Yorum
 
 1. **Hedef öğrenilebilir.**
@@ -412,5 +493,5 @@ karar ancak holdout (2024–2026) açıldığında verilebilir.
     `rvr_min` tüm uçların en düşüğü.
 - **2021–2023 çiy noktası kusuru** spread'i etkiliyor; bu dönem ayrıca
   temizlenmedi.
-- **Holdout (2024–2026)** yalnızca dondurulan modellerle, protokole göre bir kez açılacak.
+- **Holdout (2024–2026)** yalnızca dondurulan modellerle, protokole göre bir kez açıldı (aşağıda).
 - **Canlıya bağlanmadı.** İzleme dönemi kuralı: model değişikliği yok.
