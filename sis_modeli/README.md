@@ -867,6 +867,14 @@ koruması (LTBA/DS3505 satırları atılır); iki dosya `zaman` üzerinden birle
 Üretim: *Actions → Sis modeli RVR verisi* (elle, varsayılan 2012–bugün).
 Yalnızca eğitim/analiz içindir; canlı bota bağlanmaz.
 
+### QV3 — LVO Hazırlık Safhası'na geçiş (deneysel, canlıda değil)
+
+Hedef: 3 saat içinde RVR < 800 m veya tavan < 200 ft (TL.007 6.2.a). Değişken
+seti her fold'un kendi eğitim verisinde ileri seçimle bulunur. Walk-forward
+2015–2023: AP 0,165 (Model A'nın 5 değişkeni aynı hedefte 0,155, görüş bandı
+iklimi 0,113, ay×saat 0,026). Ömerli değişkeni (`kd_nemli`/`kd_hafif`) 4
+fold'un 3'ünde seçildi. Ayrıntı: `QV3_RAPOR.md`. Holdout açılmadı.
+
 ### Ömerli'den nem taşınması — dolaylı gösterge (`omerli_advek.py`)
 
 Ömerli tarafında arşivli nem ölçümü yok; LTFJ METAR'ından dolaylı bir
