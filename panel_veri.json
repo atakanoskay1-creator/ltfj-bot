@@ -1,14 +1,14 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-10-01T01:28:38+00:00",
+ "uretildi": "2026-10-01T01:32:39+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-10-01T00:50:00+00:00",
-  "metin": "METAR LTFJ 010050Z 03009KT 9999 FEW040 15/11 Q1022 NOSIG RMK RWY24R 02010KT RWY06R 08005KT RWY24L 03009KT",
+  "zaman": "2026-10-01T01:20:00+00:00",
+  "metin": "METAR LTFJ 010120Z 05006KT 9999 SCT030 SCT080 13/10 Q1021 NOSIG RMK RWY24R 02010KT RWY06R 10006KT RWY24L 05007KT",
   "ruzgar": {
-   "yon": 30,
-   "hiz": 9,
+   "yon": 50,
+   "hiz": 6,
    "hamle": null,
    "degisken": null
   },
@@ -16,9 +16,9 @@
   "cavok": false,
   "tavan": null,
   "hava": [],
-  "sicaklik": 15,
-  "cig_noktasi": 11,
-  "qnh": 1022,
+  "sicaklik": 13,
+  "cig_noktasi": 10,
+  "qnh": 1021,
   "nosig": true,
   "renk": [
    "BLU",
@@ -30,8 +30,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 7.5,
-    "yan": 5.0,
+    "bas": 5.8,
+    "yan": 1.5,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -43,8 +43,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 4.8,
-    "yan": 1.4,
+    "bas": 4.9,
+    "yan": 3.5,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -56,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -7.5,
-    "yan": 5.0,
+    "bas": -6.8,
+    "yan": 1.7,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -87,23 +87,14 @@
   "prs": [],
   "gorus_op": [],
   "trend": null,
-  "sis_riski": null,
-  "ozet": "Rüzgâr 030° 9kt · görüş 10+ km · 15°C · QNH 1022"
+  "sis_riski": "Sis oluşum göstergesi: orta (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 3°C, rüzgâr 6 kt, gece şartları",
+  "ozet": "Rüzgâr 050° 6kt · görüş 10+ km · 13°C · QNH 1021"
  },
  "taf": {
   "zaman": "2026-09-30T22:40:00+00:00",
   "metin": "TAF LTFJ 302240Z 0100/0124 04008KT 9999 SCT030 BKN080 BECMG 0107/0109 04018KT TEMPO 0108/0112 -SHRA FEW020TCU BKN025 TEMPO 0112/0116 04018G29KT -SHRA FEW018CB BKN025 PROB40 TEMPO 0116/0120 04016G27KT -SHRA BKN025 BKN080 BECMG 0120/0123 03007KT -SHRA SCT012 BKN025 BKN080"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-25T04:50:00+00:00",
-   "gorus": 10000,
-   "ruzgar_hiz": 5,
-   "tavan": null,
-   "qnh": 1020,
-   "sicaklik": 13,
-   "cig_noktasi": 10
-  },
   {
    "zaman": "2026-09-25T05:20:00+00:00",
    "gorus": 9999,
@@ -2794,6 +2785,15 @@
    "qnh": 1022,
    "sicaklik": 15,
    "cig_noktasi": 11
+  },
+  {
+   "zaman": "2026-10-01T01:20:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 6,
+   "tavan": null,
+   "qnh": 1021,
+   "sicaklik": 13,
+   "cig_noktasi": 10
   }
  ]
 }
