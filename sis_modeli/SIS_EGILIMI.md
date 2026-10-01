@@ -9,6 +9,8 @@ eğitmez, dosya yazmaz. Üç bağımsız kaynağı karşılaştırır: LTFJ META
 ERA5 yeniden analizi (istasyon sensöründen bağımsız) ve LTFM METAR
 (komşu istasyon, 2019+).
 
+Not (01.10.2026): betik çıktısındaki 2011 satırı büyük ölçüde LTBA verisidir (`README.md` → "Veri kalitesi" (0)); dönem ortalamaları 2012'den başladığı için etkilenmez.
+
 ## Dönem ortalamaları (betik çıktısından)
 
 | dönem | LTFJ sisli gün/yıl | LTFJ g<5000 satır/yıl | ERA5 sakin+doymuş gece saati* | LTFM sisli gün/yıl |

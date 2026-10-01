@@ -202,7 +202,24 @@ sınanması gerekiyor — bu adım henüz yapılmadı.
 ## Veri kalitesi: bilinen arşiv kusurları
 
 Arşiv ham gözlem değil, **bildirim** kaydıdır; bildirim pratiği değiştiğinde
-etiketler de kayar. Ölçülen iki kusur:
+etiketler de kayar. Ölçülen kusurlar:
+
+**0) 2011 başka istasyon: LTBA (01.10.2026'da doğrulandı).** IEM
+`station=LTFJ` isteğine 2011 için **16.821 LTBA (Atatürk) METAR'ı + 343 LTFJ**
+döndürüyor; CSV'nin `station` sütunu yine "LTFJ" diyor, yalnızca METAR
+metnindeki ICAO kodu doğruyu söylüyor. Eğitim arşivinde (`veri/ltfj_ozellik.csv.gz`)
+2011 bu yüzden büyük ölçüde LTBA'dır — `YIL_DENETIMI_2011.md`'deki "görüş
+neredeyse hiç 1000 m altına inmiyor" anomalisinin açıklaması bu. Ayrıca
+2005–2008 IEM'de var ama gerçek METAR değil: NCEI ISD'den yeniden kurulmuş
+(`IEM_DS3505`; görüş mil cinsinden 7SM tavanlı, hava/bulut grubu yok) —
+ayrıştırıcı okuyamadığı için arşive zaten girmemişti. `veri_cek._satirlari_coz`
+artık **metindeki istasyon kodunu** ve `IEM_DS3505` işaretini kontrol edip bu
+satırları nedenleriyle sayarak atıyor (LTFM çekicisi de aynı yoldan geçiyor).
+**Mevcut veri dosyası ve dondurulmuş model değişmedi** (izleme dönemi): 2011
+satırları Model A/B eğitiminde duruyor (~225 bin satırın ~17 bini, içinde
+neredeyse hiç sis yok → taban oranı hafifçe aşağı çeker; walk-forward testleri
+2015'ten başladığı için ölçülen skorları doğrudan değiştirmez). V3'te arşiv
+istasyon kontrolüyle yeniden çekilip eğitim 2012+ ile yapılmalı.
 
 **1) Düşük tavan eksik bildirimi (2011–2016).** Bildirilen tavan değerlerinin
 500 ft katlarına yığılma oranı %89'dan %72'ye düşerken `<1000 ft` oranı

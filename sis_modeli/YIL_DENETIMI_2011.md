@@ -27,7 +27,18 @@ gibi kodlar bu sütuna girmez); `sis_kodu1` ile bu yüzden birebir aynı değild
 | 2012 | 10 / 137 | 22 / 195 | 9 / 61 | 0 / 19 | 4 / 77 | 12 / 80 |
 | 2013 | 18 / 118 | 5 / 86 | 0 / 53 | 17 / 74 | 15 / 106 | 2 / 50 |
 
-## Bulgu
+## SONUÇ (01.10.2026): 2011 verisi büyük ölçüde LTBA'ya ait
+
+Aşağıdaki "belirlenemez" sorusu cevaplandı. IEM `station=LTFJ` isteğine
+2011 için **16.821 LTBA (Atatürk) METAR'ı ve yalnızca 343 LTFJ METAR'ı**
+döndürüyor (kullanıcının indirdiği tam IEM çıktısında METAR metnindeki ICAO
+koduyla sayıldı; CSV'nin `station` sütunu yanıltıcı biçimde "LTFJ"). Örnek:
+`LTBA 312050Z 32015KT 7000 -SHRA FEW007 SCT025 BKN080 07/07 Q1009`.
+Görüşün neredeyse hiç 1000 m altına inmemesi LTFJ'nin değil LTBA'nın 2011
+iklimi. Yani kayıt farkı değil, **yanlış istasyon**. Ayrıntı ve alınan
+önlem: `README.md` → "Veri kalitesi" (0).
+
+## Bulgu (ilk denetim — yukarıdaki sonuçtan önce yazıldı)
 
 - 2011'de veri **eksik değil**: satır sayısı tam, pus (BR) kodları ve 5000 m
   altı görüş diğer yıllarla aynı düzeyde.
