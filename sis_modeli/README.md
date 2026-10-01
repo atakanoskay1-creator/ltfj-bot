@@ -802,6 +802,60 @@ Sis sıklığındaki 2023 sonrası düşüş (`SIS_EGILIMI.md`) bu tabloyu
 etkilemez (kalkış süresi olay başına ölçülüyor) ama son yıllardan az
 olay geliyor.
 
+### Parçalı sis, 24 pist başı ve RVR (Ömerli) — `rvr_pist.py`, `sis_oncul.py`
+
+**Saha bilgisi (01.10.2026, kullanıcı):** meydanın kuzeyindeki Ömerli
+Barajı tarafından sabahları sis 24 pistlerinin başından geçer; meydanın
+tamamını kaplamaz ama o sırada 24 kullanılıyorsa LVO'ya yol açabilir.
+
+**Eğitim arşivinde (2012–2025, salt okuma):**
+- Parçalı sis kodları (`BCFG`/`PRFG`, alanı kaplayan `FG` yokken) 1.850
+  gözlemde, **540 günde** (~39 gün/yıl); alanı kaplayan `FG` 639 gözlem.
+- Bunların **%86'sında (1.585) genel görüş ≥1000 m** → model hedefi
+  (`sis` = görüş <1000 m veya alanı kaplayan FG) bunları "olay yok" sayıyor.
+- Saat: 00–05 UTC (yerel 03–08), tepe 03 UTC. Rüzgâr: **%70 KD** (Ömerli
+  yönü), çoğunlukla 4–10 kt. 24'e kuyruk bileşeni %41'inde ≤5 kt, %50'sinde
+  5–10 kt (kuru pistte AD 2.20 K sınırı içinde), yalnızca %4'ünde >10 kt —
+  yani bu anların çoğunda **24 kullanılabilir**.
+
+**RVR ile doğrulama** (kullanıcının indirdiği ham IEM CSV'si, yalnızca
+METAR metni LTFJ olan satırlar, gözlem kısmı; sayılar RVR **grubu**):
+
+| RVR | 24 ucu | 06 ucu |
+|---|---|---|
+| **<550 m** | **342** | 24 |
+| 550–1499 m | 906 | 257 |
+| ≥1500 m | 603 | 1.567 |
+
+1.969 parçalı sis METAR'ının 450'sinde RVR grubu yok. İki uçtan da aynı
+sayıda grup raporlanmış (1.851 / 1.848): aynı anlarda 24 ucu LVO
+seviyesine **~14 kat** daha sık iniyor. Tekrarlamak için:
+`python -m sis_modeli.rvr_pist <iem_ham.csv>`.
+
+**BR ve diğer öncüller** (`python -m sis_modeli.sis_oncul`): o an sis
+yokken, aynı görüş bandında sonraki 3 saatte sis olasılığı (taban %0.76):
+
+| görüşü düşüren | 1000–2999 m | 3000–4999 m |
+|---|---|---|
+| **parçalı sis** | **%36.8** (n=816) | **%20.8** (n=379) |
+| yağış | %25.6 (n=792) | %3.7 (n=1.934) |
+| yalnız BR | %11.0 (n=837) | %4.6 (n=3.902) |
+| HZ/FU/DU | — | %0.0 (n=65) |
+
+BR sık ve tabanın çok üstünde (1000–2999 m'de 14×), ama bunun büyük kısmını
+model zaten **görüşten** alıyor (BR tanım gereği 1000–5000 m + nemli hava);
+aynı görüşte BR, parçalı sis ve yağıştan **zayıf** bir öncül. Görüşün
+ötesindeki asıl ek bilgi **parçalı sis kodlarında**.
+
+**Sonuç ve V3 için:** Model A, Sabiha'ya özgü tipik bir LVO senaryosunu
+(24 başında parçalı sis, genel görüş yüksek) görmüyor. V3'te: (1) görüşe ek
+olarak **24 ucunda / kullanımdaki pistte RVR <550 m** hedefi; (2) eğitim
+arşivine pist ucu bazında en düşük RVR sütunları (arşiv zaten yeniden
+çekilecek — 2011/LTBA); (3) parçalı sis kodları ve BR aday değişken,
+rüzgârın KD bileşeni ve sabah saati ile etkileşim; (4) ileride Ömerli tarafı
+nemi (ERA5/NWP). **Şimdi model değişmedi** (izleme dönemi). Canlı sayfa
+METAR'daki pist bazlı RVR'yi zaten gösteriyor; eksik olan önceden tahmin.
+
 ### Düşük görüş/FG olayı iklimbilimi — `sis_iklim.py`
 
 **Bu da bir model değil, sayım.** Soru: LTFJ'de Model A'nın hedef olayı
