@@ -13,6 +13,7 @@ Tekrar üretmek için (repo kökünden):
 ```
 python -m sis_modeli.qv3_hedef   # evren ve yıllık pozitifler
 python -m sis_modeli.qv3_egit    # seçim + walk-forward (~8 dk, kararlı seçim dahil)
+python -m sis_modeli.qv3_gbm     # GBM (~3 dk)
 ```
 
 ## Veri ve hedef (`qv3_hedef.py`)
@@ -83,6 +84,7 @@ durum Model A'da da görülmüştü.
 |---|---|---|---|---|
 | **QV3** (veriyle seçilen set) | **0,165** | 0,905 | **0,00789** | **+0,085** |
 | QV3 kararlı seçim (aşağıda) | 0,138 | 0,868 | 0,00803 | +0,069 |
+| **GBM** (`qv3_gbm.py`, 22 adayın hepsi; aşağıda) | **0,196** | **0,938** | 0,00825 | +0,043 |
 | Model A'nın 5 değişkeni (bu hedefte yeniden eğitildi) | 0,155 | **0,915** | 0,00795 | +0,077 |
 | Mevcut görüş bandı iklimi | 0,113 | 0,792 | 0,00809 | +0,062 |
 | Ay × saat iklimi | 0,026 | 0,760 | 0,00862 | 0 |
@@ -146,6 +148,75 @@ temsilcisini** kesin tutmak.
 
 Eşiği sonuçlara bakarak düşürmek (örneğin %30) test verisine ayar olurdu;
 yapılmadı.
+
+### GBM denemesi (`qv3_gbm.py`) — sıralama belirgin iyi, olasılıklar fazla yüksek
+
+WoE lojistik model her değişkenin etkisini ayrı ayrı öğreniyor; "hafif KD
+rüzgârı + düşük spread + gece" gibi etkileşimleri ancak elle türetilmiş bir
+değişkenle görebiliyor. Sığ ağaçlar (gradient boosting) bunları kendiliğinden
+bulur. Değişken seçimini de ağaçlar yapar: 22 adayın hepsi verildi.
+
+Yöntem: saf Python, yeni kütüphane yok.
+- Ağaçlar: histogram tabanlı, derinlik 3, öğrenme hızı 0,1.
+- Örnekleme: pozitiflerin hepsi ve negatiflerin %10'u alınır, negatiflere
+  ağırlık 10 verilir.
+- Ağaç sayısı: eğitimin son yılında AP'ye göre seçilir. Test yılları
+  karışmaz.
+- **Çapraz kontrol:** aynı veri, aynı dönemler ve aynı ayarlarla
+  scikit-learn `HistGradientBoostingClassifier` AP 0,206, AUC 0,940 verdi.
+  Saf Python sürüm uyumlu (0,196 / 0,938). sklearn repoya girmedi.
+
+| Dönem | Ağaç | AP | ROC-AUC | BSS |
+|---|---|---|---|---|
+| 2015–16 | 50 | 0,197 | 0,928 | +0,066 |
+| 2017–18 | 100 | 0,253 | 0,959 | +0,087 |
+| 2019–20 | 210 | 0,202 | 0,952 | −0,038 |
+| 2021–23 | 250 | 0,179 | 0,929 | +0,032 |
+| **Toplam** | | **0,196** | **0,938** | +0,043 |
+
+AP, WoE QV3'e göre +0,031, Model A setine göre +0,041. Dönem bazında:
+2015–16 ve 2017–18'de WoE QV3'ten açıkça yüksek, 2021–23'te eşit
+(0,179'a karşı 0,178), 2019–20'de biraz düşük (0,202'ye karşı 0,207).
+ROC-AUC dört dönemin dördünde de en yüksek.
+
+**Ağaçların kullandığı değişkenler** (toplam bölme kazancı payı, dört dönem
+ortalaması):
+
+- spread %24, görüş %20, tavan %10, saat %10;
+- görüşün 1 saatlik değişimi %7, sıcaklık %7, ay %5;
+- rüzgârın doğu bileşeni %3, kd_nemli %3, rüzgârın kuzey bileşeni %2.
+
+Spread, WoE modelinde görüşün gölgesinde kalıyordu. Ağaçlarda en çok
+kullanılan değişken oldu: etkisi koşullu (görüşe, saate ve rüzgâra göre
+değişiyor), ve ağaçlar bunu yakalıyor.
+
+**Zayıf yan — kalibrasyon:** olasılıklar sistematik olarak fazla yüksek.
+
+- Ortalama tahmin %1,36, gerçekleşen %0,87.
+- Model %35 dediğinde gerçekleşen %16, %75 dediğinde %41.
+- Bu yüzden Brier skoru WoE modelinden kötü; 2019–20'de BSS negatif.
+
+Muhtemel nedenler: ağaç sayısının AP'ye göre seçilmesi (AP olasılık
+düzeyine bakmaz) ve eğitimdeki eski, daha sisli yıllar. Olasılık olarak
+gösterilecekse önce kalibre edilmeli; eğitimin son yılında izotonik
+kalibrasyon yapılabilir (`kalibrasyon.py` mevcut).
+
+**Uyarı karşılığı:** olasılık ölçekleri farklı olduğu için **aynı uyarı
+yükünde** karşılaştırmak gerek.
+
+| Model ve eşik | Uyarı günü (3.267 gün) | Önceden yakalanan olay | Uyarı anlarının isabeti |
+|---|---|---|---|
+| WoE QV3 %10 | 499 | %62 | %20 |
+| GBM %30 | 445 | %60 | %28 |
+| WoE QV3 %5 | 1.060 | %84 | %11 |
+| GBM %10 | 1.080 | %84 | %15 |
+
+Aynı sayıda uyarı gününde aynı oranda olay yakalanıyor. GBM'in farkı,
+uyarı verdiği anların daha isabetli olması (%20 → %28; %11 → %15).
+
+**Uyarı:** aynı 2015–2023 testinde artık birkaç yöntem karşılaştırıldı.
+En iyisini bu testin sonucuna bakarak seçmek biraz iyimserlik katar. Kesin
+karar ancak holdout (2024–2026) açıldığında verilebilir.
 
 ## Yorum
 
