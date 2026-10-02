@@ -1,12 +1,13 @@
 gozlem_zaman,gozlem_tip,olasilik_yuzde,bant,evren,sonuc,ilk_olay,slot_1,slot_2,slot_3,slot_4,slot_5,slot_6,speci_olay,model_surumu
-2026-10-02 14:20Z,METAR,3.3,orta,onset,bekliyor,,14:50 henuz,15:20 henuz,15:50 henuz,16:20 henuz,16:50 henuz,17:20 henuz,,A-8ce949a537
-2026-10-02 13:50Z,METAR,0.4,dusuk,onset,bekliyor,,14:20 4800 SHRA,14:50 henuz,15:20 henuz,15:50 henuz,16:20 henuz,16:50 henuz,,A-8ce949a537
-2026-10-02 13:25Z,SPECI,1.1,dusuk,onset,bekliyor,,13:50 9999 -SHRA,14:20 4800 SHRA,14:50 henuz,15:20 henuz,15:50 henuz,16:20 henuz,,A-8ce949a537
-2026-10-02 13:20Z,METAR,0.2,dusuk,onset,bekliyor,,13:50 9999 -SHRA,14:20 4800 SHRA,14:50 henuz,15:20 henuz,15:50 henuz,16:20 henuz,,A-8ce949a537
-2026-10-02 12:50Z,METAR,0.4,dusuk,onset,bekliyor,,13:20 9999 -SHRA,13:50 9999 -SHRA,14:20 4800 SHRA,14:50 henuz,15:20 henuz,15:50 henuz,,A-8ce949a537
-2026-10-02 12:25Z,SPECI,0.2,dusuk,onset,bekliyor,,12:50 9999 -SHRA,13:20 9999 -SHRA,13:50 9999 -SHRA,14:20 4800 SHRA,14:50 henuz,15:20 henuz,,A-8ce949a537
-2026-10-02 12:20Z,METAR,0.2,dusuk,onset,bekliyor,,12:50 9999 -SHRA,13:20 9999 -SHRA,13:50 9999 -SHRA,14:20 4800 SHRA,14:50 henuz,15:20 henuz,,A-8ce949a537
-2026-10-02 11:50Z,METAR,0.2,dusuk,onset,eksik_bekleniyor,,12:20 9999,12:50 9999 -SHRA,13:20 9999 -SHRA,13:50 9999 -SHRA,14:20 4800 SHRA,14:50 henuz,,A-8ce949a537
+2026-10-02 14:50Z,METAR,0.7,dusuk,onset,bekliyor,,15:20 henuz,15:50 henuz,16:20 henuz,16:50 henuz,17:20 henuz,17:50 henuz,,A-8ce949a537
+2026-10-02 14:20Z,METAR,3.3,orta,onset,bekliyor,,14:50 9999 -SHRA,15:20 henuz,15:50 henuz,16:20 henuz,16:50 henuz,17:20 henuz,,A-8ce949a537
+2026-10-02 13:50Z,METAR,0.4,dusuk,onset,bekliyor,,14:20 4800 SHRA,14:50 9999 -SHRA,15:20 henuz,15:50 henuz,16:20 henuz,16:50 henuz,,A-8ce949a537
+2026-10-02 13:25Z,SPECI,1.1,dusuk,onset,bekliyor,,13:50 9999 -SHRA,14:20 4800 SHRA,14:50 9999 -SHRA,15:20 henuz,15:50 henuz,16:20 henuz,,A-8ce949a537
+2026-10-02 13:20Z,METAR,0.2,dusuk,onset,bekliyor,,13:50 9999 -SHRA,14:20 4800 SHRA,14:50 9999 -SHRA,15:20 henuz,15:50 henuz,16:20 henuz,,A-8ce949a537
+2026-10-02 12:50Z,METAR,0.4,dusuk,onset,bekliyor,,13:20 9999 -SHRA,13:50 9999 -SHRA,14:20 4800 SHRA,14:50 9999 -SHRA,15:20 henuz,15:50 henuz,,A-8ce949a537
+2026-10-02 12:25Z,SPECI,0.2,dusuk,onset,bekliyor,,12:50 9999 -SHRA,13:20 9999 -SHRA,13:50 9999 -SHRA,14:20 4800 SHRA,14:50 9999 -SHRA,15:20 henuz,,A-8ce949a537
+2026-10-02 12:20Z,METAR,0.2,dusuk,onset,bekliyor,,12:50 9999 -SHRA,13:20 9999 -SHRA,13:50 9999 -SHRA,14:20 4800 SHRA,14:50 9999 -SHRA,15:20 henuz,,A-8ce949a537
+2026-10-02 11:50Z,METAR,0.2,dusuk,onset,olmadi,,12:20 9999,12:50 9999 -SHRA,13:20 9999 -SHRA,13:50 9999 -SHRA,14:20 4800 SHRA,14:50 9999 -SHRA,,A-8ce949a537
 2026-10-02 11:41Z,SPECI,0.2,dusuk,onset,olmadi,,11:50 9999,12:20 9999,12:50 9999 -SHRA,13:20 9999 -SHRA,13:50 9999 -SHRA,14:20 4800 SHRA,,A-8ce949a537
 2026-10-02 11:20Z,METAR,0.4,dusuk,onset,olmadi,,11:50 9999,12:20 9999,12:50 9999 -SHRA,13:20 9999 -SHRA,13:50 9999 -SHRA,14:20 4800 SHRA,,A-8ce949a537
 2026-10-02 10:50Z,METAR,0.2,dusuk,onset,olmadi,,11:20 9999 -SHRA,11:50 9999,12:20 9999,12:50 9999 -SHRA,13:20 9999 -SHRA,13:50 9999 -SHRA,,A-8ce949a537
