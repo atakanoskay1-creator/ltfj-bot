@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-10-02T13:28:40+00:00",
+ "uretildi": "2026-10-02T13:32:42+00:00",
  "metar": {
-  "tip": "METAR",
+  "tip": "SPECI",
   "duzeltme": null,
-  "zaman": "2026-10-02T13:20:00+00:00",
-  "metin": "METAR LTFJ 021320Z 04013KT 360V060 9999 -SHRA BKN030 BKN080 18/14 Q1023 NOSIG RMK RWY24R 02011KT RWY06R 03011KT 360V060 RWY24L 05009KT",
+  "zaman": "2026-10-02T13:25:00+00:00",
+  "metin": "SPECI LTFJ 021325Z 04013KT 360V060 4000 SHRA BKN030 BKN080 18/14 Q1023 BECMG 9999 NSW RMK RWY24R 02011KT RWY06R 03011KT 360V060 RWY24L 05009KT",
   "ruzgar": {
    "yon": 40,
    "hiz": 13,
@@ -15,19 +15,19 @@
     60
    ]
   },
-  "gorus": 9999,
+  "gorus": 4000,
   "cavok": false,
   "tavan": 3000,
   "hava": [
-   "-SHRA"
+   "SHRA"
   ],
   "sicaklik": 18,
   "cig_noktasi": 14,
   "qnh": 1023,
-  "nosig": true,
+  "nosig": false,
   "renk": [
-   "BLU",
-   "çok iyi"
+   "GRN",
+   "kabul edilebilir"
   ],
   "renk_etiketi": "LTFJ Bot durum seviyesi",
   "dikkat": [],
@@ -93,24 +93,15 @@
    "24L, 24R için arka rüzgâr 5 kt üstü"
   ],
   "gorus_op": [],
-  "trend": null,
+  "trend": "Kademeli geçiş: 9999 NSW",
   "sis_riski": null,
-  "ozet": "Rüzgâr 040° 13kt (değişken 360°–060°) · görüş 10+ km · tavan 3000 ft · hafif sağanak yağmur · 18°C · QNH 1023"
+  "ozet": "Rüzgâr 040° 13kt (değişken 360°–060°) · görüş 4000 m · tavan 3000 ft · sağanak yağmur · 18°C · QNH 1023"
  },
  "taf": {
   "zaman": "2026-10-02T10:40:00+00:00",
   "metin": "TAF LTFJ 021040Z 0212/0312 04016KT 9999 -SHRA BKN030 BKN080 TEMPO 0212/0216 04020G31KT 4000 SHRA FEW018CB BKN025 BKN070 PROB40 TEMPO 0216/0219 04020G30KT 4000 SHRA FEW018CB BKN025 BKN070 BECMG 0221/0301 04006KT SCT030 BKN080 BECMG 0306/0310 04019KT"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-26T22:20:00+00:00",
-   "gorus": 4800,
-   "ruzgar_hiz": 10,
-   "tavan": 2000,
-   "qnh": 1019,
-   "sicaklik": 18,
-   "cig_noktasi": 16
-  },
   {
    "zaman": "2026-09-26T22:29:00+00:00",
    "gorus": 9999,
@@ -2796,6 +2787,15 @@
   {
    "zaman": "2026-10-02T13:20:00+00:00",
    "gorus": 9999,
+   "ruzgar_hiz": 13,
+   "tavan": 3000,
+   "qnh": 1023,
+   "sicaklik": 18,
+   "cig_noktasi": 14
+  },
+  {
+   "zaman": "2026-10-02T13:25:00+00:00",
+   "gorus": 4000,
    "ruzgar_hiz": 13,
    "tavan": 3000,
    "qnh": 1023,
