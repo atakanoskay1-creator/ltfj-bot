@@ -1,8 +1,8 @@
 {
  "cekim": {
   "canli_h0": {
-   "son_deneme": "2026-10-02T08:01:12+00:00",
-   "son_basarili": "2026-10-02T08:01:12+00:00",
+   "son_deneme": "2026-10-02T08:04:37+00:00",
+   "son_basarili": "2026-10-02T08:04:37+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 3,
@@ -30,8 +30,8 @@
    }
   },
   "backfill_h24": {
-   "son_deneme": "2026-10-02T08:01:12+00:00",
-   "son_basarili": "2026-10-02T08:01:14+00:00",
+   "son_deneme": "2026-10-02T08:04:37+00:00",
+   "son_basarili": "2026-10-02T08:04:39+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 57,
@@ -63,7 +63,7 @@
   }
  },
  "arsiv": {
-  "uretim_zamani": "2026-10-02T08:01:14+00:00",
+  "uretim_zamani": "2026-10-02T08:04:39+00:00",
   "kanonik": {
    "toplam": 463,
    "METAR": 419,
