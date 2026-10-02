@@ -1,14 +1,14 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-10-02T08:20:57+00:00",
+ "uretildi": "2026-10-02T08:24:46+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-10-02T07:50:00+00:00",
-  "metin": "METAR LTFJ 020750Z 06013KT 9999 -SHRA SCT017 BKN030 BKN080 17/14 Q1023 NOSIG RMK RWY24R 04013KT RWY06R 04013KT RWY24L 05015KT",
+  "zaman": "2026-10-02T08:20:00+00:00",
+  "metin": "METAR LTFJ 020820Z 05015KT 9999 -SHRA SCT017 BKN030 BKN080 17/15 Q1023 NOSIG RMK RWY24R 04013KT RWY06R 04015KT RWY24L 05013KT",
   "ruzgar": {
-   "yon": 60,
-   "hiz": 13,
+   "yon": 50,
+   "hiz": 15,
    "hamle": null,
    "degisken": null
   },
@@ -19,7 +19,7 @@
    "-SHRA"
   ],
   "sicaklik": 17,
-  "cig_noktasi": 14,
+  "cig_noktasi": 15,
   "qnh": 1023,
   "nosig": true,
   "renk": [
@@ -32,8 +32,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 13.0,
-    "yan": 0.9,
+    "bas": 14.5,
+    "yan": 3.7,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -45,8 +45,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 11.9,
-    "yan": 5.3,
+    "bas": 13.7,
+    "yan": 6.1,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -58,8 +58,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -14.5,
-    "yan": 3.7,
+    "bas": -12.6,
+    "yan": 3.2,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -92,22 +92,13 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 060° 13kt · görüş 10+ km · tavan 3000 ft · hafif sağanak yağmur · 17°C · QNH 1023"
+  "ozet": "Rüzgâr 050° 15kt · görüş 10+ km · tavan 3000 ft · hafif sağanak yağmur · 17°C · QNH 1023"
  },
  "taf": {
   "zaman": "2026-10-02T04:40:00+00:00",
   "metin": "TAF LTFJ 020440Z 0206/0306 04009KT 9999 -SHRA BKN030 BKN080 TEMPO 0206/0210 4000 TSRA SCT010 FEW020CB BKN025 BECMG 0207/0211 04019KT TEMPO 0210/0214 04022G32KT 3200 TSRA FEW015CB BKN028 TEMPO 0214/0218 04022G32KT PROB40 TEMPO 0216/0220 04020G30KT 4000 SHRA SCT010 BKN025 BECMG 0221/0224 04009KT"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-26T15:50:00+00:00",
-   "gorus": 9999,
-   "ruzgar_hiz": 17,
-   "tavan": null,
-   "qnh": 1017,
-   "sicaklik": 21,
-   "cig_noktasi": 15
-  },
   {
    "zaman": "2026-09-26T16:20:00+00:00",
    "gorus": 9999,
@@ -2798,6 +2789,15 @@
    "qnh": 1023,
    "sicaklik": 17,
    "cig_noktasi": 14
+  },
+  {
+   "zaman": "2026-10-02T08:20:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 15,
+   "tavan": 3000,
+   "qnh": 1023,
+   "sicaklik": 17,
+   "cig_noktasi": 15
   }
  ]
 }
