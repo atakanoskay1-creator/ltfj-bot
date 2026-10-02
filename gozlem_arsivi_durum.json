@@ -1,8 +1,8 @@
 {
  "cekim": {
   "canli_h0": {
-   "son_deneme": "2026-10-02T07:28:34+00:00",
-   "son_basarili": "2026-10-02T07:28:34+00:00",
+   "son_deneme": "2026-10-02T07:32:47+00:00",
+   "son_basarili": "2026-10-02T07:32:47+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 3,
@@ -30,22 +30,22 @@
    }
   },
   "backfill_h24": {
-   "son_deneme": "2026-10-02T07:28:34+00:00",
-   "son_basarili": "2026-10-02T07:28:36+00:00",
+   "son_deneme": "2026-10-02T07:32:47+00:00",
+   "son_basarili": "2026-10-02T07:32:50+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
-    "kayit": 58,
+    "kayit": 57,
     "METAR": 48,
-    "SPECI": 6,
+    "SPECI": 5,
     "TAF": 4,
-    "en_eski": "2026-10-01T07:31:00+00:00",
+    "en_eski": "2026-10-01T07:50:00+00:00",
     "en_yeni": "2026-10-02T07:20:00+00:00",
     "veri_alani": "data",
     "saat": 24
    },
    "son_isleme": {
     "kaynak": "backfill_h24",
-    "rapor": 54,
+    "rapor": 53,
     "kanonik_eklenen": {
      "METAR": 0,
      "SPECI": 0
@@ -63,7 +63,7 @@
   }
  },
  "arsiv": {
-  "uretim_zamani": "2026-10-02T07:28:36+00:00",
+  "uretim_zamani": "2026-10-02T07:32:50+00:00",
   "kanonik": {
    "toplam": 462,
    "METAR": 418,
