@@ -1,8 +1,8 @@
 {
  "cekim": {
   "canli_h0": {
-   "son_deneme": "2026-10-02T14:01:15+00:00",
-   "son_basarili": "2026-10-02T14:01:15+00:00",
+   "son_deneme": "2026-10-02T14:04:42+00:00",
+   "son_basarili": "2026-10-02T14:04:42+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 3,
@@ -19,8 +19,8 @@
      "METAR": 0,
      "SPECI": 0
     },
-    "surum_eklenen": 1,
-    "mevcut_anahtara_yeni_surum": 1,
+    "surum_eklenen": 0,
+    "mevcut_anahtara_yeni_surum": 0,
     "ayni_surum_farkli_ham_zaman": 0,
     "ayni_surum_farkli_id": 0,
     "tip_kodu_uyusmazligi": 0,
@@ -30,8 +30,8 @@
    }
   },
   "backfill_h24": {
-   "son_deneme": "2026-10-02T14:01:15+00:00",
-   "son_basarili": "2026-10-02T14:01:17+00:00",
+   "son_deneme": "2026-10-02T14:04:42+00:00",
+   "son_basarili": "2026-10-02T14:04:44+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 59,
@@ -63,7 +63,7 @@
   }
  },
  "arsiv": {
-  "uretim_zamani": "2026-10-02T14:01:17+00:00",
+  "uretim_zamani": "2026-10-02T14:04:44+00:00",
   "kanonik": {
    "toplam": 479,
    "METAR": 431,
