@@ -1,8 +1,8 @@
 {
  "cekim": {
   "canli_h0": {
-   "son_deneme": "2026-10-02T13:56:34+00:00",
-   "son_basarili": "2026-10-02T13:56:34+00:00",
+   "son_deneme": "2026-10-02T14:01:15+00:00",
+   "son_basarili": "2026-10-02T14:01:15+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 3,
@@ -16,24 +16,22 @@
     "kaynak": "canli_h0",
     "rapor": 2,
     "kanonik_eklenen": {
-     "METAR": 1,
+     "METAR": 0,
      "SPECI": 0
     },
     "surum_eklenen": 1,
-    "mevcut_anahtara_yeni_surum": 0,
+    "mevcut_anahtara_yeni_surum": 1,
     "ayni_surum_farkli_ham_zaman": 0,
     "ayni_surum_farkli_id": 0,
     "tip_kodu_uyusmazligi": 0,
     "cozulemeyen": 0,
     "zamansiz": 0,
-    "eklenen_anahtarlar": [
-     "2026-10-02T13:50:00+00:00 METAR"
-    ]
+    "eklenen_anahtarlar": []
    }
   },
   "backfill_h24": {
-   "son_deneme": "2026-10-02T13:56:34+00:00",
-   "son_basarili": "2026-10-02T13:56:35+00:00",
+   "son_deneme": "2026-10-02T14:01:15+00:00",
+   "son_basarili": "2026-10-02T14:01:17+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 59,
@@ -65,7 +63,7 @@
   }
  },
  "arsiv": {
-  "uretim_zamani": "2026-10-02T13:56:35+00:00",
+  "uretim_zamani": "2026-10-02T14:01:17+00:00",
   "kanonik": {
    "toplam": 479,
    "METAR": 431,
@@ -123,16 +121,16 @@
    ]
   },
   "surum": {
-   "toplam": 296,
+   "toplam": 297,
    "mgm_status": {
     "1": 285,
-    "4": 11
+    "4": 12
    },
    "mgm_status_aciklama": {
-    "CCA   ": 11,
+    "CCA   ": 12,
     "NORMAL": 285
    },
-   "cok_surumlu_anahtar": 7,
+   "cok_surumlu_anahtar": 8,
    "cok_surumlu_anahtar_son": [
     {
      "anahtar": "2026-09-28T19:20:00+00:00 METAR",
@@ -235,6 +233,21 @@
       {
        "mgm_status": "4",
        "alinma_zamani": "2026-10-01T12:04:38+00:00",
+       "kaynak": "canli_h0"
+      }
+     ]
+    },
+    {
+     "anahtar": "2026-10-02T13:25:00+00:00 SPECI",
+     "surumler": [
+      {
+       "mgm_status": "1",
+       "alinma_zamani": "2026-10-02T13:32:34+00:00",
+       "kaynak": "canli_h0"
+      },
+      {
+       "mgm_status": "4",
+       "alinma_zamani": "2026-10-02T14:01:15+00:00",
        "kaynak": "canli_h0"
       }
      ]
