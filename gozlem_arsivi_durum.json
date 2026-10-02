@@ -1,8 +1,8 @@
 {
  "cekim": {
   "canli_h0": {
-   "son_deneme": "2026-10-02T00:53:09+00:00",
-   "son_basarili": "2026-10-02T00:53:09+00:00",
+   "son_deneme": "2026-10-02T00:57:46+00:00",
+   "son_basarili": "2026-10-02T00:57:46+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 3,
@@ -30,8 +30,8 @@
    }
   },
   "backfill_h24": {
-   "son_deneme": "2026-10-02T00:53:09+00:00",
-   "son_basarili": "2026-10-02T00:53:11+00:00",
+   "son_deneme": "2026-10-02T00:57:46+00:00",
+   "son_basarili": "2026-10-02T00:57:48+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 59,
@@ -63,7 +63,7 @@
   }
  },
  "arsiv": {
-  "uretim_zamani": "2026-10-02T00:53:19+00:00",
+  "uretim_zamani": "2026-10-02T00:57:48+00:00",
   "kanonik": {
    "toplam": 447,
    "METAR": 404,
@@ -238,7 +238,14 @@
      ]
     }
    ],
-   "kanonik_ile_ayristirma_farkli": null
+   "kanonik_ile_ayristirma_farkli": {
+    "sayi": 3,
+    "son": [
+     "2026-09-28T06:20:00+00:00 METAR",
+     "2026-09-28T19:20:00+00:00 METAR",
+     "2026-09-29T07:50:00+00:00 METAR"
+    ]
+   }
   },
   "eksik_slot": {
    "bekleniyor": 1,
