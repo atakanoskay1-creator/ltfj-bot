@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:55657165",
   "id:55661172",
   "id:55669944",
   "id:55681372",
@@ -199,24 +198,16 @@
   "id:56669862",
   "id:56673105",
   "id:56680476",
-  "id:56680679"
+  "id:56680679",
+  "id:56683093"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 022220Z 04013KT 9999 -SHRA SCT028 BKN070 16/14 Q1025 NOSIG RMK RWY24R 03011KT RWY06R 03014KT RWY24L 04010KT",
+ "son_metar": "METAR LTFJ 022250Z 05012KT 9999 -SHRA SCT028 BKN070 16/13 Q1025 NOSIG RMK RWY24R 03010KT RWY06R 04013KT RWY24L 04008KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-10-02T22:20:00+00:00",
+ "son_veri_zamani": "2026-10-02T22:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-27T10:20:00+00:00",
-   "gorus": 9999,
-   "ruzgar_hiz": 14,
-   "tavan": 10000,
-   "qnh": 1017,
-   "sicaklik": 22,
-   "cig_noktasi": 15
-  },
   {
    "zaman": "2026-09-27T10:50:00+00:00",
    "gorus": 9999,
@@ -2907,13 +2898,22 @@
    "qnh": 1025,
    "sicaklik": 16,
    "cig_noktasi": 14
+  },
+  {
+   "zaman": "2026-10-02T22:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 12,
+   "tavan": 7000,
+   "qnh": 1025,
+   "sicaklik": 16,
+   "cig_noktasi": 13
   }
  ],
  "yorum_onbellegi": {
-  "TAF COR LTFJ 021640Z 0218/0318 04016KT 9999 -SHRA BKN030 BKN080 TEMPO 0218/0222 06018G28KT 3200 TSRA FEW015CB BKN023 BKN070 BECMG 0221/0301 04006KT SCT030 BKN080 BECMG 0306/0310 04019KT TEMPO 0310/0314 05020G30KT BECMG 0316/0318 04009KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken rüzgar ve ara sıra sağanak yağış beklenmektedir.\n\n- **0218/0222 UTC** Geçici olarak kuvvetli rüzgar (18-28 düğün) ve gök gürültülü sağanak, görüş 3200 metre, az bulut 15 metre'de (cumulonimbus), 23 ve 70 metre'de kırık bulut.\n\n- **0221/0301 UTC** Kademeli geçişle rüzgar zayıflayacak (6 düğün), 30 metre'de dağınık bulut, 80 metre'de kırık bulut.\n\n- **0306/0310 UTC** Kademeli geçişle rüzgar güçlenecek (19 düğün); **0310/0314 UTC** geçici olarak 20-30 düğün rüzgar; **0316/0318 UTC** kademeli geçişle rüzgar zayıflayacak (9 düğün).",
-  "METAR LTFJ 022150Z 04014KT 9999 SCT030 BKN080 17/14 Q1025 NOSIG RMK RWY24R 02013KT RWY06R 03014KT RWY24L 03008KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 14 knot (yaklaşık 26 km/saat) hızında rüzgâr esiyor, yan bileşen 6 knot seviyesindedir.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede görüş sağlanıyor, uçuş için rahat bir durumdur.\n\n**Gökyüzü:** 3000 feet (yaklaşık 900 metre) yükseklikte parçalı bulutluluk, 8000 feet (yaklaşık 2400 metre) yükseklikte çok bulutluluk vardır; yağış gözlenmemiştir.\n\n**Uçuşa etkisi:** Rüzgâr ve bulut durumu operasyonel sınırlamalar içinde kalmakta, gözlenen veriler kısıtlayıcı bir unsur oluşturmamaktadır.",
   "SPECI LTFJ 022214Z 04015KT 9999 -SHRA SCT030 BKN080 16/14 Q1025 NOSIG RMK RWY24R 03012KT RWY06R 03016KT RWY24L 04012KT": "**Rüzgâr:** Kuzey-kuzeydoğudan 15 knot (saniyede yaklaşık 7-8 metre) hızla esen rüzgâr, hafif yan bileşen içeriyor.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için rahat koşullar.\n\n**Gökyüzü:** 3000 feet (yaklaşık 900 metre) yükseklikte parçalı bulutlar, 8000 feet (yaklaşık 2400 metre) yükseklikte çok bulutlu katman ve hafif sağanak yağmuru var.\n\n**Uçuşa etkisi:** Yüksek nem ve sağanak yağmuru gözlenmekle birlikte, görüş ve rüzgâr koşulları kısıtlayıcı değildir; önümüzdeki 2 saatte hava durumunda önemli değişiklik beklenmemektedir.",
-  "METAR LTFJ 022220Z 04013KT 9999 -SHRA SCT028 BKN070 16/14 Q1025 NOSIG RMK RWY24R 03011KT RWY06R 03014KT RWY24L 04010KT": "**Rüzgâr:** Kuzey-kuzeydoğu yönünden 13 knot (yaklaşık 24 km/s) rüzgâr esiyor, hafif yan bileşen var.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için rahat.\n\n**Gökyüzü:** Yaklaşık 2800 metreden başlayan parçalı bulutluluk ve 7000 metreden çok bulutluluk var; hafif sağanak yağmur düşüyor.\n\n**Uçuşa etkisi:** Hafif sağanak ve yüksek nem koşulları mevcuttur; rüzgâr ve görüş kısıtlayıcı değildir."
+  "METAR LTFJ 022220Z 04013KT 9999 -SHRA SCT028 BKN070 16/14 Q1025 NOSIG RMK RWY24R 03011KT RWY06R 03014KT RWY24L 04010KT": "**Rüzgâr:** Kuzey-kuzeydoğu yönünden 13 knot (yaklaşık 24 km/s) rüzgâr esiyor, hafif yan bileşen var.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için rahat.\n\n**Gökyüzü:** Yaklaşık 2800 metreden başlayan parçalı bulutluluk ve 7000 metreden çok bulutluluk var; hafif sağanak yağmur düşüyor.\n\n**Uçuşa etkisi:** Hafif sağanak ve yüksek nem koşulları mevcuttur; rüzgâr ve görüş kısıtlayıcı değildir.",
+  "METAR LTFJ 022250Z 05012KT 9999 -SHRA SCT028 BKN070 16/13 Q1025 NOSIG RMK RWY24R 03010KT RWY06R 04013KT RWY24L 04008KT": "Rüzgâr: Kuzey-kuzeydoğudan 12 knot (yaklaşık 22 km/saat) hızında rüzgâr esiyor, yan bileşen çok az.\n\nGörüş: 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat.\n\nGökyüzü: Yaklaşık 2800 metrede parçalı bulutlar, 7000 metrede çok bulutlu katman var; hafif sağanak yağmur düşüyor.\n\nUçuşa etkisi: Hafif sağanak ve orta yükseklikte bulutlar gözlenmekte, ancak görüş ve rüzgâr şartları sınırlayıcı değildir.",
+  "TAF COR LTFJ 021640Z 0218/0318 04016KT 9999 -SHRA BKN030 BKN080 TEMPO 0218/0222 06018G28KT 3200 TSRA FEW015CB BKN023 BKN070 BECMG 0221/0301 04006KT SCT030 BKN080 BECMG 0306/0310 04019KT TEMPO 0310/0314 05020G30KT BECMG 0316/0318 04009KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde değişken rüzgar ve ara sıra sağanak yağış beklenmektedir.\n\n- **0218/0222 UTC** Geçici olarak kuvvetli rüzgar (18-28 düğün), görüş 3200 m, gök gürültülü sağanak, 15 m'de kümülonimbus bulutlar.\n- **0221/0301 UTC** Kademeli geçişle rüzgar zayıflayacak, görüş 9999 m, dağınık-kırık bulutlar.\n- **0310/0314 UTC** Geçici olarak rüzgar kuvvetlenecek (20-30 düğün)."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -4292,15 +4292,15 @@
   }
  },
  "notam_son_senkron": "2026-10-02T21:36:49+00:00",
- "guncelleme": "2026-10-02T22:52:40+00:00",
+ "guncelleme": "2026-10-02T22:56:44+00:00",
  "push_gonderilen": [
-  "id:56598363",
-  "id:56583441",
-  "id:56611093",
   "id:56609611",
+  "id:56611093",
+  "id:56649381",
+  "id:56598363",
   "id:56609098",
   "id:56572834",
-  "id:56680476",
-  "id:56649381"
+  "id:56583441",
+  "id:56680476"
  ]
 }
