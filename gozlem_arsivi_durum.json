@@ -1,8 +1,8 @@
 {
  "cekim": {
   "canli_h0": {
-   "son_deneme": "2026-10-02T00:16:31+00:00",
-   "son_basarili": "2026-10-02T00:16:31+00:00",
+   "son_deneme": "2026-10-02T00:20:46+00:00",
+   "son_basarili": "2026-10-02T00:20:46+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 3,
@@ -17,37 +17,35 @@
     "rapor": 2,
     "kanonik_eklenen": {
      "METAR": 0,
-     "SPECI": 1
+     "SPECI": 0
     },
-    "surum_eklenen": 1,
+    "surum_eklenen": 0,
     "mevcut_anahtara_yeni_surum": 0,
     "ayni_surum_farkli_ham_zaman": 0,
     "ayni_surum_farkli_id": 0,
     "tip_kodu_uyusmazligi": 0,
     "cozulemeyen": 0,
     "zamansiz": 0,
-    "eklenen_anahtarlar": [
-     "2026-10-02T00:12:00+00:00 SPECI"
-    ]
+    "eklenen_anahtarlar": []
    }
   },
   "backfill_h24": {
-   "son_deneme": "2026-10-02T00:16:31+00:00",
-   "son_basarili": "2026-10-02T00:16:33+00:00",
+   "son_deneme": "2026-10-02T00:20:46+00:00",
+   "son_basarili": "2026-10-02T00:20:48+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
-    "kayit": 60,
-    "METAR": 48,
+    "kayit": 59,
+    "METAR": 47,
     "SPECI": 8,
     "TAF": 4,
-    "en_eski": "2026-10-01T00:20:00+00:00",
+    "en_eski": "2026-10-01T00:50:00+00:00",
     "en_yeni": "2026-10-02T00:12:00+00:00",
     "veri_alani": "data",
     "saat": 24
    },
    "son_isleme": {
     "kaynak": "backfill_h24",
-    "rapor": 56,
+    "rapor": 55,
     "kanonik_eklenen": {
      "METAR": 0,
      "SPECI": 0
@@ -65,7 +63,7 @@
   }
  },
  "arsiv": {
-  "uretim_zamani": "2026-10-02T00:16:33+00:00",
+  "uretim_zamani": "2026-10-02T00:20:48+00:00",
   "kanonik": {
    "toplam": 446,
    "METAR": 403,
@@ -250,7 +248,7 @@
    }
   },
   "eksik_slot": {
-   "bekleniyor": 0,
+   "bekleniyor": 1,
    "backfill_penceresi_disinda": {
     "son_7_gun": 2,
     "toplam": 2
@@ -264,6 +262,11 @@
     {
      "slot": "2026-09-27T04:50:00+00:00",
      "durum": "backfill_penceresi_disinda",
+     "mgm_yanitinda_yok": null
+    },
+    {
+     "slot": "2026-10-02T00:20:00+00:00",
+     "durum": "bekleniyor",
      "mgm_yanitinda_yok": null
     }
    ],
