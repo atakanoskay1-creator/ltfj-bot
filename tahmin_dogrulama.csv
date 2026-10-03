@@ -1,10 +1,11 @@
 gozlem_zaman,gozlem_tip,olasilik_yuzde,bant,evren,sonuc,ilk_olay,slot_1,slot_2,slot_3,slot_4,slot_5,slot_6,speci_olay,model_surumu
-2026-10-03 18:50Z,METAR,0.2,dusuk,onset,bekliyor,,19:20 henuz,19:50 henuz,20:20 henuz,20:50 henuz,21:20 henuz,21:50 henuz,,A-8ce949a537
-2026-10-03 18:20Z,METAR,0.2,dusuk,onset,bekliyor,,18:50 9999,19:20 henuz,19:50 henuz,20:20 henuz,20:50 henuz,21:20 henuz,,A-8ce949a537
-2026-10-03 17:50Z,METAR,0.2,dusuk,onset,bekliyor,,18:20 9999,18:50 9999,19:20 henuz,19:50 henuz,20:20 henuz,20:50 henuz,,A-8ce949a537
-2026-10-03 17:20Z,METAR,0.2,dusuk,onset,bekliyor,,17:50 9999,18:20 9999,18:50 9999,19:20 henuz,19:50 henuz,20:20 henuz,,A-8ce949a537
-2026-10-03 16:50Z,METAR,0.1,dusuk,onset,bekliyor,,17:20 9999,17:50 9999,18:20 9999,18:50 9999,19:20 henuz,19:50 henuz,,A-8ce949a537
-2026-10-03 16:20Z,METAR,0.1,dusuk,onset,eksik_bekleniyor,,16:50 9999,17:20 9999,17:50 9999,18:20 9999,18:50 9999,19:20 henuz,,A-8ce949a537
+2026-10-03 19:20Z,METAR,0.2,dusuk,onset,bekliyor,,19:50 henuz,20:20 henuz,20:50 henuz,21:20 henuz,21:50 henuz,22:20 henuz,,A-8ce949a537
+2026-10-03 18:50Z,METAR,0.2,dusuk,onset,bekliyor,,19:20 9999,19:50 henuz,20:20 henuz,20:50 henuz,21:20 henuz,21:50 henuz,,A-8ce949a537
+2026-10-03 18:20Z,METAR,0.2,dusuk,onset,bekliyor,,18:50 9999,19:20 9999,19:50 henuz,20:20 henuz,20:50 henuz,21:20 henuz,,A-8ce949a537
+2026-10-03 17:50Z,METAR,0.2,dusuk,onset,bekliyor,,18:20 9999,18:50 9999,19:20 9999,19:50 henuz,20:20 henuz,20:50 henuz,,A-8ce949a537
+2026-10-03 17:20Z,METAR,0.2,dusuk,onset,bekliyor,,17:50 9999,18:20 9999,18:50 9999,19:20 9999,19:50 henuz,20:20 henuz,,A-8ce949a537
+2026-10-03 16:50Z,METAR,0.1,dusuk,onset,bekliyor,,17:20 9999,17:50 9999,18:20 9999,18:50 9999,19:20 9999,19:50 henuz,,A-8ce949a537
+2026-10-03 16:20Z,METAR,0.1,dusuk,onset,olmadi,,16:50 9999,17:20 9999,17:50 9999,18:20 9999,18:50 9999,19:20 9999,,A-8ce949a537
 2026-10-03 15:50Z,METAR,0.1,dusuk,onset,olmadi,,16:20 9999,16:50 9999,17:20 9999,17:50 9999,18:20 9999,18:50 9999,,A-8ce949a537
 2026-10-03 15:20Z,METAR,0.1,dusuk,onset,olmadi,,15:50 9999,16:20 9999,16:50 9999,17:20 9999,17:50 9999,18:20 9999,,A-8ce949a537
 2026-10-03 14:50Z,METAR,0.1,dusuk,onset,olmadi,,15:20 9999,15:50 9999,16:20 9999,16:50 9999,17:20 9999,17:50 9999,,A-8ce949a537
