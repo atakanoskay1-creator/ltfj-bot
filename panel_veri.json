@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-10-03T06:22:31+00:00",
+ "uretildi": "2026-10-03T06:24:45+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-10-03T05:50:00+00:00",
-  "metin": "METAR LTFJ 030550Z 05014KT 9999 SCT033 17/12 Q1027 NOSIG RMK RWY24R 04011KT RWY06R 04012KT RWY24L 05013KT",
+  "zaman": "2026-10-03T06:20:00+00:00",
+  "metin": "METAR LTFJ 030620Z 05014KT 9999 SCT035 18/11 Q1027 NOSIG RMK RWY24R 04012KT RWY06R 04015KT RWY24L 05015KT",
   "ruzgar": {
    "yon": 50,
    "hiz": 14,
@@ -16,8 +16,8 @@
   "cavok": false,
   "tavan": null,
   "hava": [],
-  "sicaklik": 17,
-  "cig_noktasi": 12,
+  "sicaklik": 18,
+  "cig_noktasi": 11,
   "qnh": 1027,
   "nosig": true,
   "renk": [
@@ -43,8 +43,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 11.0,
-    "yan": 4.9,
+    "bas": 13.7,
+    "yan": 6.1,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -56,8 +56,8 @@
    {
     "pist": "24L",
     "yon_gercek": 244.12,
-    "bas": -12.6,
-    "yan": 3.2,
+    "bas": -14.5,
+    "yan": 3.7,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -69,8 +69,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -10.0,
-    "yan": 4.5,
+    "bas": -11.0,
+    "yan": 4.9,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -82,7 +82,7 @@
   ],
   "kuyruk_limiti": 10,
   "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi",
-  "tercih_pist": "06L",
+  "tercih_pist": "06R",
   "rvr": [],
   "prs": [
    "24L, 24R için arka rüzgâr 10 kt üstü"
@@ -90,22 +90,13 @@
   "gorus_op": [],
   "trend": null,
   "sis_riski": null,
-  "ozet": "Rüzgâr 050° 14kt · görüş 10+ km · 17°C · QNH 1027"
+  "ozet": "Rüzgâr 050° 14kt · görüş 10+ km · 18°C · QNH 1027"
  },
  "taf": {
   "zaman": "2026-10-03T04:40:00+00:00",
   "metin": "TAF LTFJ 030440Z 0306/0406 04008KT 9999 SCT040 BECMG 0306/0309 04018KT TEMPO 0310/0314 05020G30KT BECMG 0317/0320 04008KT"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-27T18:02:00+00:00",
-   "gorus": 9999,
-   "ruzgar_hiz": 14,
-   "tavan": 8000,
-   "qnh": 1015,
-   "sicaklik": 18,
-   "cig_noktasi": 16
-  },
   {
    "zaman": "2026-09-27T18:20:00+00:00",
    "gorus": 9999,
@@ -2796,6 +2787,15 @@
    "qnh": 1027,
    "sicaklik": 17,
    "cig_noktasi": 12
+  },
+  {
+   "zaman": "2026-10-03T06:20:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 14,
+   "tavan": null,
+   "qnh": 1027,
+   "sicaklik": 18,
+   "cig_noktasi": 11
   }
  ]
 }
