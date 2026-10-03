@@ -1,14 +1,14 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-10-03T01:52:41+00:00",
+ "uretildi": "2026-10-03T01:56:40+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-10-03T01:20:00+00:00",
-  "metin": "METAR LTFJ 030120Z 02007KT 9999 SCT032 BKN070 15/13 Q1025 NOSIG RMK RWY24R 01006KT RWY06R 02008KT RWY24L 03006KT",
+  "zaman": "2026-10-03T01:50:00+00:00",
+  "metin": "METAR LTFJ 030150Z 03008KT 9999 SCT032 BKN070 15/12 Q1025 NOSIG RMK RWY24R 01008KT RWY06R 02010KT RWY24L 02007KT",
   "ruzgar": {
-   "yon": 20,
-   "hiz": 7,
+   "yon": 30,
+   "hiz": 8,
    "hamle": null,
    "degisken": null
   },
@@ -17,7 +17,7 @@
   "tavan": 7000,
   "hava": [],
   "sicaklik": 15,
-  "cig_noktasi": 13,
+  "cig_noktasi": 12,
   "qnh": 1025,
   "nosig": true,
   "renk": [
@@ -30,8 +30,8 @@
    {
     "pist": "06L",
     "yon_gercek": 64.1,
-    "bas": 5.0,
-    "yan": 4.9,
+    "bas": 6.6,
+    "yan": 4.5,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -43,8 +43,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 5.7,
-    "yan": 5.6,
+    "bas": 7.2,
+    "yan": 7.0,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -57,7 +57,7 @@
     "pist": "24L",
     "yon_gercek": 244.12,
     "bas": -5.0,
-    "yan": 3.4,
+    "yan": 4.9,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -69,8 +69,8 @@
    {
     "pist": "24R",
     "yon_gercek": 244.12,
-    "bas": -3.5,
-    "yan": 4.9,
+    "bas": -4.7,
+    "yan": 6.5,
     "yan_taraf": "sağdan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -87,23 +87,14 @@
   "prs": [],
   "gorus_op": [],
   "trend": null,
-  "sis_riski": "Sis oluşum göstergesi: orta (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 2°C, rüzgâr 7 kt, gece şartları",
-  "ozet": "Rüzgâr 020° 7kt · görüş 10+ km · tavan 7000 ft · 15°C · QNH 1025"
+  "sis_riski": "Sis oluşum göstergesi: orta (METAR tabanlı sezgisel yöntem, resmi tahmin değil) — sıcaklık–çiğ noktası aralığı 3°C, rüzgâr 8 kt, gece şartları",
+  "ozet": "Rüzgâr 030° 8kt · görüş 10+ km · tavan 7000 ft · 15°C · QNH 1025"
  },
  "taf": {
   "zaman": "2026-10-02T22:40:00+00:00",
   "metin": "TAF LTFJ 022240Z 0300/0324 04008KT 9999 SCT030 BKN080 TEMPO 0300/0304 -SHRA BKN025 BKN070 PROB40 TEMPO 0306/0310 -SHRA BKN025 BKN070 BECMG 0306/0310 04018KT TEMPO 0310/0314 05020G30KT BECMG 0316/0318 04008KT"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-27T13:20:00+00:00",
-   "gorus": 9999,
-   "ruzgar_hiz": 14,
-   "tavan": null,
-   "qnh": 1016,
-   "sicaklik": 23,
-   "cig_noktasi": 15
-  },
   {
    "zaman": "2026-09-27T13:50:00+00:00",
    "gorus": 9999,
@@ -2794,6 +2785,15 @@
    "qnh": 1025,
    "sicaklik": 15,
    "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-10-03T01:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 8,
+   "tavan": 7000,
+   "qnh": 1025,
+   "sicaklik": 15,
+   "cig_noktasi": 12
   }
  ]
 }
