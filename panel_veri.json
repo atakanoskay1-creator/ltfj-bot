@@ -1,11 +1,11 @@
 {
  "istasyon": "LTFJ",
- "uretildi": "2026-10-03T01:20:54+00:00",
+ "uretildi": "2026-10-03T01:24:43+00:00",
  "metar": {
   "tip": "METAR",
   "duzeltme": null,
-  "zaman": "2026-10-03T00:50:00+00:00",
-  "metin": "METAR LTFJ 030050Z 02007KT 9999 SCT035 BKN070 15/13 Q1025 NOSIG RMK RWY24R 01006KT RWY06R 02007KT RWY24L 03006KT",
+  "zaman": "2026-10-03T01:20:00+00:00",
+  "metin": "METAR LTFJ 030120Z 02007KT 9999 SCT032 BKN070 15/13 Q1025 NOSIG RMK RWY24R 01006KT RWY06R 02008KT RWY24L 03006KT",
   "ruzgar": {
    "yon": 20,
    "hiz": 7,
@@ -43,8 +43,8 @@
    {
     "pist": "06R",
     "yon_gercek": 64.1,
-    "bas": 5.0,
-    "yan": 4.9,
+    "bas": 5.7,
+    "yan": 5.6,
     "yan_taraf": "soldan",
     "bas_hamle": null,
     "yan_hamle": null,
@@ -82,7 +82,7 @@
   ],
   "kuyruk_limiti": 10,
   "kuyruk_gerekce": "CIKARSANAN varsayım — RWYCC bildirilmedi, yağış yok, kuru pist kabul edildi",
-  "tercih_pist": "06L",
+  "tercih_pist": "06R",
   "rvr": [],
   "prs": [],
   "gorus_op": [],
@@ -95,15 +95,6 @@
   "metin": "TAF LTFJ 022240Z 0300/0324 04008KT 9999 SCT030 BKN080 TEMPO 0300/0304 -SHRA BKN025 BKN070 PROB40 TEMPO 0306/0310 -SHRA BKN025 BKN070 BECMG 0306/0310 04018KT TEMPO 0310/0314 05020G30KT BECMG 0316/0318 04008KT"
  },
  "gecmis": [
-  {
-   "zaman": "2026-09-27T12:50:00+00:00",
-   "gorus": 9999,
-   "ruzgar_hiz": 14,
-   "tavan": null,
-   "qnh": 1016,
-   "sicaklik": 22,
-   "cig_noktasi": 15
-  },
   {
    "zaman": "2026-09-27T13:20:00+00:00",
    "gorus": 9999,
@@ -2788,6 +2779,15 @@
   },
   {
    "zaman": "2026-10-03T00:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 7,
+   "tavan": 7000,
+   "qnh": 1025,
+   "sicaklik": 15,
+   "cig_noktasi": 13
+  },
+  {
+   "zaman": "2026-10-03T01:20:00+00:00",
    "gorus": 9999,
    "ruzgar_hiz": 7,
    "tavan": 7000,
