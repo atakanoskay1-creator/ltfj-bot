@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:55878197",
   "id:55883743",
   "id:55891914",
   "id:55894799",
@@ -199,7 +198,8 @@
   "id:56894918",
   "id:56898962",
   "id:56906971",
-  "id:56909511"
+  "id:56909511",
+  "id:56911372"
  ],
  "ilk_calisma": false,
  "son_metar": "METAR LTFJ 031650Z 04014KT 9999 SCT035 16/11 Q1027 NOSIG RMK RWY24R 03013KT RWY06R 03016KT RWY24L 04012KT",
@@ -2910,10 +2910,10 @@
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 031550Z 05013KT 9999 SCT035 17/11 Q1027 NOSIG RMK RWY24R 03012KT RWY06R 04013KT RWY24L 04011KT": "**Rüzgâr:** Kuzeydoğudan 13 knot (yaklaşık 24 km/saat) hızında rüzgâr esiyor, yan bileşen çok az.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Gökyüzünün yarısından fazlası bulutlu, bulutlar yaklaşık 3500 fit (1050 metre) yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları normal sınırlar içinde.",
   "METAR LTFJ 031620Z 04015KT 9999 SCT035 17/11 Q1027 NOSIG RMK RWY24R 03012KT RWY06R 03014KT RWY24L 04011KT": "**Rüzgâr:** Kuzeydoğudan 15 knot hızla esen rüzgâr var, yan bileşeni hafif düzeyde.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede görüş çok iyi, uçuş için rahat koşullar.\n\n**Gökyüzü:** Gökyüzünün yarısından fazlası bulutlu, bulutlar yaklaşık 3500 feet yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Gözlemlenen veriler içinde uçuşu kısıtlayan önemli bir unsur bulunmuyor, hava koşulları stabil kalacak.",
   "METAR LTFJ 031650Z 04014KT 9999 SCT035 16/11 Q1027 NOSIG RMK RWY24R 03013KT RWY06R 03016KT RWY24L 04012KT": "**Rüzgâr:** Kuzeydoğudan 14 knot (yaklaşık 26 km/saat) hızında rüzgâr esiyor, hafif yan bileşeni var.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için rahat koşullar.\n\n**Gökyüzü:** Gökyüzünün yarısından fazlası bulutlu, bulutlar yaklaşık 3500 fit (1050 metre) yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları operasyonel açıdan uygun.",
-  "TAF LTFJ 031040Z 0312/0412 04018KT 9999 SCT035 TEMPO 0312/0316 04020G30KT BECMG 0317/0320 04008KT BECMG 0406/0409 04018KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde kuzey-kuzeybatı rüzgarı ve orta görüş koşulları beklenmektedir.\n\n- **0312/0316 UTC:** Rüzgar 20 düğüm, 30 düğüne kadar fırınlı; görüş 9999 metre; 3500 feet'te dağınık bulutluluk.\n- **0317/0320 UTC:** Rüzgar kademeli olarak 8 düğüme düşüyor.\n- **0406/0409 UTC:** Rüzgar kademeli olarak 18 düğüme yükseliyor."
+  "TAF LTFJ 031040Z 0312/0412 04018KT 9999 SCT035 TEMPO 0312/0316 04020G30KT BECMG 0317/0320 04008KT BECMG 0406/0409 04018KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde kuzey-kuzeybatı rüzgarı ve orta görüş koşulları beklenmektedir.\n\n- **0312/0316 UTC:** Rüzgar 20 düğüm, 30 düğüne kadar fırınlı; görüş 9999 metre; 3500 feet'te dağınık bulutluluk.\n- **0317/0320 UTC:** Rüzgar kademeli olarak 8 düğüme düşüyor.\n- **0406/0409 UTC:** Rüzgar kademeli olarak 18 düğüme yükseliyor.",
+  "TAF LTFJ 031640Z 0318/0418 04015KT 9999 SCT035 BECMG 0320/0323 04005KT BECMG 0406/0409 04015KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde rüzgar 040° yönünden 15 knot, görüş 10 km ve üzeri, 3500 ft'de dağınık bulutluluk beklenmektedir.\n\n- **0318/0320 UTC:** Rüzgar 040° yönünden 15 knot, görüş 10 km ve üzeri, 3500 ft'de dağınık bulutluluk.\n- **0320/0323 UTC:** Rüzgar kademeli olarak 040° yönünden 5 knota düşmektedir.\n- **0406/0409 UTC:** Rüzgar kademeli olarak 040° yönünden 15 knota yükselmektedir."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -4329,19 +4329,20 @@
   }
  },
  "notam_son_senkron": "2026-10-03T15:57:15+00:00",
- "guncelleme": "2026-10-03T17:01:13+00:00",
+ "guncelleme": "2026-10-03T17:05:16+00:00",
  "push_gonderilen": [
-  "id:56611093",
-  "id:56609098",
-  "id:56834492",
-  "id:56609611",
-  "id:56684900",
-  "id:56809489",
-  "id:56572834",
-  "id:56649381",
+  "id:56598363",
   "id:56759164",
+  "id:56911372",
+  "id:56649381",
+  "id:56609611",
+  "id:56572834",
   "id:56583441",
   "id:56680476",
-  "id:56598363"
+  "id:56609098",
+  "id:56809489",
+  "id:56684900",
+  "id:56611093",
+  "id:56834492"
  ]
 }
