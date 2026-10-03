@@ -1,8 +1,8 @@
 {
  "cekim": {
   "canli_h0": {
-   "son_deneme": "2026-10-03T11:49:28+00:00",
-   "son_basarili": "2026-10-03T11:49:28+00:00",
+   "son_deneme": "2026-10-03T11:52:35+00:00",
+   "son_basarili": "2026-10-03T11:52:35+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
     "kayit": 3,
@@ -30,22 +30,22 @@
    }
   },
   "backfill_h24": {
-   "son_deneme": "2026-10-03T11:49:28+00:00",
-   "son_basarili": "2026-10-03T11:49:30+00:00",
+   "son_deneme": "2026-10-03T11:52:35+00:00",
+   "son_basarili": "2026-10-03T11:52:37+00:00",
    "ardisik_hata": 0,
    "son_yanit": {
-    "kayit": 59,
-    "METAR": 48,
+    "kayit": 58,
+    "METAR": 47,
     "SPECI": 7,
     "TAF": 4,
-    "en_eski": "2026-10-02T11:50:00+00:00",
+    "en_eski": "2026-10-02T12:20:00+00:00",
     "en_yeni": "2026-10-03T11:20:00+00:00",
     "veri_alani": "data",
     "saat": 24
    },
    "son_isleme": {
     "kaynak": "backfill_h24",
-    "rapor": 55,
+    "rapor": 54,
     "kanonik_eklenen": {
      "METAR": 0,
      "SPECI": 0
@@ -63,7 +63,7 @@
   }
  },
  "arsiv": {
-  "uretim_zamani": "2026-10-03T11:49:30+00:00",
+  "uretim_zamani": "2026-10-03T11:52:37+00:00",
   "kanonik": {
    "toplam": 527,
    "METAR": 474,
@@ -278,7 +278,7 @@
    }
   },
   "eksik_slot": {
-   "bekleniyor": 0,
+   "bekleniyor": 1,
    "backfill_penceresi_disinda": {
     "son_7_gun": 2,
     "toplam": 2
@@ -292,6 +292,11 @@
     {
      "slot": "2026-09-27T04:50:00+00:00",
      "durum": "backfill_penceresi_disinda",
+     "mgm_yanitinda_yok": null
+    },
+    {
+     "slot": "2026-10-03T11:50:00+00:00",
+     "durum": "bekleniyor",
      "mgm_yanitinda_yok": null
     }
    ],
