@@ -1,6 +1,5 @@
 {
  "gonderilen": [
-  "id:55843025",
   "id:55851318",
   "id:55854063",
   "id:55855893",
@@ -199,24 +198,16 @@
   "id:56846682",
   "id:56857162",
   "id:56863095",
-  "id:56872603"
+  "id:56872603",
+  "id:56874379"
  ],
  "ilk_calisma": false,
- "son_metar": "METAR LTFJ 031320Z 05021KT 9999 SCT035 19/10 Q1027 NOSIG RMK RWY24R 04018KT RWY06R 03022KT RWY24L 04020G30KT",
+ "son_metar": "METAR LTFJ 031350Z 05019KT 9999 SCT035 19/10 Q1027 NOSIG RMK RWY24R 04016KT RWY06R 05021KT RWY24L 05018KT",
  "son_uyari": null,
  "son_renk": "BLU",
  "durum_mesaj_id": 30,
- "son_veri_zamani": "2026-10-03T13:20:00+00:00",
+ "son_veri_zamani": "2026-10-03T13:50:00+00:00",
  "olcum_gecmisi": [
-  {
-   "zaman": "2026-09-28T00:50:00+00:00",
-   "gorus": 9999,
-   "ruzgar_hiz": 6,
-   "tavan": 2500,
-   "qnh": 1013,
-   "sicaklik": 17,
-   "cig_noktasi": 16
-  },
   {
    "zaman": "2026-09-28T01:13:00+00:00",
    "gorus": 7000,
@@ -2907,13 +2898,22 @@
    "qnh": 1027,
    "sicaklik": 19,
    "cig_noktasi": 10
+  },
+  {
+   "zaman": "2026-10-03T13:50:00+00:00",
+   "gorus": 9999,
+   "ruzgar_hiz": 19,
+   "tavan": null,
+   "qnh": 1027,
+   "sicaklik": 19,
+   "cig_noktasi": 10
   }
  ],
  "yorum_onbellegi": {
-  "METAR LTFJ 031220Z 05018KT 9999 SCT035 20/11 Q1027 NOSIG RMK RWY24R 03018KT RWY06R 03022KT RWY24L 04019KT 010V070": "**Rüzgâr:** Kuzeydoğudan 18 knot (yaklaşık 33 km/saat) hızında rüzgâr esiyor, hafif yan bileşeni var.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş sağlanıyor, uçuş için rahat koşullar.\n\n**Gökyüzü:** Gökyüzünün yarısından fazlası bulutlu, bulutlar yaklaşık 3500 fit (1050 metre) yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları normal sınırlar içinde, önümüzdeki 2 saatte önemli değişiklik beklenmiyyor.",
   "METAR LTFJ 031250Z 06016KT 9999 SCT035 20/10 Q1027 NOSIG RMK RWY24R 05017KT 010V080 RWY06R 04021KT RWY24L 05018G28KT": "**Rüzgâr:** Kuzeydoğudan 16 knot (yaklaşık 30 km/saat) hızında rüzgâr esiyor, yan bileşen çok az.\n\n**Görüş:** 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\n**Gökyüzü:** Gökyüzünün 3/8'i kapalı, bulutlar yaklaşık 3500 fit (1050 metre) yükseklikte, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı değil, hava koşulları operasyonlar için uygun.",
   "TAF LTFJ 031040Z 0312/0412 04018KT 9999 SCT035 TEMPO 0312/0316 04020G30KT BECMG 0317/0320 04008KT BECMG 0406/0409 04018KT": "**Genel:** İstanbul Sabiha Gökçen Havalimanı bölgesinde kuzey-kuzeybatı rüzgarı ve açık gökyüzü beklenmektedir.\n\n- **0312/0316 UTC:** Rüzgar 20 düğün, gust 30 düğüne çıkacak.\n- **0317/0320 UTC:** Rüzgar kademeli olarak 8 düğüne düşecek.\n- **0406/0409 UTC:** Rüzgar kademeli olarak 18 düğüne yükselecek.",
-  "METAR LTFJ 031320Z 05021KT 9999 SCT035 19/10 Q1027 NOSIG RMK RWY24R 04018KT RWY06R 03022KT RWY24L 04020G30KT": "**Rüzgâr:** Kuzeydoğudan 21 düğüm hızla esen rüzgâr var, yan bileşen düşük seviyelerde.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mevcut, uçuş için rahat koşullar.\n\n**Gökyüzü:** 3500 feet yükseklikte parçalı bulutluluk var, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı unsur oluşturmuyor, hava koşulları operasyonlara uygun."
+  "METAR LTFJ 031320Z 05021KT 9999 SCT035 19/10 Q1027 NOSIG RMK RWY24R 04018KT RWY06R 03022KT RWY24L 04020G30KT": "**Rüzgâr:** Kuzeydoğudan 21 düğüm hızla esen rüzgâr var, yan bileşen düşük seviyelerde.\n\n**Görüş:** 10 kilometre ve daha fazla görüş mevcut, uçuş için rahat koşullar.\n\n**Gökyüzü:** 3500 feet yükseklikte parçalı bulutluluk var, yağış yok.\n\n**Uçuşa etkisi:** Rüzgâr ve görüş kısıtlayıcı unsur oluşturmuyor, hava koşulları operasyonlara uygun.",
+  "METAR LTFJ 031350Z 05019KT 9999 SCT035 19/10 Q1027 NOSIG RMK RWY24R 04016KT RWY06R 05021KT RWY24L 05018KT": "Rüzgâr: Kuzeydoğudan 19 knot (yaklaşık 35 km/saat) hızında rüzgâr esiyor, yan bileşen hafif düzeyde.\n\nGörüş: 10 kilometre ve daha fazla mesafede net görüş var, uçuş için rahat koşullar.\n\nGökyüzü: Gökyüzünün yarısından fazlası bulutlu, bulutlar yaklaşık 3500 fit (1050 metre) yükseklikte, yağış yok.\n\nUçuşa etkisi: Gözlemlenen veriler kısıtlayıcı bir unsur göstermemektedir."
  },
  "notam_gecmisi": {
   "190a947d-aebc-414b-9ea6-f06bb1fbf7a1": {
@@ -4329,19 +4329,19 @@
   }
  },
  "notam_son_senkron": "2026-10-03T12:56:42+00:00",
- "guncelleme": "2026-10-03T13:52:37+00:00",
+ "guncelleme": "2026-10-03T13:56:41+00:00",
  "push_gonderilen": [
-  "id:56609098",
-  "id:56572834",
   "id:56583441",
-  "id:56834492",
-  "id:56611093",
   "id:56809489",
-  "id:56649381",
   "id:56759164",
-  "id:56609611",
-  "id:56680476",
+  "id:56834492",
   "id:56598363",
-  "id:56684900"
+  "id:56684900",
+  "id:56609611",
+  "id:56609098",
+  "id:56649381",
+  "id:56680476",
+  "id:56611093",
+  "id:56572834"
  ]
 }
